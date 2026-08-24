@@ -1,65 +1,144 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
+# =========================
+# General / editor files
+# =========================
 .DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+Thumbs.db
+*.log
+*.tmp
+*.swp
+*.bak
+*.orig
+*.rej
+*.class
+*.pyc
+*.pyo
 
-# IntelliJ related
+# VS Code
+.vscode/
+*.code-workspace
+
+# JetBrains / IDEs
+.idea/
 *.iml
 *.ipr
 *.iws
-.idea/
+.history/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# Local tool metadata
 .dart_tool/
 .flutter-plugins-dependencies
+.fvm/
 .pub-cache/
 .pub/
-/build/
-/coverage/
-**/node_modules/
-/web/tests/test-results/
-/web/tests/playwright-report/
+.mason/
 
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-/android/build/
-/supabase/.temp/
-.vercel
-
-# Local credentials and machine-specific Android configuration
+# =========================
+# Environment and secrets
+# =========================
 .env
 .env.*
-!/example.env
+!.env.example
+.env.local
+.env.local.*
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+*.mobileprovision
+*.jks
+*.keystore
+*.p8
+*.asc
+
+# Android local signing / credential config
 /android/local.properties
 /android/key.properties
 /android/signing.properties
 /android/keys/
-*.jks
-*.keystore
+/android/**/*.jks
+/android/**/*.keystore
+/android/**/*.p12
 
-# Large generated download artifacts
+# iOS / macOS signing metadata
+ios/**/*.mobileprovision
+ios/**/*.p12
+ios/**/*.p8
+ios/**/*.pem
+macos/**/*.mobileprovision
+macos/**/*.p12
+macos/**/*.p8
+macos/**/*.pem
+
+# Web deployment / hosting secrets
+.vercel/
+.vercel
+.vercelignore
+.env.vercel
+
+# =========================
+# Flutter / Dart build output
+# =========================
+/build/
+coverage/
+**/build/
+**/coverage/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+**/android/build/
+**/android/.gradle/
+**/.gradle/
+**/generated_plugin_registrant.dart
+**/GeneratedPluginRegistrant.swift
+**/GeneratedPluginRegistrant.java
+
+# =========================
+# Generated web/test artifacts
+# =========================
+**/node_modules/
+/web/tests/test-results/
+/web/tests/playwright-report/
+/web/tests/.cache/
+/web/tests/results/
+
+# =========================
+# Supabase local artifacts
+# =========================
+supabase/.temp/
+.supabase/
+
+# =========================
+# Large generated artifacts
+# =========================
 web/downloads/*.apk
+web/downloads/*.aab
+web/downloads/*.ipa
+web/downloads/*.zip
+
+# =========================
+# App output/reserved credentials
+# =========================
+*.apk
+*.aab
+*.ipa
+*.app
+
+# =========================
+# OS metadata
+# =========================
+.DS_Store
+.AppleDouble
+.LSOverride
+.Trashes
+
+# =========================
+# Keep example env template
+# =========================
+!example.env
+!**/.env.example
