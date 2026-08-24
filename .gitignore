@@ -142,3 +142,10 @@ web/downloads/*.zip
 # =========================
 !example.env
 !**/.env.example
+
+# =========================
+# Local project screenshots / generated metadata
+# =========================
+flutter_01.png
+flutter_02.png
+pubspec.lock
