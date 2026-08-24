@@ -1,0 +1,13 @@
+# The Vercel deployment contains only the static web portal. Keep local Flutter
+# build outputs and non-web project sources out of accidental root deployments.
+/build/
+/.dart_tool/
+/android/.gradle/
+/android/build/
+/android/app/build/
+/ios/Pods/
+/ios/Flutter/ephemeral/
+/linux/
+/macos/
+/windows/
+

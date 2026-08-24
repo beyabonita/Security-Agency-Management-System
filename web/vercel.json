@@ -1,0 +1,150 @@
+{
+  "headers": [
+    {
+      "source": "/downloads/sentinel-link-guard.apk",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/vnd.android.package-archive"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename=\"Sentinel-Link-Guard-v1.0.1.apk\""
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; img-src 'self' data: blob: https://uqtupmpofjqrnefgrexm.supabase.co https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org; font-src 'self' data:; connect-src 'self' https://uqtupmpofjqrnefgrexm.supabase.co wss://uqtupmpofjqrnefgrexm.supabase.co https://nominatim.openstreetmap.org; media-src 'self' data: blob: https://uqtupmpofjqrnefgrexm.supabase.co; worker-src 'self' blob:"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(self), geolocation=(self), microphone=(), payment=(), usb=()"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/",
+      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/staff/:path*",
+      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/login.html",
+      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/dashboard.html",
+      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/users.html",
+      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/locations.html",
+      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/schedule.html",
+      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/incidents.html",
+      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/swaps.html",
+      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/inspector/:path*",
+      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/it-admin/login.html",
+      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/system-access-7d92a4/:path*",
+      "has": [{ "type": "host", "value": "sentinel-link-portal.vercel.app" }],
+      "destination": "/staff/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/it-admin/:path*",
+      "has": [{ "type": "host", "value": "sentinel-link-portal.vercel.app" }],
+      "destination": "/staff/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/",
+      "destination": "/staff/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/login.html",
+      "destination": "/staff/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/inspector/login.html",
+      "destination": "/staff/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/it-admin/login.html",
+      "destination": "/staff/login.html",
+      "permanent": false
+    }
+  ]
+}

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>System Controls — Sentinel Link IT Admin</title>
+  <link rel="icon" type="image/png" href="../favicon.png">
+  <link href="../admin/css/admin-theme.css" rel="stylesheet">
+</head>
+<body class="admin-body" data-it-page="controls">
+  <div class="ax-app">
+    <aside class="ax-sidebar" id="itSidebar">
+      <div class="ax-brand">
+        <div class="ax-brand-badge">Sentinel Link</div>
+        <p class="ax-brand-title">IT Admin Panel</p>
+        <p class="ax-brand-sub">Platform maintenance</p>
+      </div>
+      <nav class="ax-nav">
+        <div class="ax-nav-label">System</div>
+        <a href="dashboard.html">📊 System overview</a>
+        <a href="clients.html">🛠️ System controls</a>
+        <a href="users.html">🔐 IT &amp; HR access</a>
+      </nav>
+      <div class="ax-sidebar-foot">Sentinel Link platform</div>
+    </aside>
+
+    <div class="ax-main">
+      <header class="ax-topbar">
+        <div class="ax-topbar-left">
+          <button type="button" class="ax-menu-toggle" data-it-nav-toggle aria-label="Open navigation" aria-controls="itSidebar" aria-expanded="false">☰</button>
+          <div>
+            <div class="ax-breadcrumb">System Administration</div>
+            <h1 class="ax-page-title">System controls</h1>
+          </div>
+        </div>
+        <button class="ax-btn-logout" onclick="auth.signOut().then(() => location.href = 'login.html')">Sign out</button>
+      </header>
+
+      <main class="ax-content">
+        <section class="it-card">
+          <div class="it-toolbar">
+            <div>
+              <h2>Live system status</h2>
+              <p>Verify the workspace, account directory, and current session.</p>
+            </div>
+            <button type="button" class="ax-btn" id="refreshSystemCheck" onclick="runSystemCheck({ notify: true }, this)">Refresh status</button>
+          </div>
+          <div class="it-beneficiary">
+            <div><span class="it-label">Beneficiary</span><span class="it-value" id="beneficiaryName">Loading…</span></div>
+            <div><span class="it-label">Workspace status</span><span class="it-value" id="beneficiaryStatus">Loading…</span></div>
+            <div><span class="it-label">System mode</span><span class="it-value">Single-beneficiary operations</span></div>
+            <div><span class="it-label">Privileged accounts</span><span class="it-value" id="privilegedAccounts">Loading…</span></div>
+          </div>
+          <div class="it-check-time" id="systemCheckSummary" aria-live="polite">Checking system status…</div>
+        </section>
+
+        <section class="it-card">
+          <h2>Platform health</h2>
+          <div class="it-health-grid">
+            <div class="it-health"><strong>Beneficiary workspace</strong><span class="it-health-status" id="workspaceHealth">Checking…</span></div>
+            <div class="it-health"><strong>Account directory</strong><span class="it-health-status" id="directoryHealth">Checking…</span></div>
+            <div class="it-health"><strong>IT Admin session</strong><span class="it-health-status" id="sessionHealth">Checking…</span></div>
+          </div>
+        </section>
+
+        <section class="it-card">
+          <h2>Platform configuration</h2>
+          <form id="platformSettingsForm" onsubmit="savePlatformSettings(event)">
+            <div class="it-settings-form">
+              <label>Support email<input id="supportEmail" type="email" placeholder="support@example.com" autocomplete="email"></label>
+              <label>Default geofence radius (meters)<input id="defaultGeofenceRadius" type="number" min="25" max="1000" step="1" required></label>
+              <label class="it-wide">Portal announcement<textarea id="portalAnnouncement" maxlength="240" placeholder="Optional notice for web portal users"></textarea></label>
+              <label class="it-toggle it-wide"><input id="portalAnnouncementEnabled" type="checkbox"> Show this announcement in the web portals</label>
+            </div>
+            <div class="it-form-actions">
+              <button type="submit" class="ax-btn" id="savePlatformSettings">Save configuration</button>
+              <span class="it-form-feedback" id="platformSettingsFeedback" aria-live="polite"></span>
+            </div>
+          </form>
+        </section>
+
+        <section class="it-card">
+          <h2>Recent configuration changes</h2>
+          <div class="it-audit" id="platformSettingsAudit"><div class="it-audit-row"><span>Loading…</span></div></div>
+        </section>
+
+        <section class="it-card">
+          <h2>Administrative actions</h2>
+          <div class="it-action-grid">
+            <a class="it-action" href="users.html"><strong>Manage IT &amp; HR access →</strong><span>Create, edit, disable, recover, or reset devices for IT Admin and HR / Operations accounts.</span></a>
+            <a class="it-action" href="https://sentinel-link-portal.vercel.app/staff/login.html"><strong>Open Operations Portal →</strong><span>Open the separate HR / Operations workspace for duty-site and personnel operations.</span></a>
+            <button type="button" class="it-action" onclick="runSystemCheck({ notify: true }, this)"><strong>Run system check →</strong><span>Refresh the beneficiary, account-directory, and session checks shown above.</span></button>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="../js/auth-username.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
+  <script src="../js/supabase-firebase-bridge.js"></script>
+  <script src="../js/notification-center.js"></script>
+  <script src="../js/app-dialogs.js"></script>
+  <script src="it-admin-ui.js"></script>
+  <script>
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    let systemCheckInProgress = false;
+
+    const escapeText = (value) => String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+
+    function setStatusText(id, value) {
+      document.getElementById(id).textContent = value;
+    }
+
+    async function runSystemCheck({ notify = false } = {}, triggerButton = null) {
+      if (systemCheckInProgress) return;
+      systemCheckInProgress = true;
+      const refreshButton = document.getElementById('refreshSystemCheck');
+      const busyButton = triggerButton || refreshButton;
+      try {
+        await appDialog.runBusy(busyButton, async () => {
+          const [beneficiaryResult, profilesResult] = await Promise.all([
+            appSupabase.from('organizations').select('id,name,active').eq('slug', 'twentytwenty-security-agency').maybeSingle(),
+            appSupabase.from('profiles').select('role,active'),
+          ]);
+          if (beneficiaryResult.error) throw beneficiaryResult.error;
+          if (profilesResult.error) throw profilesResult.error;
+          const beneficiary = beneficiaryResult.data;
+          const activeProfiles = (profilesResult.data || []).filter((profile) => profile.active !== false);
+          const privilegedCount = activeProfiles.filter((profile) => ['it_admin', 'admin'].includes(profile.role)).length;
+
+          setStatusText('beneficiaryName', beneficiary?.name || 'TwentyTwenty Security Agency');
+          setStatusText('beneficiaryStatus', beneficiary?.active ? 'Active' : 'Needs attention');
+          setStatusText('privilegedAccounts', `${privilegedCount} active`);
+          setStatusText('workspaceHealth', beneficiary?.active ? 'Healthy' : 'Needs attention');
+          setStatusText('directoryHealth', `${privilegedCount} privileged account${privilegedCount === 1 ? '' : 's'} available`);
+          setStatusText('sessionHealth', 'Authenticated and connected');
+          setStatusText('systemCheckSummary', `Last checked ${new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date())}.`);
+        }, { label: 'Checking system…' });
+        if (notify) appDialog.toast('System check completed.', { tone: 'success' });
+      } catch (error) {
+        setStatusText('beneficiaryName', 'Configuration unavailable');
+        setStatusText('beneficiaryStatus', 'Needs attention');
+        setStatusText('privilegedAccounts', 'Unavailable');
+        setStatusText('workspaceHealth', 'Could not verify');
+        setStatusText('directoryHealth', 'Could not verify');
+        setStatusText('sessionHealth', 'Connection needs attention');
+        setStatusText('systemCheckSummary', 'System check could not complete. Try again or review the technical configuration.');
+        if (notify) appDialog.toast(error?.message || 'Could not complete the system check.', { tone: 'danger' });
+      } finally {
+        systemCheckInProgress = false;
+      }
+    }
+
+    function renderPlatformSettingsAudit(entries) {
+      const container = document.getElementById('platformSettingsAudit');
+      if (!entries?.length) {
+        container.innerHTML = '<div class="it-audit-row"><span>No configuration changes yet.</span></div>';
+        return;
+      }
+      container.innerHTML = entries.map((entry) => {
+        const fields = (entry.changed_fields || []).map((field) => field.replaceAll('_', ' ')).join(', ') || 'configuration';
+        const time = new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(entry.changed_at));
+        return `<div class="it-audit-row"><strong>${escapeText(fields)}</strong><span>${escapeText(time)}</span></div>`;
+      }).join('');
+    }
+
+    async function loadPlatformSettings() {
+      const [settingsResult, auditResult] = await Promise.all([
+        appSupabase.from('platform_settings').select('support_email,default_geofence_radius,portal_announcement,portal_announcement_enabled,updated_at').eq('singleton', true).maybeSingle(),
+        appSupabase.from('platform_settings_audit').select('changed_at,changed_fields').order('changed_at', { ascending: false }).limit(5),
+      ]);
+      if (settingsResult.error) throw settingsResult.error;
+      if (auditResult.error) throw auditResult.error;
+      const settings = settingsResult.data || {};
+      document.getElementById('supportEmail').value = settings.support_email || '';
+      document.getElementById('defaultGeofenceRadius').value = settings.default_geofence_radius || 100;
+      document.getElementById('portalAnnouncement').value = settings.portal_announcement || '';
+      document.getElementById('portalAnnouncementEnabled').checked = Boolean(settings.portal_announcement_enabled);
+      document.getElementById('platformSettingsFeedback').textContent = settings.updated_at
+        ? `Last saved ${new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(settings.updated_at))}.`
+        : '';
+      renderPlatformSettingsAudit(auditResult.data || []);
+    }
+
+    async function savePlatformSettings(event) {
+      event.preventDefault();
+      const saveButton = document.getElementById('savePlatformSettings');
+      const feedback = document.getElementById('platformSettingsFeedback');
+      const radius = Number.parseInt(document.getElementById('defaultGeofenceRadius').value, 10);
+      if (!Number.isInteger(radius) || radius < 25 || radius > 1000) {
+        feedback.textContent = 'Use a radius between 25 and 1,000 meters.';
+        return;
+      }
+      feedback.textContent = '';
+      try {
+        await appDialog.runBusy(saveButton, async () => {
+          const result = await appSupabase.rpc('update_platform_settings', {
+            p_support_email: document.getElementById('supportEmail').value.trim(),
+            p_default_geofence_radius: radius,
+            p_portal_announcement: document.getElementById('portalAnnouncement').value.trim(),
+            p_portal_announcement_enabled: document.getElementById('portalAnnouncementEnabled').checked,
+          });
+          if (result.error) throw result.error;
+          await loadPlatformSettings();
+        }, { label: 'Saving configuration…' });
+        feedback.textContent = 'Configuration saved.';
+        appDialog.toast('Platform configuration saved.', { tone: 'success' });
+      } catch (error) {
+        feedback.textContent = error?.message || 'Could not save configuration.';
+        appDialog.toast(error?.message || 'Could not save configuration.', { tone: 'danger' });
+      }
+    }
+
+    auth.onAuthStateChanged(async (user) => {
+      if (!user) { location.href = 'login.html'; return; }
+      try {
+        const profile = await db.collection('users').doc(user.uid).get();
+        if (!profile.exists || profile.data().role !== 'it_admin' || profile.data().active === false) {
+          await auth.signOut();
+          location.href = 'login.html';
+          return;
+        }
+        await runSystemCheck();
+        await loadPlatformSettings();
+      } catch (error) {
+        appDialog.toast(error?.message || 'Could not load beneficiary configuration.', { tone: 'danger' });
+      }
+    });
+  </script>
+</body>
+</html>

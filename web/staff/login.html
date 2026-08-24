@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#2b0d13">
+  <title>Sentinel Link — Staff Sign In</title>
+  <link rel="icon" type="image/png" href="../favicon.png">
+  <link rel="apple-touch-icon" href="../icons/Icon-192.png">
+  <link href="../admin/css/admin-theme.css" rel="stylesheet">
+  <link href="./login.css" rel="stylesheet">
+</head>
+<body>
+<a class="skip-link" href="#staffLoginForm">Skip to sign in</a>
+
+<div class="access-background" aria-hidden="true">
+  <span class="background-glow background-glow-one"></span>
+  <span class="background-glow background-glow-two"></span>
+  <span class="background-grid"></span>
+</div>
+
+<div id="authSpinner" class="auth-spinner-overlay" role="status" aria-live="polite" hidden>
+  <div class="auth-spinner-card">
+    <span class="auth-spinner-ring" aria-hidden="true"></span>
+    <span>Verifying your account…</span>
+  </div>
+</div>
+
+<main class="access-page">
+  <section class="access-shell" aria-label="Sentinel Link staff access">
+    <aside class="brand-panel">
+      <div class="brand-radar" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+
+      <header class="brand-lockup">
+        <span class="sentinel-mark" aria-hidden="true">
+          <img src="../icons/sentinel-link-mark.png" alt="">
+        </span>
+        <span>
+          <strong>Sentinel Link</strong>
+          <small>TwentyTwenty Security Agency</small>
+        </span>
+      </header>
+
+      <div class="brand-copy">
+        <p class="brand-eyebrow"><span></span> Operations access</p>
+        <h1>Sentinel <em>Link</em></h1>
+        <p class="brand-intro">A secure command space for personnel coordination and field oversight.</p>
+      </div>
+
+      <div class="role-preview" aria-label="Staff roles">
+        <article>
+          <span class="role-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 20h16M6 20V9l6-4 6 4v11M9 12h6M9 16h6"/></svg>
+          </span>
+          <span><strong>HR / Operations</strong><small>Personnel and deployment</small></span>
+        </article>
+        <article>
+          <span class="role-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.6 2.8 8.3 7 10 4.2-1.7 7-5.4 7-10V6l-7-3Zm-3 8 2 2 4-4"/></svg>
+          </span>
+          <span><strong>Inspector</strong><small>Field review and response</small></span>
+        </article>
+      </div>
+
+      <section class="guard-download-card" id="guard-app" aria-labelledby="guardAppTitle">
+        <a class="qr-frame" href="https://sentinel-link-portal.vercel.app/staff/app-download.html" aria-label="Open Sentinel Link mobile app download options">
+          <img src="./guard-app-qr.png" width="560" height="560" alt="QR code for opening Sentinel Link mobile app download options">
+          <span class="qr-corners" aria-hidden="true"></span>
+        </a>
+        <div class="guard-download-copy">
+          <p class="guard-kicker">Guard mobile app</p>
+          <h2 id="guardAppTitle">Scan. Install. Report for duty.</h2>
+          <p>Scan to install the Android Guard app.</p>
+          <div class="download-meta" aria-label="App details">
+            <span>Android</span><span>v1.0.1</span><span>59.2 MB</span>
+          </div>
+          <a class="download-link" href="./app-download.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 20h14"/></svg>
+            Open mobile setup
+          </a>
+        </div>
+      </section>
+    </aside>
+
+    <section class="login-panel">
+      <header class="mobile-brand-lockup">
+        <span class="sentinel-mark" aria-hidden="true">
+          <img src="../icons/sentinel-link-mark.png" alt="">
+        </span>
+        <span><strong>Sentinel Link</strong><small>Staff access</small></span>
+      </header>
+
+      <div class="login-panel-inner">
+        <div class="secure-access-pill">
+          <span aria-hidden="true"></span>
+          Secure staff access
+        </div>
+        <div class="login-heading">
+          <p>Authorized personnel</p>
+          <h2>Welcome back</h2>
+          <span>Sign in using your agency account.</span>
+        </div>
+
+        <form class="staff-login-form" id="staffLoginForm" novalidate>
+          <div class="form-field">
+            <label for="username">Username</label>
+            <div class="field-control">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20c.7-4 3.3-6 8-6s7.3 2 8 6M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
+              <input id="username" placeholder="Enter your username" autocomplete="username" autocapitalize="none" spellcheck="false" required aria-describedby="errorMsg">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <div class="field-label-row"><label for="password">Password</label></div>
+            <div class="field-control password-control">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2M5 10h14v11H5V10Zm7 4v3"/></svg>
+              <input id="password" type="password" placeholder="Enter your password" autocomplete="current-password" required aria-describedby="errorMsg">
+              <button type="button" class="password-toggle" id="passwordToggle" aria-controls="password" aria-pressed="false">Show</button>
+            </div>
+          </div>
+
+          <div class="login-error" id="errorMsg" role="alert" aria-live="polite"></div>
+
+          <button type="submit" class="sign-in-button" id="loginBtn">
+            <span>Sign in</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg>
+          </button>
+        </form>
+
+        <div class="access-boundary"><span>Protected agency workspace</span></div>
+
+        <div class="guard-mobile-shortcut">
+          <span class="shortcut-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M8 2h8a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm2 16h4"/></svg>
+          </span>
+          <span><strong>Are you a Guard?</strong><small>Use the mobile attendance app.</small></span>
+          <a href="./app-download.html">Get app</a>
+        </div>
+      </div>
+
+      <footer class="login-footer">
+        <span>© 2026 Sentinel Link</span>
+        <span class="system-status"><i aria-hidden="true"></i> System online</span>
+      </footer>
+    </section>
+  </section>
+</main>
+
+<script src="../js/auth-username.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
+<script src="../js/supabase-firebase-bridge.js"></script>
+<script src="../js/app-dialogs.js"></script>
+<script>
+const auth=firebase.auth(),db=firebase.firestore();
+let navigationStarted=false;
+function showError(message){const errorEl=document.getElementById('errorMsg');errorEl.textContent=message;errorEl.classList.remove('has-error');void errorEl.offsetWidth;errorEl.classList.add('has-error');}
+function setLoginBusy(busy){const spinner=document.getElementById('authSpinner'),button=document.getElementById('loginBtn'),label=button.querySelector('span');spinner.hidden=!busy;button.disabled=busy;if(busy){button.setAttribute('aria-busy','true');label.textContent='Signing in…'}else{button.removeAttribute('aria-busy');label.textContent='Sign in'}}
+function closeAndNavigate(destination){if(navigationStarted)return;navigationStarted=true;document.getElementById('authSpinner').hidden=true;document.body.classList.add('page-leaving');setTimeout(()=>location.href=destination,360);}
+async function routeAccount(user){const p=await db.collection('users').doc(user.uid).get();if(!p.exists)throw new Error('Account profile not found.');const d=p.data();if(d.active===false)throw new Error('This account is disabled.');if(d.role==='admin'){closeAndNavigate('../admin/dashboard.html');return}if(d.role==='inspector'){closeAndNavigate('../inspector/dashboard.html');return}if(d.role==='user')throw new Error('Guard accounts use the mobile application.');throw new Error('This account cannot use Sentinel Link.');}
+auth.onAuthStateChanged(async user=>{if(!user||navigationStarted)return;try{await routeAccount(user)}catch(error){await auth.signOut();showError(error.message)}});
+async function login(){const username=document.getElementById('username').value.trim(),password=document.getElementById('password').value,errorEl=document.getElementById('errorMsg');errorEl.textContent='';errorEl.classList.remove('has-error');if(!username||!password){showError('Enter your username and password.');return}const invalid=username.includes('@')?null:validateUsername(username);if(invalid){showError(invalid);return}setLoginBusy(true);try{const credential=await auth.signInWithEmailAndPassword(resolveAuthEmail(username),password);await routeAccount(credential.user)}catch(error){await auth.signOut();setLoginBusy(false);showError(error?.message||error?.msg||'Unable to sign in.')}}
+document.getElementById('staffLoginForm').addEventListener('submit',event=>{event.preventDefault();login()});
+document.getElementById('passwordToggle').addEventListener('click',function(){const password=document.getElementById('password'),show=password.type==='password';password.type=show?'text':'password';this.textContent=show?'Hide':'Show';this.setAttribute('aria-pressed',show?'true':'false');password.focus()});
+</script>
+</body>
+</html>

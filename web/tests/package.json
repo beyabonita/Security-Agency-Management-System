@@ -1,0 +1,10 @@
+{
+  "name": "sentinel-link-web-tests",
+  "private": true,
+  "scripts": {
+    "test:playwright": "playwright test --config=playwright.config.cjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1"
+  }
+}

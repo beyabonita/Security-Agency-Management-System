@@ -1,0 +1,108 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Mobile and web checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.1
+          channel: stable
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Analyze Flutter code
+        run: flutter analyze --no-fatal-infos
+
+      - name: Run Flutter tests
+        run: flutter test
+
+      - name: Validate Android release configuration
+        run: node test/android_release_config_test.js
+
+      - name: Run web rendering security checks
+        run: node web/tests/security_rendering_test.js
+
+      - name: Check official Supabase web client compatibility
+        run: node web/tests/official_supabase_client_test.js
+
+      - name: Run web session checks
+        run: node web/tests/session_refresh_test.js
+
+      - name: Validate web security headers
+        run: node web/tests/vercel_security_headers_test.js
+
+      - name: Run Edge Function authorization checks
+        run: |
+          node supabase/tests/admin_create_user_security_test.js
+          node supabase/tests/edge_function_authorization_test.js
+
+      - name: Validate Edge Functions
+        run: |
+          deno fmt --check supabase/functions
+          deno lint supabase/functions
+          deno check supabase/functions/admin-create-user/index.ts supabase/functions/admin-manage-user/index.ts supabase/functions/it-provision-client/index.ts
+
+  browser-smoke:
+    name: Browser smoke checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/tests/package-lock.json
+
+      - name: Install browser test dependencies
+        run: npm ci --prefix web/tests
+
+      - name: Install Chromium
+        run: npx --prefix web/tests playwright install --with-deps chromium
+
+      - name: Run portal smoke tests
+        run: npm run --prefix web/tests test:playwright
+
+  database-contracts:
+    name: Supabase pgTAP contracts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: 2.115.0
+
+      - name: Start local Supabase services
+        run: supabase start
+
+      - name: Run database contract tests
+        run: supabase test db supabase/tests/database

@@ -1,0 +1,6 @@
+# Copy this file to android/signing.properties, replace the placeholder values,
+# and keep the copied file private. The keystore path is relative to android/.
+storeFile=keys/sentinel-link-release.jks
+storePassword=replace-with-a-long-private-password
+keyAlias=sentinel-link
+keyPassword=replace-with-a-long-private-password

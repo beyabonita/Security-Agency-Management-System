@@ -1,0 +1,103 @@
+/* Animated transitions when switching Admin ↔ Inspector login */
+
+body.login-page {
+    overflow: hidden;
+}
+
+.login-panel-root {
+    min-height: 100vh;
+    opacity: 0;
+    transform: translateX(var(--login-enter-from, 0));
+    transition:
+        opacity 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+body[data-login-panel="admin"].login-ready .login-panel-root,
+body[data-login-panel="staff"].login-ready .login-panel-root {
+    --login-enter-from: -32px;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+body[data-login-panel="inspector"].login-ready .login-panel-root {
+    --login-enter-from: 32px;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+body.login-exit-admin .login-panel-root {
+    opacity: 0;
+    transform: translateX(-40px);
+    transition-duration: 0.34s;
+}
+
+body.login-exit-inspector .login-panel-root {
+    opacity: 0;
+    transform: translateX(40px);
+    transition-duration: 0.34s;
+}
+
+body.login-pending-nav::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.72);
+    z-index: 9998;
+    opacity: 0;
+    animation: loginFadeOverlay 0.35s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes loginFadeOverlay {
+    to { opacity: 1; }
+}
+
+.login-switch-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s ease, gap 0.2s ease;
+}
+
+.login-switch-link::after {
+    content: '→';
+    display: inline-block;
+    transition: transform 0.25s ease;
+}
+
+body[data-login-panel="admin"] .login-switch-link::after {
+    content: '→';
+}
+
+body[data-login-panel="inspector"] .login-switch-link::after {
+    content: '←';
+}
+
+.login-switch-link:hover {
+    gap: 10px;
+}
+
+body[data-login-panel="admin"] .login-switch-link:hover::after {
+    transform: translateX(4px);
+}
+
+body[data-login-panel="inspector"] .login-switch-link:hover::after {
+    transform: translateX(-4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .login-panel-root,
+    body.login-exit-admin .login-panel-root,
+    body.login-exit-inspector .login-panel-root {
+        transition: none;
+        transform: none;
+        opacity: 1;
+    }
+    body.login-pending-nav::after {
+        animation: none;
+        opacity: 0;
+    }
+}

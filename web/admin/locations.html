@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment Sites — HR / Operations</title>
+    <link rel="icon" type="image/png" href="../favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/admin-theme.css" rel="stylesheet">
+    <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
+</head>
+<body class="admin-body" data-ax-page="locations">
+
+<div id="loadingScreen">
+    <div class="spinner-border text-danger"></div>
+    <p>Loading locations…</p>
+</div>
+
+<div class="ax-app">
+    <aside class="ax-sidebar">
+        <div class="ax-brand">
+            <div class="ax-brand-badge">Control center</div>
+            <p class="ax-brand-title">HR / Operations</p>
+            <p class="ax-brand-sub">Sentinel Link</p>
+        </div>
+        <nav class="ax-nav">
+            <div class="ax-nav-label">Manage</div>
+            <a href="dashboard.html"><span class="ax-nav-icon">📊</span> Dashboard</a>
+            <a href="users.html"><span class="ax-nav-icon">👥</span> Personnel</a>
+            <a href="locations.html"><span class="ax-nav-icon">📍</span> Deployment Sites</a>
+            <a href="schedule.html"><span class="ax-nav-icon">📅</span> Schedule</a>
+            <a href="incidents.html"><span class="ax-nav-icon">🚨</span> Incidents</a>
+            <a href="swaps.html"><span class="ax-nav-icon">🔁</span> Shift approvals</a>
+        </nav>
+        <div class="ax-sidebar-foot">TwentyTwenty Security Agency</div>
+    </aside>
+    <div class="ax-main">
+        <header class="ax-topbar">
+            <div class="ax-topbar-left">
+                <button type="button" class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu">☰</button>
+                <div><div class="ax-breadcrumb">HR / Operations Console</div><h1 class="ax-page-title">Deployment Sites</h1></div>
+            </div>
+            <div class="ax-topbar-right">
+                <span class="ax-role-pill">HR / Operations Head</span>
+                <span class="ax-user-chip" id="axUserName">Admin</span>
+                <button type="button" class="ax-btn-logout" onclick="adminLogout()">Sign out</button>
+            </div>
+        </header>
+        <main class="ax-content">
+
+    <div id="locationForm" class="form-panel">
+        <div class="panel-title" id="formTitle">Add Deployment Site</div>
+        <input type="hidden" id="editId">
+        <input type="hidden" id="lat">
+        <input type="hidden" id="lng">
+        <input type="hidden" id="address">
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">DEPLOYMENT SITE LABEL</label>
+                <input type="text" id="label" class="form-control" placeholder="e.g. Jollibee Main Branch">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">RADIUS (METERS)</label>
+                <input type="number" id="radius" class="form-control" placeholder="100" value="100">
+                <div class="radius-note">Recommended: 50–200 m</div>
+            </div>
+            <div class="col-12">
+                <div class="address-search-label-row">
+                    <label class="form-label" for="addressSearch">SEARCH PHILIPPINE ADDRESS</label>
+                    <span class="philippines-only-badge">Philippines only</span>
+                </div>
+                <div class="address-search-wrap">
+                    <div class="address-search-row">
+                        <input type="search" id="addressSearch" class="form-control"
+                               placeholder="Street, building, barangay, city, or province"
+                               autocomplete="off" enterkeyhint="search" aria-expanded="false"
+                               aria-controls="addressSuggestions" aria-describedby="addressSearchHelp">
+                        <button type="button" class="btn-address-search" id="addressSearchButton"
+                                onclick="searchAddressFromInput(this)">
+                            <span class="btn-address-search-icon" aria-hidden="true"></span>
+                            <span>Search</span>
+                        </button>
+                    </div>
+                    <div id="addressSearchStatus" class="address-search-status" role="status" aria-live="polite"></div>
+                    <div id="addressSuggestions" class="address-suggestions" role="listbox"
+                         aria-label="Philippine address results"></div>
+                </div>
+                <div class="map-hint" id="addressSearchHelp">Enter an address and press Search. Results are restricted to the Philippines. Address data © OpenStreetMap contributors.</div>
+            </div>
+            <div class="col-12">
+                <div id="selectedAddressDisplay" class="selected-address-box empty">
+                    No location selected yet
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="map-toolbar">
+                    <div class="map-toolbar-copy">
+                        <strong>Set the geofence center</strong>
+                        <span>Choose a search result, click the map, or drag the pin to fine-tune.</span>
+                    </div>
+                    <div class="map-toolbar-actions">
+                        <button type="button" class="btn-map-tool" id="useCurrentLocationButton"
+                                onclick="useCurrentLocation(this)">Use my location</button>
+                        <button type="button" class="btn-map-tool" onclick="showPhilippinesView()">View Philippines</button>
+                    </div>
+                </div>
+                <div id="locationMap" role="application" aria-label="Philippines deployment-site map"></div>
+            </div>
+        </div>
+        <div id="formError"></div>
+        <div class="d-flex gap-2 mt-4">
+            <button class="btn-save" onclick="saveLocation(this)">Save Deployment Site</button>
+            <button class="btn-cancel-form" onclick="hideForm()">Cancel</button>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="section-title" style="flex:1;margin-bottom:0;">All Deployment Sites</div>
+        <button class="btn-add ms-3" onclick="showAddForm()">+ Add Deployment Site</button>
+    </div>
+
+    <div class="glass-card">
+      <div class="sl-table-frame">
+        <table class="loc-table">
+            <thead>
+                <tr>
+                    <th>Label</th><th>Address</th><th>Radius</th>
+                    <th>Status</th><th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="locationTable">
+                <tr><td colspan="5" class="empty-state">Loading deployment sites…</td></tr>
+            </tbody>
+        </table>
+      </div>
+    </div>
+        </main>
+    </div>
+</div>
+
+<script src="../js/auth-username.js"></script>
+<script src="js/admin-shell.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
+<script src="../js/supabase-firebase-bridge.js"></script>
+<script src="../js/notification-center.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+const PHILIPPINES_BOUNDS = L.latLngBounds([4.2, 116.4], [21.3, 127.0]);
+const PHILIPPINES_VIEWBOX = "116.4,21.3,127.0,4.2";
+const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org";
+const locationPinIcon = L.divIcon({
+    className: "sl-location-marker",
+    html: '<span class="sl-location-marker__pin" aria-hidden="true"></span>',
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -36]
+});
+let map = null;
+let marker = null;
+let radiusCircle = null;
+let lastSearchResults = [];
+let defaultGeofenceRadius = 100;
+let reverseRequestId = 0;
+let geolocationRequestId = 0;
+let geocoderQueue = Promise.resolve();
+let nextGeocoderRequestAt = 0;
+const geocoderCache = new Map();
+const locationRecords = new Map();
+
+auth.onAuthStateChanged(user => {
+    if (!user) { window.location.href = "login.html"; return; }
+    db.collection("users").doc(user.uid).get().then(doc => {
+        if (!doc.exists || doc.data().role !== "admin") {
+            auth.signOut().then(() => window.location.href = "login.html"); return;
+        }
+        const d = doc.data();
+        const name = [d.firstName, d.middleInitial ? d.middleInitial + "." : "", d.lastName]
+            .filter(Boolean).join(" ") || d.name || displayLoginId(d);
+        setAdminUserName(name);
+        applyAdminRoleNavigation(d.role);
+        loadDefaultGeofenceRadius();
+        loadLocations();
+    }).catch(() => { window.location.href = "login.html"; });
+});
+
+async function loadDefaultGeofenceRadius() {
+    const result = await appSupabase.rpc('default_geofence_radius');
+    if (!result.error && Number.isInteger(result.data)) defaultGeofenceRadius = result.data;
+}
+
+function escapeHtml(text) {
+    return String(text ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+function initMap() {
+    if (map) {
+        setTimeout(() => map.invalidateSize(), 150);
+        return;
+    }
+
+    map = L.map("locationMap", {
+        minZoom: 5,
+        maxZoom: 19,
+        maxBounds: PHILIPPINES_BOUNDS.pad(0.08),
+        maxBoundsViscosity: 0.9,
+        zoomControl: true
+    });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        minZoom: 5,
+        maxZoom: 19,
+        detectRetina: true,
+        keepBuffer: 4,
+        attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+    L.control.scale({ imperial: false, position: "bottomleft" }).addTo(map);
+    showPhilippinesView(false);
+
+    map.on("click", e => selectPinAndResolve(e.latlng.lat, e.latlng.lng));
+
+    document.getElementById("radius").addEventListener("input", updateRadiusCircle);
+    const searchInput = document.getElementById("addressSearch");
+    searchInput.addEventListener("input", () => {
+        hideSuggestions();
+        setAddressSearchStatus("");
+    });
+    searchInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            searchAddressFromInput(document.getElementById("addressSearchButton"));
+        } else if (event.key === "Escape") {
+            hideSuggestions();
+        }
+    });
+    document.addEventListener("click", e => {
+        if (!e.target.closest(".address-search-wrap")) hideSuggestions();
+    });
+}
+
+function showPhilippinesView(animate = true) {
+    if (!map) return;
+    map.fitBounds(PHILIPPINES_BOUNDS, {
+        padding: [24, 24],
+        animate,
+        duration: 0.55
+    });
+}
+
+function isWithinPhilippinesMapBounds(lat, lng) {
+    return Number.isFinite(lat) && Number.isFinite(lng)
+        && PHILIPPINES_BOUNDS.contains([lat, lng]);
+}
+
+function ensureMarker(lat, lng) {
+    if (!marker) {
+        marker = L.marker([lat, lng], {
+            draggable: true,
+            icon: locationPinIcon,
+            title: "Selected deployment-site center",
+            keyboard: true,
+            riseOnHover: true
+        }).addTo(map);
+        marker.bindTooltip("Drag to fine-tune the geofence center", {
+            direction: "top",
+            offset: [0, -30]
+        });
+        marker.on("dragend", () => {
+            const position = marker.getLatLng();
+            selectPinAndResolve(position.lat, position.lng, false);
+        });
+    } else {
+        marker.setLatLng([lat, lng]);
+    }
+    return marker;
+}
+
+function updateRadiusCircle() {
+    if (!map || !marker) return;
+    const radius = parseFloat(document.getElementById("radius").value) || defaultGeofenceRadius;
+    const center = marker.getLatLng();
+    if (radiusCircle) radiusCircle.remove();
+    radiusCircle = L.circle(center, {
+        radius,
+        color: "#b91c1c",
+        fillColor: "#dc2626",
+        fillOpacity: 0.15,
+        weight: 2,
+        interactive: false
+    }).addTo(map);
+    radiusCircle.bringToBack();
+}
+
+function setSelectedAddress(text) {
+    const box = document.getElementById("selectedAddressDisplay");
+    const value = (text || "").trim();
+    document.getElementById("address").value = value;
+    box.classList.remove("pending", "error");
+    if (value) {
+        box.classList.remove("empty");
+        box.textContent = "📍 " + value;
+    } else {
+        box.classList.add("empty");
+        box.textContent = "No location selected yet";
+    }
+}
+
+function setSelectedAddressPending(lat, lng) {
+    const box = document.getElementById("selectedAddressDisplay");
+    document.getElementById("address").value = "";
+    box.classList.remove("empty", "error");
+    box.classList.add("pending");
+    box.textContent = `Checking Philippine address… ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+}
+
+function setSelectedAddressError(message) {
+    const box = document.getElementById("selectedAddressDisplay");
+    document.getElementById("address").value = "";
+    box.classList.remove("empty", "pending");
+    box.classList.add("error");
+    box.textContent = message;
+}
+
+function clearPin() {
+    reverseRequestId += 1;
+    if (marker) marker.remove();
+    if (radiusCircle) radiusCircle.remove();
+    marker = null;
+    radiusCircle = null;
+    document.getElementById("lat").value = "";
+    document.getElementById("lng").value = "";
+    setSelectedAddress("");
+}
+
+function setPin(lat, lng, address, moveMap = true) {
+    lat = Number(lat);
+    lng = Number(lng);
+    if (!isWithinPhilippinesMapBounds(lat, lng)) return false;
+    document.getElementById("lat").value = lat;
+    document.getElementById("lng").value = lng;
+    ensureMarker(lat, lng);
+    if (moveMap && map) map.flyTo([lat, lng], Math.max(map.getZoom(), 17), { duration: 0.55 });
+    updateRadiusCircle();
+    if (address) {
+        reverseRequestId += 1;
+        setSelectedAddress(address);
+    } else {
+        setSelectedAddressPending(lat, lng);
+    }
+    return true;
+}
+
+function selectPinAndResolve(lat, lng, moveMap = true) {
+    if (!setPin(lat, lng, null, moveMap)) {
+        setAddressSearchStatus("Select a location within the Philippines.", "error");
+        appDialog.toast("Deployment sites must be located in the Philippines.", { tone: "danger" });
+        return;
+    }
+    reverseGeocode(Number(lat), Number(lng));
+}
+
+function hideSuggestions() {
+    document.getElementById("addressSuggestions").classList.remove("show");
+    document.getElementById("addressSearch").setAttribute("aria-expanded", "false");
+}
+
+function showSuggestions() {
+    document.getElementById("addressSuggestions").classList.add("show");
+    document.getElementById("addressSearch").setAttribute("aria-expanded", "true");
+}
+
+function setAddressSearchStatus(message, tone = "") {
+    const status = document.getElementById("addressSearchStatus");
+    status.textContent = message;
+    status.dataset.tone = tone;
+}
+
+function setSearchButtonBusy(button, busy) {
+    button.disabled = busy;
+    button.setAttribute("aria-busy", String(busy));
+    button.querySelector("span:last-child").textContent = busy ? "Searching…" : "Search";
+}
+
+function wait(milliseconds) {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+function fetchNominatim(path, parameters, cacheKey) {
+    if (cacheKey && geocoderCache.has(cacheKey)) {
+        return Promise.resolve(geocoderCache.get(cacheKey));
+    }
+
+    const request = geocoderQueue.then(async () => {
+        const delay = Math.max(0, nextGeocoderRequestAt - Date.now());
+        if (delay) await wait(delay);
+        nextGeocoderRequestAt = Date.now() + 1100;
+
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000);
+        try {
+            const url = `${NOMINATIM_BASE_URL}${path}?${new URLSearchParams(parameters)}`;
+            const response = await fetch(url, {
+                headers: { "Accept": "application/json", "Accept-Language": "en,fil;q=0.8" },
+                signal: controller.signal
+            });
+            if (!response.ok) {
+                if (response.status === 429) throw new Error("Address search is busy. Wait a moment and try again.");
+                throw new Error(`Address service returned ${response.status}.`);
+            }
+            const payload = await response.json();
+            if (cacheKey) geocoderCache.set(cacheKey, payload);
+            return payload;
+        } catch (error) {
+            if (error.name === "AbortError") throw new Error("Address search timed out. Please try again.");
+            throw error;
+        } finally {
+            clearTimeout(timeout);
+        }
+    });
+    geocoderQueue = request.catch(() => undefined);
+    return request;
+}
+
+function searchAddressFromInput(button) {
+    const query = document.getElementById("addressSearch").value.trim().replace(/\s+/g, " ");
+    if (query.length < 2) {
+        setAddressSearchStatus("Enter at least 2 characters to search.", "error");
+        document.getElementById("addressSearch").focus();
+        return;
+    }
+    searchAddress(query, button);
+}
+
+function resultPrimaryLabel(result) {
+    return result.name || result.address?.amenity || result.address?.building
+        || result.address?.road || result.display_name?.split(",")[0] || "Address";
+}
+
+function selectAddressResult(index) {
+    const result = lastSearchResults[index];
+    if (!result) return;
+    const lat = Number(result.lat);
+    const lng = Number(result.lon);
+    if (!isWithinPhilippinesMapBounds(lat, lng) || result.address?.country_code !== "ph") return;
+
+    const address = result.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    document.getElementById("addressSearch").value = address;
+    setPin(lat, lng, address, false);
+
+    const bounds = Array.isArray(result.boundingbox) ? result.boundingbox.map(Number) : [];
+    if (bounds.length === 4 && bounds.every(Number.isFinite)) {
+        map.flyToBounds([[bounds[0], bounds[2]], [bounds[1], bounds[3]]], {
+            padding: [36, 36],
+            maxZoom: 17,
+            duration: 0.55
+        });
+    } else {
+        map.flyTo([lat, lng], 17, { duration: 0.55 });
+    }
+    setAddressSearchStatus("Philippine address selected. Drag the pin to fine-tune.", "success");
+    hideSuggestions();
+}
+
+async function searchAddress(query, button) {
+    const list = document.getElementById("addressSuggestions");
+    list.innerHTML = `<div class="address-suggestion-message">Searching Philippine addresses…</div>`;
+    showSuggestions();
+    setAddressSearchStatus("Searching within the Philippines…");
+    setSearchButtonBusy(button, true);
+
+    try {
+        const results = await fetchNominatim("/search", {
+            q: query,
+            format: "jsonv2",
+            addressdetails: "1",
+            limit: "8",
+            dedupe: "1",
+            countrycodes: "ph",
+            viewbox: PHILIPPINES_VIEWBOX,
+            bounded: "1",
+            "accept-language": "en,fil"
+        }, `search:${query.toLocaleLowerCase("en-PH")}`);
+        lastSearchResults = Array.isArray(results) ? results.filter(result => {
+            const lat = Number(result.lat);
+            const lng = Number(result.lon);
+            return result.address?.country_code === "ph" && isWithinPhilippinesMapBounds(lat, lng);
+        }) : [];
+
+        if (!lastSearchResults.length) {
+            list.innerHTML = `<div class="address-suggestion-message">No Philippine addresses found. Add a city or province, or place the pin on the map.</div>`;
+            setAddressSearchStatus("No matching Philippine address found.", "error");
+            return;
+        }
+
+        list.innerHTML = lastSearchResults.map((result, index) => `
+            <button type="button" class="address-suggestion" data-idx="${index}" role="option">
+                <span class="address-suggestion-pin" aria-hidden="true">●</span>
+                <span class="address-suggestion-copy">
+                    <strong>${escapeHtml(resultPrimaryLabel(result))}</strong>
+                    <small>${escapeHtml(result.display_name || "Philippines")}</small>
+                </span>
+                <span class="address-suggestion-arrow" aria-hidden="true">›</span>
+            </button>
+        `).join("");
+
+        list.querySelectorAll(".address-suggestion[data-idx]").forEach(el => {
+            el.addEventListener("click", () => selectAddressResult(parseInt(el.dataset.idx, 10)));
+        });
+        setAddressSearchStatus(`${lastSearchResults.length} Philippine result${lastSearchResults.length === 1 ? "" : "s"} found.`, "success");
+    } catch (error) {
+        const message = error.message || "Address search is temporarily unavailable.";
+        list.innerHTML = `<div class="address-suggestion-message error">${escapeHtml(message)} You can still place the pin on the map.</div>`;
+        setAddressSearchStatus(message, "error");
+    } finally {
+        setSearchButtonBusy(button, false);
+    }
+}
+
+async function reverseGeocode(lat, lng) {
+    const requestId = ++reverseRequestId;
+    setSelectedAddressPending(lat, lng);
+    try {
+        const data = await fetchNominatim("/reverse", {
+            lat: lat.toFixed(7),
+            lon: lng.toFixed(7),
+            format: "jsonv2",
+            addressdetails: "1",
+            zoom: "18",
+            "accept-language": "en,fil"
+        }, `reverse:${lat.toFixed(5)},${lng.toFixed(5)}`);
+        if (requestId !== reverseRequestId) return;
+        if (data.address?.country_code !== "ph") {
+            clearPin();
+            setSelectedAddressError("This point is outside the Philippines. Choose a Philippine location.");
+            setAddressSearchStatus("The selected point is outside the Philippines.", "error");
+            return;
+        }
+        const address = data.display_name;
+        if (!address) throw new Error("No Philippine address was found for this point.");
+        document.getElementById("addressSearch").value = address;
+        setSelectedAddress(address);
+        setAddressSearchStatus("Pin verified within the Philippines.", "success");
+    } catch (error) {
+        if (requestId !== reverseRequestId) return;
+        const message = error.message || "Could not verify this Philippine address.";
+        setSelectedAddressError(`${message} Search for an address or try placing the pin again.`);
+        setAddressSearchStatus(message, "error");
+    }
+}
+
+function resetCurrentLocationButton() {
+    const button = document.getElementById("useCurrentLocationButton");
+    if (!button) return;
+    button.disabled = false;
+    button.setAttribute("aria-busy", "false");
+    button.textContent = "Use my location";
+}
+
+function cancelCurrentLocationRequest() {
+    geolocationRequestId += 1;
+    resetCurrentLocationButton();
+}
+
+function useCurrentLocation(button) {
+    if (!navigator.geolocation) {
+        setAddressSearchStatus("Location access is not supported. Search for the address instead.", "error");
+        return;
+    }
+    const requestId = ++geolocationRequestId;
+    button.disabled = true;
+    button.setAttribute("aria-busy", "true");
+    button.textContent = "Locating…";
+    setAddressSearchStatus("Requesting your current location…");
+    navigator.geolocation.getCurrentPosition(position => {
+        if (requestId !== geolocationRequestId) return;
+        resetCurrentLocationButton();
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        if (!isWithinPhilippinesMapBounds(lat, lng)) {
+            setAddressSearchStatus("Your current location is outside the supported Philippine map area.", "error");
+            return;
+        }
+        selectPinAndResolve(lat, lng, true);
+    }, error => {
+        if (requestId !== geolocationRequestId) return;
+        resetCurrentLocationButton();
+        const hasSelectedAddress = Boolean(document.getElementById("address").value.trim());
+        const message = Number(error.code) === 1
+            ? (hasSelectedAddress
+                ? "Browser location access is off. Your selected address was kept."
+                : "Browser location access is off. Search for the address instead.")
+            : "Your location could not be determined. Try again or use address search.";
+        setAddressSearchStatus(message, "error");
+    }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 });
+}
+
+function resetFormFields() {
+    cancelCurrentLocationRequest();
+    document.getElementById("editId").value = "";
+    document.getElementById("label").value = "";
+    document.getElementById("addressSearch").value = "";
+    document.getElementById("radius").value = String(defaultGeofenceRadius);
+    document.getElementById("formError").innerText = "";
+    clearPin();
+    lastSearchResults = [];
+    setAddressSearchStatus("");
+    hideSuggestions();
+    if (map) showPhilippinesView(false);
+}
+
+function loadLocations() {
+    return db.collection("locations").get().then(snapshot => {
+        let html = "";
+        locationRecords.clear();
+        snapshot.forEach(doc => {
+            const d = doc.data();
+            locationRecords.set(doc.id, d);
+            const badge = d.active
+                ? '<span class="badge-active">Active</span>'
+                : '<span class="badge-inactive">Disabled</span>';
+            const addressText = d.address
+                ? escapeHtml(d.address)
+                : (d.latitude != null && d.longitude != null
+                    ? `${d.latitude}, ${d.longitude}`
+                    : "—");
+            const coordsFallback = d.address && d.latitude != null
+                ? `<div class="loc-coords-fallback">${d.latitude}, ${d.longitude}</div>`
+                : "";
+            html += `<tr>
+                <td><div class="loc-name">${escapeHtml(d.label) || '—'}</div></td>
+                <td><div class="loc-address">${addressText}${coordsFallback}</div></td>
+                <td style="color:#94a3b8;">${d.radius ? d.radius + ' m' : '—'}</td>
+                <td>${badge}</td>
+                <td><div class="d-flex gap-2 justify-content-center">
+                    <button class="action-btn btn-edit" onclick="editLocation('${doc.id}', this)">Edit</button>
+                    <button class="action-btn ${d.active ? 'btn-disable' : 'btn-enable'}"
+                        onclick="toggleLocation('${doc.id}', ${d.active}, this)">
+                        ${d.active ? 'Disable' : 'Enable'}
+                    </button>
+                </div></td>
+            </tr>`;
+        });
+        document.getElementById("locationTable").innerHTML = html ||
+            `<tr><td colspan="5" style="text-align:center;padding:40px;color:#475569;">No deployment sites found.</td></tr>`;
+        finishPageLoading();
+    }).catch(err => {
+        document.getElementById("locationTable").innerHTML =
+            `<tr><td colspan="5" style="text-align:center;color:#f87171;padding:32px;">Error: ${escapeHtml(err?.message || "Could not load deployment sites.")}</td></tr>`;
+        finishPageLoading();
+    });
+}
+
+function showAddForm() {
+    document.getElementById("locationForm").style.display = "block";
+    document.getElementById("formTitle").innerText = "Add Deployment Site";
+    resetFormFields();
+    initMap();
+    showPhilippinesView(false);
+    document.getElementById("locationForm").scrollIntoView({ behavior: "smooth" });
+}
+
+function hideForm() {
+    cancelCurrentLocationRequest();
+    document.getElementById("locationForm").style.display = "none";
+    hideSuggestions();
+}
+
+async function editLocation(id, button) {
+    try {
+        cancelCurrentLocationRequest();
+        let d = locationRecords.get(id);
+        if (!d) {
+            const doc = await appDialog.runBusy(button, () => db.collection("locations").doc(id).get(), { label: 'Loading…' });
+            d = doc.data();
+            if (d) locationRecords.set(id, d);
+        }
+        if (!d) throw new Error('Deployment site not found.');
+        document.getElementById("locationForm").style.display = "block";
+        document.getElementById("formTitle").innerText = "Edit Deployment Site";
+        document.getElementById("editId").value = id;
+        document.getElementById("label").value = d.label || "";
+        document.getElementById("radius").value = d.radius || defaultGeofenceRadius;
+        document.getElementById("formError").innerText = "";
+
+        initMap();
+
+        const lat = d.latitude;
+        const lng = d.longitude;
+        const address = d.address || "";
+        document.getElementById("addressSearch").value = address;
+        clearPin();
+        hideSuggestions();
+        setAddressSearchStatus("");
+        if (!setPin(Number(lat), Number(lng), address, false)) {
+            setSelectedAddressError("This saved deployment site is outside the supported Philippine map area.");
+        } else if (!address) {
+            reverseGeocode(Number(lat), Number(lng));
+        }
+
+        requestAnimationFrame(() => {
+            map.invalidateSize({ pan: false, animate: false });
+            if (radiusCircle) {
+                map.fitBounds(radiusCircle.getBounds(), {
+                    padding: [56, 56],
+                    maxZoom: 17,
+                    animate: false
+                });
+            }
+        });
+
+        document.getElementById("locationForm").scrollIntoView({ behavior: "smooth" });
+    } catch (error) {
+        appDialog.toast(error.message || 'Could not load the deployment site.', { tone: 'danger' });
+    }
+}
+
+async function saveLocation(button) {
+    const errEl = document.getElementById("formError");
+    errEl.innerText = "";
+
+    const label = document.getElementById("label").value.trim();
+    const address = document.getElementById("address").value.trim();
+    const lat = parseFloat(document.getElementById("lat").value);
+    const lng = parseFloat(document.getElementById("lng").value);
+    const radius = parseFloat(document.getElementById("radius").value);
+    const id = document.getElementById("editId").value;
+
+    if (!label) {
+        errEl.innerText = "Please enter a deployment site label.";
+        return;
+    }
+    if (!address || Number.isNaN(lat) || Number.isNaN(lng)) {
+        errEl.innerText = "Please select and verify a Philippine address before saving.";
+        return;
+    }
+    if (!isWithinPhilippinesMapBounds(lat, lng)) {
+        errEl.innerText = "Deployment sites must be located within the Philippines.";
+        return;
+    }
+    if (Number.isNaN(radius) || radius <= 0) {
+        errEl.innerText = "Please enter a valid radius in meters.";
+        return;
+    }
+
+    const data = { label, address, latitude: lat, longitude: lng, radius, active: true };
+    try {
+        await appDialog.runBusy(button, () => id
+            ? db.collection("locations").doc(id).update(data)
+            : db.collection("locations").add(data), { label: id ? 'Saving changes…' : 'Creating site…' });
+        hideForm();
+        await loadLocations();
+        appDialog.toast(id ? 'Deployment site updated.' : 'Deployment site created.', { tone: 'success' });
+    } catch (error) {
+        errEl.innerText = error.message || 'Could not save the deployment site.';
+        appDialog.toast(errEl.innerText, { tone: 'danger' });
+    }
+}
+
+async function toggleLocation(id, status, button) {
+    const action = status ? 'Disable' : 'Enable';
+    const approved = await appDialog.confirm(`${action} this deployment site?`, {
+        title: `${action} deployment site`, confirmText: action, danger: status
+    });
+    if (!approved) return;
+    try {
+        await appDialog.runBusy(button, () => db.collection("locations").doc(id).update({ active: !status }), { label: `${action.slice(0, -1)}ing…` });
+        await loadLocations();
+        appDialog.toast(`Deployment site ${status ? 'disabled' : 'enabled'}.`, { tone: 'success' });
+    } catch (error) {
+        appDialog.toast(error.message || 'Could not update the deployment site.', { tone: 'danger' });
+    }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Sentinel Link — System Access</title>
+  <link rel="icon" type="image/png" href="../favicon.png">
+  <link rel="apple-touch-icon" href="../icons/Icon-192.png">
+  <link href="../admin/css/admin-theme.css" rel="stylesheet">
+  <style>
+    .system-login-brand { isolation:isolate; overflow:hidden; }
+    .system-login-brand::before { content:''; position:absolute; width:420px; height:420px; border:1px solid rgba(255,255,255,.12); border-radius:50%; right:-210px; top:-130px; animation:sl-float 12s ease-in-out infinite; z-index:-1; }
+    .system-login-brand::after { content:''; position:absolute; width:150px; height:150px; background:rgba(255,255,255,.05); border-radius:38px; left:15%; bottom:-76px; transform:rotate(24deg); animation:sl-float 9s ease-in-out -3s infinite reverse; z-index:-1; }
+    .system-symbol { width:64px; height:64px; display:grid; place-items:center; padding:7px; border:1px solid rgba(255,255,255,.18); border-radius:18px; background:rgba(37,7,28,.72); margin-bottom:26px; box-shadow:0 14px 34px rgba(0,0,0,.18); backdrop-filter:blur(12px); }
+    .system-symbol img, .system-mobile-mark img { width:100%; height:100%; object-fit:contain; }
+    .system-login-brand h1 { font-size:clamp(2rem,4vw,3.3rem); letter-spacing:-.055em; max-width:520px; }
+    .system-login-brand p { max-width:430px; }
+    .system-secure-note { margin-top:28px; display:inline-flex; align-items:center; gap:9px; color:rgba(255,255,255,.68); font-size:.79rem; }
+    .system-secure-note span { width:8px; height:8px; border-radius:50%; background:#4ade80; box-shadow:0 0 0 5px rgba(74,222,128,.12); }
+    .system-login-card { max-width:390px; }
+    .system-mobile-mark { display:none; }
+    .system-login-card .eyebrow { margin:0 0 12px; color:#b91c1c; font-size:.67rem; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+    .password-wrap { position:relative; }
+    .password-wrap .form-control { padding-right:72px; }
+    .password-toggle { position:absolute; right:8px; top:7px; border:0; background:transparent; color:#78716c; font-size:.74rem; font-weight:700; padding:5px 8px; border-radius:7px; }
+    .password-toggle:hover { background:#f8eeee; color:#991b1b; }
+    .system-login-btn[aria-busy="true"] { cursor:wait; opacity:.75; }
+    @media(max-width:900px){.system-login-brand{display:none}.ax-login-form-side{max-width:none;padding:24px;background:transparent}.system-login-card{max-width:430px;padding:30px 26px;border:1px solid #eadede;border-radius:18px;background:#fff;box-shadow:0 22px 60px rgba(80,20,20,.12)}.system-mobile-mark{display:grid;place-items:center;width:50px;height:50px;padding:5px;margin-bottom:22px;border-radius:14px;background:#25071c;box-shadow:0 10px 24px rgba(153,27,27,.22)}.ax-login-wrap{align-items:center;background:linear-gradient(145deg,#fff,#fff5f5)}}
+  </style>
+</head>
+<body class="admin-body">
+<main class="ax-login-wrap">
+  <section class="ax-login-brand system-login-brand">
+    <div class="system-symbol"><img src="../icons/sentinel-link-mark.png" alt="Sentinel Link"></div>
+    <div class="ax-brand-badge">Sentinel Link</div>
+    <h1>System Control</h1>
+    <p>Private platform administration for maintenance, upgrades, privileged access, and system governance.</p>
+    <div class="system-secure-note"><span></span> Restricted IT administrator access</div>
+  </section>
+  <section class="ax-login-form-side">
+    <form class="ax-login-card system-login-card" id="systemLoginForm">
+      <div class="system-mobile-mark" aria-hidden="true"><img src="../icons/sentinel-link-mark.png" alt=""></div>
+      <p class="eyebrow">Private access</p>
+      <h2>Welcome back</h2>
+      <p class="sub">Sign in with your IT administrator credentials.</p>
+      <label for="username">Username</label>
+      <input id="username" class="form-control" placeholder="Enter username" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+      <label for="password">Password</label>
+      <div class="password-wrap"><input id="password" type="password" class="form-control" placeholder="Enter password" autocomplete="current-password" required><button class="password-toggle" id="passwordToggle" type="button" aria-controls="password" aria-pressed="false">Show</button></div>
+      <div id="error" class="ax-login-error" role="alert" aria-live="polite"></div>
+      <button id="login" type="submit" class="ax-login-btn system-login-btn">Continue to system control</button>
+    </form>
+  </section>
+</main>
+<script src="../js/auth-username.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
+<script src="../js/supabase-firebase-bridge.js"></script>
+<script src="../js/app-dialogs.js"></script>
+<script>
+const auth=firebase.auth(),db=firebase.firestore();let navigationStarted=false;
+function showError(message){const error=document.getElementById('error');error.textContent=message;error.animate([{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:260});}
+function navigateToPanel(){if(navigationStarted)return;navigationStarted=true;document.body.classList.add('sl-page-leaving');setTimeout(()=>location.href='../it-admin/dashboard.html',190);}
+async function verify(user){const profile=await db.collection('users').doc(user.uid).get();if(!profile.exists||profile.data().role!=='it_admin'||profile.data().active===false)throw new Error('This account does not have IT administrator access.');navigateToPanel();}
+auth.onAuthStateChanged(async user=>{if(!user||navigationStarted)return;try{await verify(user)}catch(_){await auth.signOut()}});
+async function login(){const username=document.getElementById('username').value.trim(),password=document.getElementById('password').value,error=document.getElementById('error'),button=document.getElementById('login');error.textContent='';if(!username||!password){showError('Enter your username and password.');return}const invalid=username.includes('@')?null:validateUsername(username);if(invalid){showError(invalid);return}button.disabled=true;button.setAttribute('aria-busy','true');button.textContent='Verifying access…';try{const credential=await auth.signInWithEmailAndPassword(resolveAuthEmail(username),password);await verify(credential.user)}catch(loginError){await auth.signOut();showError(loginError?.message||'Unable to sign in.');button.disabled=false;button.removeAttribute('aria-busy');button.textContent='Continue to system control'}}
+document.getElementById('systemLoginForm').addEventListener('submit',event=>{event.preventDefault();login()});document.getElementById('passwordToggle').onclick=function(){const password=document.getElementById('password');const show=password.type==='password';password.type=show?'text':'password';this.textContent=show?'Hide':'Show';this.setAttribute('aria-pressed',show?'true':'false');password.focus()};
+</script>
+</body>
+</html>

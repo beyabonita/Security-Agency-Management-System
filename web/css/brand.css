@@ -1,0 +1,14 @@
+/* Shared Security Time Tracker — red brand palette */
+:root {
+    --brand-primary: #dc2626;
+    --brand-primary-dark: #b91c1c;
+    --brand-primary-light: #ef4444;
+    --brand-primary-soft: #fecaca;
+    --brand-bg: #faf5f5;
+    --brand-surface: #ffffff;
+    --brand-border: #e7d5d5;
+    --brand-text: #1c1917;
+    --brand-muted: #78716c;
+    --brand-success: #16a34a;
+    --brand-warning: #ca8a04;
+}
