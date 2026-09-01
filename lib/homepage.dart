@@ -173,7 +173,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.scaffold,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: StreamBuilder<Map<String, dynamic>?>(
           stream: UserProfileService.profileStream(user.id),
@@ -218,10 +218,12 @@ class _HomePageState extends State<HomePage> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Text(
-                                        'Sentinel Link',
+                                      Text(
+                                        'Twenty-Twenty Security Agency',
                                         style: TextStyle(
-                                          color: AppColors.textMuted,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
                                           letterSpacing: 1.25,
@@ -232,8 +234,10 @@ class _HomePageState extends State<HomePage> {
                                         'Hello, ${displayName.split(' ').first} 👋',
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          color: AppColors.text,
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
                                           fontSize: 21,
                                           fontWeight: FontWeight.w700,
                                         ),
@@ -248,6 +252,8 @@ class _HomePageState extends State<HomePage> {
                             notifications: _notifications,
                             onTap: _openNotifications,
                           ),
+                          const SizedBox(width: 8),
+                          const GuardThemeToggle(),
                           const SizedBox(width: 8),
                           // Sign out
                           _GlassButton(
@@ -495,6 +501,7 @@ class _ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     final iconBox = Container(
       width: horizontal ? 46 : 44,
       height: horizontal ? 46 : 44,
@@ -512,8 +519,8 @@ class _ActionCard extends StatelessWidget {
           label,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: AppColors.text,
+          style: TextStyle(
+            color: colors.onSurface,
             fontSize: 14,
             fontWeight: FontWeight.w700,
           ),
@@ -523,7 +530,7 @@ class _ActionCard extends StatelessWidget {
           subtitle,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+          style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12),
         ),
       ],
     );
@@ -585,7 +592,9 @@ class _SectionLabel extends StatelessWidget {
         ),
       ),
       const SizedBox(width: 12),
-      Expanded(child: Container(height: 1, color: AppColors.border)),
+      Expanded(
+        child: Container(height: 1, color: Theme.of(context).dividerColor),
+      ),
     ],
   );
 }

@@ -13,8 +13,9 @@ test('staff sign-in renders and initializes the official Supabase client', async
   const errors = collectFatalClientErrors(page);
   await page.goto('/staff/login.html');
 
-  await expect(page).toHaveTitle(/Sentinel Link — Staff Sign In/i);
-  await expect(page.getByRole('heading', { name: 'Sentinel Link' })).toBeVisible();
+  await expect(page).toHaveTitle(/Twenty-Twenty Security Agency — Staff Sign In/i);
+  await expect(page.getByRole('heading', { name: 'Twenty-Twenty Security Agency' })).toBeVisible();
+  await expect(page.locator('.brand-intro')).toHaveText('Security Agency Management System');
   await expect(page.locator('#username')).toBeVisible();
   await expect(page.locator('#password')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
@@ -40,10 +41,26 @@ test('staff sign-in remains contained on a phone viewport', async ({ page }) => 
   await expect(page.getByRole('button', { name: 'Sign in' })).toBeVisible();
 });
 
+test('portal colour mode is available before sign-in and persists between access pages', async ({ page }) => {
+  await page.goto('/staff/login.html');
+  await expect.poll(() => page.evaluate(() => typeof window.sentinelTheme?.set)).toBe('function');
+
+  await page.evaluate(() => window.sentinelTheme.set('light'));
+  const toggle = page.locator('[data-theme-toggle]');
+  await expect(toggle).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await toggle.click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+  await page.goto('/system-access-7d92a4/login.html');
+  await expect.poll(() => page.evaluate(() => window.sentinelTheme?.get())).toBe('dark');
+  await expect(page.locator('[data-theme-toggle]')).toBeVisible();
+});
+
 test('staff sign-in routes every phone through mobile app setup', async ({ page, request }) => {
   await page.goto('/staff/login.html');
 
-  const qr = page.getByRole('img', { name: /QR code for opening Sentinel Link mobile app download options/i });
+  const qr = page.getByRole('img', { name: /QR code for opening Security Agency Management System mobile app download options/i });
   await expect(qr).toBeVisible();
   await expect(qr).toHaveAttribute('src', './guard-app-qr.png');
 
@@ -59,14 +76,14 @@ test('staff sign-in routes every phone through mobile app setup', async ({ page,
 test('mobile setup offers the verified Android app only', async ({ page }) => {
   await page.goto('/staff/app-download.html');
 
-  await expect(page).toHaveTitle(/Sentinel Link — Android Guard App/i);
-  await expect(page.getByRole('heading', { name: 'Install Sentinel Link' })).toBeVisible();
+  await expect(page).toHaveTitle(/Twenty-Twenty Security Agency — Android Guard App/i);
+  await expect(page.getByRole('heading', { name: 'Install the Guard app' })).toBeVisible();
   const androidDownload = page.getByRole('link', { name: 'Download for Android' });
   await expect(androidDownload).toHaveAttribute(
     'href',
-    '../downloads/sentinel-link-guard.apk?v=1.0.1',
+    'https://security-agency-management-system-download.vercel.app/downloads/security-agency-management-system-guard.apk?v=1.0.2',
   );
-  await expect(androidDownload).toHaveAttribute('download', 'Sentinel-Link-Guard-v1.0.1.apk');
+  await expect(androidDownload).toHaveAttribute('download', 'Security-Agency-Management-System-Guard-v1.0.2.apk');
   await expect(page.locator('body')).not.toContainText(/iOS|iPhone|iPad|TestFlight/);
 });
 
@@ -105,8 +122,8 @@ test('IT Admin access page renders separately', async ({ page }) => {
   const errors = collectFatalClientErrors(page);
   await page.goto('/system-access-7d92a4/login.html');
 
-  await expect(page).toHaveTitle(/Sentinel Link — System Access/i);
-  await expect(page.getByRole('heading', { name: 'System Control' })).toBeVisible();
+  await expect(page).toHaveTitle(/Twenty-Twenty Security Agency — System Access/i);
+  await expect(page.getByRole('heading', { name: 'Security Agency Management System' })).toBeVisible();
   await expect(page.getByRole('button', { name: /Continue to system control/i })).toBeVisible();
   await expect.poll(() => page.evaluate(
     () => typeof window.appSupabase?.auth?.signInWithPassword,

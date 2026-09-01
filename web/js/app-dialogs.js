@@ -147,7 +147,7 @@
         '<section class="sl-dialog" role="dialog" aria-modal="true" aria-labelledby="sl-dialog-title"' + (opts.message ? ' aria-describedby="sl-dialog-message"' : '') + '>' +
           '<div class="sl-dialog-head">' +
             '<span class="sl-dialog-icon" data-tone="' + escapeHtml(tone) + '">' + escapeHtml(icon) + '</span>' +
-            '<div><h2 class="sl-dialog-title" id="sl-dialog-title">' + escapeHtml(opts.title || 'Sentinel Link') + '</h2>' +
+            '<div><h2 class="sl-dialog-title" id="sl-dialog-title">' + escapeHtml(opts.title || 'Security Agency Management System') + '</h2>' +
             (opts.message ? '<p class="sl-dialog-message" id="sl-dialog-message">' + escapeHtml(opts.message) + '</p>' : '') + '</div>' +
             (opts.hideClose ? '' : '<button class="sl-dialog-close" type="button" aria-label="Close" data-dialog-cancel>×</button>') +
           '</div>' +
@@ -241,7 +241,7 @@
     setBusy: setBusy,
     runBusy: runBusy,
     alert: function (message, options) {
-      const opts = Object.assign({ title: 'Sentinel Link', cancelText: null, confirmText: 'Got it', icon: 'i' }, options || {}, { message: message });
+      const opts = Object.assign({ title: 'Security Agency Management System', cancelText: null, confirmText: 'Got it', icon: 'i' }, options || {}, { message: message });
       return open(opts);
     },
     confirm: function (message, options) {

@@ -42,5 +42,5 @@ http.createServer((request, response) => {
     response.end(content);
   });
 }).listen(port, '127.0.0.1', () => {
-  console.log(`Sentinel Link test server listening on ${port}`);
+  console.log(`Security Agency Management System test server listening on ${port}`);
 });

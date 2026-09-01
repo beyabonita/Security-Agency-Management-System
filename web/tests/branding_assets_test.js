@@ -27,6 +27,7 @@ const requiredImages = [
   'assets/branding/sentinel_link_mark.png',
   'assets/branding/sentinel_link_app_icon.png',
   'assets/branding/sentinel_link_logo.png',
+  'assets/branding/twenty_twenty_security_agency_shield.png',
   'web/icons/sentinel-link-mark.png',
   'web/favicon.png',
   'web/icons/Icon-192.png',
@@ -44,7 +45,7 @@ requiredImages.forEach((relativePath) => {
 htmlFiles(webRoot).filter((absolutePath) => !absolutePath.includes(`${path.sep}tests${path.sep}`)).forEach((absolutePath) => {
   const relativePath = path.relative(webRoot, absolutePath).replaceAll('\\', '/');
   const html = fs.readFileSync(absolutePath, 'utf8');
-  assert.match(html, /<link\s+rel=["']icon["']/i, `${relativePath} is missing the Sentinel Link favicon`);
+  assert.match(html, /<link\s+rel=["']icon["']/i, `${relativePath} is missing the system favicon`);
 });
 
 assert.match(read('web/admin/css/admin-theme.css'), /sentinel-link-mark\.png/);
@@ -53,7 +54,10 @@ assert.match(read('web/staff/login.html'), /icons\/sentinel-link-mark\.png/);
 assert.match(read('web/staff/login.html'), /staff\/app-download\.html/);
 assert.match(read('web/staff/app-download.html'), /supports Android devices only/);
 assert.doesNotMatch(read('web/staff/app-download.html'), /iOS|iPhone|iPad|TestFlight/);
-assert.match(read('web/staff/app-download.html'), /sentinel-link-guard\.apk\?v=1\.0\.1/);
+assert.match(read('web/staff/app-download.html'), /security-agency-management-system-download\.vercel\.app\/downloads\/security-agency-management-system-guard\.apk\?v=1\.0\.2/);
+assert.match(read('web/staff/login.html'), /Twenty-Twenty Security Agency/);
+assert.match(read('web/staff/login.html'), /Security Agency Management System/);
+assert.match(read('web/js/theme-preference.js'), /sentinel-link-theme/);
 assert.match(read('web/staff/app-download.js'), /data-platform|dataset\.platform/);
 assert.match(read('web/system-access-7d92a4/login.html'), /icons\/sentinel-link-mark\.png/);
 assert.match(read('lib/login.dart'), /SentinelBrandMark/);
@@ -61,4 +65,4 @@ assert.match(read('lib/homepage.dart'), /SentinelBrandMark/);
 assert.match(read('pubspec.yaml'), /flutter_launcher_icons:\s*\n\s+android: true/);
 assert.match(read('android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml'), /ic_launcher_foreground/);
 
-console.log('Sentinel Link branding asset checks passed.');
+console.log('Security Agency Management System branding asset checks passed.');

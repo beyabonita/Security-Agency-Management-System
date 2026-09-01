@@ -372,11 +372,19 @@ button, input { font: inherit; }
 .download-link svg { width: 16px; height: 16px; color: #fca5a5; }
 
 .login-panel {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
   padding: 38px 46px 30px;
   background: rgba(255, 253, 253, .98);
+}
+
+.login-theme-control {
+  position: absolute;
+  top: 28px;
+  right: 30px;
+  z-index: 2;
 }
 
 .mobile-brand-lockup { display: none; color: var(--staff-wine); }
@@ -657,6 +665,7 @@ body.page-leaving .access-shell { opacity: 0; transform: translateY(-12px) scale
     box-shadow: none;
   }
   .login-panel { order: 1; min-height: 100vh; padding: 24px 22px 20px; }
+  .login-theme-control { top: 20px; right: 18px; }
   .mobile-brand-lockup { display: flex; }
   .mobile-brand-lockup .sentinel-mark { width: 42px; height: 42px; padding: 4px; border-color: #eadadc; background: #2b0d13; }
   .login-panel-inner { margin: auto; padding: 38px 0 26px; }
@@ -681,6 +690,7 @@ body.page-leaving .access-shell { opacity: 0; transform: translateY(-12px) scale
 
 @media (max-width: 430px) {
   .login-panel { padding-inline: 18px; }
+  .login-theme-control { top: 14px; right: 12px; }
   .login-heading h2 { font-size: 2.1rem; }
   .login-panel-inner { padding-top: 30px; }
   .guard-mobile-shortcut small { max-width: 175px; }

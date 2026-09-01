@@ -266,7 +266,7 @@
     const head = create('div', 'sl-notification-head');
     const headText = create('div');
     headText.append(
-      create('span', 'sl-notification-eyebrow', 'Sentinel Link'),
+      create('span', 'sl-notification-eyebrow', 'Security Agency Management System'),
       create('h2', '', 'Notifications')
     );
     const close = create('button', 'sl-notification-close', '×');
@@ -603,7 +603,7 @@
       subscribe();
     } catch (error) {
       state.initializedFor = null;
-      console.error('Sentinel Link notifications could not start:', error);
+      console.error('Security Agency Management System notifications could not start:', error);
     }
   }
 
@@ -623,7 +623,7 @@
   };
 
   if (!client()) {
-    console.error('Sentinel Link notifications require the Supabase client.');
+    console.error('Security Agency Management System notifications require the Supabase client.');
     return;
   }
 

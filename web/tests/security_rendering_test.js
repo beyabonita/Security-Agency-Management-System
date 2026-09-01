@@ -13,6 +13,10 @@ function expectExcludes(source, text, label) {
   if (source.includes(text)) failures.push(`Unsafe ${label}`);
 }
 
+function expectMatches(source, pattern, label) {
+  if (!pattern.test(source)) failures.push(`Missing ${label}`);
+}
+
 function assertInlineScriptsParse(source, label) {
   const scripts = source.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi);
   for (const match of scripts) {
@@ -118,8 +122,9 @@ for (const panel of ['admin', 'inspector']) {
 }
 
 const vercelConfig = read('vercel.json');
-expectIncludes(vercelConfig, 'sentinel-link-system.vercel.app', 'current dedicated IT Admin host');
-expectExcludes(vercelConfig, 'sentinel-link-system-access.vercel.app', 'unusable IT Admin host');
+expectIncludes(vercelConfig, 'security-agency-management-system-admin.vercel.app', 'dedicated IT Admin host');
+expectIncludes(vercelConfig, 'security-agency-management-system-nu.vercel.app', 'dedicated Staff host');
+expectExcludes(vercelConfig, 'sentinel-link-system.vercel.app', 'retired IT Admin host');
 for (const host of ['https://a.tile.openstreetmap.org', 'https://b.tile.openstreetmap.org', 'https://c.tile.openstreetmap.org']) {
   expectIncludes(vercelConfig, host, `OpenStreetMap tile CSP host ${host}`);
 }
@@ -160,7 +165,7 @@ expectExcludes(compatibilityBridge, 'document.write', 'dynamic SDK injection');
 const itDashboard = read('it-admin', 'dashboard.html');
 expectIncludes(itDashboard, 'Platform maintenance', 'IT Admin maintenance boundary');
 expectExcludes(itDashboard, 'Client organizations', 'retired multi-client IT Admin copy');
-expectExcludes(itDashboard, 'Sentinel Link is maintained by', 'retired IT Admin overview description');
+expectExcludes(itDashboard, 'is maintained by your IT team', 'retired IT Admin overview description');
 assertInlineScriptsParse(itDashboard, 'it-admin/dashboard.html');
 
 const itControls = read('it-admin', 'clients.html');
@@ -197,7 +202,7 @@ expectIncludes(notificationCenter, "rpc('send_broadcast_notification'", 'role-co
 expectIncludes(notificationCenter, 'Notification.requestPermission()', 'user-initiated browser alert permission');
 expectIncludes(notificationCenter, "requireInteraction: item.priority === 'critical'", 'persistent critical desktop alert');
 expectIncludes(notificationCenter, "item.priority === 'critical'", 'critical notification presentation');
-expectIncludes(notificationCenter, "state.bell.setAttribute(\n      'aria-label'", 'accessible unread notification count');
+expectMatches(notificationCenter, /state\.bell\.setAttribute\(\s*'aria-label'/, 'accessible unread notification count');
 assertJavaScriptParses(notificationCenter, 'js/notification-center.js');
 
 const adminShell = read('admin', 'js', 'admin-shell.js');

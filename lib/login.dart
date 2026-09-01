@@ -129,8 +129,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: AppColors.scaffold,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: GuardAmbientBackground(
         child: SafeArea(
           child: Center(
@@ -154,29 +155,42 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      const Align(
+                        alignment: Alignment.centerRight,
+                        child: GuardThemeToggle(),
+                      ),
+                      const SizedBox(height: 14),
                       Hero(
                         tag: 'sentinel-link-mark',
                         child: const SentinelBrandMark(
                           size: 76,
-                          semanticLabel: 'Sentinel Link logo',
+                          semanticLabel: 'Twenty-Twenty Security Agency logo',
                         ),
                       ),
                       const SizedBox(height: 24),
-                      const Text(
-                        'Sentinel Link',
+                      Text(
+                        'Twenty-Twenty Security Agency',
                         style: TextStyle(
-                          color: AppColors.text,
+                          color: colors.onSurface,
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.3,
                         ),
                       ),
                       const SizedBox(height: 6),
-                      const Text(
+                      Text(
+                        'Security Agency Management System',
+                        style: TextStyle(
+                          color: colors.onSurfaceVariant,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
                         'Guard mobile access',
                         style: TextStyle(
-                          color: AppColors.textMuted,
-                          fontSize: 14,
+                          color: colors.onSurfaceVariant.withValues(alpha: .8),
+                          fontSize: 12,
                         ),
                       ),
                       const SizedBox(height: 32),
@@ -196,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 textInputAction: TextInputAction.next,
                                 autocorrect: false,
                                 enableSuggestions: false,
-                                style: const TextStyle(color: AppColors.text),
+                                style: TextStyle(color: colors.onSurface),
                                 decoration: const InputDecoration(
                                   hintText: 'juan.delacruz',
                                   prefixIcon: Icon(
@@ -217,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 autofillHints: const [AutofillHints.password],
                                 obscureText: _obscurePassword,
                                 textInputAction: TextInputAction.done,
-                                style: const TextStyle(color: AppColors.text),
+                                style: TextStyle(color: colors.onSurface),
                                 decoration: InputDecoration(
                                   hintText: '••••••••',
                                   prefixIcon: const Icon(
@@ -270,11 +284,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Text(
+                      Text(
                         'Need an account? Ask your administrator.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: AppColors.textMuted,
+                          color: colors.onSurfaceVariant,
                           fontSize: 13,
                         ),
                       ),
@@ -292,8 +306,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildLabel(String text) {
     return Text(
       text,
-      style: const TextStyle(
-        color: AppColors.textMuted,
+      style: TextStyle(
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
         fontSize: 11,
         fontWeight: FontWeight.w600,
         letterSpacing: 1.2,

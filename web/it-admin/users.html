@@ -3,15 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>IT &amp; HR Access — Sentinel Link</title>
+  <title>IT &amp; HR Access — Security Agency Management System</title>
   <link rel="icon" type="image/png" href="../favicon.png">
+  <script src="../js/theme-preference.js" defer></script>
   <link href="../admin/css/admin-theme.css" rel="stylesheet">
 </head>
 <body class="admin-body" data-it-page="users">
   <div class="ax-app">
     <aside class="ax-sidebar" id="itSidebar">
       <div class="ax-brand">
-        <div class="ax-brand-badge">Sentinel Link</div>
+        <div class="ax-brand-badge">Security Agency Management System</div>
         <p class="ax-brand-title">IT Admin Panel</p>
         <p class="ax-brand-sub">Platform maintenance</p>
       </div>
@@ -21,7 +22,7 @@
         <a href="clients.html">🛠️ System controls</a>
         <a href="users.html">🔐 IT &amp; HR access</a>
       </nav>
-      <div class="ax-sidebar-foot">Sentinel Link platform</div>
+      <div class="ax-sidebar-foot">System administration</div>
     </aside>
 
     <div class="ax-main">
@@ -125,7 +126,7 @@
       const html = (result.data || []).map((person) => {
         accounts[person.id] = person;
         const name = [person.first_name, person.last_name].filter(Boolean).join(' ') || '—';
-        const scope = person.role === 'it_admin' ? 'Sentinel Link platform' : 'TwentyTwenty operations';
+        const scope = person.role === 'it_admin' ? 'System administration' : 'TwentyTwenty operations';
         const actions = person.id === me.id
           ? '<span class="sl-current-label">Current account</span>'
           : `<div class="sl-action-cluster"><button type="button" class="it-btn" onclick="editAccount('${person.id}', this)">Edit</button>

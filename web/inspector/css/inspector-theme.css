@@ -1,6 +1,7 @@
 /* Inspector Portal — light workspace + rose-red sidebar */
 @import url('../../css/brand.css');
 @import url('../../css/app-experience.css');
+@import url('../../css/theme-preference.css');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
@@ -66,7 +67,7 @@
     flex: 0 0 44px;
     border: 1px solid rgba(255,255,255,.14);
     border-radius: 13px;
-    background: #25071c url('../../icons/sentinel-link-mark.png') center / 82% no-repeat;
+    background: #fffdf4 url('../../icons/sentinel-link-mark.png') center / 82% no-repeat;
     box-shadow: 0 9px 22px rgba(35, 2, 16, .22);
 }
 

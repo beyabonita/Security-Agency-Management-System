@@ -1,6 +1,6 @@
-# Sentinel Link
+# Security Agency Management System
 
-Sentinel Link is a security operations platform for TwentyTwenty Security Agency, combining a Flutter mobile app for guards, web portals for staff, and a Supabase-powered backend for identity, scheduling, attendance, incidents, notifications, and authorization.
+Security Agency Management System is a security operations platform for TwentyTwenty Security Agency, combining a Flutter mobile app for guards, web portals for staff, and a Supabase-powered backend for identity, scheduling, attendance, incidents, notifications, and authorization.
 
 This repository is structured for a real-world agency workflow with strict role boundaries, geofenced attendance validation, and a multi-layered deployment model for mobile and web.
 
@@ -77,7 +77,7 @@ Maintains the platform, including:
 
 ## System architecture
 
-Sentinel Link combines client-side mobile and web apps with a managed cloud backend:
+Security Agency Management System combines client-side mobile and web apps with a managed cloud backend:
 
 Flutter mobile app
   -> Supabase Auth + Postgres
@@ -103,6 +103,7 @@ Static web portal
 ├── lib/                    # Flutter app source code
 ├── test/                   # Flutter and integration tests
 ├── docs/                   # rollout and deployment guidance
+├── scripts/                # repeatable development and deployment commands
 ├── assets/                 # app branding and visual assets
 ├── analysis_options.yaml   # Dart lint configuration
 ├── pubspec.yaml            # Flutter package definition
@@ -185,12 +186,20 @@ Important:
 
 ## Web deployment
 
-The static web app should be deployed from the `web/` directory, not from the Flutter repository root, so build artifacts do not get published to Vercel by accident.
+The release uses separate public addresses for Staff and IT Admin access:
+
+- Staff: `https://security-agency-management-system-nu.vercel.app`
+- IT Admin: `https://security-agency-management-system-admin.vercel.app`
+
+The Android Guard app is served from the dedicated download endpoint linked by the Staff portal.
+
+Use the release command below. It makes a clean temporary portal bundle before running Vercel, so Vercel does not reject the local Git author identity during a CLI deployment.
 
 ```bash
-npx --yes vercel link --cwd web
-npx --yes vercel --cwd web --prod
+powershell -ExecutionPolicy Bypass -File .\scripts\deploy-web.ps1
 ```
+
+The deployment command prints the production URL when it succeeds. The source APK is intentionally not committed; update the stable Android download deployment only after building and verifying a new signed APK.
 
 ## Development and verification
 

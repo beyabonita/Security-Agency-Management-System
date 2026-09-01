@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_application_1/theme/app_colors.dart';
+import 'package:flutter_application_1/theme/app_theme_controller.dart';
 
 /// Shared presentation pieces for the Guard mobile experience.
 /// They intentionally contain no business or navigation logic.
@@ -18,6 +19,7 @@ class SentinelBrandMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final mark = Image.asset(
       'assets/branding/sentinel_link_mark.png',
       fit: BoxFit.contain,
@@ -32,9 +34,13 @@ class SentinelBrandMark extends StatelessWidget {
       height: size,
       padding: EdgeInsets.all(size * .14),
       decoration: BoxDecoration(
-        color: const Color(0xFF25071C),
+        color: isDark ? const Color(0xFF21181B) : const Color(0xFFFFFDF4),
         borderRadius: BorderRadius.circular(size * .27),
-        border: Border.all(color: Colors.white.withValues(alpha: .09)),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: .12)
+              : const Color(0xFFE7D5D5),
+        ),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF7F1230).withValues(alpha: .26),
@@ -65,15 +71,24 @@ class GuardSurfaceCard extends StatelessWidget {
   final Color borderColor;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: padding,
-    decoration: AppColors.card(
-      radius: radius,
-      color: color,
-      borderColor: borderColor,
-    ),
-    child: child,
-  );
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final resolvedColor = color == AppColors.surface
+        ? theme.colorScheme.surface
+        : color;
+    final resolvedBorder = borderColor == AppColors.border
+        ? theme.dividerColor
+        : borderColor;
+    return Container(
+      padding: padding,
+      decoration: AppColors.card(
+        radius: radius,
+        color: resolvedColor,
+        borderColor: resolvedBorder,
+      ),
+      child: child,
+    );
+  }
 }
 
 class GuardAmbientBackground extends StatelessWidget {
@@ -83,16 +98,19 @@ class GuardAmbientBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return Stack(
       fit: StackFit.expand,
       children: [
-        const DecoratedBox(
+        DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFFFFFFFF), AppColors.scaffold],
+              colors: isDark
+                  ? const [Color(0xFF1D1417), Color(0xFF100B0D)]
+                  : const [Color(0xFFFFFFFF), AppColors.scaffold],
             ),
           ),
         ),
@@ -129,7 +147,7 @@ class GuardAmbientBackground extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.08),
+                color: AppColors.primary.withValues(alpha: isDark ? 0.2 : 0.08),
               ),
             ),
           ),
@@ -178,8 +196,8 @@ class GuardPageTopBar extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.text,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
                   letterSpacing: -0.3,
@@ -191,8 +209,8 @@ class GuardPageTopBar extends StatelessWidget {
                   subtitle!,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 12,
                   ),
                 ),
@@ -201,6 +219,8 @@ class GuardPageTopBar extends StatelessWidget {
           ),
         ),
         if (trailing != null) ...[const SizedBox(width: 10), trailing!],
+        const SizedBox(width: 8),
+        const GuardThemeToggle(),
       ],
     ),
   );
@@ -466,4 +486,20 @@ class GuardIconButton extends StatelessWidget {
       icon: Icon(icon, color: color, size: 20),
     ),
   );
+}
+
+/// A compact, persistent light/dark switch used on Guard login and duty pages.
+class GuardThemeToggle extends StatelessWidget {
+  const GuardThemeToggle({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GuardIconButton(
+      icon: isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+      tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
+      color: isDark ? const Color(0xFFFBBF24) : AppColors.primary,
+      onPressed: appThemeController.toggle,
+    );
+  }
 }

@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/downloads/sentinel-link-guard.apk",
+      "source": "/downloads/security-agency-management-system-guard.apk",
       "headers": [
         {
           "key": "Content-Type",
@@ -9,7 +9,7 @@
         },
         {
           "key": "Content-Disposition",
-          "value": "attachment; filename=\"Sentinel-Link-Guard-v1.0.1.apk\""
+          "value": "attachment; filename=\"Security-Agency-Management-System-Guard-v1.0.2.apk\""
         },
         {
           "key": "Cache-Control",
@@ -50,79 +50,79 @@
   "redirects": [
     {
       "source": "/",
-      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "has": [{ "type": "host", "value": "security-agency-management-system-admin.vercel.app" }],
       "destination": "/system-access-7d92a4/login.html",
       "permanent": false
     },
     {
       "source": "/staff/:path*",
-      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "has": [{ "type": "host", "value": "security-agency-management-system-admin.vercel.app" }],
       "destination": "/system-access-7d92a4/login.html",
       "permanent": false
     },
     {
       "source": "/admin/login.html",
-      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "has": [{ "type": "host", "value": "security-agency-management-system-admin.vercel.app" }],
       "destination": "/system-access-7d92a4/login.html",
       "permanent": false
     },
     {
       "source": "/admin/dashboard.html",
-      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "has": [{ "type": "host", "value": "security-agency-management-system-admin.vercel.app" }],
       "destination": "/system-access-7d92a4/login.html",
       "permanent": false
     },
     {
       "source": "/admin/users.html",
-      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "has": [{ "type": "host", "value": "security-agency-management-system-admin.vercel.app" }],
       "destination": "/system-access-7d92a4/login.html",
       "permanent": false
     },
     {
       "source": "/admin/locations.html",
-      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "has": [{ "type": "host", "value": "security-agency-management-system-admin.vercel.app" }],
       "destination": "/system-access-7d92a4/login.html",
       "permanent": false
     },
     {
       "source": "/admin/schedule.html",
-      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "has": [{ "type": "host", "value": "security-agency-management-system-admin.vercel.app" }],
       "destination": "/system-access-7d92a4/login.html",
       "permanent": false
     },
     {
       "source": "/admin/incidents.html",
-      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "has": [{ "type": "host", "value": "security-agency-management-system-admin.vercel.app" }],
       "destination": "/system-access-7d92a4/login.html",
       "permanent": false
     },
     {
       "source": "/admin/swaps.html",
-      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "has": [{ "type": "host", "value": "security-agency-management-system-admin.vercel.app" }],
       "destination": "/system-access-7d92a4/login.html",
       "permanent": false
     },
     {
       "source": "/inspector/:path*",
-      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "has": [{ "type": "host", "value": "security-agency-management-system-admin.vercel.app" }],
       "destination": "/system-access-7d92a4/login.html",
       "permanent": false
     },
     {
       "source": "/it-admin/login.html",
-      "has": [{ "type": "host", "value": "sentinel-link-system.vercel.app" }],
+      "has": [{ "type": "host", "value": "security-agency-management-system-admin.vercel.app" }],
       "destination": "/system-access-7d92a4/login.html",
       "permanent": false
     },
     {
       "source": "/system-access-7d92a4/:path*",
-      "has": [{ "type": "host", "value": "sentinel-link-portal.vercel.app" }],
+      "has": [{ "type": "host", "value": "security-agency-management-system-nu.vercel.app" }],
       "destination": "/staff/login.html",
       "permanent": false
     },
     {
       "source": "/it-admin/:path*",
-      "has": [{ "type": "host", "value": "sentinel-link-portal.vercel.app" }],
+      "has": [{ "type": "host", "value": "security-agency-management-system-nu.vercel.app" }],
       "destination": "/staff/login.html",
       "permanent": false
     },

@@ -71,7 +71,7 @@
     const filedAt = formatWhen(incident.filedAt || incident.createdAt);
     const updatedAt = incident.updatedAt ? formatWhen(incident.updatedAt) : 'No review update';
     const narrative = incident.detailedNarrative || incident.description || 'No narrative supplied.';
-    const immediateAction = incident.immediateAction || 'Emergency alert filed through Sentinel Link.';
+    const immediateAction = incident.immediateAction || 'Emergency alert filed through the Security Agency Management System.';
     const statusNote = incident.statusNote || 'No reviewer note yet.';
     const locationLabel = incident.locationLabel || 'No site label recorded';
     const hasCoordinates = incident.latitude != null && incident.longitude != null

@@ -88,7 +88,7 @@ test('IT Admin navigation opens as a mobile drawer', async ({ page }) => {
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
 });
 
-test('every staff role shell uses the shared Sentinel Link mark', async ({ page }) => {
+test('every staff role shell uses the shared agency mark', async ({ page }) => {
   for (const [path, selector] of [
     ['/admin/dashboard.html', '.ax-brand'],
     ['/inspector/dashboard.html', '.ix-shell-brand'],
@@ -98,7 +98,7 @@ test('every staff role shell uses the shared Sentinel Link mark', async ({ page 
     const background = await page.locator(selector).evaluate(
       (element) => getComputedStyle(element, '::before').backgroundImage,
     );
-    expect(background, `${path} should render the shared Sentinel Link mark`)
+    expect(background, `${path} should render the shared agency mark`)
       .toContain('sentinel-link-mark.png');
   }
 });

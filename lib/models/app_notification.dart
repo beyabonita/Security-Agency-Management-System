@@ -46,7 +46,7 @@ class AppNotification {
       id: map['id']?.toString() ?? '',
       kind: map['kind']?.toString() ?? 'system',
       priority: map['priority']?.toString() ?? 'normal',
-      title: map['title']?.toString() ?? 'Sentinel Link',
+      title: map['title']?.toString() ?? 'Security Agency Management System',
       message: map['message']?.toString() ?? '',
       actionKey: map['action_key']?.toString(),
       entityId: map['entity_id']?.toString(),

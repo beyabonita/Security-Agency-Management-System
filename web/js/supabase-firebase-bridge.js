@@ -17,7 +17,7 @@
   // before this bridge. Keeping loading in markup avoids runtime injection and
   // guarantees the legacy inline scripts below it see firebase.auth() ready.
   if (!window.supabase?.createClient) {
-    console.error('Sentinel Link could not load the official Supabase client. Check the network and reload.');
+    console.error('Security Agency Management System could not load the official Supabase client. Check the network and reload.');
     return;
   }
 

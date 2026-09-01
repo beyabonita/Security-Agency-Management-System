@@ -1,6 +1,7 @@
 /* Admin Console — sidebar layout + red palette (similar structure to inspector, distinct tone) */
 @import url('../../css/brand.css');
 @import url('../../css/app-experience.css');
+@import url('../../css/theme-preference.css');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
@@ -66,7 +67,7 @@
     margin-bottom: 15px;
     border: 1px solid rgba(255,255,255,.12);
     border-radius: 17px;
-    background: #25071c url('../../icons/sentinel-link-mark.png') center / 82% no-repeat;
+    background: #fffdf4 url('../../icons/sentinel-link-mark.png') center / 82% no-repeat;
     box-shadow: 0 12px 28px rgba(25, 2, 12, .25);
 }
 .ax-brand-badge {

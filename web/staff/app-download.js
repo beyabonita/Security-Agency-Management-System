@@ -11,10 +11,10 @@
   if (isAndroid) {
     root.dataset.platform = 'android';
     androidCard.classList.add('is-detected');
-    message.textContent = 'Android detected. Download and open the APK to install Sentinel Link.';
+    message.textContent = 'Android detected. Download and open the APK to install the Security Agency Management System Guard app.';
   } else if (isMobile) {
     root.dataset.platform = 'unsupported';
-    message.textContent = 'Sentinel Link Guard currently supports Android devices only.';
+    message.textContent = 'The Security Agency Management System Guard app currently supports Android devices only.';
     download.removeAttribute('href');
     download.removeAttribute('download');
     download.setAttribute('aria-disabled', 'true');
@@ -28,7 +28,7 @@
     const label = download.querySelector('span');
     const original = label.textContent;
     download.classList.add('is-starting');
-    download.setAttribute('aria-label', 'Starting Sentinel Link Android download');
+    download.setAttribute('aria-label', 'Starting Security Agency Management System Android download');
     label.textContent = 'Starting download…';
     window.setTimeout(() => {
       download.classList.remove('is-starting');

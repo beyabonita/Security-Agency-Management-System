@@ -1,0 +1,215 @@
+/* Shared, persisted colour-mode controls for the system portals. */
+:root {
+  color-scheme: light;
+  --sl-toggle-bg: #fffdfc;
+  --sl-toggle-text: #4b242a;
+  --sl-toggle-border: #e9cfd3;
+  --sl-toggle-hover: #fff1f2;
+  --sl-toggle-focus: rgba(220, 38, 38, .22);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --brand-bg: #151114;
+  --brand-surface: #21181b;
+  --brand-border: #493337;
+  --brand-text: #f8ecee;
+  --brand-muted: #c9adb2;
+  --ax-sidebar: #3b1117;
+  --ax-sidebar-deep: #190b0e;
+  --ax-sidebar-text: #ffe7e9;
+  --ax-sidebar-muted: #f9b4ba;
+  --ix-sidebar: #4d1424;
+  --ix-sidebar-deep: #250c14;
+  --ix-sidebar-text: #ffe7ec;
+  --ix-sidebar-muted: #ffc0ca;
+  --ix-bg: #151114;
+  --ix-surface: #21181b;
+  --ix-border: #493337;
+  --sl-toggle-bg: #2c1d21;
+  --sl-toggle-text: #fff1f2;
+  --sl-toggle-border: #684249;
+  --sl-toggle-hover: #3a242a;
+  --sl-toggle-focus: rgba(251, 113, 133, .3);
+}
+
+.sl-theme-toggle {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border: 1px solid var(--sl-toggle-border);
+  border-radius: 10px;
+  color: var(--sl-toggle-text);
+  background: var(--sl-toggle-bg);
+  box-shadow: 0 1px 1px rgba(28, 25, 23, .04);
+  cursor: pointer;
+  font-size: .76rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background .18s ease, border-color .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+
+.sl-theme-toggle:hover {
+  background: var(--sl-toggle-hover);
+  border-color: #e89da7;
+  transform: translateY(-1px);
+}
+
+.sl-theme-toggle:focus-visible {
+  outline: 3px solid var(--sl-toggle-focus);
+  outline-offset: 2px;
+}
+
+.sl-theme-toggle-icon {
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+html[data-theme="dark"] .admin-body,
+html[data-theme="dark"] .inspector-body {
+  color: var(--brand-text);
+  background: var(--brand-bg);
+}
+
+html[data-theme="dark"] .ax-main {
+  background: linear-gradient(180deg, #1d1417 0%, #151114 220px);
+}
+
+html[data-theme="dark"] .ax-topbar,
+html[data-theme="dark"] .ax-panel,
+html[data-theme="dark"] .ax-btn-outline,
+html[data-theme="dark"] .ax-login-form-side,
+html[data-theme="dark"] .system-login-card,
+html[data-theme="dark"] .ix-topnav,
+html[data-theme="dark"] .ix-panel,
+html[data-theme="dark"] .ix-modal .modal-content,
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .form-panel,
+html[data-theme="dark"] .glass-card,
+html[data-theme="dark"] .it-card {
+  color: var(--brand-text);
+  background: var(--brand-surface);
+  border-color: var(--brand-border);
+}
+
+html[data-theme="dark"] .ax-topbar,
+html[data-theme="dark"] .ix-topnav {
+  box-shadow: 0 1px 0 rgba(255,255,255,.03), 0 12px 28px rgba(0,0,0,.18);
+}
+
+html[data-theme="dark"] .ax-table thead tr,
+html[data-theme="dark"] .ix-table thead tr,
+html[data-theme="dark"] .data-table thead tr,
+html[data-theme="dark"] .it-table thead tr {
+  background: #2b1d21;
+}
+
+html[data-theme="dark"] .ax-table tbody tr:hover,
+html[data-theme="dark"] .ix-table tbody tr:hover,
+html[data-theme="dark"] .data-table tbody tr:hover {
+  background: #2a1c20;
+}
+
+html[data-theme="dark"] .ax-user-chip,
+html[data-theme="dark"] .ix-user-chip,
+html[data-theme="dark"] .ax-menu-toggle,
+html[data-theme="dark"] .ix-menu-toggle,
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-select,
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  color: var(--brand-text);
+  background-color: #2a1d21;
+  border-color: var(--brand-border);
+}
+
+html[data-theme="dark"] .ax-role-pill,
+html[data-theme="dark"] .ix-readonly-pill {
+  color: #fecdd3;
+  background: #3c2027;
+  border-color: #75414a;
+}
+
+html[data-theme="dark"] .ax-btn-outline:hover,
+html[data-theme="dark"] .ix-btn-outline:hover,
+html[data-theme="dark"] .ax-btn-logout:hover,
+html[data-theme="dark"] .ix-btn-logout:hover {
+  background: #352126;
+}
+
+html[data-theme="dark"] .access-background {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(239, 68, 68, .14), transparent 31%),
+    radial-gradient(circle at 92% 88%, rgba(159, 18, 57, .2), transparent 35%),
+    linear-gradient(135deg, #171014 0%, #0e0a0c 100%);
+}
+
+html[data-theme="dark"] .access-shell,
+html[data-theme="dark"] .login-panel,
+html[data-theme="dark"] .staff-login-form,
+html[data-theme="dark"] .secure-access-pill,
+html[data-theme="dark"] .guard-mobile-shortcut,
+html[data-theme="dark"] .access-boundary,
+html[data-theme="dark"] .field-control {
+  color: #f8ecee;
+  background: #21181b;
+  border-color: #493337;
+}
+
+html[data-theme="dark"] .login-panel,
+html[data-theme="dark"] .staff-login-form input,
+html[data-theme="dark"] .field-control input {
+  color: #f8ecee;
+}
+
+html[data-theme="dark"] .mobile-brand-lockup,
+html[data-theme="dark"] .login-heading h2,
+html[data-theme="dark"] .form-field label,
+html[data-theme="dark"] .guard-mobile-shortcut strong {
+  color: #f8ecee;
+}
+
+html[data-theme="dark"] .download-page,
+html[data-theme="dark"] .download-shell,
+html[data-theme="dark"] .platform-card,
+html[data-theme="dark"] .install-support,
+html[data-theme="dark"] .support-heading,
+html[data-theme="dark"] .back-link,
+html[data-theme="dark"] .build-seal {
+  color: #f8ecee;
+  background: #21181b;
+  border-color: #493337;
+}
+
+html[data-theme="dark"] .download-background {
+  background: #151114;
+}
+
+html[data-theme="dark"] .download-grid {
+  opacity: .22;
+}
+
+html[data-theme="dark"] .build-meta span,
+html[data-theme="dark"] .support-heading,
+html[data-theme="dark"] .back-link:hover {
+  color: #ead6d9;
+  background: #2a1d21;
+}
+
+@media (max-width: 700px) {
+  .sl-theme-toggle { min-width: 34px; padding: 8px; }
+  .sl-theme-toggle-label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sl-theme-toggle { transition: none; }
+}

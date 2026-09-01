@@ -4,15 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow,noarchive">
-  <title>Sentinel Link — System Access</title>
+  <title>Twenty-Twenty Security Agency — System Access</title>
   <link rel="icon" type="image/png" href="../favicon.png">
   <link rel="apple-touch-icon" href="../icons/Icon-192.png">
+  <script src="../js/theme-preference.js" defer></script>
   <link href="../admin/css/admin-theme.css" rel="stylesheet">
   <style>
     .system-login-brand { isolation:isolate; overflow:hidden; }
     .system-login-brand::before { content:''; position:absolute; width:420px; height:420px; border:1px solid rgba(255,255,255,.12); border-radius:50%; right:-210px; top:-130px; animation:sl-float 12s ease-in-out infinite; z-index:-1; }
     .system-login-brand::after { content:''; position:absolute; width:150px; height:150px; background:rgba(255,255,255,.05); border-radius:38px; left:15%; bottom:-76px; transform:rotate(24deg); animation:sl-float 9s ease-in-out -3s infinite reverse; z-index:-1; }
-    .system-symbol { width:64px; height:64px; display:grid; place-items:center; padding:7px; border:1px solid rgba(255,255,255,.18); border-radius:18px; background:rgba(37,7,28,.72); margin-bottom:26px; box-shadow:0 14px 34px rgba(0,0,0,.18); backdrop-filter:blur(12px); }
+    .system-symbol { width:64px; height:64px; display:grid; place-items:center; padding:7px; border:1px solid rgba(255,255,255,.28); border-radius:18px; background:rgba(255,253,244,.94); margin-bottom:26px; box-shadow:0 14px 34px rgba(0,0,0,.18); backdrop-filter:blur(12px); }
     .system-symbol img, .system-mobile-mark img { width:100%; height:100%; object-fit:contain; }
     .system-login-brand h1 { font-size:clamp(2rem,4vw,3.3rem); letter-spacing:-.055em; max-width:520px; }
     .system-login-brand p { max-width:430px; }
@@ -20,25 +21,28 @@
     .system-secure-note span { width:8px; height:8px; border-radius:50%; background:#4ade80; box-shadow:0 0 0 5px rgba(74,222,128,.12); }
     .system-login-card { max-width:390px; }
     .system-mobile-mark { display:none; }
+    .ax-login-form-side { position:relative; }
+    .system-theme-control { position:absolute; top:22px; right:24px; z-index:2; }
     .system-login-card .eyebrow { margin:0 0 12px; color:#b91c1c; font-size:.67rem; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
     .password-wrap { position:relative; }
     .password-wrap .form-control { padding-right:72px; }
     .password-toggle { position:absolute; right:8px; top:7px; border:0; background:transparent; color:#78716c; font-size:.74rem; font-weight:700; padding:5px 8px; border-radius:7px; }
     .password-toggle:hover { background:#f8eeee; color:#991b1b; }
     .system-login-btn[aria-busy="true"] { cursor:wait; opacity:.75; }
-    @media(max-width:900px){.system-login-brand{display:none}.ax-login-form-side{max-width:none;padding:24px;background:transparent}.system-login-card{max-width:430px;padding:30px 26px;border:1px solid #eadede;border-radius:18px;background:#fff;box-shadow:0 22px 60px rgba(80,20,20,.12)}.system-mobile-mark{display:grid;place-items:center;width:50px;height:50px;padding:5px;margin-bottom:22px;border-radius:14px;background:#25071c;box-shadow:0 10px 24px rgba(153,27,27,.22)}.ax-login-wrap{align-items:center;background:linear-gradient(145deg,#fff,#fff5f5)}}
+    @media(max-width:900px){.system-login-brand{display:none}.ax-login-form-side{max-width:none;padding:24px;background:transparent}.system-login-card{max-width:430px;padding:30px 26px;border:1px solid #eadede;border-radius:18px;background:#fff;box-shadow:0 22px 60px rgba(80,20,20,.12)}.system-mobile-mark{display:grid;place-items:center;width:50px;height:50px;padding:5px;margin-bottom:22px;border-radius:14px;background:#fffdf4;box-shadow:0 10px 24px rgba(153,27,27,.22)}.ax-login-wrap{align-items:center;background:linear-gradient(145deg,#fff,#fff5f5)}}
   </style>
 </head>
 <body class="admin-body">
 <main class="ax-login-wrap">
   <section class="ax-login-brand system-login-brand">
-    <div class="system-symbol"><img src="../icons/sentinel-link-mark.png" alt="Sentinel Link"></div>
-    <div class="ax-brand-badge">Sentinel Link</div>
-    <h1>System Control</h1>
+    <div class="system-symbol"><img src="../icons/sentinel-link-mark.png" alt="Twenty-Twenty Security Agency"></div>
+    <div class="ax-brand-badge">Twenty-Twenty Security Agency</div>
+    <h1>Security Agency Management System</h1>
     <p>Private platform administration for maintenance, upgrades, privileged access, and system governance.</p>
     <div class="system-secure-note"><span></span> Restricted IT administrator access</div>
   </section>
   <section class="ax-login-form-side">
+    <div class="system-theme-control" data-theme-toggle-host></div>
     <form class="ax-login-card system-login-card" id="systemLoginForm">
       <div class="system-mobile-mark" aria-hidden="true"><img src="../icons/sentinel-link-mark.png" alt=""></div>
       <p class="eyebrow">Private access</p>
