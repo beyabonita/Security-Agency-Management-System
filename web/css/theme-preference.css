@@ -205,6 +205,106 @@ html[data-theme="dark"] .back-link:hover {
   background: #2a1d21;
 }
 
+/* The original portal styles include light hard-coded component colours.
+   These specific overrides keep every role workspace readable after switching. */
+html[data-theme="dark"] body.admin-body .form-control,
+html[data-theme="dark"] body.admin-body .form-select,
+html[data-theme="dark"] body.admin-body .it-settings-form input,
+html[data-theme="dark"] body.admin-body .it-settings-form textarea,
+html[data-theme="dark"] body.admin-body .ax-modal .form-control,
+html[data-theme="dark"] body.admin-body .ax-modal .form-select {
+  color: #f8ecee !important;
+  background: #2a1d21 !important;
+  border-color: #493337 !important;
+}
+
+html[data-theme="dark"] body.admin-body .form-control::placeholder,
+html[data-theme="dark"] body.admin-body .it-settings-form input::placeholder,
+html[data-theme="dark"] body.admin-body .it-settings-form textarea::placeholder {
+  color: #a99197 !important;
+}
+
+html[data-theme="dark"] body.admin-body .form-control:focus,
+html[data-theme="dark"] body.admin-body .form-select:focus,
+html[data-theme="dark"] body.admin-body .it-settings-form input:focus,
+html[data-theme="dark"] body.admin-body .it-settings-form textarea:focus {
+  color: #fff4f5 !important;
+  background: #332126 !important;
+  border-color: #fb7185 !important;
+  box-shadow: 0 0 0 3px rgba(251, 113, 133, .2) !important;
+}
+
+html[data-theme="dark"] body.admin-body .form-select option {
+  color: #f8ecee;
+  background: #2a1d21;
+}
+
+html[data-theme="dark"] body.admin-body .loc-table thead th,
+html[data-theme="dark"] body.admin-body .schedule-table thead th,
+html[data-theme="dark"] body.admin-body .data-table thead th,
+html[data-theme="dark"] body.admin-body .ax-table thead tr {
+  color: #cdb8bc !important;
+  background: #2b1d21 !important;
+}
+
+html[data-theme="dark"] body.admin-body .loc-table tbody tr:hover,
+html[data-theme="dark"] body.admin-body .schedule-table tbody tr:hover,
+html[data-theme="dark"] body.admin-body .data-table tbody tr:hover,
+html[data-theme="dark"] body.admin-body .ax-table tbody tr:hover {
+  background: #2a1c20 !important;
+}
+
+html[data-theme="dark"] body.admin-body .it-action,
+html[data-theme="dark"] body.admin-body .it-audit-row,
+html[data-theme="dark"] body.admin-body .it-beneficiary > div,
+html[data-theme="dark"] body.admin-body .it-health,
+html[data-theme="dark"] body.admin-body .it-btn,
+html[data-theme="dark"] body.admin-body .btn-cancel-form,
+html[data-theme="dark"] body.admin-body .btn-cancel,
+html[data-theme="dark"] body.admin-body .address-suggestion,
+html[data-theme="dark"] body.admin-body .btn-map-tool {
+  color: #f8ecee !important;
+  background: #2a1d21 !important;
+  border-color: #493337 !important;
+}
+
+html[data-theme="dark"] body.admin-body .it-action:hover,
+html[data-theme="dark"] body.admin-body .it-btn:hover,
+html[data-theme="dark"] body.admin-body .btn-cancel-form:hover,
+html[data-theme="dark"] body.admin-body .btn-cancel:hover,
+html[data-theme="dark"] body.admin-body .address-suggestion:hover,
+html[data-theme="dark"] body.admin-body .btn-map-tool:hover {
+  color: #fff4f5 !important;
+  background: #37242a !important;
+  border-color: #87505b !important;
+}
+
+html[data-theme="dark"] body.inspector-body .ix-topnav,
+html[data-theme="dark"] body.inspector-body .ix-menu-toggle,
+html[data-theme="dark"] body.inspector-body .ix-btn-outline,
+html[data-theme="dark"] body.inspector-body .dtr-day-card,
+html[data-theme="dark"] body.inspector-body .dtr-punch-block,
+html[data-theme="dark"] body.inspector-body .ix-modal .form-control,
+html[data-theme="dark"] body.inspector-body .ix-modal .form-select {
+  color: #f8ecee !important;
+  background: #21181b !important;
+  border-color: #493337 !important;
+}
+
+html[data-theme="dark"] body.inspector-body .ix-topnav a { color: #cdb8bc; }
+html[data-theme="dark"] body.inspector-body .ix-topnav a:hover,
+html[data-theme="dark"] body.inspector-body .ix-topnav a:focus-visible,
+html[data-theme="dark"] body.inspector-body .ix-topnav a[aria-current="page"] {
+  color: #fecdd3;
+  background: #37242a;
+}
+
+html[data-theme="dark"] body.inspector-body .ix-table thead tr { background: #2b1d21; }
+html[data-theme="dark"] body.inspector-body .ix-table tbody tr:hover,
+html[data-theme="dark"] body.inspector-body .ix-link-row:hover { background: #2a1c20; }
+html[data-theme="dark"] body.inspector-body .ix-link-row-icon { background: #3a242a; }
+html[data-theme="dark"] body.inspector-body #loadingScreen { background: #151114; }
+
 @media (max-width: 700px) {
   .sl-theme-toggle { min-width: 34px; padding: 8px; }
   .sl-theme-toggle-label { display: none; }

@@ -47,9 +47,10 @@ button, input { font: inherit; }
   overflow: hidden;
   pointer-events: none;
   background:
-    radial-gradient(circle at 10% 10%, rgba(220, 38, 38, .11), transparent 30%),
-    radial-gradient(circle at 92% 88%, rgba(43, 13, 19, .11), transparent 34%),
-    linear-gradient(135deg, #faf7f7 0%, #f1eaea 100%);
+    linear-gradient(112deg, rgba(255, 253, 253, .78), rgba(245, 235, 237, .62)),
+    radial-gradient(circle at 10% 10%, rgba(220, 38, 38, .14), transparent 30%),
+    radial-gradient(circle at 92% 88%, rgba(43, 13, 19, .14), transparent 34%),
+    url('../assets/twentytwenty-agency-office.jpg') center 46% / cover no-repeat;
 }
 
 .background-grid {
@@ -104,8 +105,9 @@ button, input { font: inherit; }
   overflow: hidden;
   border: 1px solid rgba(104, 57, 63, .16);
   border-radius: 30px;
-  background: var(--staff-paper);
+  background: rgba(255, 253, 253, .48);
   box-shadow: 0 32px 100px rgba(53, 24, 29, .18);
+  backdrop-filter: blur(16px) saturate(1.08);
   animation: staff-shell-enter .75s cubic-bezier(.22, 1, .36, 1) both;
 }
 
@@ -117,7 +119,9 @@ button, input { font: inherit; }
   overflow: hidden;
   padding: 42px 44px;
   color: #fff;
-  background: linear-gradient(145deg, rgba(82, 16, 28, .98), rgba(35, 10, 15, .98)), var(--staff-wine);
+  background:
+    linear-gradient(145deg, rgba(82, 16, 28, .91), rgba(35, 10, 15, .82)),
+    url('../assets/twentytwenty-agency-office.jpg') center 46% / cover no-repeat;
 }
 
 .brand-panel::before {
@@ -377,7 +381,8 @@ button, input { font: inherit; }
   flex-direction: column;
   min-width: 0;
   padding: 38px 46px 30px;
-  background: rgba(255, 253, 253, .98);
+  background: rgba(255, 253, 253, .84);
+  backdrop-filter: blur(20px) saturate(1.08);
 }
 
 .login-theme-control {
@@ -671,7 +676,14 @@ body.page-leaving .access-shell { opacity: 0; transform: translateY(-12px) scale
   .login-panel-inner { margin: auto; padding: 38px 0 26px; }
   .secure-access-pill { margin-bottom: 22px; }
   .login-footer { margin-top: auto; }
-  .brand-panel { order: 2; padding: 24px 22px 30px; color: var(--staff-ink); background: #f7f0f1; }
+  .brand-panel {
+    order: 2;
+    padding: 24px 22px 30px;
+    color: var(--staff-ink);
+    background:
+      linear-gradient(135deg, rgba(255, 251, 251, .86), rgba(247, 240, 241, .78)),
+      url('../assets/twentytwenty-agency-office.jpg') center 52% / cover no-repeat;
+  }
   .brand-panel::before, .brand-panel::after, .brand-radar, .brand-lockup, .brand-copy, .role-preview { display: none; }
   .guard-download-card {
     width: min(390px, 100%);
@@ -713,6 +725,94 @@ body.page-leaving .access-shell { opacity: 0; transform: translateY(-12px) scale
   .secure-access-pill { margin-bottom: 20px; }
   .staff-login-form { margin-top: 24px; }
   .access-boundary { margin-block: 20px 15px; }
+}
+
+/* Dark staff access keeps the agency office visible without reducing contrast. */
+html[data-theme="dark"] body {
+  color: #f8ecee;
+  background: #100c0e;
+}
+
+html[data-theme="dark"] .access-background {
+  background:
+    linear-gradient(112deg, rgba(18, 10, 12, .78), rgba(37, 12, 19, .7)),
+    radial-gradient(circle at 10% 10%, rgba(239, 68, 68, .18), transparent 30%),
+    radial-gradient(circle at 92% 88%, rgba(159, 18, 57, .24), transparent 34%),
+    url('../assets/twentytwenty-agency-office.jpg') center 46% / cover no-repeat;
+}
+
+html[data-theme="dark"] .background-grid { opacity: .18; }
+html[data-theme="dark"] .access-shell {
+  border-color: rgba(253, 186, 198, .2);
+  background: rgba(23, 14, 17, .5);
+  box-shadow: 0 32px 100px rgba(0, 0, 0, .5);
+}
+
+html[data-theme="dark"] .brand-panel {
+  background:
+    linear-gradient(145deg, rgba(66, 9, 22, .9), rgba(20, 7, 11, .84)),
+    url('../assets/twentytwenty-agency-office.jpg') center 46% / cover no-repeat;
+}
+
+html[data-theme="dark"] .login-panel {
+  color: #f8ecee;
+  background: rgba(29, 19, 22, .86);
+  border-left: 1px solid rgba(253, 186, 198, .11);
+}
+
+html[data-theme="dark"] .staff-login-form { background: transparent; border: 0; }
+html[data-theme="dark"] .mobile-brand-lockup,
+html[data-theme="dark"] .login-heading h2,
+html[data-theme="dark"] .form-field label,
+html[data-theme="dark"] .guard-mobile-shortcut strong { color: #fff4f5; }
+html[data-theme="dark"] .mobile-brand-lockup small,
+html[data-theme="dark"] .login-heading > span,
+html[data-theme="dark"] .guard-mobile-shortcut small,
+html[data-theme="dark"] .login-footer,
+html[data-theme="dark"] .access-boundary { color: #cdb8bc; }
+html[data-theme="dark"] .secure-access-pill,
+html[data-theme="dark"] .guard-mobile-shortcut {
+  border-color: #594047;
+  background: rgba(47, 29, 34, .82);
+}
+html[data-theme="dark"] .secure-access-pill { color: #ead6d9; }
+html[data-theme="dark"] .field-control > svg { color: #c7adb2; }
+html[data-theme="dark"] .field-control input {
+  color: #fff4f5;
+  background: rgba(17, 11, 13, .72);
+  border-color: #5b4148;
+}
+html[data-theme="dark"] .field-control input:hover { border-color: #84505a; background: rgba(25, 15, 18, .84); }
+html[data-theme="dark"] .field-control input::placeholder { color: #a99197; }
+html[data-theme="dark"] .password-toggle { color: #dfc9cd; }
+html[data-theme="dark"] .password-toggle:hover,
+html[data-theme="dark"] .password-toggle:focus-visible { color: #fecdd3; background: #44242b; }
+html[data-theme="dark"] .access-boundary::before,
+html[data-theme="dark"] .access-boundary::after,
+html[data-theme="dark"] .login-footer { border-color: #493337; }
+html[data-theme="dark"] .shortcut-icon { color: #fecdd3; background: #48242d; }
+html[data-theme="dark"] .guard-mobile-shortcut a { color: #fda4af; }
+html[data-theme="dark"] .auth-spinner-card { color: #fff4f5; background: #2b1d21; border-color: #614149; }
+
+@media (max-width: 760px) {
+  html[data-theme="dark"] .brand-panel {
+    color: #f8ecee;
+    background:
+      linear-gradient(135deg, rgba(29, 19, 22, .84), rgba(52, 18, 28, .76)),
+      url('../assets/twentytwenty-agency-office.jpg') center 52% / cover no-repeat;
+  }
+  html[data-theme="dark"] .guard-download-card {
+    color: #f8ecee;
+    border-color: #594047;
+    background: rgba(39, 25, 30, .88);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, .28);
+  }
+  html[data-theme="dark"] .guard-kicker,
+  html[data-theme="dark"] .download-link,
+  html[data-theme="dark"] .download-link svg { color: #fda4af; }
+  html[data-theme="dark"] .guard-download-copy > p:not(.guard-kicker) { color: #cdb8bc; }
+  html[data-theme="dark"] .download-meta span { color: #ead6d9; background: #43272d; }
+  html[data-theme="dark"] .mobile-brand-lockup .sentinel-mark { border-color: #68434b; background: #200f14; }
 }
 
 @keyframes staff-shell-enter { from { opacity: 0; transform: translateY(24px) scale(.975); } to { opacity: 1; transform: none; } }

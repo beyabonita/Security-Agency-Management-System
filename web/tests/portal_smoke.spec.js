@@ -57,6 +57,55 @@ test('portal colour mode is available before sign-in and persists between access
   await expect(page.locator('[data-theme-toggle]')).toBeVisible();
 });
 
+test('login pages use the agency-office background and keep dark fields legible', async ({ page, request }) => {
+  const imageResponse = await request.get('/assets/twentytwenty-agency-office.jpg');
+  expect(imageResponse.ok()).toBeTruthy();
+  expect(imageResponse.headers()['content-type']).toContain('image/jpeg');
+
+  await page.goto('/staff/login.html');
+  await page.evaluate(() => window.sentinelTheme.set('dark'));
+  // Inputs animate between theme surfaces. Poll the settled state rather than
+  // sampling a first animation frame on a slower browser.
+  await expect.poll(() => page.evaluate(
+    () => getComputedStyle(document.querySelector('#username')).backgroundColor,
+  )).not.toBe('rgb(255, 255, 255)');
+  const staffStyles = await page.evaluate(() => {
+    const background = getComputedStyle(document.querySelector('.access-background'));
+    const panel = getComputedStyle(document.querySelector('.login-panel'));
+    const input = getComputedStyle(document.querySelector('#username'));
+    return {
+      backgroundImage: background.backgroundImage,
+      panelBackground: panel.backgroundColor,
+      inputBackground: input.backgroundColor,
+      inputColor: input.color,
+    };
+  });
+  expect(staffStyles.backgroundImage).toContain('twentytwenty-agency-office.jpg');
+  expect(staffStyles.panelBackground).not.toBe('rgb(255, 253, 253)');
+  expect(staffStyles.inputBackground).not.toBe('rgb(255, 255, 255)');
+  expect(staffStyles.inputColor).toBe('rgb(255, 244, 245)');
+
+  await page.goto('/system-access-7d92a4/login.html');
+  await expect.poll(() => page.evaluate(
+    () => getComputedStyle(document.querySelector('#username')).backgroundColor,
+  )).not.toBe('rgb(250, 245, 245)');
+  const itStyles = await page.evaluate(() => {
+    const pageSurface = getComputedStyle(document.querySelector('.ax-login-wrap'));
+    const brandSurface = getComputedStyle(document.querySelector('.system-login-brand'));
+    const input = getComputedStyle(document.querySelector('#username'));
+    return {
+      backgroundImage: pageSurface.backgroundImage,
+      brandBackgroundImage: brandSurface.backgroundImage,
+      inputBackground: input.backgroundColor,
+      inputColor: input.color,
+    };
+  });
+  expect(itStyles.backgroundImage).toContain('twentytwenty-agency-office.jpg');
+  expect(itStyles.brandBackgroundImage).toContain('twentytwenty-agency-office.jpg');
+  expect(itStyles.inputBackground).not.toBe('rgb(250, 245, 245)');
+  expect(itStyles.inputColor).toBe('rgb(248, 236, 238)');
+});
+
 test('staff sign-in routes every phone through mobile app setup', async ({ page, request }) => {
   await page.goto('/staff/login.html');
 

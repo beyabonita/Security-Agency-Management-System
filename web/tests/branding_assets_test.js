@@ -42,6 +42,11 @@ requiredImages.forEach((relativePath) => {
   assert.ok(dimensions.width > 0 && dimensions.height > 0, `${relativePath} has invalid dimensions`);
 });
 
+assert.ok(
+  fs.statSync(path.join(projectRoot, 'web/assets/twentytwenty-agency-office.jpg')).size > 100,
+  'agency office login background is empty',
+);
+
 htmlFiles(webRoot).filter((absolutePath) => !absolutePath.includes(`${path.sep}tests${path.sep}`)).forEach((absolutePath) => {
   const relativePath = path.relative(webRoot, absolutePath).replaceAll('\\', '/');
   const html = fs.readFileSync(absolutePath, 'utf8');
@@ -57,6 +62,8 @@ assert.doesNotMatch(read('web/staff/app-download.html'), /iOS|iPhone|iPad|TestFl
 assert.match(read('web/staff/app-download.html'), /security-agency-management-system-download\.vercel\.app\/downloads\/security-agency-management-system-guard\.apk\?v=1\.0\.2/);
 assert.match(read('web/staff/login.html'), /Twenty-Twenty Security Agency/);
 assert.match(read('web/staff/login.html'), /Security Agency Management System/);
+assert.match(read('web/staff/login.css'), /twentytwenty-agency-office\.jpg/);
+assert.match(read('web/system-access-7d92a4/login.html'), /twentytwenty-agency-office\.jpg/);
 assert.match(read('web/js/theme-preference.js'), /sentinel-link-theme/);
 assert.match(read('web/staff/app-download.js'), /data-platform|dataset\.platform/);
 assert.match(read('web/system-access-7d92a4/login.html'), /icons\/sentinel-link-mark\.png/);

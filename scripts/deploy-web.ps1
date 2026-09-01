@@ -17,6 +17,7 @@ if (-not (Test-Path -LiteralPath (Join-Path $webSource 'vercel.json'))) {
 
 $releaseItems = @(
     'admin',
+    'assets',
     'css',
     'icons',
     'inspector',
@@ -68,6 +69,15 @@ finally {
         $normalizedReleaseDirectory.StartsWith($normalizedTempRoot, [System.StringComparison]::OrdinalIgnoreCase) -and
         (Test-Path -LiteralPath $releaseDirectory)
     ) {
-        Remove-Item -LiteralPath $releaseDirectory -Recurse -Force
+        try {
+            Remove-Item -LiteralPath $releaseDirectory -Recurse -Force -ErrorAction Stop
+        }
+        catch {
+            # Vercel can briefly retain an upload handle after reporting a
+            # successful deployment. The release is already complete, so do
+            # not turn that harmless temporary-directory cleanup delay into a
+            # failed deployment.
+            Write-Warning "Deployment completed, but the temporary release directory could not be removed yet: '$releaseDirectory'."
+        }
     }
 }

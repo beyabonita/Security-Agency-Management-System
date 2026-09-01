@@ -10,7 +10,9 @@
   <script src="../js/theme-preference.js" defer></script>
   <link href="../admin/css/admin-theme.css" rel="stylesheet">
   <style>
+    .ax-login-wrap { position:relative; isolation:isolate; overflow:hidden; background:linear-gradient(112deg,rgba(255,252,252,.73),rgba(242,227,230,.64)),url('../assets/twentytwenty-agency-office.jpg') center 46% / cover no-repeat; }
     .system-login-brand { isolation:isolate; overflow:hidden; }
+    .ax-login-brand.system-login-brand { background:linear-gradient(145deg,rgba(107,21,21,.72),rgba(74,10,18,.64)),url('../assets/twentytwenty-agency-office.jpg') center 46% / cover no-repeat !important; background-size:auto,cover !important; }
     .system-login-brand::before { content:''; position:absolute; width:420px; height:420px; border:1px solid rgba(255,255,255,.12); border-radius:50%; right:-210px; top:-130px; animation:sl-float 12s ease-in-out infinite; z-index:-1; }
     .system-login-brand::after { content:''; position:absolute; width:150px; height:150px; background:rgba(255,255,255,.05); border-radius:38px; left:15%; bottom:-76px; transform:rotate(24deg); animation:sl-float 9s ease-in-out -3s infinite reverse; z-index:-1; }
     .system-symbol { width:64px; height:64px; display:grid; place-items:center; padding:7px; border:1px solid rgba(255,255,255,.28); border-radius:18px; background:rgba(255,253,244,.94); margin-bottom:26px; box-shadow:0 14px 34px rgba(0,0,0,.18); backdrop-filter:blur(12px); }
@@ -19,9 +21,9 @@
     .system-login-brand p { max-width:430px; }
     .system-secure-note { margin-top:28px; display:inline-flex; align-items:center; gap:9px; color:rgba(255,255,255,.68); font-size:.79rem; }
     .system-secure-note span { width:8px; height:8px; border-radius:50%; background:#4ade80; box-shadow:0 0 0 5px rgba(74,222,128,.12); }
-    .system-login-card { max-width:390px; }
+    .system-login-card { max-width:390px; padding:30px; border:1px solid rgba(185,28,28,.12); border-radius:20px; background:rgba(255,255,255,.58); box-shadow:0 20px 52px rgba(69,10,10,.1); backdrop-filter:blur(16px) saturate(1.08); }
     .system-mobile-mark { display:none; }
-    .ax-login-form-side { position:relative; }
+    .ax-login-form-side { position:relative; background:rgba(255,255,255,.78); backdrop-filter:blur(20px) saturate(1.08); }
     .system-theme-control { position:absolute; top:22px; right:24px; z-index:2; }
     .system-login-card .eyebrow { margin:0 0 12px; color:#b91c1c; font-size:.67rem; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
     .password-wrap { position:relative; }
@@ -29,7 +31,22 @@
     .password-toggle { position:absolute; right:8px; top:7px; border:0; background:transparent; color:#78716c; font-size:.74rem; font-weight:700; padding:5px 8px; border-radius:7px; }
     .password-toggle:hover { background:#f8eeee; color:#991b1b; }
     .system-login-btn[aria-busy="true"] { cursor:wait; opacity:.75; }
-    @media(max-width:900px){.system-login-brand{display:none}.ax-login-form-side{max-width:none;padding:24px;background:transparent}.system-login-card{max-width:430px;padding:30px 26px;border:1px solid #eadede;border-radius:18px;background:#fff;box-shadow:0 22px 60px rgba(80,20,20,.12)}.system-mobile-mark{display:grid;place-items:center;width:50px;height:50px;padding:5px;margin-bottom:22px;border-radius:14px;background:#fffdf4;box-shadow:0 10px 24px rgba(153,27,27,.22)}.ax-login-wrap{align-items:center;background:linear-gradient(145deg,#fff,#fff5f5)}}
+    @media(max-width:900px){.system-login-brand{display:none}.ax-login-form-side{max-width:none;padding:24px;background:transparent}.system-login-card{max-width:430px;padding:30px 26px;border:1px solid rgba(185,28,28,.16);border-radius:18px;background:rgba(255,255,255,.84);box-shadow:0 22px 60px rgba(80,20,20,.16)}.system-mobile-mark{display:grid;place-items:center;width:50px;height:50px;padding:5px;margin-bottom:22px;border-radius:14px;background:#fffdf4;box-shadow:0 10px 24px rgba(153,27,27,.22)}.ax-login-wrap{align-items:center;background:linear-gradient(112deg,rgba(255,252,252,.72),rgba(242,227,230,.62)),url('../assets/twentytwenty-agency-office.jpg') center 46% / cover no-repeat}}
+    html[data-theme="dark"] .ax-login-wrap { background:linear-gradient(112deg,rgba(17,9,12,.78),rgba(55,14,25,.72)),url('../assets/twentytwenty-agency-office.jpg') center 46% / cover no-repeat; }
+    html[data-theme="dark"] .ax-login-brand.system-login-brand { background:linear-gradient(145deg,rgba(70,8,22,.74),rgba(20,7,11,.68)),url('../assets/twentytwenty-agency-office.jpg') center 46% / cover no-repeat !important; background-size:auto,cover !important; }
+    html[data-theme="dark"] .ax-login-form-side { color:#f8ecee; background:rgba(27,17,20,.78); }
+    html[data-theme="dark"] .system-login-card { color:#f8ecee; border-color:#5b4148; background:rgba(39,25,30,.76); box-shadow:0 20px 52px rgba(0,0,0,.32); }
+    html[data-theme="dark"] .system-login-card h2 { color:#fff4f5; }
+    html[data-theme="dark"] .system-login-card .sub,
+    html[data-theme="dark"] .system-login-card label { color:#cdb8bc; }
+    html[data-theme="dark"] .system-login-card .eyebrow { color:#fda4af; }
+    html[data-theme="dark"] .system-login-card .form-control { color:#fff4f5 !important; border-color:#5b4148 !important; background:rgba(17,11,13,.76) !important; }
+    html[data-theme="dark"] .system-login-card .form-control::placeholder { color:#a99197; }
+    html[data-theme="dark"] .system-login-card .form-control:focus { border-color:#fb7185 !important; box-shadow:0 0 0 3px rgba(251,113,133,.2) !important; }
+    html[data-theme="dark"] .password-toggle { color:#dfc9cd; }
+    html[data-theme="dark"] .password-toggle:hover { color:#fecdd3; background:#44242b; }
+    html[data-theme="dark"] .system-mobile-mark { background:#2a171c; box-shadow:0 10px 24px rgba(0,0,0,.3); }
+    @media(max-width:900px){html[data-theme="dark"] .system-login-card{border-color:#5b4148;background:rgba(35,22,27,.86)}}
   </style>
 </head>
 <body class="admin-body">
