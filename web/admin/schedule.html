@@ -56,7 +56,17 @@
       <div class="schedule-form-grid schedule-plan-settings">
         <div class="schedule-field"><label class="form-label" for="rosterSetup">Shifting setup</label><select id="rosterSetup" class="form-select" disabled><option value="">Loading shifting setups…</option></select></div>
         <div class="schedule-field"><label class="form-label" for="rosterDate">Schedule date</label><input id="rosterDate" type="date" class="form-control"></div>
-        <div class="schedule-field"><label class="form-label" for="rosterSite">Deployment site</label><select id="rosterSite" class="form-select"><option value="">Select location</option></select></div>
+        <div class="schedule-field roster-site-field">
+          <label class="form-label" for="rosterSite">Deployment site</label>
+          <div class="roster-site-control">
+            <div class="roster-site-search-wrap">
+              <span class="material-symbols-rounded roster-site-search-icon" aria-hidden="true">search</span>
+              <input type="text" id="rosterSiteFilter" class="form-control roster-site-filter" placeholder="Type to filter sites…" autocomplete="off" aria-label="Type to filter deployment sites">
+              <button type="button" id="rosterSiteFilterClear" class="roster-site-clear-btn" aria-label="Clear filter" title="Clear filter" hidden>&times;</button>
+            </div>
+            <select id="rosterSite" class="form-select"><option value="">Select location</option></select>
+          </div>
+        </div>
       </div>
       <div id="manageRosterSetup" class="roster-setup-actions" hidden><button id="editRosterSetup" type="button" class="btn btn-outline-secondary btn-sm">Edit setup</button><button id="removeRosterSetup" type="button" class="btn btn-outline-danger btn-sm">Remove setup</button><span id="rosterSetupLock" class="form-hint" role="status" hidden></span></div>
       <div class="roster-setup-loading"><span id="rosterSetupsStatus" role="status"></span><button id="retryRosterSetups" type="button" class="btn btn-outline-secondary btn-sm">Reload saved setups</button></div>

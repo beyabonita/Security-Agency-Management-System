@@ -2,6 +2,7 @@
   'use strict';
   const setup=document.getElementById('rosterSetup'), date=document.getElementById('rosterDate');
   const site=document.getElementById('rosterSite'), slots=document.getElementById('rosterGuards');
+  const siteFilter=document.getElementById('rosterSiteFilter'), siteFilterClear=document.getElementById('rosterSiteFilterClear');
   const preview=document.getElementById('rosterPreview'), assigned=document.getElementById('assignedRoster');
   const button=document.getElementById('saveRoster');
   let saving=false,setupSaving=false,setupLoading=false;
@@ -47,10 +48,26 @@
       return `<p>${p[2]} — ${names.length ? names.map(escapeHtml).join(', ') : 'Unassigned'}</p>`;
     }).join('');
   }
+  function updateSiteOptions(selectedId){
+    const term = siteFilter ? siteFilter.value.trim().toLowerCase() : '';
+    const current = selectedId !== undefined ? selectedId : site.value;
+    const filtered = term
+      ? locations.filter(l => (l.label || '').toLowerCase().includes(term) || (l.address || '').toLowerCase().includes(term))
+      : locations;
+    let html = `<option value="">Select location${term ? ` (${filtered.length} found)` : ''}</option>`;
+    html += filtered.map(l => `<option value="${escapeHtml(l.id)}">${escapeHtml(l.label)}</option>`).join('');
+    if (current && !filtered.some(l => l.id === current)) {
+      const activeObj = locations.find(l => l.id === current);
+      if (activeObj) html += `<option value="${escapeHtml(activeObj.id)}" selected>${escapeHtml(activeObj.label)} (selected)</option>`;
+    }
+    site.innerHTML = html;
+    site.value = current;
+    if (siteFilterClear) siteFilterClear.hidden = !term;
+  }
+
   window.renderShiftRoster=()=>{
     const ids=selected(),oldSite=site.value;
-    site.innerHTML='<option value="">Select location</option>'+locations.map(l=>`<option value="${escapeHtml(l.id)}">${escapeHtml(l.label)}</option>`).join('');
-    site.value=oldSite;
+    updateSiteOptions(oldSite);
     slots.innerHTML=periods().map((p,i)=>`<div class="schedule-field"><label class="form-label" for="rosterGuard${i}">${p[2]}</label><select id="rosterGuard${i}" class="form-select" aria-describedby="rosterStatus${i}"><option value="">Select Guard ${i+1}</option>${guards.filter(g=>g.active&&g.role==='user').map(g=>`<option value="${escapeHtml(g.id)}">${escapeHtml(g.name)}</option>`).join('')}</select><p id="rosterStatus${i}" class="form-hint roster-slot-status"></p></div>`).join('');
     slots.querySelectorAll('select').forEach((s,i)=>{s.value=ids[i]||'';s.disabled=saving;s.addEventListener('change',summary);});
     summary();
@@ -59,6 +76,27 @@
   date.value=todayDateString();
   setup.addEventListener('change',()=>{if(editingSetup)resetEditor();window.renderShiftRoster();});
   date.addEventListener('change',summary);site.addEventListener('change',summary);
+  if(siteFilter){
+    siteFilter.addEventListener('input',()=>{
+      const old=site.value;
+      updateSiteOptions(old);
+      const term=siteFilter.value.trim().toLowerCase();
+      if(term){
+        const matches=locations.filter(l=>(l.label||'').toLowerCase().includes(term));
+        if(matches.length===1 && site.value!==matches[0].id){
+          site.value=matches[0].id;
+          summary();
+        }
+      }
+    });
+  }
+  if(siteFilterClear){
+    siteFilterClear.addEventListener('click',()=>{
+      siteFilter.value='';
+      updateSiteOptions();
+      siteFilter.focus();
+    });
+  }
   button.addEventListener('click',async()=>{
     if(saving||setupSaving)return;
     summary();
@@ -78,6 +116,7 @@
       if(error){appDialog.toast(error,{tone:'warning'});return;}
     }
     saving=true;[setup,date,site,...slots.querySelectorAll('select')].forEach(el=>el.disabled=true);
+    if(siteFilter)siteFilter.disabled=true;
     document.getElementById('saveRosterSetup').disabled=true;
     try{
       await appDialog.runBusy(button,async()=>{
@@ -91,7 +130,7 @@
         appDialog.toast(`${data.length} ${data.length===1?'shift':'shifts'} assigned successfully.`,{tone:'success'});
       },{label:'Assigning shifts…'});
     }catch(error){appDialog.toast(error.message||'Could not confirm the roster. Refresh before retrying.',{tone:'danger'});}
-    finally{saving=false;[setup,date,site].forEach(el=>el.disabled=false);document.getElementById('saveRosterSetup').disabled=setupSaving;summary();}
+    finally{saving=false;[setup,date,site].forEach(el=>el.disabled=false);if(siteFilter)siteFilter.disabled=false;document.getElementById('saveRosterSetup').disabled=setupSaving;summary();}
   });
   // Setups are saved per agency. Assigned schedules already contain their own
   // start/end timestamps, so saving another setup cannot rewrite old duty/DTR.

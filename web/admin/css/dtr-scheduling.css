@@ -66,3 +66,29 @@
   .roster-setup-time { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
   .roster-setup-time strong { grid-column: 1 / -1; }
 }
+
+/* Searchable Deployment Site control */
+.roster-site-control { display: flex; flex-direction: column; gap: 6px; }
+.roster-site-search-wrap { position: relative; display: flex; align-items: center; }
+.roster-site-search-icon {
+  position: absolute; left: 10px; font-size: 1.1rem;
+  color: var(--ax-muted, #fca5a5); pointer-events: none;
+}
+.roster-site-filter {
+  padding-left: 34px !important; padding-right: 28px !important;
+  height: 38px !important; font-size: 0.84rem !important;
+  background: var(--sl-surface-muted, rgba(255, 255, 255, 0.04)) !important;
+  border: 1px solid var(--ax-border) !important;
+  border-radius: 8px !important; color: var(--ax-text) !important;
+}
+.roster-site-filter:focus {
+  border-color: var(--ax-accent, #dc2626) !important;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2) !important;
+}
+.roster-site-clear-btn {
+  position: absolute; right: 8px; background: transparent; border: none;
+  color: var(--ax-muted, #fca5a5); font-size: 1.2rem; line-height: 1;
+  padding: 2px 6px; cursor: pointer; border-radius: 4px;
+}
+.roster-site-clear-btn:hover { color: var(--ax-text); }
+
