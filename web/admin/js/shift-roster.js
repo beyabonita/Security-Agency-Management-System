@@ -42,17 +42,16 @@
     const cutoff=SchedulePeriod.dtrPeriodForDate(date.value);
     preview.innerHTML='<div class="roster-preview-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">'+
       '<p class="mb-0"><strong>Selected guard shifts</strong></p>'+
-      '<button type="button" id="editRosterTimesBtn" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 py-1 px-2" aria-label="Edit shift times">'+
-        '<span class="material-symbols-rounded" style="font-size: 16px;" aria-hidden="true">edit</span>'+
-        '<span>Edit shift times</span>'+
+      '<button type="button" id="editRosterTimesBtn" class="btn btn-sm btn-outline-danger py-1 px-2" aria-label="Edit shift times">'+
+        'Edit shift times'+
       '</button>'+
       '</div>'+
       `<p class="mb-2 text-muted small">${cutoff ? `Duty date: ${escapeHtml(formatDate(date.value))} · DTR cut-off: ${escapeHtml(cutoff.label)}` : 'Choose a valid schedule date.'}</p>`+
-      '<div class="roster-dtr-scroll" tabindex="0" aria-label="Planned guard shifts"><table class="roster-dtr-preview"><thead><tr><th scope="col">Shift and Guard</th><th scope="col">Scheduled IN</th><th scope="col">Scheduled OUT</th><th scope="col">Planned hours</th><th scope="col" class="text-end">Action</th></tr></thead><tbody>'+
+      '<div class="roster-dtr-scroll" tabindex="0" aria-label="Planned guard shifts"><table class="roster-dtr-preview"><thead><tr><th scope="col">Shift and Guard</th><th scope="col">Scheduled IN</th><th scope="col">Scheduled OUT</th><th scope="col">Planned hours</th></tr></thead><tbody>'+
       periods().map((p,i)=>{
         const shift=SchedulePeriod.calculate(date.value,p[0],p[1]);
         const cell=(time,nextDay=false)=>time ? `<strong>${escapeHtml(formatTime(time))}${nextDay?' (next day)':''}</strong>` : '—';
-        return `<tr><td>${p[2]} — ${available(date.value,p)?escapeHtml(currentName(ids[i])):'Shift ended (not assigned)'}</td><td>${cell(shift?.startAt)}</td><td>${cell(shift?.endAt,shift?.overnight)}</td><td>${shift ? escapeHtml(SchedulePeriod.formatDuration(shift.durationMinutes)) : '—'}</td><td class="text-end"><button type="button" class="btn btn-sm btn-outline-danger edit-shift-row-btn py-0 px-2" data-shift-index="${i}" title="Edit this shift time"><span class="material-symbols-rounded align-middle" style="font-size: 14px;" aria-hidden="true">edit</span> Edit</button></td></tr>`;
+        return `<tr><td>${p[2]} — ${available(date.value,p)?escapeHtml(currentName(ids[i])):'Shift ended (not assigned)'}</td><td>${cell(shift?.startAt)}</td><td>${cell(shift?.endAt,shift?.overnight)}</td><td>${shift ? escapeHtml(SchedulePeriod.formatDuration(shift.durationMinutes)) : '—'}</td></tr>`;
       }).join('')+'</tbody></table></div>';
     const rows=schedules.filter(s=>(s.locationId||s.location_id)===site.value && s.date===date.value && s.approval_status!=='cancelled');
     assigned.innerHTML='<h3 class="h6 mt-3">Guards already assigned to this schedule</h3>'+periods().map(p=>{
@@ -445,13 +444,12 @@
     }, 150);
   }
 
-  // Delegated click handler on preview container for edit buttons
+  // Delegated click handler on preview container for edit button
   preview.addEventListener('click', e => {
-    const editBtn = e.target.closest('#editRosterTimesBtn, .edit-shift-row-btn');
+    const editBtn = e.target.closest('#editRosterTimesBtn');
     if (editBtn) {
       e.preventDefault();
-      const focusIndex = editBtn.dataset.shiftIndex !== undefined ? Number(editBtn.dataset.shiftIndex) : 0;
-      openRosterTimesModal(focusIndex);
+      openRosterTimesModal(0);
     }
   });
 

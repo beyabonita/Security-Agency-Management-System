@@ -641,8 +641,9 @@ test('editing existing shift times updates the selected guard shifts preview and
   await expect(page.locator('#rosterGuards label').first()).toContainText('7:00 AM – 7:00 PM');
   await expect(page.locator('#rosterGuards label').nth(1)).toContainText('7:00 PM – 7:00 AM (next day)');
 
-  // Also test editing via row-level Edit button
-  await page.locator('.edit-shift-row-btn[data-shift-index="0"]').click();
+  // Confirm row action buttons are removed and re-editing via top button works cleanly
+  await expect(page.locator('.edit-shift-row-btn')).toHaveCount(0);
+  await page.locator('#editRosterTimesBtn').click();
   await expect(page.locator('#editRosterTimesModal')).toBeVisible();
   await page.locator('.roster-preset-btn[data-preset="08:00-20:00"]').click();
   await page.locator('#saveRosterTimesBtn').click();
