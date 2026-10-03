@@ -398,12 +398,75 @@ body[data-it-page="users"] .ax-nav a[href="users.html"] {
     border-radius: 8px; padding: 6px 12px; font-size: 0.78rem; font-weight: 600;
     cursor: pointer; transition: all 0.15s; border: 1px solid; white-space: nowrap;
 }
+.btn-view-guards {
+    background: var(--sl-surface-muted, rgba(255,255,255,0.05));
+    border-color: var(--sl-line);
+    color: var(--sl-ink);
+}
+.btn-view-guards:hover {
+    background: var(--sl-red-soft);
+    color: var(--sl-danger);
+    border-color: var(--sl-danger);
+}
 .btn-edit { background: var(--sl-warning-soft); border-color: var(--sl-line); color: var(--sl-warning); }
 .btn-edit:hover { background: var(--sl-warning-soft); }
 .btn-disable, .btn-schedule-del { background: var(--sl-red-soft); border-color: var(--sl-line); color: var(--sl-danger); }
 .btn-disable:hover, .btn-schedule-del:hover { background: var(--sl-red-soft); }
 .btn-enable { background: var(--sl-success-soft); border-color: var(--sl-line); color: var(--sl-success); }
 .btn-enable:hover { background: var(--sl-success-soft); }
+
+.deployed-guard-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: var(--sl-surface-muted, rgba(255,255,255,0.03));
+    border: 1px solid var(--sl-line);
+    margin-bottom: 10px;
+    transition: background 0.15s ease;
+}
+.deployed-guard-card:last-child { margin-bottom: 0; }
+.deployed-guard-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--sl-red-soft);
+    color: var(--sl-danger);
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.deployed-guard-info {
+    flex: 1;
+    min-width: 0;
+}
+.deployed-guard-name {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--sl-ink);
+}
+.deployed-guard-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.76rem;
+    color: var(--sl-muted);
+    margin-top: 4px;
+    flex-wrap: wrap;
+}
+.deployed-guard-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.deployed-guard-meta .meta-icon {
+    font-size: 14px;
+    opacity: 0.7;
+}
 
 .badge-active {
     display: inline-flex; align-items: center; gap: 5px;

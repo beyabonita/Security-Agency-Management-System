@@ -67,8 +67,7 @@ test('searches nationwide with spelling fallback, caches results, and selects th
     await route.fulfill({json:url.searchParams.get('q')==='Fortune Towne, Bacolod'?[place()]:[]});
   });
   await page.getByRole('button',{name:'Add Deployment Site',exact:true}).click();
-  await page.locator('#addressSearch').fill('Fortune Town');
-  await page.locator('#addressArea').fill('Bacolod');
+  await page.locator('#addressSearch').fill('Fortune Town, Bacolod');
   await page.locator('#addressSearchButton').click();
   await expect(page.locator('#addressSuggestions button')).toHaveCount(1);
   expect(requests.map(url=>url.searchParams.get('q'))).toEqual(['Fortune Town, Bacolod','Fortune Towne, Bacolod']);
