@@ -215,6 +215,45 @@
 .btn-add-guard:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
 #createGuardError { color: var(--sl-danger); font-size: 0.85rem; min-height: 20px; margin-top: 12px; }
 
+.password-field-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.password-field-wrap input {
+    padding-right: 44px;
+}
+.btn-toggle-password {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--sl-muted);
+    padding: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+.btn-toggle-password:hover {
+    color: var(--sl-danger);
+    background: var(--sl-red-soft);
+}
+.btn-toggle-password .material-symbols-rounded {
+    font-size: 1.25rem;
+}
+.personnel-name-input {
+    text-transform: capitalize;
+}
+.personnel-initial-input {
+    text-transform: uppercase;
+}
+
 .location-chip {
     display: inline-flex; align-items: center; gap: 6px;
     background: var(--sl-red-soft); border: 1px solid var(--sl-line);
@@ -470,15 +509,15 @@
         </div>
         <div class="col-md-6">
             <label class="form-label">FIRST NAME</label>
-            <input type="text" id="newGuardFirstName" class="form-control" placeholder="Juan">
+            <input type="text" id="newGuardFirstName" class="form-control personnel-name-input" placeholder="Juan" oninput="autoCapitalizeWords(this)">
         </div>
         <div class="col-md-2">
             <label class="form-label">M.I.</label>
-            <input type="text" id="newGuardMiddleInitial" class="form-control" placeholder="D" maxlength="3">
+            <input type="text" id="newGuardMiddleInitial" class="form-control personnel-initial-input" placeholder="D" maxlength="3" oninput="autoCapitalizeInitial(this)">
         </div>
         <div class="col-md-4">
             <label class="form-label">LAST NAME</label>
-            <input type="text" id="newGuardLastName" class="form-control" placeholder="Dela Cruz">
+            <input type="text" id="newGuardLastName" class="form-control personnel-name-input" placeholder="Dela Cruz" oninput="autoCapitalizeWords(this)">
         </div>
         <div class="col-12">
             <label class="form-label">EMAIL</label>
@@ -487,12 +526,22 @@
         </div>
         <div class="col-md-6">
             <label class="form-label">PASSWORD</label>
-            <input type="password" id="newGuardPassword" class="form-control" autocomplete="new-password" minlength="8" placeholder="8+ characters: uppercase, lowercase, number, symbol" aria-describedby="newGuardPasswordHelp">
+            <div class="password-field-wrap">
+                <input type="password" id="newGuardPassword" class="form-control" autocomplete="new-password" minlength="8" placeholder="8+ characters: uppercase, lowercase, number, symbol" aria-describedby="newGuardPasswordHelp">
+                <button type="button" class="btn-toggle-password" id="newGuardPasswordToggle" onclick="togglePasswordVisibility('newGuardPassword', this)" aria-label="Show password" title="Show password" aria-controls="newGuardPassword" aria-pressed="false">
+                    <span class="material-symbols-rounded" aria-hidden="true">visibility</span>
+                </button>
+            </div>
             <small id="newGuardPasswordHelp">Use at least 8 characters, including uppercase and lowercase letters, a number, and a symbol.</small>
         </div>
         <div class="col-md-6">
             <label class="form-label">CONFIRM PASSWORD</label>
-            <input type="password" id="newGuardPasswordConfirm" class="form-control" placeholder="Repeat password">
+            <div class="password-field-wrap">
+                <input type="password" id="newGuardPasswordConfirm" class="form-control" placeholder="Repeat password">
+                <button type="button" class="btn-toggle-password" id="newGuardPasswordConfirmToggle" onclick="togglePasswordVisibility('newGuardPasswordConfirm', this)" aria-label="Show password" title="Show password" aria-controls="newGuardPasswordConfirm" aria-pressed="false">
+                    <span class="material-symbols-rounded" aria-hidden="true">visibility</span>
+                </button>
+            </div>
         </div>
     </div>
     <div id="newGuardContractPeriod" class="row g-3 mt-1" hidden>
@@ -1401,10 +1450,65 @@ function updateCreateUserHint() {
     if (button.getAttribute('aria-busy') !== 'true') button.textContent = role === 'user' ? 'Create Guard' : 'Create Inspector';
 }
 
+function autoCapitalizeWords(input) {
+    if (!input || !input.value) return;
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    const val = input.value;
+    const capitalized = val.replace(/(^|[\s-])([a-z\u00E0-\u00FC])/g, (m, sep, ch) => sep + ch.toUpperCase());
+    if (val !== capitalized) {
+        input.value = capitalized;
+        if (start !== null && end !== null) {
+            input.setSelectionRange(start, end);
+        }
+    }
+}
+
+function autoCapitalizeInitial(input) {
+    if (!input || !input.value) return;
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    const upper = input.value.toUpperCase();
+    if (input.value !== upper) {
+        input.value = upper;
+        if (start !== null && end !== null) {
+            input.setSelectionRange(start, end);
+        }
+    }
+}
+
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input || !btn) return;
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    const icon = btn.querySelector('.material-symbols-rounded');
+    if (icon) icon.textContent = isPassword ? 'visibility_off' : 'visibility';
+    const label = isPassword ? 'Hide password' : 'Show password';
+    btn.setAttribute('aria-label', label);
+    btn.setAttribute('title', label);
+    btn.setAttribute('aria-pressed', String(isPassword));
+}
+
+function resetPasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    input.type = 'password';
+    if (btn) {
+        const icon = btn.querySelector('.material-symbols-rounded');
+        if (icon) icon.textContent = 'visibility';
+        btn.setAttribute('aria-label', 'Show password');
+        btn.setAttribute('title', 'Show password');
+        btn.setAttribute('aria-pressed', 'false');
+    }
+}
+
 function openPersonnelCreate() {
     document.getElementById("newGuardRole").disabled = false;
     document.getElementById("newGuardRole").value = "user";
     updateCreateUserHint();
+    resetPasswordVisibility('newGuardPassword', document.getElementById('newGuardPasswordToggle'));
+    resetPasswordVisibility('newGuardPasswordConfirm', document.getElementById('newGuardPasswordConfirmToggle'));
     new bootstrap.Modal(document.getElementById("createGuardModal")).show();
 }
 
@@ -1475,6 +1579,8 @@ async function createGuardAccount() {
         document.getElementById("newGuardUsername").value = "";
         document.getElementById("newGuardPassword").value = "";
         document.getElementById("newGuardPasswordConfirm").value = "";
+        resetPasswordVisibility('newGuardPassword', document.getElementById('newGuardPasswordToggle'));
+        resetPasswordVisibility('newGuardPasswordConfirm', document.getElementById('newGuardPasswordConfirmToggle'));
         document.getElementById('newGuardContractStart').value = '';
         document.getElementById('newGuardContractEnd').value = '';
         bootstrap.Modal.getOrCreateInstance(document.getElementById("createGuardModal")).hide();
