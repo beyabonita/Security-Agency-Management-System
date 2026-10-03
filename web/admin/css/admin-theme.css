@@ -261,11 +261,27 @@ body[data-it-page="users"] .ax-nav a[href="users.html"] {
 }
 
 #loadingScreen {
-    position: fixed; inset: 0; background: var(--ax-bg);
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 16px; z-index: 9999;
+    position: fixed;
+    top: 73px;
+    left: var(--ax-sidebar-w, 272px);
+    right: 0;
+    bottom: 0;
+    background: var(--ax-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 90;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 #loadingScreen p { color: var(--ax-muted); font-size: 0.9rem; margin: 0; }
+@media (max-width: 900px) {
+    #loadingScreen {
+        top: 60px;
+        left: 0;
+    }
+}
 
 /* Login */
 .ax-login-wrap { min-height: 100vh; display: flex; font-family: 'Inter', sans-serif; }
@@ -725,7 +741,19 @@ body.admin-body {
     color: var(--ax-text) !important;
 }
 body.admin-body #loadingScreen {
+    position: fixed !important;
+    top: 73px !important;
+    left: var(--ax-sidebar-w, 272px) !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 90 !important;
     background: var(--ax-bg) !important;
+}
+@media (max-width: 900px) {
+    body.admin-body #loadingScreen {
+        top: 60px !important;
+        left: 0 !important;
+    }
 }
 body.admin-body .glass-card {
     background: var(--ax-surface) !important;
@@ -852,3 +880,120 @@ body.ax-menu-open { overflow: hidden; }
 @media (max-width: 340px) {
     .ax-stat-strip { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   Persistent Shell Navigation & Skeleton Loading System
+   ========================================================================== */
+@view-transition {
+    navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 0.16s;
+    animation-timing-function: ease-in-out;
+}
+
+.ax-sidebar {
+    view-transition-name: ax-sidebar;
+}
+
+.ax-topbar {
+    view-transition-name: ax-topbar;
+}
+
+@keyframes ax-skeleton-shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.ax-skeleton {
+    display: inline-block;
+    vertical-align: middle;
+    background: linear-gradient(
+        90deg,
+        rgba(150, 150, 150, 0.08) 25%,
+        rgba(150, 150, 150, 0.18) 37%,
+        rgba(150, 150, 150, 0.08) 63%
+    );
+    background-size: 400% 100%;
+    animation: ax-skeleton-shimmer 1.5s ease-in-out infinite;
+    border-radius: 6px;
+    pointer-events: none;
+    user-select: none;
+}
+
+[data-theme="dark"] .ax-skeleton,
+body.dark-theme .ax-skeleton {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.03) 25%,
+        rgba(255, 255, 255, 0.09) 37%,
+        rgba(255, 255, 255, 0.03) 63%
+    );
+    background-size: 400% 100%;
+}
+
+.ax-skeleton-line {
+    display: block;
+    height: 14px;
+    border-radius: 4px;
+    background: linear-gradient(
+        90deg,
+        rgba(150, 150, 150, 0.08) 25%,
+        rgba(150, 150, 150, 0.18) 37%,
+        rgba(150, 150, 150, 0.08) 63%
+    );
+    background-size: 400% 100%;
+    animation: ax-skeleton-shimmer 1.5s ease-in-out infinite;
+    pointer-events: none;
+    user-select: none;
+}
+
+[data-theme="dark"] .ax-skeleton-line,
+body.dark-theme .ax-skeleton-line {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.03) 25%,
+        rgba(255, 255, 255, 0.09) 37%,
+        rgba(255, 255, 255, 0.03) 63%
+    );
+    background-size: 400% 100%;
+}
+
+.ax-skeleton-line.short { width: 35%; }
+.ax-skeleton-line.medium { width: 65%; }
+.ax-skeleton-line.full { width: 90%; }
+.ax-skeleton-stat {
+    width: 60px;
+    height: 38px;
+    border-radius: 8px;
+    display: inline-block;
+}
+.ax-skeleton-pill {
+    width: 72px;
+    height: 22px;
+    border-radius: 999px;
+    display: inline-block;
+}
+.ax-skeleton-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.ax-skeleton-btn {
+    width: 68px;
+    height: 28px;
+    border-radius: 6px;
+    display: inline-block;
+}
+.ax-skeleton-tr td {
+    padding: 14px 18px !important;
+    vertical-align: middle;
+}
+

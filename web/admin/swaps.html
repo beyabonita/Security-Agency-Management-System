@@ -36,7 +36,26 @@
         <label for="requestStatus">Status<select id="requestStatus"><option value="pending_admin">Awaiting Operations Head approval</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="all">All requests</option></select></label>
         <button type="button" class="ax-btn" id="refreshRequests">Refresh</button>
       </div>
-      <section class="ax-panel"><div id="requests" class="ax-link-list"><div class="empty-state">Loading requests…</div></div></section>
+      <section class="ax-panel">
+        <div id="requests" class="ax-link-list">
+          <div style="padding:20px;display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="ax-skeleton ax-skeleton-line" style="width:140px;height:20px;"></span>
+              <span class="ax-skeleton ax-skeleton-pill" style="width:90px;"></span>
+            </div>
+            <span class="ax-skeleton ax-skeleton-line" style="width:70%;"></span>
+            <span class="ax-skeleton ax-skeleton-line" style="width:40%;"></span>
+          </div>
+          <div style="padding:20px;border-top:1px solid var(--ax-border);display:flex;flex-direction:column;gap:12px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="ax-skeleton ax-skeleton-line" style="width:160px;height:20px;"></span>
+              <span class="ax-skeleton ax-skeleton-pill" style="width:90px;"></span>
+            </div>
+            <span class="ax-skeleton ax-skeleton-line" style="width:65%;"></span>
+            <span class="ax-skeleton ax-skeleton-line" style="width:35%;"></span>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 </div>
