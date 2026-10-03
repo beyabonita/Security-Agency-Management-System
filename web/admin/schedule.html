@@ -68,21 +68,7 @@
           </div>
         </div>
       </div>
-      <div id="manageRosterSetup" class="roster-setup-actions" hidden><button id="editRosterSetup" type="button" class="btn btn-outline-secondary btn-sm">Edit setup</button><button id="removeRosterSetup" type="button" class="btn btn-outline-danger btn-sm">Remove setup</button><span id="rosterSetupLock" class="form-hint" role="status" hidden></span></div>
-      <div class="roster-setup-loading"><span id="rosterSetupsStatus" role="status"></span><button id="retryRosterSetups" type="button" class="btn btn-outline-secondary btn-sm">Reload saved setups</button></div>
-      <details id="newRosterSetup" class="roster-setup-editor">
-        <summary>Create a new shifting setup</summary>
-        <form id="rosterSetupForm">
-          <div class="schedule-form-grid">
-            <div class="schedule-field"><label for="rosterSetupName" class="form-label">Setup name</label><input id="rosterSetupName" class="form-control" maxlength="80" required placeholder="e.g. Four-shift rotation"></div>
-            <div class="schedule-field"><label for="rosterSetupCount" class="form-label">Number of shifts</label><select id="rosterSetupCount" class="form-select"><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option></select></div>
-          </div>
-          <div id="rosterSetupTimes" class="roster-setup-times"></div>
-          <p id="rosterSetupValidation" class="form-hint" role="status"></p>
-          <p id="rosterSetupError" role="alert" hidden></p>
-          <div class="roster-setup-actions"><button id="saveRosterSetup" type="submit" class="btn btn-danger">Save shifting setup</button><button id="cancelRosterSetup" type="button" class="btn btn-outline-secondary" hidden>Cancel editing</button></div>
-        </form>
-      </details>
+      <div class="roster-setup-loading"><span id="rosterSetupsStatus" role="status"></span><button id="retryRosterSetups" type="button" class="btn btn-outline-secondary btn-sm" hidden>Reload saved setups</button></div>
       <div id="rosterGuards" class="schedule-form-grid" aria-label="Guards for each shift"></div>
       <div id="rosterPreview" role="status" aria-live="polite"></div>
       <button id="saveRoster" type="button" class="btn btn-danger">Assign all shifts</button>

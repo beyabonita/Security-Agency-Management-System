@@ -117,7 +117,8 @@
     }
     saving=true;[setup,date,site,...slots.querySelectorAll('select')].forEach(el=>el.disabled=true);
     if(siteFilter)siteFilter.disabled=true;
-    document.getElementById('saveRosterSetup').disabled=true;
+    const saveSetupBtn = document.getElementById('saveRosterSetup');
+    if (saveSetupBtn) saveSetupBtn.disabled = true;
     try{
       await appDialog.runBusy(button,async()=>{
         const args={p_location_id:location,p_duty_date:day,p_guard_ids:ids};
@@ -130,7 +131,7 @@
         appDialog.toast(`${data.length} ${data.length===1?'shift':'shifts'} assigned successfully.`,{tone:'success'});
       },{label:'Assigning shifts…'});
     }catch(error){appDialog.toast(error.message||'Could not confirm the roster. Refresh before retrying.',{tone:'danger'});}
-    finally{saving=false;[setup,date,site].forEach(el=>el.disabled=false);if(siteFilter)siteFilter.disabled=false;document.getElementById('saveRosterSetup').disabled=setupSaving;summary();}
+    finally{saving=false;[setup,date,site].forEach(el=>el.disabled=false);if(siteFilter)siteFilter.disabled=false;const sBtn=document.getElementById('saveRosterSetup');if(sBtn)sBtn.disabled=setupSaving;summary();}
   });
   // Setups are saved per agency. Assigned schedules already contain their own
   // start/end timestamps, so saving another setup cannot rewrite old duty/DTR.
@@ -140,16 +141,20 @@
   const setupStatus=document.getElementById('rosterSetupsStatus'),retry=document.getElementById('retryRosterSetups');
   const editButton=document.getElementById('editRosterSetup'),removeButton=document.getElementById('removeRosterSetup');
   const saveSetupButton=document.getElementById('saveRosterSetup'),cancelEdit=document.getElementById('cancelRosterSetup');
-  const editorTitle=editor.querySelector('summary');
+  const editorTitle=editor?.querySelector('summary');
   function managementControls(){
-    document.getElementById('manageRosterSetup').hidden=!customSetup();
+    const manageEl=document.getElementById('manageRosterSetup');
+    if(manageEl) manageEl.hidden=!customSetup();
     const item=customSetup(),locked=item?.in_use!==false;
-    editButton.disabled=removeButton.disabled=saving||setupSaving||setupLoading||locked;
+    if(editButton) editButton.disabled=saving||setupSaving||setupLoading||locked;
+    if(removeButton) removeButton.disabled=saving||setupSaving||setupLoading||locked;
     const lockStatus=document.getElementById('rosterSetupLock');
-    lockStatus.textContent=item?.in_use===true?'In use — editing and removal locked.':locked?'Checking setup availability…':'';
-    lockStatus.hidden=!lockStatus.textContent;
-    saveSetupButton.disabled=setupSaving||saving||Boolean(editingSetup&&(locked||setupLoading));
-    retry.disabled=saving||setupSaving||setupLoading;
+    if(lockStatus){
+      lockStatus.textContent=item?.in_use===true?'In use — editing and removal locked.':locked?'Checking setup availability…':'';
+      lockStatus.hidden=!lockStatus.textContent;
+    }
+    if(saveSetupButton) saveSetupButton.disabled=setupSaving||saving||Boolean(editingSetup&&(locked||setupLoading));
+    if(retry) retry.disabled=saving||setupSaving||setupLoading;
     button.disabled=saving||setupSaving||!customSetup();
     setup.disabled=saving||setupSaving||!savedSetups.length;
   }
@@ -164,49 +169,52 @@
   }
   window.loadRosterSetups=async({silent=false}={})=>{
     if(setupLoading||setupSaving||saving)return;
-    setupLoading=true;managementControls();const revision=setupRevision;if(!silent)setupStatus.textContent='Loading saved shifting setups…';
+    setupLoading=true;managementControls();const revision=setupRevision;if(!silent&&setupStatus)setupStatus.textContent='Loading saved shifting setups…';
     try{
       const {data,error}=await appSupabase.rpc('list_shift_roster_setups');
       if(error)throw error;
       if(!Array.isArray(data)||data.some(item=>!item.id||typeof item.name!=='string'||typeof item.in_use!=='boolean'||RosterSetup.validate(item.shifts)))throw Error('Invalid saved setup response.');
       // A late read must never restore an item removed/edited during the request.
-      if(revision!==setupRevision){setupStatus.textContent='';return;}
+      if(revision!==setupRevision){if(setupStatus)setupStatus.textContent='';return;}
       const next=uniqueSetups(data);
       const definition=items=>JSON.stringify(items.map(({id,name,shifts,version})=>({id,name,shifts,version})));
       const changed=!setupsLoaded||definition(savedSetups)!==definition(next);
       savedSetups=next;setupsLoaded=true;
       if(editingSetup&&!savedSetups.some(item=>item.id===editingSetup.id&&item.version===editingSetup.version&&!item.in_use))resetEditor();
-      if(changed)options();setupStatus.textContent='';
-    }catch(error){savedSetups.forEach(item=>{item.in_use=undefined;});setupStatus.textContent='Could not check shifting setups. Reload to try again.';retry.hidden=false;}
+      if(changed)options();if(setupStatus)setupStatus.textContent='';
+    }catch(error){savedSetups.forEach(item=>{item.in_use=undefined;});if(setupStatus)setupStatus.textContent='Could not check shifting setups. Reload to try again.';if(retry)retry.hidden=false;}
     finally{setupLoading=false;managementControls();}
   };
-  retry.addEventListener('click',window.loadRosterSetups);
-  const draftShifts=()=>[...timeFields.querySelectorAll('.roster-setup-time')].map(row=>({
+  retry?.addEventListener('click',window.loadRosterSetups);
+  const draftShifts=()=>timeFields?[...timeFields.querySelectorAll('.roster-setup-time')].map(row=>({
     start_time:row.querySelector('[data-start]').value,end_time:row.querySelector('[data-end]').value,
-  }));
+  })):[];
   function validateDraft(){
     const error=RosterSetup.validate(draftShifts());
-    document.getElementById('rosterSetupValidation').textContent=error||'24-hour coverage complete.';
+    const valEl=document.getElementById('rosterSetupValidation');
+    if(valEl) valEl.textContent=error||'24-hour coverage complete.';
     return error;
   }
-  function renderDraft(shifts=RosterSetup.defaults(Number(setupCount.value))){
+  function renderDraft(shifts=RosterSetup.defaults(Number(setupCount?.value||2))){
+    if(!timeFields)return;
     timeFields.innerHTML=shifts.map((shift,i)=>`<div class="roster-setup-time"><strong>Shift ${i+1}</strong><div><label for="setupStart${i}">Start time</label><input id="setupStart${i}" data-start type="time" class="form-control" required value="${shift.start_time}"></div><div><label for="setupEnd${i}">End time</label><input id="setupEnd${i}" data-end type="time" class="form-control" required value="${shift.end_time}"></div></div>`).join('');
     validateDraft();
   }
   function resetEditor(){
-    editingSetup=null;form.reset();renderDraft();setupError.hidden=true;
-    editorTitle.textContent='Create a new shifting setup';saveSetupButton.textContent='Save shifting setup';cancelEdit.hidden=true;editor.open=false;
+    if(!editor||!form)return;
+    editingSetup=null;form.reset();renderDraft();if(setupError)setupError.hidden=true;
+    if(editorTitle)editorTitle.textContent='Create a new shifting setup';if(saveSetupButton)saveSetupButton.textContent='Save shifting setup';if(cancelEdit)cancelEdit.hidden=true;editor.open=false;
   }
-  cancelEdit.addEventListener('click',()=>{if(!setupSaving){resetEditor();setup.focus();}});
-  editButton.addEventListener('click',()=>{
-    if(saving||setupSaving||setupLoading||customSetup()?.in_use!==false)return;
-    editingSetup=structuredClone(customSetup());setupName.value=editingSetup.name;setupCount.value=String(editingSetup.shifts.length);
-    renderDraft(editingSetup.shifts);setupError.hidden=true;
-    editorTitle.textContent='Edit shifting setup';saveSetupButton.textContent='Save changes';cancelEdit.hidden=false;editor.open=true;setupName.focus();
+  cancelEdit?.addEventListener('click',()=>{if(!setupSaving){resetEditor();setup.focus();}});
+  editButton?.addEventListener('click',()=>{
+    if(!editor||saving||setupSaving||setupLoading||customSetup()?.in_use!==false)return;
+    editingSetup=structuredClone(customSetup());if(setupName)setupName.value=editingSetup.name;if(setupCount)setupCount.value=String(editingSetup.shifts.length);
+    renderDraft(editingSetup.shifts);if(setupError)setupError.hidden=true;
+    if(editorTitle)editorTitle.textContent='Edit shifting setup';if(saveSetupButton)saveSetupButton.textContent='Save changes';if(cancelEdit)cancelEdit.hidden=false;editor.open=true;setupName?.focus();
   });
-  removeButton.addEventListener('click',async()=>{
+  removeButton?.addEventListener('click',async()=>{
     const item=customSetup();if(saving||setupSaving||setupLoading||item?.in_use!==false)return;
-    setupSaving=true;setup.disabled=true;button.disabled=true;saveSetupButton.disabled=true;managementControls();
+    setupSaving=true;setup.disabled=true;button.disabled=true;if(saveSetupButton)saveSetupButton.disabled=true;managementControls();
     try{
       const confirmed=await appDialog.confirm(`Remove “${item.name}” from the shifting setups?`,{title:'Remove shifting setup',confirmText:'Remove setup',danger:true,icon:'delete'});
       if(!confirmed)return;
@@ -215,18 +223,18 @@
       setupRevision++;savedSetups=savedSetups.filter(s=>s.id!==item.id);resetEditor();options();
       appDialog.toast('Shifting setup removed.',{tone:'success'});
     }catch(error){appDialog.toast(error.message||'Could not remove the setup. Try again.',{tone:'danger'});}
-    finally{setupSaving=false;setup.disabled=false;button.disabled=false;saveSetupButton.disabled=false;managementControls();}
+    finally{setupSaving=false;setup.disabled=false;button.disabled=false;if(saveSetupButton)saveSetupButton.disabled=false;managementControls();}
   });
-  setupCount.addEventListener('change',()=>renderDraft());timeFields.addEventListener('input',validateDraft);
-  form.addEventListener('submit',async event=>{
+  setupCount?.addEventListener('change',()=>renderDraft());timeFields?.addEventListener('input',validateDraft);
+  form?.addEventListener('submit',async event=>{
     event.preventDefault();if(setupSaving||saving||(editingSetup&&(setupLoading||customSetup()?.in_use!==false)))return;
-    setupError.hidden=true;
-    const name=setupName.value.trim(),shifts=draftShifts();
+    if(setupError)setupError.hidden=true;
+    const name=setupName?.value.trim()||'',shifts=draftShifts();
     const validation=RosterSetup.validate(shifts)||(!name?'Enter a name for this shifting setup.':null);
-    if(validation){setupError.textContent=validation;setupError.hidden=false;return;}
+    if(validation){if(setupError){setupError.textContent=validation;setupError.hidden=false;}return;}
     const candidates=savedSetups;
     const duplicate=candidates.find(item=>item.id!==editingSetup?.id&&(RosterSetup.signature(item.shifts)===RosterSetup.signature(shifts)||item.name.trim().toLowerCase()===name.toLowerCase()));
-    if(duplicate){setupError.textContent=`A setup with the same name or shift times already exists: ${duplicate.name}. Select or edit that setup instead.`;setupError.hidden=false;return;}
+    if(duplicate){if(setupError){setupError.textContent=`A setup with the same name or shift times already exists: ${duplicate.name}. Select or edit that setup instead.`;setupError.hidden=false;}return;}
     setupSaving=true;
     const fields=[...form.querySelectorAll('input,select,button')];fields.forEach(field=>field.disabled=true);
     let savedSuccessfully=false;
@@ -239,13 +247,13 @@
       if(error)throw error;
       if(!data?.id||typeof data.name!=='string'||RosterSetup.validate(data.shifts))throw Error('Could not confirm the saved setup. Reload saved setups before retrying.');
       setupRevision++;savedSetups=savedSetups.filter(item=>item.id!==data.id);savedSetups.push({...data,in_use:undefined});setupsLoaded=true;
-      savedSuccessfully=true;options(data.id);editor.open=false;setup.focus();
+      savedSuccessfully=true;options(data.id);if(editor)editor.open=false;setup.focus();
       resetEditor();
       appDialog.toast(wasEditing?'Shifting setup updated.':'Shifting setup saved.',{tone:'success'});
-    }catch(error){setupError.textContent=error.message||'Could not save the shifting setup. Please try again.';setupError.hidden=false;}
+    }catch(error){if(setupError){setupError.textContent=error.message||'Could not save the shifting setup. Please try again.';setupError.hidden=false;}}
     finally{setupSaving=false;fields.forEach(field=>field.disabled=false);button.disabled=false;setup.disabled=false;managementControls();if(savedSuccessfully)await window.loadRosterSetups();}
   });
-  renderDraft();
+  if(editor)renderDraft();
   const clock=setInterval(()=>{if(!saving&&!document.hidden){summary();window.loadRosterSetups({silent:true});}},30000);
   window.addEventListener('focus',window.loadRosterSetups);
   window.addEventListener('pagehide',()=>clearInterval(clock),{once:true});
