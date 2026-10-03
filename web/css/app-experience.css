@@ -25,7 +25,7 @@
   --sl-radius-lg: 24px;
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scrollbar-gutter: stable; }
 body { min-width: 0; line-height: 1.5; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 button, input, select, textarea { font: inherit; }
 * { scrollbar-width: thin; scrollbar-color: rgba(127,16,25,.26) transparent; }
@@ -491,8 +491,8 @@ body.sl-notifications-open, body.sl-critical-open { overflow: hidden; }
 .sl-critical-acknowledge { border: 1px solid var(--sl-line); background: var(--sl-surface); color: var(--sl-ink); }
 .sl-critical-view { border: 1px solid #dc2626; background: #dc2626; color: #fff; box-shadow: 0 10px 24px rgba(220,38,38,.22); }
 
-@keyframes sl-page-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-@keyframes sl-rise-in { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: none; } }
+@keyframes sl-page-in { from { opacity: 0; } to { opacity: 1; transform: none; } }
+@keyframes sl-rise-in { from { opacity: 0; } to { opacity: 1; transform: none; } }
 @keyframes sl-login-in { from { opacity: 0; transform: translateX(26px); } to { opacity: 1; transform: none; } }
 @keyframes sl-dialog-in { from { opacity: 0; transform: translateY(18px) scale(.965); } to { opacity: 1; transform: none; } }
 @keyframes sl-fade-in { from { opacity: 0; } to { opacity: 1; } }
