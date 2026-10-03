@@ -1,5 +1,21 @@
 # Project Change Log
 
+### [2026-10-04 07:15] - Unify Deployment Site Selection into Single Searchable Dropdown Combobox
+
+- **Scope & Objective**: Merge the previously separated search input and `<select>` dropdown into a single, cohesive searchable combobox. Clicking or focusing the control opens the dropdown menu with all available sites, and typing in the input dynamically filters the dropdown list in real-time.
+- **Files Modified / Created**:
+  - [`web/admin/schedule.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/schedule.html): Replaced stacked search input and select with `#rosterCombobox` containing `#rosterSiteFilter`, clear button, toggle arrow, and floating `#rosterSiteMenu` listbox while preserving `#rosterSite` for form sync and Playwright testing compatibility.
+  - [`web/admin/css/dtr-scheduling.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/dtr-scheduling.css): Added styles for `.roster-combobox`, `.roster-combobox-input`, `.roster-combobox-arrow`, `.roster-combobox-menu`, `.roster-combobox-item` (with address subtitle, active and hover highlights), and empty state.
+  - [`web/admin/js/shift-roster.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/shift-roster.js): Implemented combobox interaction logic (click/focus opens menu, input filters options, arrow key navigation, Enter/click selects option, outside click closes menu, and bidirectional sync with `#rosterSite`).
+  - [`web/tests/schedule_lifecycle.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/schedule_lifecycle.spec.js): Added test `deployment site combobox opens dropdown on focus/click and filters options on typing`.
+- **Verification & Testing**:
+  - `node web/tests/google_icons_test.js` -> Passed (43 bundled symbols, 146 markup references).
+  - `npm --prefix web/tests run test:playwright -- --grep "deployment site combobox"` -> Passed (1/1).
+  - `npm --prefix web/tests run test:playwright -- --grep "roster"` -> Passed (12/12).
+- **Pending / Next Steps**:
+  - Ready for user review and commit.
+
+
 ### [2026-10-04 07:02] - Update Page Header: Rename "Deployment Sites" Header to "Company"
 
 - **Scope & Objective**: Update the page header (`<h1 class="ax-page-title">`) and document `<title>` on the Company management pages (`web/admin/locations.html` and `web/inspector/locations.html`) from "Deployment Sites" / "Duty sites" to "Company" to match the active sidebar navigation tab.

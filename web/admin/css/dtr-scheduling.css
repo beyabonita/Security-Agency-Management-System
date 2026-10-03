@@ -67,30 +67,146 @@
   .roster-setup-time strong { grid-column: 1 / -1; }
 }
 
-/* Searchable Deployment Site control */
-.roster-site-control { display: flex; flex-direction: column; gap: 6px; }
-.roster-site-search-wrap { position: relative; display: flex; align-items: center; }
-.roster-site-search-icon {
-  position: absolute; left: 10px; font-size: 1.1rem;
-  color: var(--ax-muted, #fca5a5); pointer-events: none;
+/* Searchable Deployment Site Combobox */
+.roster-site-field {
+  position: relative;
 }
-.roster-site-filter {
-  padding-left: 34px !important; padding-right: 28px !important;
-  height: 38px !important; font-size: 0.84rem !important;
+.roster-combobox {
+  position: relative;
+  width: 100%;
+}
+.roster-combobox-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.roster-combobox-icon {
+  position: absolute;
+  left: 11px;
+  font-size: 1.15rem;
+  color: var(--ax-muted, #fca5a5);
+  pointer-events: none;
+  z-index: 2;
+}
+.roster-combobox-input {
+  padding-left: 36px !important;
+  padding-right: 58px !important;
+  height: 38px !important;
+  font-size: 0.88rem !important;
   background: var(--sl-surface-muted, rgba(255, 255, 255, 0.04)) !important;
   border: 1px solid var(--ax-border) !important;
-  border-radius: 8px !important; color: var(--ax-text) !important;
+  border-radius: 8px !important;
+  color: var(--ax-text) !important;
+  cursor: pointer;
 }
-.roster-site-filter:focus {
+.roster-combobox-input:focus {
   border-color: var(--ax-accent, #dc2626) !important;
   box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2) !important;
+  cursor: text;
 }
-.roster-site-clear-btn {
-  position: absolute; right: 8px; background: transparent; border: none;
-  color: var(--ax-muted, #fca5a5); font-size: 1.2rem; line-height: 1;
-  padding: 2px 6px; cursor: pointer; border-radius: 4px;
+.roster-combobox-clear {
+  position: absolute;
+  right: 32px;
+  background: transparent;
+  border: none;
+  color: var(--ax-muted, #fca5a5);
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 2px 4px;
+  cursor: pointer;
+  z-index: 2;
+  border-radius: 4px;
 }
-.roster-site-clear-btn:hover { color: var(--ax-text); }
+.roster-combobox-clear:hover {
+  color: var(--ax-text, #fff);
+}
+.roster-combobox-arrow {
+  position: absolute;
+  right: 6px;
+  background: transparent;
+  border: none;
+  color: var(--ax-muted, #fca5a5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
+  border-radius: 4px;
+  transition: transform 0.2s ease, color 0.15s ease;
+}
+.roster-combobox-arrow:hover {
+  color: var(--ax-text, #fff);
+}
+.roster-combobox.is-open .roster-combobox-arrow {
+  transform: rotate(180deg);
+}
+.roster-combobox-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  max-height: 230px;
+  overflow-y: auto;
+  background: var(--ax-surface, #1e1e24);
+  border: 1px solid var(--ax-border, rgba(255, 255, 255, 0.15));
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+  padding: 4px 0;
+}
+.roster-combobox-item {
+  padding: 8px 14px;
+  font-size: 0.86rem;
+  color: var(--ax-text, #fff);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: background 0.12s ease;
+}
+.roster-combobox-item:hover,
+.roster-combobox-item.is-focused {
+  background: rgba(220, 38, 38, 0.18);
+  color: var(--ax-text, #fff);
+}
+.roster-combobox-item.is-selected {
+  background: rgba(220, 38, 38, 0.28);
+  font-weight: 600;
+}
+.roster-combobox-item-label {
+  line-height: 1.25;
+}
+.roster-combobox-item-address {
+  font-size: 0.74rem;
+  color: var(--ax-muted, #9ca3af);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.roster-combobox-empty {
+  padding: 14px;
+  text-align: center;
+  color: var(--ax-muted, #9ca3af);
+  font-size: 0.84rem;
+}
+.roster-site-hidden-select {
+  position: absolute !important;
+  opacity: 0.0001 !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+  height: 38px !important;
+  width: 100% !important;
+  top: 0;
+  left: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
 
 /* Selected guard shifts edit header & modal */
 .roster-preview-header {

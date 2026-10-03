@@ -58,13 +58,17 @@
         <div class="schedule-field"><label class="form-label" for="rosterDate">Schedule date</label><input id="rosterDate" type="date" class="form-control"></div>
         <div class="schedule-field roster-site-field">
           <label class="form-label" for="rosterSite">Deployment site</label>
-          <div class="roster-site-control">
-            <div class="roster-site-search-wrap">
-              <span class="material-symbols-rounded roster-site-search-icon" aria-hidden="true">search</span>
-              <input type="text" id="rosterSiteFilter" class="form-control roster-site-filter" placeholder="Type to filter sites…" autocomplete="off" aria-label="Type to filter deployment sites">
-              <button type="button" id="rosterSiteFilterClear" class="roster-site-clear-btn" aria-label="Clear filter" title="Clear filter" hidden>&times;</button>
+          <div class="roster-combobox" id="rosterCombobox">
+            <div class="roster-combobox-input-wrap">
+              <span class="material-symbols-rounded roster-combobox-icon" aria-hidden="true">search</span>
+              <input type="text" id="rosterSiteFilter" class="form-control roster-combobox-input" placeholder="Select or search site…" autocomplete="off" aria-label="Deployment site" aria-autocomplete="list" aria-expanded="false" aria-controls="rosterSiteMenu">
+              <button type="button" id="rosterSiteFilterClear" class="roster-combobox-clear" aria-label="Clear site filter" title="Clear filter" hidden>&times;</button>
+              <button type="button" id="rosterComboboxToggle" class="roster-combobox-arrow" aria-label="Toggle deployment sites" tabindex="-1">
+                <span class="material-symbols-rounded" aria-hidden="true">expand_more</span>
+              </button>
             </div>
-            <select id="rosterSite" class="form-select"><option value="">Select location</option></select>
+            <div id="rosterSiteMenu" class="roster-combobox-menu" role="listbox" hidden></div>
+            <select id="rosterSite" class="form-select roster-site-hidden-select" tabindex="-1" aria-hidden="true"><option value="">Select location</option></select>
           </div>
         </div>
       </div>

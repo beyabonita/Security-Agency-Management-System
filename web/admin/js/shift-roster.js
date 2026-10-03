@@ -3,6 +3,7 @@
   const setup=document.getElementById('rosterSetup'), date=document.getElementById('rosterDate');
   const site=document.getElementById('rosterSite'), slots=document.getElementById('rosterGuards');
   const siteFilter=document.getElementById('rosterSiteFilter'), siteFilterClear=document.getElementById('rosterSiteFilterClear');
+  const combobox=document.getElementById('rosterCombobox'), siteMenu=document.getElementById('rosterSiteMenu'), comboboxToggle=document.getElementById('rosterComboboxToggle');
   const preview=document.getElementById('rosterPreview'), assigned=document.getElementById('assignedRoster');
   const button=document.getElementById('saveRoster');
   let saving=false,setupSaving=false,setupLoading=false;
@@ -62,20 +63,71 @@
     }).join('');
   }
   function updateSiteOptions(selectedId){
-    const term = siteFilter ? siteFilter.value.trim().toLowerCase() : '';
     const current = selectedId !== undefined ? selectedId : site.value;
-    const filtered = term
-      ? locations.filter(l => (l.label || '').toLowerCase().includes(term) || (l.address || '').toLowerCase().includes(term))
-      : locations;
-    let html = `<option value="">Select location${term ? ` (${filtered.length} found)` : ''}</option>`;
-    html += filtered.map(l => `<option value="${escapeHtml(l.id)}">${escapeHtml(l.label)}</option>`).join('');
-    if (current && !filtered.some(l => l.id === current)) {
-      const activeObj = locations.find(l => l.id === current);
-      if (activeObj) html += `<option value="${escapeHtml(activeObj.id)}" selected>${escapeHtml(activeObj.label)} (selected)</option>`;
+    let html = '<option value="">Select location</option>';
+    html += locations.map(l => `<option value="${escapeHtml(l.id)}">${escapeHtml(l.label)}</option>`).join('');
+    if (current && !locations.some(l => l.id === current)) {
+      html += `<option value="${escapeHtml(current)}" selected>${escapeHtml(current)}</option>`;
     }
     site.innerHTML = html;
     site.value = current;
-    if (siteFilterClear) siteFilterClear.hidden = !term;
+
+    const activeObj = locations.find(l => l.id === current);
+    if (siteFilter) {
+      siteFilter.value = activeObj ? activeObj.label : '';
+    }
+    if (siteFilterClear) {
+      siteFilterClear.hidden = !current;
+    }
+    if (siteMenu && !siteMenu.hidden) {
+      renderSiteMenuItems();
+    }
+  }
+
+  function openSiteMenu(){
+    if (!siteMenu) return;
+    siteMenu.hidden = false;
+    combobox?.classList.add('is-open');
+    siteFilter?.setAttribute('aria-expanded', 'true');
+    renderSiteMenuItems();
+  }
+
+  function closeSiteMenu(){
+    if (!siteMenu) return;
+    siteMenu.hidden = true;
+    combobox?.classList.remove('is-open');
+    siteFilter?.setAttribute('aria-expanded', 'false');
+    const activeObj = locations.find(l => l.id === site.value);
+    if (siteFilter) {
+      siteFilter.value = activeObj ? activeObj.label : '';
+    }
+    if (siteFilterClear) {
+      siteFilterClear.hidden = !site.value;
+    }
+  }
+
+  function renderSiteMenuItems(){
+    if (!siteMenu) return;
+    const term = siteFilter ? siteFilter.value.trim().toLowerCase() : '';
+    const current = site.value;
+    const activeObj = locations.find(l => l.id === current);
+    const isExactMatch = activeObj && activeObj.label.toLowerCase() === term;
+    const filtered = (!term || isExactMatch)
+      ? locations
+      : locations.filter(l => (l.label || '').toLowerCase().includes(term) || (l.address || '').toLowerCase().includes(term));
+
+    if (!filtered.length) {
+      siteMenu.innerHTML = '<div class="roster-combobox-empty">No deployment sites match</div>';
+      return;
+    }
+
+    siteMenu.innerHTML = filtered.map(l => {
+      const isSel = l.id === current;
+      return `<div class="roster-combobox-item${isSel ? ' is-selected' : ''}" data-id="${escapeHtml(l.id)}" data-label="${escapeHtml(l.label)}" role="option" aria-selected="${isSel}">` +
+        `<span class="roster-combobox-item-label">${escapeHtml(l.label)}</span>` +
+        (l.address ? `<span class="roster-combobox-item-address">${escapeHtml(l.address)}</span>` : '') +
+        `</div>`;
+    }).join('');
   }
 
   function syncGuardSelections(){
@@ -156,28 +208,109 @@
   date.min=todayDateString();
   date.value=todayDateString();
   setup.addEventListener('change',()=>{if(editingSetup)resetEditor();window.renderShiftRoster();});
-  date.addEventListener('change',summary);site.addEventListener('change',summary);
-  if(siteFilter){
-    siteFilter.addEventListener('input',()=>{
-      const old=site.value;
-      updateSiteOptions(old);
-      const term=siteFilter.value.trim().toLowerCase();
-      if(term){
-        const matches=locations.filter(l=>(l.label||'').toLowerCase().includes(term));
-        if(matches.length===1 && site.value!==matches[0].id){
-          site.value=matches[0].id;
-          summary();
+  date.addEventListener('change',summary);
+  site.addEventListener('change', () => {
+    const activeObj = locations.find(l => l.id === site.value);
+    if (siteFilter) {
+      siteFilter.value = activeObj ? activeObj.label : '';
+    }
+    if (siteFilterClear) {
+      siteFilterClear.hidden = !site.value;
+    }
+    summary();
+  });
+
+  if (siteMenu) {
+    siteMenu.addEventListener('click', (e) => {
+      const item = e.target.closest('.roster-combobox-item');
+      if (!item) return;
+      site.value = item.dataset.id;
+      if (siteFilter) siteFilter.value = item.dataset.label;
+      if (siteFilterClear) siteFilterClear.hidden = false;
+      closeSiteMenu();
+      site.dispatchEvent(new Event('change'));
+    });
+  }
+
+  if (siteFilter) {
+    siteFilter.addEventListener('focus', () => {
+      openSiteMenu();
+      siteFilter.select();
+    });
+    siteFilter.addEventListener('click', () => {
+      if (siteMenu && siteMenu.hidden) {
+        openSiteMenu();
+        siteFilter.select();
+      }
+    });
+    siteFilter.addEventListener('input', () => {
+      openSiteMenu();
+      if (siteFilterClear) siteFilterClear.hidden = !siteFilter.value;
+    });
+    siteFilter.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeSiteMenu();
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (siteMenu && siteMenu.hidden) openSiteMenu();
+        const items = [...siteMenu.querySelectorAll('.roster-combobox-item')];
+        if (!items.length) return;
+        const focused = siteMenu.querySelector('.roster-combobox-item.is-focused');
+        const idx = focused ? items.indexOf(focused) : -1;
+        const next = items[Math.min(idx + 1, items.length - 1)];
+        items.forEach(it => it.classList.remove('is-focused'));
+        next.classList.add('is-focused');
+        next.scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const items = [...siteMenu.querySelectorAll('.roster-combobox-item')];
+        if (!items.length) return;
+        const focused = siteMenu.querySelector('.roster-combobox-item.is-focused');
+        const idx = focused ? items.indexOf(focused) : items.length;
+        const prev = items[Math.max(idx - 1, 0)];
+        items.forEach(it => it.classList.remove('is-focused'));
+        prev.classList.add('is-focused');
+        prev.scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        const focused = siteMenu?.querySelector('.roster-combobox-item.is-focused');
+        if (focused && !siteMenu.hidden) {
+          e.preventDefault();
+          focused.click();
         }
       }
     });
   }
-  if(siteFilterClear){
-    siteFilterClear.addEventListener('click',()=>{
-      siteFilter.value='';
-      updateSiteOptions();
-      siteFilter.focus();
+
+  if (comboboxToggle) {
+    comboboxToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (siteMenu && siteMenu.hidden) {
+        siteFilter?.focus();
+        openSiteMenu();
+      } else {
+        closeSiteMenu();
+      }
     });
   }
+
+  if (siteFilterClear) {
+    siteFilterClear.addEventListener('click', (e) => {
+      e.stopPropagation();
+      site.value = '';
+      if (siteFilter) siteFilter.value = '';
+      siteFilterClear.hidden = true;
+      closeSiteMenu();
+      site.dispatchEvent(new Event('change'));
+      siteFilter?.focus();
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (combobox && !combobox.contains(e.target)) {
+      closeSiteMenu();
+    }
+  });
   button.addEventListener('click',async()=>{
     if(saving||setupSaving)return;
     summary();
@@ -198,6 +331,7 @@
     }
     saving=true;[setup,date,site,...slots.querySelectorAll('select')].forEach(el=>el.disabled=true);
     if(siteFilter)siteFilter.disabled=true;
+    if(comboboxToggle)comboboxToggle.disabled=true;
     const saveSetupBtn = document.getElementById('saveRosterSetup');
     if (saveSetupBtn) saveSetupBtn.disabled = true;
     try{
@@ -212,7 +346,7 @@
         appDialog.toast(`${data.length} ${data.length===1?'shift':'shifts'} assigned successfully.`,{tone:'success'});
       },{label:'Assigning shifts…'});
     }catch(error){appDialog.toast(error.message||'Could not confirm the roster. Refresh before retrying.',{tone:'danger'});}
-    finally{saving=false;[setup,date,site].forEach(el=>el.disabled=false);if(siteFilter)siteFilter.disabled=false;const sBtn=document.getElementById('saveRosterSetup');if(sBtn)sBtn.disabled=setupSaving;summary();}
+    finally{saving=false;[setup,date,site].forEach(el=>el.disabled=false);if(siteFilter)siteFilter.disabled=false;if(comboboxToggle)comboboxToggle.disabled=false;const sBtn=document.getElementById('saveRosterSetup');if(sBtn)sBtn.disabled=setupSaving;summary();}
   });
   // Setups are saved per agency. Assigned schedules already contain their own
   // start/end timestamps, so saving another setup cannot rewrite old duty/DTR.

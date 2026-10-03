@@ -669,5 +669,30 @@ test('selecting a guard for a second shift is prevented and resets the slot with
   await expect(page.locator('#rosterStatus1')).toContainText('Double shift prevented: already in Shift 1');
 });
 
+test('deployment site combobox opens dropdown on focus/click and filters options on typing', async ({ page }) => {
+  await page.evaluate(() => {
+    locations.push({ id: 'other-site', label: 'Other post', address: 'Other address' });
+    window.renderShiftRoster();
+  });
+  await fillRoster(page);
+  await expect(page.locator('#rosterSiteFilter')).toHaveValue('Test post');
+
+  // Focus and open dropdown
+  await page.locator('#rosterSiteFilter').click();
+  await expect(page.locator('#rosterSiteMenu')).toBeVisible();
+
+  // Type to filter
+  await page.locator('#rosterSiteFilter').fill('other');
+  await expect(page.locator('#rosterSiteMenu .roster-combobox-item')).toHaveCount(1);
+  await expect(page.locator('#rosterSiteMenu')).toContainText('Other post');
+
+  // Click the filtered option
+  await page.locator('#rosterSiteMenu .roster-combobox-item').click();
+  await expect(page.locator('#rosterSiteMenu')).not.toBeVisible();
+  await expect(page.locator('#rosterSiteFilter')).toHaveValue('Other post');
+  await expect(page.locator('#rosterSite')).toHaveValue('other-site');
+});
+
+
 
 
