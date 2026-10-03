@@ -3,6 +3,12 @@
   const setup=document.getElementById('rosterSetup'), date=document.getElementById('rosterDate');
   const site=document.getElementById('rosterSite'), slots=document.getElementById('rosterGuards');
   const siteFilter=document.getElementById('rosterSiteFilter'), siteFilterClear=document.getElementById('rosterSiteFilterClear');
+  const siteSuggestions=document.getElementById('rosterSiteSuggestions');
+  const editTimesBtn=document.getElementById('editRosterTimesBtn');
+  const rosterTimesInputs=document.getElementById('rosterTimesInputs');
+  const rosterTimesForm=document.getElementById('editRosterTimesForm');
+  const rosterTimesError=document.getElementById('editRosterTimesError');
+  let rosterTimesModal=null, highlightedSiteIndex=-1;
   const preview=document.getElementById('rosterPreview'), assigned=document.getElementById('assignedRoster');
   const button=document.getElementById('saveRoster');
   let saving=false,setupSaving=false,setupLoading=false;
@@ -63,6 +69,63 @@
     site.innerHTML = html;
     site.value = current;
     if (siteFilterClear) siteFilterClear.hidden = !term;
+    const activeSite = locations.find(l => l.id === site.value);
+    if (activeSite && document.activeElement !== siteFilter && !term) {
+      siteFilter.value = activeSite.label;
+      if (siteFilterClear) siteFilterClear.hidden = false;
+    }
+  }
+
+  function renderSiteSuggestions(query = '') {
+    if (!siteSuggestions) return;
+    const term = (query || '').trim().toLowerCase();
+    const matched = term
+      ? locations.filter(l => (l.label || '').toLowerCase().includes(term) || (l.address || '').toLowerCase().includes(term))
+      : locations;
+
+    if (!matched.length) {
+      siteSuggestions.innerHTML = `<div class="roster-site-empty">No deployment sites found matching "${escapeHtml(term)}"</div>`;
+      siteSuggestions.hidden = false;
+      return;
+    }
+
+    highlightedSiteIndex = -1;
+    siteSuggestions.innerHTML = matched.map((l, index) => {
+      const isSelected = l.id === site.value;
+      const labelHtml = term ? highlightQuery(l.label || '', term) : escapeHtml(l.label || '');
+      return `
+        <div class="roster-site-suggestion-item${isSelected ? ' active' : ''}" data-index="${index}" data-site-id="${escapeHtml(l.id)}">
+          <span class="material-symbols-rounded">location_on</span>
+          <div class="site-suggestion-info">
+            <div class="site-suggestion-label">${labelHtml}</div>
+            <div class="site-suggestion-address">${escapeHtml(l.address || 'Deployment site')}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    siteSuggestions.hidden = false;
+  }
+
+  function highlightQuery(text, query) {
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return escapeHtml(text);
+    const before = text.slice(0, idx);
+    const match = text.slice(idx, idx + query.length);
+    const after = text.slice(idx + query.length);
+    return `${escapeHtml(before)}<span class="site-suggestion-match">${escapeHtml(match)}</span>${escapeHtml(after)}`;
+  }
+
+  function selectLocation(locId) {
+    const loc = locations.find(l => l.id === locId);
+    site.value = locId || '';
+    if (siteFilter) {
+      siteFilter.value = loc ? loc.label : '';
+      if (siteFilterClear) siteFilterClear.hidden = !siteFilter.value;
+    }
+    if (siteSuggestions) siteSuggestions.hidden = true;
+    updateSiteOptions(locId);
+    site.dispatchEvent(new Event('change'));
+    summary();
   }
 
   window.renderShiftRoster=()=>{
@@ -75,26 +138,79 @@
   date.min=todayDateString();
   date.value=todayDateString();
   setup.addEventListener('change',()=>{if(editingSetup)resetEditor();window.renderShiftRoster();});
-  date.addEventListener('change',summary);site.addEventListener('change',summary);
+  date.addEventListener('change',summary);
+  site.addEventListener('change',()=>{
+    const activeSite = locations.find(l => l.id === site.value);
+    if (siteFilter && activeSite) {
+      siteFilter.value = activeSite.label;
+      if (siteFilterClear) siteFilterClear.hidden = false;
+    }
+    summary();
+  });
   if(siteFilter){
+    siteFilter.addEventListener('focus',()=>{
+      renderSiteSuggestions(siteFilter.value);
+    });
     siteFilter.addEventListener('input',()=>{
-      const old=site.value;
-      updateSiteOptions(old);
-      const term=siteFilter.value.trim().toLowerCase();
-      if(term){
-        const matches=locations.filter(l=>(l.label||'').toLowerCase().includes(term));
-        if(matches.length===1 && site.value!==matches[0].id){
-          site.value=matches[0].id;
-          summary();
+      const term=siteFilter.value.trim();
+      if(siteFilterClear) siteFilterClear.hidden = !term;
+      renderSiteSuggestions(term);
+      const matches=locations.filter(l=>(l.label||'').toLowerCase().includes(term.toLowerCase()));
+      if(matches.length===1 && site.value!==matches[0].id){
+        site.value=matches[0].id;
+        summary();
+      }
+    });
+    siteFilter.addEventListener('keydown', e => {
+      if (!siteSuggestions || siteSuggestions.hidden) {
+        if (e.key === 'ArrowDown' || e.key === 'Enter') {
+          renderSiteSuggestions(siteFilter.value);
         }
+        return;
+      }
+      const items = siteSuggestions.querySelectorAll('.roster-site-suggestion-item');
+      if (!items.length) return;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        highlightedSiteIndex = (highlightedSiteIndex + 1) % items.length;
+        items.forEach((item, i) => item.classList.toggle('active', i === highlightedSiteIndex));
+        items[highlightedSiteIndex]?.scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        highlightedSiteIndex = (highlightedSiteIndex - 1 + items.length) % items.length;
+        items.forEach((item, i) => item.classList.toggle('active', i === highlightedSiteIndex));
+        items[highlightedSiteIndex]?.scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (highlightedSiteIndex >= 0 && items[highlightedSiteIndex]) {
+          selectLocation(items[highlightedSiteIndex].dataset.siteId);
+        }
+      } else if (e.key === 'Escape') {
+        siteSuggestions.hidden = true;
       }
     });
   }
+  if(siteSuggestions){
+    siteSuggestions.addEventListener('mousedown', e => {
+      const item = e.target.closest('.roster-site-suggestion-item');
+      if (item && item.dataset.siteId) {
+        selectLocation(item.dataset.siteId);
+      }
+    });
+  }
+  document.addEventListener('click', e => {
+    if (siteSuggestions && !e.target.closest('.roster-site-control')) {
+      siteSuggestions.hidden = true;
+    }
+  });
   if(siteFilterClear){
     siteFilterClear.addEventListener('click',()=>{
       siteFilter.value='';
-      updateSiteOptions();
+      site.value='';
+      updateSiteOptions('');
+      if(siteSuggestions) siteSuggestions.hidden = true;
       siteFilter.focus();
+      summary();
     });
   }
   button.addEventListener('click',async()=>{
@@ -120,19 +236,33 @@
     document.getElementById('saveRosterSetup').disabled=true;
     try{
       await appDialog.runBusy(button,async()=>{
-        const args={p_location_id:location,p_duty_date:day,p_guard_ids:ids};
-        args.p_setup_id=chosenSetup.id;args.p_expected_version=chosenSetup.version;
-        const {data,error}=await appSupabase.rpc('assign_saved_shift_roster',args);
-        if(error)throw error;
-        if(!Array.isArray(data)||data.length!==expected)throw Error('Could not confirm all assignments. Refresh the schedule before retrying.');
+        let dataResult;
+        if(chosenSetup.shifts.length===1 || !chosenSetup.version){
+          const p = periods()[0];
+          const res = await appSupabase.rpc('create_dtr_schedule', {
+            p_user_id: ids[0],
+            p_location_id: location,
+            p_duty_date: day,
+            p_periods: [{ period: 'auto', start_time: p[0], end_time: p[1], next_day: false }]
+          });
+          if(res.error) throw res.error;
+          dataResult = res.data;
+        } else {
+          const args={p_location_id:location,p_duty_date:day,p_guard_ids:ids};
+          args.p_setup_id=chosenSetup.id;args.p_expected_version=chosenSetup.version;
+          const {data,error}=await appSupabase.rpc('assign_saved_shift_roster',args);
+          if(error)throw error;
+          dataResult = data;
+        }
+        if(!Array.isArray(dataResult)||dataResult.length!==expected)throw Error('Could not confirm all assignments. Refresh the schedule before retrying.');
         chosenSetup.in_use=true;setupRevision++;managementControls();
         setScheduleListPeriod(day);await refreshSchedules();
-        appDialog.toast(`${data.length} ${data.length===1?'shift':'shifts'} assigned successfully.`,{tone:'success'});
+        appDialog.toast(`${dataResult.length} ${dataResult.length===1?'shift':'shifts'} assigned successfully.`,{tone:'success'});
       },{label:'Assigning shifts…'});
     }catch(error){appDialog.toast(error.message||'Could not confirm the roster. Refresh before retrying.',{tone:'danger'});}
     finally{saving=false;[setup,date,site].forEach(el=>el.disabled=false);if(siteFilter)siteFilter.disabled=false;document.getElementById('saveRosterSetup').disabled=setupSaving;summary();}
   });
-  // Setups are saved per agency. Assigned schedules already contain their own
+
   // start/end timestamps, so saving another setup cannot rewrite old duty/DTR.
   const editor=document.getElementById('newRosterSetup'),form=document.getElementById('rosterSetupForm');
   const setupName=document.getElementById('rosterSetupName'),setupCount=document.getElementById('rosterSetupCount');
@@ -158,9 +288,91 @@
     return items.filter(item=>{const key=RosterSetup.signature(item.shifts);if(signatures.has(key))return false;signatures.add(key);return true;});
   }
   function options(selectedId=setup.value){
-    setup.innerHTML=savedSetups.length?savedSetups.map(item=>`<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}${item.name.toLowerCase()===`${item.shifts.length} shifts`?'':` (${item.shifts.length} shifts)`}</option>`).join(''):'<option value="">No shifting setups</option>';
+    const hasOneShift = savedSetups.some(item => item.shifts && item.shifts.length === 1);
+    const hasTwoShifts = savedSetups.some(item => item.shifts && item.shifts.length === 2);
+    if (!hasOneShift) {
+      savedSetups.unshift({
+        id: '1-shift',
+        name: '1 Shift',
+        version: 1,
+        shifts: [{ start_time: '07:00', end_time: '19:00' }]
+      });
+    }
+    if (!hasTwoShifts) {
+      savedSetups.push({
+        id: '2',
+        name: '2 Shifts',
+        version: 1,
+        shifts: [{ start_time: '06:00', end_time: '18:00' }, { start_time: '18:00', end_time: '06:00' }]
+      });
+    }
+    setup.innerHTML=savedSetups.length?savedSetups.map(item=>`<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}${item.name.toLowerCase()===`${item.shifts.length} shifts`?'':` (${item.shifts.length} shift${item.shifts.length===1?'':'s'})`}</option>`).join(''):'<option value="">No shifting setups</option>';
     setup.value=savedSetups.some(item=>item.id===selectedId)?selectedId:(savedSetups[0]?.id||'');
     window.renderShiftRoster();
+  }
+
+  function openRosterTimesEditor() {
+    const cur = customSetup();
+    if (!cur || !cur.shifts) return;
+    if (rosterTimesError) rosterTimesError.hidden = true;
+    if (rosterTimesInputs) {
+      rosterTimesInputs.innerHTML = cur.shifts.map((shift, i) => {
+        const shiftName = cur.shifts.length === 1 ? 'Shift 1' : i === 0 ? 'Shift 1 (Day)' : 'Shift 2 (Night)';
+        return `
+          <div class="p-3 border rounded bg-body-tertiary">
+            <strong class="d-block mb-2 small">${escapeHtml(shiftName)}</strong>
+            <div class="row g-2">
+              <div class="col-6">
+                <label class="form-label small" for="customShiftStart${i}">Start Time</label>
+                <input id="customShiftStart${i}" data-start type="time" class="form-control form-control-sm" required value="${shift.start_time}">
+              </div>
+              <div class="col-6">
+                <label class="form-label small" for="customShiftEnd${i}">End Time</label>
+                <input id="customShiftEnd${i}" data-end type="time" class="form-control form-control-sm" required value="${shift.end_time}">
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    if (window.bootstrap) {
+      rosterTimesModal ||= new bootstrap.Modal(document.getElementById('editRosterTimesModal'));
+      rosterTimesModal.show();
+    }
+  }
+
+  if (editTimesBtn) {
+    editTimesBtn.addEventListener('click', openRosterTimesEditor);
+  }
+
+  if (rosterTimesForm) {
+    rosterTimesForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const cur = customSetup();
+      if (!cur) return;
+      const starts = [...rosterTimesInputs.querySelectorAll('[data-start]')];
+      const ends = [...rosterTimesInputs.querySelectorAll('[data-end]')];
+      const newShifts = starts.map((input, i) => ({
+        start_time: input.value,
+        end_time: ends[i].value
+      }));
+
+      const err = RosterSetup.validate(newShifts);
+      if (err) {
+        if (rosterTimesError) {
+          rosterTimesError.textContent = err;
+          rosterTimesError.hidden = false;
+        }
+        return;
+      }
+
+      cur.shifts = newShifts;
+      if (rosterTimesModal) rosterTimesModal.hide();
+      window.renderShiftRoster();
+      summary();
+      appDialog.toast('Shift times updated.', { tone: 'success' });
+    });
   }
   window.loadRosterSetups=async({silent=false}={})=>{
     if(setupLoading||setupSaving||saving)return;
