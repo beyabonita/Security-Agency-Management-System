@@ -110,6 +110,18 @@ Deno.serve((request) =>
       max: 100,
       normalize: (value) => value.trim(),
     }) ?? "";
+    const mobileNumber =
+      optionalString(body, "mobileNumber", "Mobile number", {
+        max: 20,
+        normalize: (value) => value.trim(),
+      }) ?? null;
+    if (mobileNumber && !/^09[0-9]{9}$/.test(mobileNumber)) {
+      reject(
+        400,
+        "Enter an 11-digit mobile number starting with 09 (e.g. 09171234567).",
+        "invalid_mobile_number",
+      );
+    }
 
     const employmentValue = body.employmentCategory ?? "regular";
     if (!isEmploymentCategory(employmentValue)) {
@@ -175,6 +187,7 @@ Deno.serve((request) =>
         first_name: firstName,
         middle_initial: middleInitial,
         last_name: lastName,
+        mobile_number: mobileNumber,
         role,
         organization_id: targetOrganizationId,
         employment_category: role === "user" ? employmentCategory : "regular",

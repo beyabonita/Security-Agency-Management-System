@@ -217,35 +217,47 @@
 
 .password-field-wrap {
     position: relative;
-    display: flex;
-    align-items: center;
+    display: block;
+    width: 100%;
 }
 .password-field-wrap input {
-    padding-right: 44px;
+    width: 100%;
+    padding-right: 44px !important;
 }
 .btn-toggle-password {
     position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: transparent;
-    border: none;
+    right: 6px;
+    top: 0;
+    bottom: 0;
+    margin-block: auto;
+    width: 34px;
+    height: 34px;
+    min-height: 34px !important;
+    max-height: 34px !important;
+    background: transparent !important;
+    border: none !important;
     color: var(--sl-muted);
-    padding: 6px;
+    padding: 0 !important;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: 6px;
     cursor: pointer;
-    line-height: 1;
+    transform: none !important;
     transition: color 0.15s ease, background 0.15s ease;
+    z-index: 2;
 }
 .btn-toggle-password:hover {
     color: var(--sl-danger);
-    background: var(--sl-red-soft);
+    background: var(--sl-red-soft) !important;
 }
-.btn-toggle-password .material-symbols-rounded {
-    font-size: 1.25rem;
+.btn-toggle-password svg {
+    display: block;
+    pointer-events: none;
+}
+.btn-toggle-password:focus-visible {
+    outline: 2px solid var(--sl-danger) !important;
+    outline-offset: 2px;
 }
 .personnel-name-input {
     text-transform: capitalize;
@@ -507,7 +519,11 @@
                 <option value="contract">Contract</option>
             </select>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-5">
+            <label class="form-label">LAST NAME</label>
+            <input type="text" id="newGuardLastName" class="form-control personnel-name-input" placeholder="Dela Cruz" oninput="autoCapitalizeWords(this)">
+        </div>
+        <div class="col-md-5">
             <label class="form-label">FIRST NAME</label>
             <input type="text" id="newGuardFirstName" class="form-control personnel-name-input" placeholder="Juan" oninput="autoCapitalizeWords(this)">
         </div>
@@ -515,21 +531,22 @@
             <label class="form-label">M.I.</label>
             <input type="text" id="newGuardMiddleInitial" class="form-control personnel-initial-input" placeholder="D" maxlength="3" oninput="autoCapitalizeInitial(this)">
         </div>
-        <div class="col-md-4">
-            <label class="form-label">LAST NAME</label>
-            <input type="text" id="newGuardLastName" class="form-control personnel-name-input" placeholder="Dela Cruz" oninput="autoCapitalizeWords(this)">
-        </div>
-        <div class="col-12">
+        <div class="col-md-6">
             <label class="form-label">EMAIL</label>
             <input type="email" id="newGuardUsername" class="form-control" placeholder="name@gmail.com" autocomplete="off">
             <div class="form-text" style="color:var(--sl-muted);font-size:0.75rem;">Use the person’s own email address.</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">PHONE NUMBER</label>
+            <input type="tel" id="newGuardMobileNumber" class="form-control" placeholder="09171234567" maxlength="11" autocomplete="tel">
+            <div class="form-text" style="color:var(--sl-muted);font-size:0.75rem;">11-digit mobile starting with 09 (e.g. 09171234567).</div>
         </div>
         <div class="col-md-6">
             <label class="form-label">PASSWORD</label>
             <div class="password-field-wrap">
                 <input type="password" id="newGuardPassword" class="form-control" autocomplete="new-password" minlength="8" placeholder="8+ characters: uppercase, lowercase, number, symbol" aria-describedby="newGuardPasswordHelp">
                 <button type="button" class="btn-toggle-password" id="newGuardPasswordToggle" onclick="togglePasswordVisibility('newGuardPassword', this)" aria-label="Show password" title="Show password" aria-controls="newGuardPassword" aria-pressed="false">
-                    <span class="material-symbols-rounded" aria-hidden="true">visibility</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="m3 3 18 18" style="display:none"/></svg>
                 </button>
             </div>
             <small id="newGuardPasswordHelp">Use at least 8 characters, including uppercase and lowercase letters, a number, and a symbol.</small>
@@ -539,7 +556,7 @@
             <div class="password-field-wrap">
                 <input type="password" id="newGuardPasswordConfirm" class="form-control" placeholder="Repeat password">
                 <button type="button" class="btn-toggle-password" id="newGuardPasswordConfirmToggle" onclick="togglePasswordVisibility('newGuardPasswordConfirm', this)" aria-label="Show password" title="Show password" aria-controls="newGuardPasswordConfirm" aria-pressed="false">
-                    <span class="material-symbols-rounded" aria-hidden="true">visibility</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="m3 3 18 18" style="display:none"/></svg>
                 </button>
             </div>
         </div>
@@ -1482,12 +1499,13 @@ function togglePasswordVisibility(inputId, btn) {
     if (!input || !btn) return;
     const isPassword = input.type === 'password';
     input.type = isPassword ? 'text' : 'password';
-    const icon = btn.querySelector('.material-symbols-rounded');
-    if (icon) icon.textContent = isPassword ? 'visibility_off' : 'visibility';
+    const slash = btn.querySelector('.eye-slash');
+    if (slash) slash.style.display = isPassword ? '' : 'none';
     const label = isPassword ? 'Hide password' : 'Show password';
     btn.setAttribute('aria-label', label);
     btn.setAttribute('title', label);
     btn.setAttribute('aria-pressed', String(isPassword));
+    input.focus();
 }
 
 function resetPasswordVisibility(inputId, btn) {
@@ -1495,8 +1513,8 @@ function resetPasswordVisibility(inputId, btn) {
     if (!input) return;
     input.type = 'password';
     if (btn) {
-        const icon = btn.querySelector('.material-symbols-rounded');
-        if (icon) icon.textContent = 'visibility';
+        const slash = btn.querySelector('.eye-slash');
+        if (slash) slash.style.display = 'none';
         btn.setAttribute('aria-label', 'Show password');
         btn.setAttribute('title', 'Show password');
         btn.setAttribute('aria-pressed', 'false');
@@ -1506,6 +1524,7 @@ function resetPasswordVisibility(inputId, btn) {
 function openPersonnelCreate() {
     document.getElementById("newGuardRole").disabled = false;
     document.getElementById("newGuardRole").value = "user";
+    document.getElementById("createGuardError").innerText = "";
     updateCreateUserHint();
     resetPasswordVisibility('newGuardPassword', document.getElementById('newGuardPasswordToggle'));
     resetPasswordVisibility('newGuardPasswordConfirm', document.getElementById('newGuardPasswordConfirmToggle'));
@@ -1519,6 +1538,7 @@ async function createGuardAccount() {
     const lastName  = document.getElementById("newGuardLastName").value.trim();
     const middle    = document.getElementById("newGuardMiddleInitial").value.trim();
     const username  = document.getElementById("newGuardUsername").value.trim();
+    const mobileNumber = document.getElementById("newGuardMobileNumber")?.value.trim() || "";
     const password  = document.getElementById("newGuardPassword").value;
     const confirm   = document.getElementById("newGuardPasswordConfirm").value;
     const errEl     = document.getElementById("createGuardError");
@@ -1538,6 +1558,10 @@ async function createGuardAccount() {
     const usernameErr = validateEmail(username);
     if (usernameErr) {
         errEl.innerText = usernameErr;
+        return;
+    }
+    if (mobileNumber && !/^09[0-9]{9}$/.test(mobileNumber)) {
+        errEl.innerText = "Please enter an 11-digit mobile number starting with 09 (e.g. 09171234567).";
         return;
     }
     const normalizedUsername = normalizeUsername(username);
@@ -1564,12 +1588,18 @@ async function createGuardAccount() {
                     firstName,
                     middleInitial: middle ? middle.charAt(0).toUpperCase() : "",
                     lastName,
+                    mobileNumber: mobileNumber || null,
                     employmentCategory,
                     contractStartDate: contractStartDate || null,
                     contractEndDate: contractEndDate || null
                 }
             });
             await edgeFunctionErrors.unwrap({ data, error }, 'Could not create the account.');
+            if (mobileNumber && data?.id) {
+                try {
+                    await appSupabase.from('profiles').update({ mobile_number: mobileNumber }).eq('id', data.id);
+                } catch (_) {}
+            }
             await loadUsers();
         }, { label: `Creating ${role === 'user' ? 'Guard' : 'Inspector'}…` });
         const roleLabel = role === "user" ? "Guard" : role === "inspector" ? "Inspector" : "Operations Head";
@@ -1577,6 +1607,8 @@ async function createGuardAccount() {
         document.getElementById("newGuardLastName").value = "";
         document.getElementById("newGuardMiddleInitial").value = "";
         document.getElementById("newGuardUsername").value = "";
+        const mobileEl = document.getElementById("newGuardMobileNumber");
+        if (mobileEl) mobileEl.value = "";
         document.getElementById("newGuardPassword").value = "";
         document.getElementById("newGuardPasswordConfirm").value = "";
         resetPasswordVisibility('newGuardPassword', document.getElementById('newGuardPasswordToggle'));
