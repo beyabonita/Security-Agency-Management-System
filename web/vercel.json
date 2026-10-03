@@ -50,6 +50,72 @@
   "redirects": [
     {
       "source": "/",
+      "has": [{ "type": "host", "value": "it.tts-agency.site" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/staff/:path*",
+      "has": [{ "type": "host", "value": "it.tts-agency.site" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/login.html",
+      "has": [{ "type": "host", "value": "it.tts-agency.site" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/dashboard.html",
+      "has": [{ "type": "host", "value": "it.tts-agency.site" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/users.html",
+      "has": [{ "type": "host", "value": "it.tts-agency.site" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/locations.html",
+      "has": [{ "type": "host", "value": "it.tts-agency.site" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/schedule.html",
+      "has": [{ "type": "host", "value": "it.tts-agency.site" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/incidents.html",
+      "has": [{ "type": "host", "value": "it.tts-agency.site" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/swaps.html",
+      "has": [{ "type": "host", "value": "it.tts-agency.site" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/inspector/:path*",
+      "has": [{ "type": "host", "value": "it.tts-agency.site" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/it-admin/login.html",
+      "has": [{ "type": "host", "value": "it.tts-agency.site" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/",
       "has": [{ "type": "host", "value": "sams-it-portal.vercel.app" }],
       "destination": "/system-access-7d92a4/login.html",
       "permanent": false
@@ -112,6 +178,30 @@
       "source": "/it-admin/login.html",
       "has": [{ "type": "host", "value": "sams-it-portal.vercel.app" }],
       "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/system-access-7d92a4/:path*",
+      "has": [{ "type": "host", "value": "tts-agency.site" }],
+      "destination": "/staff/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/it-admin/:path*",
+      "has": [{ "type": "host", "value": "tts-agency.site" }],
+      "destination": "/staff/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/system-access-7d92a4/:path*",
+      "has": [{ "type": "host", "value": "www.tts-agency.site" }],
+      "destination": "/staff/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/it-admin/:path*",
+      "has": [{ "type": "host", "value": "www.tts-agency.site" }],
+      "destination": "/staff/login.html",
       "permanent": false
     },
     {
