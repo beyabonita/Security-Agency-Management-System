@@ -197,7 +197,7 @@ Important:
 The release uses separate public addresses for Staff and IT Admin access:
 
 - Staff: `https://security-agency-management-system-nu.vercel.app`
-- IT Admin: `https://security-agency-management-system-admin.vercel.app`
+- IT Admin: `https://security-agency-ms.vercel.app`
 
 The Android Guard app is served from the dedicated download endpoint linked by the Staff portal.
 

@@ -136,8 +136,8 @@ for (const panel of ['admin', 'inspector']) {
 }
 
 const vercelConfig = read('vercel.json');
-expectIncludes(vercelConfig, 'security-agency-management-system-admin.vercel.app', 'dedicated IT Admin host');
-expectIncludes(vercelConfig, 'security-agency-management-system-nu.vercel.app', 'dedicated Staff host');
+expectIncludes(vercelConfig, 'sams-it-portal.vercel.app', 'dedicated IT Admin host');
+expectIncludes(vercelConfig, 'security-agency-ms.vercel.app', 'dedicated Staff host');
 expectExcludes(vercelConfig, 'sentinel-link-system.vercel.app', 'retired IT Admin host');
 for (const host of ['https://a.tile.openstreetmap.org', 'https://b.tile.openstreetmap.org', 'https://c.tile.openstreetmap.org']) {
   expectIncludes(vercelConfig, host, `OpenStreetMap tile CSP host ${host}`);
