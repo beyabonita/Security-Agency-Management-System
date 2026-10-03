@@ -1,0 +1,11 @@
+PASS unused initial setup is editable
+PASS assignments preserve setup identity and lock both actions
+PASS cancelled duties unlock without removing history
+PASS ongoing overnight duty remains locked across midnight
+PASS last shift ending releases lock
+PASS legacy assignments without setup IDs also lock
+PASS completed assignments do not lock
+PASS other agency usage is isolated
+PASS unused setup can be removed while keeping history
+PASS non-head cannot read usage or mutate setups
+10 roster locking database checks passed.

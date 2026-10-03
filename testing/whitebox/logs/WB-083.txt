@@ -1,0 +1,12 @@
+WB-083 — PASS
+AttendanceSession.undertimeDuration
+Scenario: early departure
+Input: "07:30"
+Expected: 30
+Actual: 30
+UTC: 2026-09-05T08:57:23.843376Z
+Evidence: logs/flutter-verified.jsonl:314
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

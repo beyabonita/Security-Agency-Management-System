@@ -1,0 +1,12 @@
+WB-300 — PASS
+admin-create-user.registered handler
+Scenario: validation, duplicate and rollback
+Input: {"options":{"caller":{"role":"it_admin"}},"body":{"role":"admin"}}
+Expected: [200,null]
+Actual: [200,null]
+UTC: 2026-09-05T08:56:20.006Z
+Evidence: logs/deno-final.log:510
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

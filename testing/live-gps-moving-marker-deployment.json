@@ -1,0 +1,26 @@
+{
+  "status": "ok",
+  "deployment": {
+    "id": "dpl_Dd9CbppzrEqzAEUuQEtdp2uVK5GT",
+    "url": "https://security-agency-management-system-pb6b8kner-codex-a9d1.vercel.app",
+    "inspectorUrl": "https://vercel.com/codex-a9d1/security-agency-management-system/Dd9CbppzrEqzAEUuQEtdp2uVK5GT",
+    "readyState": "READY",
+    "target": "production",
+    "deploymentApiUrl": "https://api.vercel.com/v13/deployments/dpl_Dd9CbppzrEqzAEUuQEtdp2uVK5GT"
+  },
+  "message": "Deployment security-agency-management-system-pb6b8kner-codex-a9d1.vercel.app ready.",
+  "next": [
+    {
+      "command": "vercel curl https://security-agency-management-system-pb6b8kner-codex-a9d1.vercel.app",
+      "when": "Verify deployment, including when Deployment Protection is enabled"
+    },
+    {
+      "command": "vercel inspect security-agency-management-system-pb6b8kner-codex-a9d1.vercel.app --scope codex-a9d1",
+      "when": "Inspect deployment"
+    },
+    {
+      "command": "vercel deploy --prod --scope codex-a9d1",
+      "when": "Promote to production"
+    }
+  ]
+}

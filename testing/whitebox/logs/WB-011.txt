@@ -1,0 +1,12 @@
+WB-011 — PASS
+auth_username.normalizeUsername
+Scenario: trim and lower case
+Input: " Guard_1 "
+Expected: "guard_1"
+Actual: "guard_1"
+UTC: 2026-09-05T08:57:23.478375Z
+Evidence: logs/flutter-verified.jsonl:43
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

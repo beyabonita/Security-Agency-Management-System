@@ -1,0 +1,15 @@
+
+Running 8 tests using 1 worker
+
+(node:11628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 incident_report.spec.js:66:3 › admin displays video-only evidence without claiming a photo is attached (2.6s)
+  ok 2 incident_report.spec.js:79:3 › admin shows Emergency and attributes acknowledgement and notes to their reviewers (2.4s)
+  ok 3 incident_report.spec.js:102:3 › admin incident report shows detailed private video evidence (2.6s)
+  ok 4 incident_report.spec.js:131:3 › admin detailed incident modal is readable in dark mode without altering media (2.8s)
+  ok 5 incident_report.spec.js:66:3 › inspector displays video-only evidence without claiming a photo is attached (1.4s)
+  ok 6 incident_report.spec.js:79:3 › inspector shows Emergency and attributes acknowledgement and notes to their reviewers (2.1s)
+  ok 7 incident_report.spec.js:102:3 › inspector incident report shows detailed private video evidence (3.3s)
+  ok 8 incident_report.spec.js:131:3 › inspector detailed incident modal is readable in dark mode without altering media (2.4s)
+
+  8 passed (27.0s)

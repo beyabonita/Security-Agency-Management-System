@@ -1,5 +1,5 @@
 /**
- * Slide/fade transition when switching between Admin and Inspector login pages.
+ * Slide/fade transition when switching between Operations Head and Inspector login pages.
  */
 (function () {
     var panel = document.body.getAttribute('data-login-panel');

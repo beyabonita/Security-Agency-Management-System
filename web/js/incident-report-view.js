@@ -58,6 +58,27 @@
     return parts.length ? parts.join(' + ') : 'No media';
   }
 
+  function reviewHistoryMarkup(incident, formatWhen) {
+    const history = Array.isArray(incident.reviewHistory) ? incident.reviewHistory : [];
+    const roles = { inspector: 'Inspector', admin: 'Operations Head', operations_head: 'Operations Head', it_admin: 'IT Admin', user: 'Guard', guard: 'Guard' };
+    if (!history.length) {
+      return '<div class="incident-response-block"><span class="incident-response-label">Reviewer</span><p class="incident-report-copy">'
+        + (incident.updatedBy ? 'Reviewer details not recorded for this earlier update.' : 'No recorded review yet.') + '</p></div>';
+    }
+    return history.slice().reverse().filter(entry => entry && typeof entry === 'object').map(entry => {
+      const action = entry.status === 'acknowledged' ? 'Acknowledged by' : entry.status === 'resolved' ? 'Resolved by' : 'Noted by';
+      const name = entry.reviewer_name || 'Name not recorded';
+      const role = roles[entry.reviewer_role] || 'Staff';
+      const date = new Date(entry.reviewed_at || '');
+      const when = Number.isNaN(date.getTime()) ? 'Time not recorded' : formatWhen({ toDate: () => date });
+      return `<div class="incident-response-block">
+        <span class="incident-response-label">${action}</span>
+        <p class="incident-report-copy"><strong>${escapeHtml(name)} · ${escapeHtml(role)}</strong><br>${escapeHtml(when)}</p>
+        ${entry.note ? `<p class="incident-report-copy">${escapeHtml(entry.note)}</p>` : ''}
+      </div>`;
+    }).join('');
+  }
+
   function render(target, options) {
     pauseCurrentVideo();
     const requestId = ++renderSequence;
@@ -66,7 +87,7 @@
     const formatWhen = options.formatWhen || (() => '—');
     const photoSrc = options.photoSrc || null;
     const guardName = incident.guardName || 'Unknown guard';
-    const guardEmail = incident.guardEmail || 'Not recorded';
+    const guardEmail = incident.guardEmail && !incident.guardEmail.toLowerCase().endsWith('.auth') ? incident.guardEmail : 'Email not added';
     const capturedAt = formatWhen(incident.capturedAt || incident.createdAt);
     const filedAt = formatWhen(incident.filedAt || incident.createdAt);
     const updatedAt = incident.updatedAt ? formatWhen(incident.updatedAt) : 'No review update';
@@ -114,10 +135,10 @@
             <span>${escapeHtml(evidenceSummary(incident, photoSrc))}</span>
           </div>
           <div class="incident-report-card-body incident-evidence-stack">
-            <div class="incident-evidence-block">
-              <div class="incident-evidence-label"><span>Incident photo</span><span>Required capture</span></div>
+            ${photoSrc || !incident.videoPath ? `<div class="incident-evidence-block">
+              <div class="incident-evidence-label"><span>Incident photo</span><span>Captured evidence</span></div>
               ${photoMarkup}
-            </div>
+            </div>` : ''}
             ${videoMarkup}
           </div>
         </section>
@@ -128,13 +149,13 @@
               <div class="incident-meta-grid">
                 <div class="incident-meta-item"><span class="incident-meta-label">Guard</span><span class="incident-meta-value">${escapeHtml(guardName)}</span></div>
                 <div class="incident-meta-item"><span class="incident-meta-label">Incident type</span><span class="incident-meta-value">${escapeHtml(categoryLabel)}</span></div>
-                <div class="incident-meta-item is-wide"><span class="incident-meta-label">Guard account</span><span class="incident-meta-value">${escapeHtml(guardEmail)}</span></div>
+                <div class="incident-meta-item is-wide"><span class="incident-meta-label">Guard account</span><span class="incident-meta-value" data-guard-email>${escapeHtml(guardEmail)}</span></div>
                 <div class="incident-meta-item"><span class="incident-meta-label">Captured</span><span class="incident-meta-value">${escapeHtml(capturedAt)}</span></div>
                 <div class="incident-meta-item"><span class="incident-meta-label">Filed</span><span class="incident-meta-value">${escapeHtml(filedAt)}</span></div>
                 <div class="incident-meta-item is-wide"><span class="incident-meta-label">Deployment site</span><span class="incident-meta-value">${escapeHtml(locationLabel)}</span></div>
                 <div class="incident-meta-item is-wide"><span class="incident-meta-label">Coordinates</span><span class="incident-meta-value">${escapeHtml(coordinates)}</span></div>
               </div>
-              ${mapUrl ? `<a class="incident-location-link" href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener"><span>Open exact location in Maps</span><span aria-hidden="true">↗</span></a>` : ''}
+              ${mapUrl ? `<a class="incident-location-link" href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener"><span>Open exact location in Maps</span><span class="material-symbols-rounded" aria-hidden="true">open_in_new</span></a>` : ''}
             </div>
           </section>
           <section class="incident-report-card" aria-labelledby="incidentNarrativeHeading">
@@ -145,11 +166,20 @@
             <div class="incident-report-card-head"><h3 id="incidentResponseHeading">Response and review</h3><span>${escapeHtml(updatedAt)}</span></div>
             <div class="incident-report-card-body">
               <div class="incident-response-block"><span class="incident-response-label">Immediate action</span><p class="incident-report-copy">${escapeHtml(immediateAction)}</p></div>
-              <div class="incident-response-block"><span class="incident-response-label">Reviewer note</span><p class="incident-report-copy">${escapeHtml(statusNote)}</p></div>
+              ${Array.isArray(incident.reviewHistory) && incident.reviewHistory.length ? '' : `<div class="incident-response-block"><span class="incident-response-label">Reviewer note</span><p class="incident-report-copy">${escapeHtml(statusNote)}</p></div>`}
+              ${reviewHistoryMarkup(incident, formatWhen)}
             </div>
           </section>
         </div>
       </div>`;
+    if (guardEmail === 'Email not added' && incident.userId && window.appSupabase?.from) {
+      Promise.resolve().then(() => window.appSupabase.from('profiles').select('email').eq('id', incident.userId).maybeSingle()).then(result => {
+        if (requestId !== renderSequence || result.error) return;
+        const email = result.data?.email;
+        const field = target.querySelector('[data-guard-email]');
+        if (field && email && !email.toLowerCase().endsWith('.auth')) field.textContent = email;
+      }).catch(() => {});
+    }
     return requestId;
   }
 
@@ -207,5 +237,18 @@
     pauseCurrentVideo();
   }
 
-  window.incidentReportView = Object.freeze({ render, loadVideo, close });
+  async function refreshEmails(records) {
+    const legacy = records.filter(row => row.userId && (!row.guardEmail || row.guardEmail.toLowerCase().endsWith('.auth')));
+    const ids = [...new Set(legacy.map(row => row.userId))];
+    try {
+      const emails = new Map();
+      for (let offset = 0; offset < ids.length; offset += 100) {
+        const result = await window.appSupabase.from('profiles').select('id,email').in('id', ids.slice(offset, offset + 100));
+        if (result.error) return;
+        for (const profile of result.data || []) if (profile.email && !profile.email.toLowerCase().endsWith('.auth')) emails.set(profile.id, profile.email);
+      }
+      for (const row of legacy) if (emails.has(row.userId)) row.guardEmail = emails.get(row.userId);
+    } catch (_) { /* Keep the report accessible if profile lookup is unavailable. */ }
+  }
+  window.incidentReportView = Object.freeze({ render, loadVideo, close, refreshEmails });
 })();

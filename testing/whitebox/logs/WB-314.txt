@@ -1,0 +1,12 @@
+WB-314 — PASS
+admin-manage-user.registered handler
+Scenario: management permission and retention rules
+Input: {"options":{},"body":{"action":"bad"}}
+Expected: [400,"invalid_action",[]]
+Actual: [400,"invalid_action",[]]
+UTC: 2026-09-05T08:56:20.155Z
+Evidence: logs/deno-final.log:585
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

@@ -1,0 +1,546 @@
+[
+  {
+    "name": "src",
+    "type": "directory",
+    "mode": 16749,
+    "children": [
+      {
+        "name": ".vercelignore",
+        "type": "file",
+        "mode": 33206,
+        "uid": "2feaf161768ee87e41952530a8852857f4918082"
+      },
+      {
+        "name": "admin",
+        "type": "directory",
+        "mode": 16749,
+        "children": [
+          {
+            "name": "css",
+            "type": "directory",
+            "mode": 16749,
+            "children": [
+              {
+                "name": "admin-theme.css",
+                "type": "file",
+                "mode": 33206,
+                "uid": "2f2b14d95006cf661e783f55d863315e56b64fbe"
+              },
+              {
+                "name": "dtr-scheduling.css",
+                "type": "file",
+                "mode": 33206,
+                "uid": "efe078fc5451368a82af61981523409b7446b19c"
+              }
+            ]
+          },
+          {
+            "name": "dashboard.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "10fb4bf75d685e2534458f58bb149e24f7a8ca7f"
+          },
+          {
+            "name": "incidents.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "ee662b44f0ff642ef3332fee3a218739f5be2d9d"
+          },
+          {
+            "name": "js",
+            "type": "directory",
+            "mode": 16749,
+            "children": [
+              {
+                "name": "admin-shell.js",
+                "type": "file",
+                "mode": 33206,
+                "uid": "de3434a0a69d54f4a1ab1d60904d2d36cc74db4f"
+              },
+              {
+                "name": "duty-requests.js",
+                "type": "file",
+                "mode": 33206,
+                "uid": "1485d3afb94dcf699e12e04e0a7b330ebe17a92e"
+              }
+            ]
+          },
+          {
+            "name": "live-tracking.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "24ca6f6bb583bf3c1e3fea1a1aa9d69ec7861d96"
+          },
+          {
+            "name": "locations.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "558719e79198c407f23eec7a6c03759974ff7854"
+          },
+          {
+            "name": "schedule.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "c4a20e20983f3c23f7715646b7db4837c4b5679c"
+          },
+          {
+            "name": "swaps.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "567c465fdee711edddb67f3641f609e64f02a745"
+          },
+          {
+            "name": "users.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "2c5d8f290490274b49b66178417666fa396bba84"
+          }
+        ]
+      },
+      {
+        "name": "assets",
+        "type": "directory",
+        "mode": 16749,
+        "children": [
+          {
+            "name": "fonts",
+            "type": "directory",
+            "mode": 16749,
+            "children": [
+              {
+                "name": "LICENSE.txt",
+                "type": "file",
+                "mode": 33206,
+                "uid": "1128f8f91104ba9ef98d37eea6523a888dcfa5de"
+              },
+              {
+                "name": "README.md",
+                "type": "file",
+                "mode": 33206,
+                "uid": "a2f2171d3a4c8d2ed93daed4cf98f4b108d4322c"
+              },
+              {
+                "name": "material-symbols-rounded.json",
+                "type": "file",
+                "mode": 33206,
+                "uid": "3512b1b35186c9637feef37254695440aa990aec"
+              },
+              {
+                "name": "material-symbols-rounded.woff2",
+                "type": "file",
+                "mode": 33206,
+                "uid": "1b3094da4a9f529d3ff8c3a2b6865100a59fc7a0"
+              }
+            ]
+          },
+          {
+            "name": "twentytwenty-agency-office.jpg",
+            "type": "file",
+            "mode": 33206,
+            "uid": "84e1ea6990dc8b31ce87db04800d1255fd6d9a2b"
+          }
+        ]
+      },
+      {
+        "name": "css",
+        "type": "directory",
+        "mode": 16749,
+        "children": [
+          {
+            "name": "app-experience.css",
+            "type": "file",
+            "mode": 33206,
+            "uid": "3a85fd871095cfa61b22a98dc2c054f45507c360"
+          },
+          {
+            "name": "brand.css",
+            "type": "file",
+            "mode": 33206,
+            "uid": "2ffd2c0e0e6a6d71dd417c832252dabcaa634a09"
+          },
+          {
+            "name": "dtr-report.css",
+            "type": "file",
+            "mode": 33206,
+            "uid": "c08b88198b0a996ff52106c3d154ec44e0a2680f"
+          },
+          {
+            "name": "duty-requests.css",
+            "type": "file",
+            "mode": 33206,
+            "uid": "128eeb5f758da66dc60094b335d140130d0fc960"
+          },
+          {
+            "name": "google-icons.css",
+            "type": "file",
+            "mode": 33206,
+            "uid": "daa50dfea731770c7472ad1c22bd6387cc457958"
+          },
+          {
+            "name": "incident-report.css",
+            "type": "file",
+            "mode": 33206,
+            "uid": "6d9ce50b0371153a5d6f0e0b3a2682b1cab1e151"
+          },
+          {
+            "name": "live-tracking.css",
+            "type": "file",
+            "mode": 33206,
+            "uid": "dca83bc71c7a234d8f06cd8668c8243fb7198c08"
+          },
+          {
+            "name": "login-transitions.css",
+            "type": "file",
+            "mode": 33206,
+            "uid": "92a72e605019a499b329f38bb6ca12d991f400a7"
+          },
+          {
+            "name": "theme-preference.css",
+            "type": "file",
+            "mode": 33206,
+            "uid": "e545bb54c87df303fcc18b654da2808fdf8c543e"
+          }
+        ]
+      },
+      {
+        "name": "downloads",
+        "type": "directory",
+        "mode": 16749,
+        "children": [
+          {
+            "name": "security-agency-management-system-guard.apk",
+            "type": "file",
+            "mode": 33206,
+            "uid": "7d4006efa2b5a889f1cc065e15ca3b96ef0cd366"
+          }
+        ]
+      },
+      {
+        "name": "favicon.png",
+        "type": "file",
+        "mode": 33206,
+        "uid": "5b72274afc6151588f840218acb71a80a75d5883"
+      },
+      {
+        "name": "icons",
+        "type": "directory",
+        "mode": 16749,
+        "children": [
+          {
+            "name": "Icon-192.png",
+            "type": "file",
+            "mode": 33206,
+            "uid": "7f7952bc5e799f4c2de99d7f7a9c3c0f54ff5319"
+          },
+          {
+            "name": "Icon-maskable-192.png",
+            "type": "file",
+            "mode": 33206,
+            "uid": "7f7952bc5e799f4c2de99d7f7a9c3c0f54ff5319"
+          },
+          {
+            "name": "Icon-512.png",
+            "type": "file",
+            "mode": 33206,
+            "uid": "c6864bc00c7a1c79b8f1a2bd9c7d257e7f0d0da2"
+          },
+          {
+            "name": "Icon-maskable-512.png",
+            "type": "file",
+            "mode": 33206,
+            "uid": "c6864bc00c7a1c79b8f1a2bd9c7d257e7f0d0da2"
+          },
+          {
+            "name": "sentinel-link-mark.png",
+            "type": "file",
+            "mode": 33206,
+            "uid": "69b678bc0978ad8534001653caea38e1e1a657e0"
+          }
+        ]
+      },
+      {
+        "name": "index.html",
+        "type": "file",
+        "mode": 33206,
+        "uid": "f0bac43b1c30feec29a76d296bd1622f04c286db"
+      },
+      {
+        "name": "inspector",
+        "type": "directory",
+        "mode": 16749,
+        "children": [
+          {
+            "name": "css",
+            "type": "directory",
+            "mode": 16749,
+            "children": [
+              {
+                "name": "inspector-theme.css",
+                "type": "file",
+                "mode": 33206,
+                "uid": "97f7f546d80f88baa022a2453442a71ed13eda43"
+              }
+            ]
+          },
+          {
+            "name": "dashboard.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "40803637342a07b1b5082f104eec1b7181d493c0"
+          },
+          {
+            "name": "incidents.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "7e7bb343de1005639925643c78f84599ba42e8ea"
+          },
+          {
+            "name": "js",
+            "type": "directory",
+            "mode": 16749,
+            "children": [
+              {
+                "name": "inspector-shell.js",
+                "type": "file",
+                "mode": 33206,
+                "uid": "b3f21b6d98b53dc3e9b60fe35764cdcbf1c40627"
+              }
+            ]
+          },
+          {
+            "name": "live-tracking.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "2c2ba15ec6ae0a92af666023224d9df0591827db"
+          },
+          {
+            "name": "locations.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "767c59adee53e20e51ad4e44c81ddb2dad64771c"
+          },
+          {
+            "name": "swaps.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "f2bf2a08b5e28d68a90303b2b3bc745cb1293f2a"
+          },
+          {
+            "name": "users.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "21bf6b533b0ed349b6323d312af1737097df9eb8"
+          }
+        ]
+      },
+      {
+        "name": "it-admin",
+        "type": "directory",
+        "mode": 16749,
+        "children": [
+          {
+            "name": "clients.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "db5d36108d49c3398f218ead049bcd1fe9d7e83e"
+          },
+          {
+            "name": "dashboard.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "5394459b6b1621f4e81103cb586da5ae8be898c3"
+          },
+          {
+            "name": "it-admin-ui.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "e736bc809eaa1c531c2ede410d9de54b7dd72af5"
+          },
+          {
+            "name": "users.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "8491e5c986ae36ef12acf916349dc54404ad27e0"
+          }
+        ]
+      },
+      {
+        "name": "js",
+        "type": "directory",
+        "mode": 16749,
+        "children": [
+          {
+            "name": "app-dialogs.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "dd6f48f6bf66b22814da95c3886b365dad52a5ec"
+          },
+          {
+            "name": "auth-username.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "8ac3dc39b37b3b50b61940b1e82ed391463f92ec"
+          },
+          {
+            "name": "contract-period.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "d6c4d7b34f2808545cacc276250bc0f0d77a88e2"
+          },
+          {
+            "name": "dtr-report.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "9a0d37856af99dbdca52dfbc8e086848b9369882"
+          },
+          {
+            "name": "edge-function-errors.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "8d922578f68ae345bbd811b8ee629dbb8a6beb81"
+          },
+          {
+            "name": "incident-report-view.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "11c26d5618d922a86db4caec129d4a3fe6fd34c8"
+          },
+          {
+            "name": "live-marker-motion.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "2e0a05b71bdd3abca81b3e61df6fdd1534efc1e1"
+          },
+          {
+            "name": "live-tracking-model.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "b821f8567b75e89998d0527997cdf81297f914da"
+          },
+          {
+            "name": "live-tracking.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "c3929de0452b315baff1933414070766013072f2"
+          },
+          {
+            "name": "login-panel-switch.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "4066699a743814c90a9c417a0830107937ded3de"
+          },
+          {
+            "name": "notification-center.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "bd3608da554ba58e40bd2302204577f6b6d50527"
+          },
+          {
+            "name": "platform-configuration.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "f999404aab10bb6f6cba41108063ef6f1f804a23"
+          },
+          {
+            "name": "schedule-period.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "964c33bb44664effe2c3e762a96a13d487977c26"
+          },
+          {
+            "name": "supabase-firebase-bridge.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "5461198533cdb2d6334b475a368abe82c4c4bb7f"
+          },
+          {
+            "name": "theme-preference.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "1e6445246bb7e63065faf4384c74c11ae7d1387e"
+          }
+        ]
+      },
+      {
+        "name": "manifest.json",
+        "type": "file",
+        "mode": 33206,
+        "uid": "1e4037990c0e2c001ed894ad04e25a6c60cc6671"
+      },
+      {
+        "name": "staff",
+        "type": "directory",
+        "mode": 16749,
+        "children": [
+          {
+            "name": "app-download.css",
+            "type": "file",
+            "mode": 33206,
+            "uid": "badbe18e369d09f0e7386c33c6dba4660fe42221"
+          },
+          {
+            "name": "app-download.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "500541803254ccb6707dc34b197ca5c069f4272b"
+          },
+          {
+            "name": "app-download.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "3e61cddab266bc6b57d7e5e9385c688ff99b9018"
+          },
+          {
+            "name": "guard-app-qr.png",
+            "type": "file",
+            "mode": 33206,
+            "uid": "0450eb13cd6046a92c14be0a1608fe3f5967b227"
+          },
+          {
+            "name": "guard-app.css",
+            "type": "file",
+            "mode": 33206,
+            "uid": "5687aa524aa0258ecb28de9f004edda82c7ac759"
+          },
+          {
+            "name": "guard-app.js",
+            "type": "file",
+            "mode": 33206,
+            "uid": "678101c0e98e48f39ff885dadf6abac3ecd91d24"
+          },
+          {
+            "name": "login.css",
+            "type": "file",
+            "mode": 33206,
+            "uid": "9238ecc0984ca1287b1e052d8712641a88021f48"
+          },
+          {
+            "name": "login.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "adfa17a36dfea9fcea2cfd0414f376882b2fba28"
+          }
+        ]
+      },
+      {
+        "name": "system-access-7d92a4",
+        "type": "directory",
+        "mode": 16749,
+        "children": [
+          {
+            "name": "login.html",
+            "type": "file",
+            "mode": 33206,
+            "uid": "56128e457ab99f98994969425e6c4ef1ce2ebbd9"
+          }
+        ]
+      },
+      {
+        "name": "vercel.json",
+        "type": "file",
+        "mode": 33206,
+        "uid": "53fd52e414f4b4815fbee51171f0d220a35e7863"
+      }
+    ]
+  }
+]

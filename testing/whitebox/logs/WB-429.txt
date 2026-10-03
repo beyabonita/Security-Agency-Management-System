@@ -1,0 +1,12 @@
+WB-429 — PASS
+SchedulePeriod.dtrColumnForTime
+Scenario: noon and invalid direction
+Input: ["08:00","BAD"]
+Expected: null
+Actual: null
+UTC: 2026-09-05T08:53:03.564Z
+Evidence: logs/node.tap:30
+Source: testing/whitebox/unit_tests/web_test.cjs
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

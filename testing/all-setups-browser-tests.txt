@@ -1,0 +1,80 @@
+
+Running 35 tests using 1 worker
+
+(node:17072) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 schedule_lifecycle.spec.js:109:1 › roster is the only editor and the explanation panel is removed (2.0s)
+  ok  2 schedule_lifecycle.spec.js:119:1 › personnel and site loading work without custom-editor controls (1.7s)
+  ok  3 schedule_lifecycle.spec.js:132:1 › an overnight roster remains on the starting date and first DTR cutoff (2.6s)
+  ok  4 schedule_lifecycle.spec.js:148:3 › missing contract dates prevents a roster request (2.2s)
+  ok  5 schedule_lifecycle.spec.js:148:3 › outside contract dates prevents a roster request (2.0s)
+  ok  6 schedule_lifecycle.spec.js:148:3 › overnight contract end prevents a roster request (1.9s)
+  ok  7 schedule_lifecycle.spec.js:148:3 › inactive guard prevents a roster request (2.1s)
+  ok  8 schedule_lifecycle.spec.js:148:3 › past date prevents a roster request (1.7s)
+  ok  9 schedule_lifecycle.spec.js:166:1 › a failed save prevents duplicate submission and preserves selected guards (2.0s)
+  ok 10 schedule_lifecycle.spec.js:180:1 › an incomplete RPC response cannot report a saved roster (1.9s)
+  x  11 schedule_lifecycle.spec.js:187:1 › after the first shift ends today remains available for the night shift (8.1s)
+(node:16028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 12 schedule_lifecycle.spec.js:195:1 › today at 7 PM assigns only the ongoing night shift, preserving its actual overnight hours (2.0s)
+  ok 13 schedule_lifecycle.spec.js:207:1 › three-shift setup at exactly 2 PM skips the completed morning and requires both remaining guards (2.4s)
+  ok 14 schedule_lifecycle.spec.js:223:1 › attendance reports completion and requests protect period history (1.7s)
+  ok 15 schedule_lifecycle.spec.js:238:1 › schedule loading explicitly selects both swap relationships in one query (1.9s)
+  ok 16 schedule_lifecycle.spec.js:251:1 › schedule names prefer the current profile and safely preserve historical names (1.5s)
+  ok 17 schedule_lifecycle.spec.js:260:1 › cancelled deletion leaves the period and confirmed deletion has a busy state (3.8s)
+  ok 18 schedule_lifecycle.spec.js:271:1 › concurrent Time In protects the schedule with readable error feedback (2.3s)
+  ok 19 schedule_lifecycle.spec.js:282:1 › legacy foreign-key errors do not expose SQL details (2.3s)
+  ok 20 schedule_lifecycle.spec.js:290:1 › failed history load offers retry and older responses cannot erase newer protection (1.9s)
+  ok 21 schedule_lifecycle.spec.js:305:1 › linked-record realtime refreshes protection without duplicate subscriptions (1.8s)
+  ok 22 schedule_lifecycle.spec.js:313:1 › 2- and 3-shift rosters show named Guards and save one atomic request (2.1s)
+  ok 23 schedule_lifecycle.spec.js:340:1 › roster prevents duplicate guards and preserves selection on save failure (2.1s)
+  ok 24 schedule_lifecycle.spec.js:349:1 › saved custom setup survives reload and assigns exact midnight and overnight times (4.1s)
+  ok 25 schedule_lifecycle.spec.js:376:1 › custom shift setup supports changed times and skips ended shifts today (3.6s)
+  ok 26 schedule_lifecycle.spec.js:392:1 › setup editor rejects gaps and preserves entered values after save errors (2.2s)
+  ok 27 schedule_lifecycle.spec.js:409:1 › setup saving blocks duplicate submission and safely displays names (2.1s)
+  ok 28 schedule_lifecycle.spec.js:423:1 › saved setups have a retry when loading fails without blocking standard rosters (2.5s)
+  ok 29 schedule_lifecycle.spec.js:433:1 › custom setup editor fits desktop and phone in both themes (4.0s)
+  ok 30 schedule_lifecycle.spec.js:445:1 › duplicate built-in and saved shift times are blocked even with a different name (3.6s)
+  ok 31 schedule_lifecycle.spec.js:458:1 › edit opens saved values and updates future assignment preview, cancel preserves setup (4.2s)
+  ok 32 schedule_lifecycle.spec.js:476:1 › remove can be cancelled, then persists after reload without removing scheduled duty (5.6s)
+  ok 33 schedule_lifecycle.spec.js:490:1 › stale loading response cannot resurrect a removed setup (2.9s)
+  ok 34 schedule_lifecycle.spec.js:500:1 › reload reflects edits and removals from another session, and stale edits are rejected (4.7s)
+  ok 35 schedule_lifecycle.spec.js:511:1 › setup edit and removal controls fit on a phone and failed removal keeps the selection (4.4s)
+
+
+  1) schedule_lifecycle.spec.js:187:1 › after the first shift ends today remains available for the night shift 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator: locator('#rosterGuard0')
+    Expected: disabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeDisabled" with timeout 5000ms
+      - waiting for locator('#rosterGuard0')
+
+
+      189 |   await page.reload();
+      190 |   await expect(page.locator('#rosterDate')).toHaveValue('2026-09-04');
+    > 191 |   await expect(page.locator('#rosterGuard0')).toBeDisabled();
+          |                                               ^
+      192 |   await expect(page.locator('#rosterGuard1')).toBeEnabled();
+      193 | });
+      194 |
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\schedule_lifecycle.spec.js:191:47
+
+    Error Context: test-results-all-setups-editable\schedule_lifecycle-after-t-f233c-ailable-for-the-night-shift\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-all-setups-editable\schedule_lifecycle-after-t-f233c-ailable-for-the-night-shift\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-all-setups-editable\schedule_lifecycle-after-t-f233c-ailable-for-the-night-shift\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    schedule_lifecycle.spec.js:187:1 › after the first shift ends today remains available for the night shift 
+  34 passed (1.8m)

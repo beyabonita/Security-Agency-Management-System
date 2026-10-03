@@ -1,0 +1,12 @@
+WB-068 — PASS
+DtrAlignment.normalizePeriod
+Scenario: normalize explicit period
+Input: null
+Expected: "auto"
+Actual: "auto"
+UTC: 2026-09-05T08:57:23.752374Z
+Evidence: logs/flutter-verified.jsonl:243
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

@@ -1,0 +1,12 @@
+WB-277 — PASS
+deleteIncidentHandler.deleteIncidentHandler
+Scenario: authorization and ordered failure handling
+Input: {"beginError":"P0002"}
+Expected: [404,["begin"]]
+Actual: [404,["begin"]]
+UTC: 2026-09-05T08:56:19.692Z
+Evidence: logs/deno-final.log:387
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

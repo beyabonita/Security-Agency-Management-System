@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "https://esm.sh/@supabase/supabase-js@2.112.3": "./supabase_stub.ts"
+  },
+  "compilerOptions": { "noImplicitAny": false }
+}

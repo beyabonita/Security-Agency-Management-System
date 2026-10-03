@@ -1,0 +1,11 @@
+
+Running 4 tests using 1 worker
+
+(node:2452) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 dtr_pdf.spec.js:5:1 › agency DTR downloads with the selected semi-monthly period (4.6s)
+  ok 2 responsive_shells.spec.js:82:1 › roster DTR preview fits phone and desktop in light and dark themes (4.7s)
+  ok 3 schedule_lifecycle.spec.js:132:1 › an overnight roster remains on the starting date and first DTR cutoff (3.7s)
+  ok 4 schedule_lifecycle.spec.js:314:1 › 2- and 3-shift rosters show named Guards and save one atomic request (3.0s)
+
+  4 passed (27.2s)

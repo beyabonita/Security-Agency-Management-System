@@ -1,0 +1,24 @@
+<!doctype html><meta charset='utf-8'><title>WB-084 Actual Test Evidence</title><style>body{font:17px Consolas,monospace;margin:30px;background:#fafafa;color:#172536}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style><h2>WB-084 — Extracted runner evidence</h2><pre>WB-084 — FAIL
+AttendanceSession.fromRow
+Scenario: malformed supplied clock-out must not disappear
+Input: &quot;clock_out_at=garbage&quot;
+Expected: &quot;FormatException&quot;
+Actual: &quot;no exception&quot;
+UTC: 2026-09-05T08:57:23.848376Z
+Evidence: logs/flutter-verified.jsonl:333
+Source: testing/whitebox/unit_tests/core_test.dart
+Runner error: Expected: &#39;FormatException&#39;
+  Actual: &#39;no exception&#39;
+   Which: is different.
+          Expected: FormatExce ...
+            Actual: no excepti ...
+                    ^
+           Differ at offset 0
+
+package:matcher                                     expect
+package:flutter_test/src/widget_tester.dart 473:18  expect
+testing\whitebox\unit_tests\core_test.dart 31:7     wb.&lt;fn&gt;
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.
+</pre>

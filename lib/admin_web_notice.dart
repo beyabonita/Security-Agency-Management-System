@@ -4,14 +4,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_application_1/config/admin_web_config.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Shown when an admin is signed in on the mobile/desktop app.
-/// Admin management runs in the web panel, not in this app.
+/// Shown when an Operational Head is signed in on the mobile/desktop app.
+/// Operational Head management runs in the web panel, not in this app.
 class AdminWebNoticeScreen extends StatelessWidget {
   const AdminWebNoticeScreen({super.key});
 
   Future<void> _openWebAdmin() async {
     if (AdminWebConfig.adminLoginUrl.isEmpty) {
-      debugPrint('Admin web panel has not been configured yet.');
+      debugPrint('Operational Head web panel has not been configured yet.');
       return;
     }
     final uri = Uri.parse(AdminWebConfig.adminLoginUrl);
@@ -42,19 +42,22 @@ class AdminWebNoticeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               const Text(
-                'HR / Operations panel is on the web',
+                'Operational Head panel is on the web',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
               Text(
                 kIsWeb
-                    ? 'Open the HR / Operations pages in this browser to manage personnel, '
+                    ? 'Open the Operational Head pages in this browser to manage personnel, '
                           'locations, schedules, and reports.'
                     : 'This app is for security personnel only. '
                           'Sign in to the web admin panel to manage the system.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey[700], height: 1.4),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  height: 1.4,
+                ),
               ),
               const SizedBox(height: 32),
               if (kIsWeb && AdminWebConfig.adminLoginUrl.isNotEmpty)
@@ -73,7 +76,7 @@ class AdminWebNoticeScreen extends StatelessWidget {
                 FilledButton.icon(
                   onPressed: _openWebAdmin,
                   icon: const Icon(Icons.open_in_browser),
-                  label: const Text('Open HR / Operations Web Panel'),
+                  label: const Text('Open Operational Head Web Panel'),
                 )
               else
                 const Text(

@@ -1,0 +1,12 @@
+WB-501 — PASS
+UserProfileService.validateGuardLogin
+Scenario: role and active branches
+Input: {"role":"user","active":false}
+Expected: "Your account has been disabled. Contact your administrator."
+Actual: "Your account has been disabled. Contact your administrator."
+UTC: 2026-09-05T08:57:23.676376Z
+Evidence: logs/flutter-verified.jsonl:171
+Source: testing/whitebox/unit_tests/services_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

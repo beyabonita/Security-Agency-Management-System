@@ -1,0 +1,8 @@
+00:00 +0: loading C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart
+00:00 +0: (setUpAll)
+00:00 +0: short accomplishment entries submit without character minimum prompts
+00:02 +1: empty accomplishment text is still required
+00:02 +2: emergency alert submits with blank and short optional remarks
+00:02 +3: optional remarks do not bypass required evidence
+00:02 +4: (tearDownAll)
+00:02 +4: All tests passed!

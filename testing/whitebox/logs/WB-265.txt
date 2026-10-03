@@ -1,0 +1,12 @@
+WB-265 — PASS
+api.handleJsonPost
+Scenario: actual UTF8 size limit
+Input: "32769 x characters"
+Expected: 413
+Actual: 413
+UTC: 2026-09-05T08:56:19.361Z
+Evidence: logs/deno-final.log:325
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

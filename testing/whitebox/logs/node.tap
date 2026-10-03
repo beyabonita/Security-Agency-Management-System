@@ -1,0 +1,402 @@
+TAP version 13
+# WB_EVIDENCE {"id":"WB-401","module":"SchedulePeriod","method":"calculate","scenario":"shift duration and time validity","input":["2026-09-05","08:00","17:00"],"expected":540,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":540,"at":"2026-09-05T08:53:03.541Z"}
+# WB_EVIDENCE {"id":"WB-402","module":"SchedulePeriod","method":"calculate","scenario":"shift duration and time validity","input":["2026-09-05","20:00","04:00"],"expected":480,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":480,"at":"2026-09-05T08:53:03.551Z"}
+# WB_EVIDENCE {"id":"WB-403","module":"SchedulePeriod","method":"calculate","scenario":"shift duration and time validity","input":["2026-09-05","08:00","08:00"],"expected":null,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":null,"at":"2026-09-05T08:53:03.551Z"}
+# WB_EVIDENCE {"id":"WB-404","module":"SchedulePeriod","method":"calculate","scenario":"shift duration and time validity","input":["2026-02-30","08:00","17:00"],"expected":null,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":null,"at":"2026-09-05T08:53:03.552Z"}
+# WB_EVIDENCE {"id":"WB-405","module":"SchedulePeriod","method":"calculate","scenario":"shift duration and time validity","input":["2028-02-29","23:59","00:00"],"expected":1,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":1,"at":"2026-09-05T08:53:03.552Z"}
+# WB_EVIDENCE {"id":"WB-406","module":"SchedulePeriod","method":"calculate","scenario":"shift duration and time validity","input":["2026-09-05","24:00","17:00"],"expected":null,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":null,"at":"2026-09-05T08:53:03.553Z"}
+# WB_EVIDENCE {"id":"WB-407","module":"SchedulePeriod","method":"calculate","scenario":"shift duration and time validity","input":["2026-09-05","08:60","17:00"],"expected":null,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":null,"at":"2026-09-05T08:53:03.553Z"}
+# WB_EVIDENCE {"id":"WB-408","module":"SchedulePeriod","method":"calculate","scenario":"shift duration and time validity","input":["2026-09-05","","17:00"],"expected":null,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":null,"at":"2026-09-05T08:53:03.553Z"}
+# WB_EVIDENCE {"id":"WB-409","module":"SchedulePeriod","method":"dtrPeriodForDate","scenario":"calendar and cutoff boundary","input":"2026-09-15","expected":"2026-09-15","framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":"2026-09-15","at":"2026-09-05T08:53:03.554Z"}
+# WB_EVIDENCE {"id":"WB-410","module":"SchedulePeriod","method":"dtrPeriodForDate","scenario":"calendar and cutoff boundary","input":"2026-09-16","expected":"2026-09-30","framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":"2026-09-30","at":"2026-09-05T08:53:03.555Z"}
+# WB_EVIDENCE {"id":"WB-411","module":"SchedulePeriod","method":"dtrPeriodForDate","scenario":"calendar and cutoff boundary","input":"2028-02-29","expected":"2028-02-29","framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":"2028-02-29","at":"2026-09-05T08:53:03.555Z"}
+# WB_EVIDENCE {"id":"WB-412","module":"SchedulePeriod","method":"dtrPeriodForDate","scenario":"calendar and cutoff boundary","input":"2026-02-29","expected":null,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":null,"at":"2026-09-05T08:53:03.555Z"}
+# WB_EVIDENCE {"id":"WB-413","module":"SchedulePeriod","method":"dtrPeriodForDate","scenario":"calendar and cutoff boundary","input":"2026-13-01","expected":null,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":null,"at":"2026-09-05T08:53:03.555Z"}
+# WB_EVIDENCE {"id":"WB-414","module":"SchedulePeriod","method":"dtrPeriodForDate","scenario":"calendar and cutoff boundary","input":"","expected":null,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":null,"at":"2026-09-05T08:53:03.556Z"}
+# WB_EVIDENCE {"id":"WB-415","module":"SchedulePeriod","method":"buildDutyPlan","scenario":"empty, overlap and duplicate periods","input":[],"expected":false,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":false,"at":"2026-09-05T08:53:03.556Z"}
+# WB_EVIDENCE {"id":"WB-416","module":"SchedulePeriod","method":"buildDutyPlan","scenario":"empty, overlap and duplicate periods","input":null,"expected":false,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":false,"at":"2026-09-05T08:53:03.556Z"}
+# WB_EVIDENCE {"id":"WB-417","module":"SchedulePeriod","method":"buildDutyPlan","scenario":"empty, overlap and duplicate periods","input":[{"period":"morning","start_time":"08:00","end_time":"12:00"},{"period":"afternoon","start_time":"12:00","end_time":"17:00"}],"expected":true,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":true,"at":"2026-09-05T08:53:03.557Z"}
+# WB_EVIDENCE {"id":"WB-418","module":"SchedulePeriod","method":"buildDutyPlan","scenario":"empty, overlap and duplicate periods","input":[{"period":"morning","start_time":"08:00","end_time":"12:00"},{"period":"afternoon","start_time":"11:59","end_time":"17:00"}],"expected":false,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":false,"at":"2026-09-05T08:53:03.558Z"}
+# WB_EVIDENCE {"id":"WB-419","module":"SchedulePeriod","method":"buildDutyPlan","scenario":"empty, overlap and duplicate periods","input":[{"period":"morning","start_time":"08:00","end_time":"12:00"},{"period":"morning","start_time":"13:00","end_time":"17:00"}],"expected":false,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":false,"at":"2026-09-05T08:53:03.558Z"}
+# WB_EVIDENCE {"id":"WB-420","module":"SchedulePeriod","method":"buildDutyPlan","scenario":"empty, overlap and duplicate periods","input":[{"period":"auto","start_time":"08:00","end_time":"12:00"},{"period":"afternoon","start_time":"13:00","end_time":"17:00"}],"expected":false,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":false,"at":"2026-09-05T08:53:03.559Z"}
+# WB_EVIDENCE {"id":"WB-421","module":"SchedulePeriod","method":"buildDutyPlan","scenario":"empty, overlap and duplicate periods","input":[{"period":"unknown","start_time":"08:00","end_time":"12:00"}],"expected":false,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":false,"at":"2026-09-05T08:53:03.559Z"}
+# WB_EVIDENCE {"id":"WB-422","module":"SchedulePeriod","method":"buildDutyPlan","scenario":"sum periods excludes unpaid gap","input":"08-12 + 13-17","expected":480,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":480,"at":"2026-09-05T08:53:03.561Z"}
+# WB_ERROR {"id":"WB-423","module":"SchedulePeriod","method":"buildDutyPlan","scenario":"null entry should return validation error","input":[null],"expected":true,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","error":"TypeError: Cannot read properties of null (reading 'period')"}
+# WB_EVIDENCE {"id":"WB-424","module":"SchedulePeriod","method":"dtrColumnForTime","scenario":"noon and invalid direction","input":["12:00","IN"],"expected":"Afternoon IN","framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":"Afternoon IN","at":"2026-09-05T08:53:03.563Z"}
+# WB_EVIDENCE {"id":"WB-425","module":"SchedulePeriod","method":"dtrColumnForTime","scenario":"noon and invalid direction","input":["12:00","OUT"],"expected":"Morning OUT","framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":"Morning OUT","at":"2026-09-05T08:53:03.563Z"}
+# WB_EVIDENCE {"id":"WB-426","module":"SchedulePeriod","method":"dtrColumnForTime","scenario":"noon and invalid direction","input":["12:01","OUT"],"expected":"Afternoon OUT","framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":"Afternoon OUT","at":"2026-09-05T08:53:03.563Z"}
+# WB_EVIDENCE {"id":"WB-427","module":"SchedulePeriod","method":"dtrColumnForTime","scenario":"noon and invalid direction","input":["23:59","IN"],"expected":"Afternoon IN","framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":"Afternoon IN","at":"2026-09-05T08:53:03.563Z"}
+# WB_EVIDENCE {"id":"WB-428","module":"SchedulePeriod","method":"dtrColumnForTime","scenario":"noon and invalid direction","input":["24:00","IN"],"expected":null,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":null,"at":"2026-09-05T08:53:03.563Z"}
+# WB_EVIDENCE {"id":"WB-429","module":"SchedulePeriod","method":"dtrColumnForTime","scenario":"noon and invalid direction","input":["08:00","BAD"],"expected":null,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":null,"at":"2026-09-05T08:53:03.564Z"}
+# WB_EVIDENCE {"id":"WB-430","module":"ContractPeriodJS","method":"validate","scenario":"ordered real dates","input":["2026-09-05","2026-09-05"],"expected":true,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":true,"at":"2026-09-05T08:53:03.564Z"}
+# WB_EVIDENCE {"id":"WB-431","module":"ContractPeriodJS","method":"validate","scenario":"ordered real dates","input":["2026-09-06","2026-09-05"],"expected":false,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":false,"at":"2026-09-05T08:53:03.564Z"}
+# WB_EVIDENCE {"id":"WB-432","module":"ContractPeriodJS","method":"validate","scenario":"ordered real dates","input":["2026-02-30","2026-03-01"],"expected":false,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":false,"at":"2026-09-05T08:53:03.565Z"}
+# WB_EVIDENCE {"id":"WB-433","module":"ContractPeriodJS","method":"validate","scenario":"ordered real dates","input":[null,null],"expected":false,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":false,"at":"2026-09-05T08:53:03.565Z"}
+# WB_EVIDENCE {"id":"WB-434","module":"ContractPeriodJS","method":"validate","scenario":"ordered real dates","input":["1899-12-31","1900-01-01"],"expected":false,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":false,"at":"2026-09-05T08:53:03.565Z"}
+# WB_EVIDENCE {"id":"WB-435","module":"ContractPeriodJS","method":"validate","scenario":"ordered real dates","input":["2028-02-29","2028-02-29"],"expected":true,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":true,"at":"2026-09-05T08:53:03.565Z"}
+# WB_EVIDENCE {"id":"WB-436","module":"ContractPeriodJS","method":"dutyError","scenario":"entire duty must fit contract","input":["2026-09-05T00:00:00+08:00","2026-09-06T00:00:00+08:00"],"expected":true,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":true,"at":"2026-09-05T08:53:03.565Z"}
+# WB_EVIDENCE {"id":"WB-437","module":"ContractPeriodJS","method":"dutyError","scenario":"entire duty must fit contract","input":["2026-09-05T20:00:00+08:00","2026-09-06T04:00:00+08:00"],"expected":false,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":false,"at":"2026-09-05T08:53:03.566Z"}
+# WB_EVIDENCE {"id":"WB-438","module":"ContractPeriodJS","method":"dutyError","scenario":"entire duty must fit contract","input":["2026-09-04T23:59:59+08:00","2026-09-05T08:00:00+08:00"],"expected":false,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":false,"at":"2026-09-05T08:53:03.566Z"}
+# WB_EVIDENCE {"id":"WB-439","module":"ContractPeriodJS","method":"dutyError","scenario":"entire duty must fit contract","input":["2026-09-05T08:00:00+08:00","2026-09-05T08:00:00+08:00"],"expected":false,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":false,"at":"2026-09-05T08:53:03.566Z"}
+# WB_EVIDENCE {"id":"WB-440","module":"DtrReport","method":"sessionMinutes","scenario":"duration boundaries","input":{},"expected":0,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":0,"at":"2026-09-05T08:53:03.566Z"}
+# WB_EVIDENCE {"id":"WB-441","module":"DtrReport","method":"sessionMinutes","scenario":"duration boundaries","input":{"clock_in_at":"invalid","clock_out_at":"invalid"},"expected":0,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":0,"at":"2026-09-05T08:53:03.566Z"}
+# WB_EVIDENCE {"id":"WB-442","module":"DtrReport","method":"sessionMinutes","scenario":"duration boundaries","input":{"clock_in_at":"2026-09-05T00:00Z","clock_out_at":"2026-09-05T08:00Z"},"expected":480,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":480,"at":"2026-09-05T08:53:03.567Z"}
+# WB_EVIDENCE {"id":"WB-443","module":"DtrReport","method":"sessionMinutes","scenario":"duration boundaries","input":{"clock_in_at":"2026-09-05T00:00Z","clock_out_at":"2026-09-04T23:59Z"},"expected":0,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":0,"at":"2026-09-05T08:53:03.567Z"}
+# WB_EVIDENCE {"id":"WB-444","module":"DtrReport","method":"sessionMinutes","scenario":"duration boundaries","input":{"clock_in_at":"2026-09-05T00:00Z","clock_out_at":"2026-09-05T00:00:59Z"},"expected":0,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":0,"at":"2026-09-05T08:53:03.567Z"}
+# WB_EVIDENCE {"id":"WB-445","module":"DtrReport","method":"periodFromSelection","scenario":"calendar selection","input":["2028-02","second"],"expected":"2028-02-29","framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":"2028-02-29","at":"2026-09-05T08:53:03.569Z"}
+# WB_EVIDENCE {"id":"WB-446","module":"DtrReport","method":"periodFromSelection","scenario":"calendar selection","input":["2026-02","second"],"expected":"2026-02-28","framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":"2026-02-28","at":"2026-09-05T08:53:03.570Z"}
+# WB_EVIDENCE {"id":"WB-447","module":"DtrReport","method":"periodFromSelection","scenario":"calendar selection","input":["2026-09","first"],"expected":"2026-09-15","framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":"2026-09-15","at":"2026-09-05T08:53:03.571Z"}
+# WB_EVIDENCE {"id":"WB-448","module":"DtrReport","method":"periodFromSelection","scenario":"calendar selection","input":["2026-13","first"],"expected":null,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":null,"at":"2026-09-05T08:53:03.571Z"}
+# WB_EVIDENCE {"id":"WB-449","module":"DtrReport","method":"periodFromSelection","scenario":"calendar selection","input":["bad","first"],"expected":null,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":null,"at":"2026-09-05T08:53:03.571Z"}
+# WB_EVIDENCE {"id":"WB-450","module":"DtrReport","method":"periodFromSelection","scenario":"calendar selection","input":["2026-09","third"],"expected":null,"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":null,"at":"2026-09-05T08:53:03.571Z"}
+# WB_EVIDENCE {"id":"WB-451","module":"DtrReport","method":"buildReport","scenario":"empty attendance creates zero totals","input":[],"expected":[0,0,15],"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":[0,0,15],"at":"2026-09-05T08:53:03.573Z"}
+# WB_EVIDENCE {"id":"WB-452","module":"DtrReport","method":"filterSessions","scenario":"inclusive cutoff bounds","input":["2026-08-31","2026-09-01","2026-09-15","2026-09-16"],"expected":["2026-09-01","2026-09-15"],"framework":"node:test","source":"testing/whitebox/unit_tests/web_test.cjs","actual":["2026-09-01","2026-09-15"],"at":"2026-09-05T08:53:03.575Z"}
+# Subtest: WB-401 SchedulePeriod.calculate: shift duration and time validity
+ok 1 - WB-401 SchedulePeriod.calculate: shift duration and time validity
+  ---
+  duration_ms: 97.4842
+  type: 'test'
+  ...
+# Subtest: WB-402 SchedulePeriod.calculate: shift duration and time validity
+ok 2 - WB-402 SchedulePeriod.calculate: shift duration and time validity
+  ---
+  duration_ms: 0.8253
+  type: 'test'
+  ...
+# Subtest: WB-403 SchedulePeriod.calculate: shift duration and time validity
+ok 3 - WB-403 SchedulePeriod.calculate: shift duration and time validity
+  ---
+  duration_ms: 0.2706
+  type: 'test'
+  ...
+# Subtest: WB-404 SchedulePeriod.calculate: shift duration and time validity
+ok 4 - WB-404 SchedulePeriod.calculate: shift duration and time validity
+  ---
+  duration_ms: 0.4474
+  type: 'test'
+  ...
+# Subtest: WB-405 SchedulePeriod.calculate: shift duration and time validity
+ok 5 - WB-405 SchedulePeriod.calculate: shift duration and time validity
+  ---
+  duration_ms: 0.9209
+  type: 'test'
+  ...
+# Subtest: WB-406 SchedulePeriod.calculate: shift duration and time validity
+ok 6 - WB-406 SchedulePeriod.calculate: shift duration and time validity
+  ---
+  duration_ms: 0.2812
+  type: 'test'
+  ...
+# Subtest: WB-407 SchedulePeriod.calculate: shift duration and time validity
+ok 7 - WB-407 SchedulePeriod.calculate: shift duration and time validity
+  ---
+  duration_ms: 0.2138
+  type: 'test'
+  ...
+# Subtest: WB-408 SchedulePeriod.calculate: shift duration and time validity
+ok 8 - WB-408 SchedulePeriod.calculate: shift duration and time validity
+  ---
+  duration_ms: 0.1858
+  type: 'test'
+  ...
+# Subtest: WB-409 SchedulePeriod.dtrPeriodForDate: calendar and cutoff boundary
+ok 9 - WB-409 SchedulePeriod.dtrPeriodForDate: calendar and cutoff boundary
+  ---
+  duration_ms: 0.7177
+  type: 'test'
+  ...
+# Subtest: WB-410 SchedulePeriod.dtrPeriodForDate: calendar and cutoff boundary
+ok 10 - WB-410 SchedulePeriod.dtrPeriodForDate: calendar and cutoff boundary
+  ---
+  duration_ms: 0.2088
+  type: 'test'
+  ...
+# Subtest: WB-411 SchedulePeriod.dtrPeriodForDate: calendar and cutoff boundary
+ok 11 - WB-411 SchedulePeriod.dtrPeriodForDate: calendar and cutoff boundary
+  ---
+  duration_ms: 0.1299
+  type: 'test'
+  ...
+# Subtest: WB-412 SchedulePeriod.dtrPeriodForDate: calendar and cutoff boundary
+ok 12 - WB-412 SchedulePeriod.dtrPeriodForDate: calendar and cutoff boundary
+  ---
+  duration_ms: 0.4685
+  type: 'test'
+  ...
+# Subtest: WB-413 SchedulePeriod.dtrPeriodForDate: calendar and cutoff boundary
+ok 13 - WB-413 SchedulePeriod.dtrPeriodForDate: calendar and cutoff boundary
+  ---
+  duration_ms: 0.1535
+  type: 'test'
+  ...
+# Subtest: WB-414 SchedulePeriod.dtrPeriodForDate: calendar and cutoff boundary
+ok 14 - WB-414 SchedulePeriod.dtrPeriodForDate: calendar and cutoff boundary
+  ---
+  duration_ms: 0.1056
+  type: 'test'
+  ...
+# Subtest: WB-415 SchedulePeriod.buildDutyPlan: empty, overlap and duplicate periods
+ok 15 - WB-415 SchedulePeriod.buildDutyPlan: empty, overlap and duplicate periods
+  ---
+  duration_ms: 0.4858
+  type: 'test'
+  ...
+# Subtest: WB-416 SchedulePeriod.buildDutyPlan: empty, overlap and duplicate periods
+ok 16 - WB-416 SchedulePeriod.buildDutyPlan: empty, overlap and duplicate periods
+  ---
+  duration_ms: 0.1211
+  type: 'test'
+  ...
+# Subtest: WB-417 SchedulePeriod.buildDutyPlan: empty, overlap and duplicate periods
+ok 17 - WB-417 SchedulePeriod.buildDutyPlan: empty, overlap and duplicate periods
+  ---
+  duration_ms: 1.1478
+  type: 'test'
+  ...
+# Subtest: WB-418 SchedulePeriod.buildDutyPlan: empty, overlap and duplicate periods
+ok 18 - WB-418 SchedulePeriod.buildDutyPlan: empty, overlap and duplicate periods
+  ---
+  duration_ms: 0.5961
+  type: 'test'
+  ...
+# Subtest: WB-419 SchedulePeriod.buildDutyPlan: empty, overlap and duplicate periods
+ok 19 - WB-419 SchedulePeriod.buildDutyPlan: empty, overlap and duplicate periods
+  ---
+  duration_ms: 0.5633
+  type: 'test'
+  ...
+# Subtest: WB-420 SchedulePeriod.buildDutyPlan: empty, overlap and duplicate periods
+ok 20 - WB-420 SchedulePeriod.buildDutyPlan: empty, overlap and duplicate periods
+  ---
+  duration_ms: 0.5966
+  type: 'test'
+  ...
+# Subtest: WB-421 SchedulePeriod.buildDutyPlan: empty, overlap and duplicate periods
+ok 21 - WB-421 SchedulePeriod.buildDutyPlan: empty, overlap and duplicate periods
+  ---
+  duration_ms: 0.1471
+  type: 'test'
+  ...
+# Subtest: WB-422 SchedulePeriod.buildDutyPlan: sum periods excludes unpaid gap
+ok 22 - WB-422 SchedulePeriod.buildDutyPlan: sum periods excludes unpaid gap
+  ---
+  duration_ms: 1.4537
+  type: 'test'
+  ...
+# Subtest: WB-423 SchedulePeriod.buildDutyPlan: null entry should return validation error
+not ok 23 - WB-423 SchedulePeriod.buildDutyPlan: null entry should return validation error
+  ---
+  duration_ms: 1.1784
+  type: 'test'
+  location: 'C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\testing\\whitebox\\unit_tests\\web_test.cjs:9:3'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of null (reading 'period')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    Object.buildDutyPlan (C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\js\schedule-period.js:100:41)
+    C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\testing\whitebox\unit_tests\web_test.cjs:20:114
+    TestContext.<anonymous> (C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\testing\whitebox\unit_tests\web_test.cjs:11:28)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1106:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+    Test.postRun (node:internal/test_runner/test:1235:19)
+    Test.run (node:internal/test_runner/test:1163:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+  ...
+# Subtest: WB-424 SchedulePeriod.dtrColumnForTime: noon and invalid direction
+ok 24 - WB-424 SchedulePeriod.dtrColumnForTime: noon and invalid direction
+  ---
+  duration_ms: 0.3729
+  type: 'test'
+  ...
+# Subtest: WB-425 SchedulePeriod.dtrColumnForTime: noon and invalid direction
+ok 25 - WB-425 SchedulePeriod.dtrColumnForTime: noon and invalid direction
+  ---
+  duration_ms: 0.1718
+  type: 'test'
+  ...
+# Subtest: WB-426 SchedulePeriod.dtrColumnForTime: noon and invalid direction
+ok 26 - WB-426 SchedulePeriod.dtrColumnForTime: noon and invalid direction
+  ---
+  duration_ms: 0.1298
+  type: 'test'
+  ...
+# Subtest: WB-427 SchedulePeriod.dtrColumnForTime: noon and invalid direction
+ok 27 - WB-427 SchedulePeriod.dtrColumnForTime: noon and invalid direction
+  ---
+  duration_ms: 0.1043
+  type: 'test'
+  ...
+# Subtest: WB-428 SchedulePeriod.dtrColumnForTime: noon and invalid direction
+ok 28 - WB-428 SchedulePeriod.dtrColumnForTime: noon and invalid direction
+  ---
+  duration_ms: 0.1321
+  type: 'test'
+  ...
+# Subtest: WB-429 SchedulePeriod.dtrColumnForTime: noon and invalid direction
+ok 29 - WB-429 SchedulePeriod.dtrColumnForTime: noon and invalid direction
+  ---
+  duration_ms: 0.2375
+  type: 'test'
+  ...
+# Subtest: WB-430 ContractPeriodJS.validate: ordered real dates
+ok 30 - WB-430 ContractPeriodJS.validate: ordered real dates
+  ---
+  duration_ms: 0.304
+  type: 'test'
+  ...
+# Subtest: WB-431 ContractPeriodJS.validate: ordered real dates
+ok 31 - WB-431 ContractPeriodJS.validate: ordered real dates
+  ---
+  duration_ms: 0.4096
+  type: 'test'
+  ...
+# Subtest: WB-432 ContractPeriodJS.validate: ordered real dates
+ok 32 - WB-432 ContractPeriodJS.validate: ordered real dates
+  ---
+  duration_ms: 0.1888
+  type: 'test'
+  ...
+# Subtest: WB-433 ContractPeriodJS.validate: ordered real dates
+ok 33 - WB-433 ContractPeriodJS.validate: ordered real dates
+  ---
+  duration_ms: 0.1014
+  type: 'test'
+  ...
+# Subtest: WB-434 ContractPeriodJS.validate: ordered real dates
+ok 34 - WB-434 ContractPeriodJS.validate: ordered real dates
+  ---
+  duration_ms: 0.1093
+  type: 'test'
+  ...
+# Subtest: WB-435 ContractPeriodJS.validate: ordered real dates
+ok 35 - WB-435 ContractPeriodJS.validate: ordered real dates
+  ---
+  duration_ms: 0.1159
+  type: 'test'
+  ...
+# Subtest: WB-436 ContractPeriodJS.dutyError: entire duty must fit contract
+ok 36 - WB-436 ContractPeriodJS.dutyError: entire duty must fit contract
+  ---
+  duration_ms: 0.3176
+  type: 'test'
+  ...
+# Subtest: WB-437 ContractPeriodJS.dutyError: entire duty must fit contract
+ok 37 - WB-437 ContractPeriodJS.dutyError: entire duty must fit contract
+  ---
+  duration_ms: 0.1161
+  type: 'test'
+  ...
+# Subtest: WB-438 ContractPeriodJS.dutyError: entire duty must fit contract
+ok 38 - WB-438 ContractPeriodJS.dutyError: entire duty must fit contract
+  ---
+  duration_ms: 0.1481
+  type: 'test'
+  ...
+# Subtest: WB-439 ContractPeriodJS.dutyError: entire duty must fit contract
+ok 39 - WB-439 ContractPeriodJS.dutyError: entire duty must fit contract
+  ---
+  duration_ms: 0.206
+  type: 'test'
+  ...
+# Subtest: WB-440 DtrReport.sessionMinutes: duration boundaries
+ok 40 - WB-440 DtrReport.sessionMinutes: duration boundaries
+  ---
+  duration_ms: 0.3301
+  type: 'test'
+  ...
+# Subtest: WB-441 DtrReport.sessionMinutes: duration boundaries
+ok 41 - WB-441 DtrReport.sessionMinutes: duration boundaries
+  ---
+  duration_ms: 0.1067
+  type: 'test'
+  ...
+# Subtest: WB-442 DtrReport.sessionMinutes: duration boundaries
+ok 42 - WB-442 DtrReport.sessionMinutes: duration boundaries
+  ---
+  duration_ms: 0.1156
+  type: 'test'
+  ...
+# Subtest: WB-443 DtrReport.sessionMinutes: duration boundaries
+ok 43 - WB-443 DtrReport.sessionMinutes: duration boundaries
+  ---
+  duration_ms: 0.0927
+  type: 'test'
+  ...
+# Subtest: WB-444 DtrReport.sessionMinutes: duration boundaries
+ok 44 - WB-444 DtrReport.sessionMinutes: duration boundaries
+  ---
+  duration_ms: 0.1017
+  type: 'test'
+  ...
+# Subtest: WB-445 DtrReport.periodFromSelection: calendar selection
+ok 45 - WB-445 DtrReport.periodFromSelection: calendar selection
+  ---
+  duration_ms: 2.3827
+  type: 'test'
+  ...
+# Subtest: WB-446 DtrReport.periodFromSelection: calendar selection
+ok 46 - WB-446 DtrReport.periodFromSelection: calendar selection
+  ---
+  duration_ms: 0.7397
+  type: 'test'
+  ...
+# Subtest: WB-447 DtrReport.periodFromSelection: calendar selection
+ok 47 - WB-447 DtrReport.periodFromSelection: calendar selection
+  ---
+  duration_ms: 0.4994
+  type: 'test'
+  ...
+# Subtest: WB-448 DtrReport.periodFromSelection: calendar selection
+ok 48 - WB-448 DtrReport.periodFromSelection: calendar selection
+  ---
+  duration_ms: 0.1533
+  type: 'test'
+  ...
+# Subtest: WB-449 DtrReport.periodFromSelection: calendar selection
+ok 49 - WB-449 DtrReport.periodFromSelection: calendar selection
+  ---
+  duration_ms: 0.1074
+  type: 'test'
+  ...
+# Subtest: WB-450 DtrReport.periodFromSelection: calendar selection
+ok 50 - WB-450 DtrReport.periodFromSelection: calendar selection
+  ---
+  duration_ms: 0.12
+  type: 'test'
+  ...
+# Subtest: WB-451 DtrReport.buildReport: empty attendance creates zero totals
+ok 51 - WB-451 DtrReport.buildReport: empty attendance creates zero totals
+  ---
+  duration_ms: 2.8661
+  type: 'test'
+  ...
+# Subtest: WB-452 DtrReport.filterSessions: inclusive cutoff bounds
+ok 52 - WB-452 DtrReport.filterSessions: inclusive cutoff bounds
+  ---
+  duration_ms: 0.9772
+  type: 'test'
+  ...
+1..52
+# tests 52
+# suites 0
+# pass 51
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 362.5626
+# start of coverage report
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# file                 | line % | branch % | funcs % | uncovered lines
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# web                  |        |          |         | 
+#  js                  |        |          |         | 
+#   contract-period.js |  80.00 |    82.61 |   80.00 | 25-31
+#   dtr-report.js      |  36.81 |    74.51 |   41.67 | 20-29 48-52 55-67 78-84 87-89 113-121 124-130 141-145 148-156 163-165 169-188 218-221 241-246 249-255 258-260 263-335 338-352 355-452
+#   schedule-period.js |  79.81 |    80.25 |   66.67 | 31-35 38-42 78-86 125-130 133-139 182-191
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# all files            |  51.47 |    78.71 |   52.54 | 
+# -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# end of coverage report

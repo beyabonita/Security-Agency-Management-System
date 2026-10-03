@@ -30,11 +30,11 @@ supabase test db supabase/tests/database
 
 ## Functional acceptance
 
-Create one IT Admin, one HR / Operations Head, one Inspector, and two Guards
+Create one IT Admin, one Admin, one Inspector, and two Guards
 inside the staging TwentyTwenty workspace. Verify:
 
-- IT Admin can create and secure only IT Admin and HR / Operations accounts;
-  HR can manage Guards and Inspectors, deployment sites, and schedules.
+- IT Admin can create and secure only IT Admin and Admin accounts;
+  Admin can manage Guards and Inspectors, deployment sites, and schedules.
 - A deployment customer such as Jollibee is created as a TwentyTwenty duty site,
   not as a separate Sentinel Link organization.
 - Assigning a home post and a dated schedule produces the expected assignment
@@ -50,7 +50,7 @@ inside the staging TwentyTwenty workspace. Verify:
 - A shift-change request shows the current and requested duty to the assigned
   Inspector and needs an approval before any schedule update.
 - An accomplishment report requires a completed duty session and can be
-  reviewed by HR / Operations.
+  reviewed by Admin.
 - An incident needs a photo, capture time, valid remarks, and a resolution
   note before it can be resolved. Confirm failed upload submission removes the
   orphaned video object.

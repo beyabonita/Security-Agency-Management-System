@@ -1,0 +1,12 @@
+WB-079 — PASS
+AttendanceSession.fromRow
+Scenario: required timestamp rejected
+Input: {"missing":"clock_in_at"}
+Expected: "FormatException"
+Actual: "FormatException"
+UTC: 2026-09-05T08:57:23.821377Z
+Evidence: logs/flutter-verified.jsonl:296
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/admin/schedule.html",
+    "verified": true
+  },
+  {
+    "path": "/admin/js/shift-roster.js",
+    "verified": true
+  },
+  {
+    "path": "/js/roster-setup.js",
+    "verified": true
+  },
+  {
+    "path": "/js/schedule-period.js",
+    "verified": true
+  },
+  {
+    "path": "/js/dtr-report.js",
+    "verified": true
+  }
+]

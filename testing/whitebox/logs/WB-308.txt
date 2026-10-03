@@ -1,0 +1,12 @@
+WB-308 — PASS
+admin-create-user.registered handler
+Scenario: validation, duplicate and rollback
+Input: {"options":{"authError":true},"body":{}}
+Expected: [400,"auth_account_create_failed"]
+Actual: [400,"auth_account_create_failed"]
+UTC: 2026-09-05T08:56:20.088Z
+Evidence: logs/deno-final.log:551
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

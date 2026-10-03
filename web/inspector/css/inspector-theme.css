@@ -65,10 +65,7 @@
     width: 44px;
     height: 44px;
     flex: 0 0 44px;
-    border: 1px solid rgba(255,255,255,.14);
-    border-radius: 13px;
-    background: #fffdf4 url('../../icons/sentinel-link-mark.png') center / 82% no-repeat;
-    box-shadow: 0 9px 22px rgba(35, 2, 16, .22);
+    background: transparent url('../../icons/sentinel-link-mark.png') center / 82% no-repeat;
 }
 
 .ix-shell-titles { min-width: 0; }
@@ -99,7 +96,7 @@
     align-items: center;
     gap: 8px;
     padding: 0 20px;
-    background: #fff;
+    background: var(--sl-surface);
     border-bottom: 1px solid var(--ix-border);
     overflow-x: auto;
 }
@@ -128,7 +125,7 @@
 
 .ix-topnav a:hover {
     color: var(--ix-sidebar);
-    background: #fff1f2;
+    background: var(--sl-red-soft);
 }
 
 body[data-ix-page="dashboard"] .ix-topnav a[href="dashboard.html"],
@@ -137,17 +134,17 @@ body[data-ix-page="locations"] .ix-topnav a[href="locations.html"],
 body[data-ix-page="incidents"] .ix-topnav a[href="incidents.html"] {
     color: var(--ix-sidebar);
     border-bottom-color: var(--ix-amber);
-    background: #fff7ed;
+    background: var(--sl-warning-soft);
 }
 
 body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
     color: var(--ix-sidebar);
     border-bottom-color: var(--ix-amber);
-    background: #fff7ed;
+    background: var(--sl-warning-soft);
 }
 .ix-menu-toggle {
     display: none;
-    background: #fff1f2;
+    background: var(--sl-red-soft);
     border: 1px solid var(--ix-border);
     border-radius: 8px;
     padding: 8px 12px;
@@ -158,6 +155,7 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
     margin-right: 4px;
     flex-shrink: 0;
 }
+.ix-menu-toggle .material-symbols-rounded { font-size: 1.15rem; }
 
 .ix-brand-badge {
     display: inline-flex;
@@ -177,8 +175,9 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 
 .ix-nav-icon {
     width: 20px;
+    flex: 0 0 20px;
     text-align: center;
-    font-size: 0.95rem;
+    font-size: 1.14rem;
 }
 
 .ix-main {
@@ -212,7 +211,7 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--ix-amber);
+    color: var(--sl-accent);
     margin: 0 0 6px;
 }
 
@@ -233,9 +232,9 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 .ix-readonly-pill {
     font-size: 0.72rem;
     font-weight: 600;
-    color: #92400e;
-    background: #fffbeb;
-    border: 1px solid #fde68a;
+    color: var(--sl-warning);
+    background: var(--sl-warning-soft);
+    border: 1px solid var(--sl-line);
     border-radius: 999px;
     padding: 5px 12px;
     white-space: nowrap;
@@ -278,11 +277,11 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 
 /* ── Components ──────────────────────────────────────────── */
 .ix-notice {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
+    background: var(--sl-red-soft);
+    border: 1px solid var(--sl-line);
     border-radius: 12px;
     padding: 14px 18px;
-    color: #991b1b;
+    color: var(--sl-danger);
     font-size: 0.875rem;
     margin-bottom: 24px;
     display: flex;
@@ -314,7 +313,7 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 }
 
 .ix-table thead tr {
-    background: #f4f4f5;
+    background: var(--sl-surface-muted);
     border-bottom: 1px solid var(--ix-border);
 }
 
@@ -334,7 +333,7 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 }
 
 .ix-table tbody tr:last-child { border-bottom: none; }
-.ix-table tbody tr:hover { background: #fff7ed; }
+.ix-table tbody tr:hover { background: var(--sl-warning-soft); }
 .ix-table tbody td {
     padding: 14px 18px;
     font-size: 0.875rem;
@@ -363,24 +362,24 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 }
 
 .ix-badge-ok {
-    background: #ecfdf5;
-    border: 1px solid #a7f3d0;
-    color: #059669;
+    background: var(--sl-success-soft);
+    border: 1px solid var(--sl-line);
+    color: var(--sl-success);
 }
 .ix-badge-ok::before { background: #10b981; }
 
 .ix-badge-off {
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #dc2626;
+    background: var(--sl-red-soft);
+    border: 1px solid var(--sl-line);
+    color: var(--sl-danger);
 }
 .ix-badge-off::before { background: #ef4444; }
 
 .ix-chip {
     display: inline-block;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    color: #b91c1c;
+    background: var(--sl-red-soft);
+    border: 1px solid var(--sl-line);
+    color: var(--sl-danger);
     border-radius: 999px;
     padding: 3px 10px;
     font-size: 0.75rem;
@@ -407,7 +406,7 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 }
 
 .ix-btn-outline {
-    background: #fff;
+    background: var(--sl-surface);
     border: 1px solid var(--ix-border);
     color: var(--ix-text);
 }
@@ -457,7 +456,7 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 
 .ix-stat-hint {
     font-size: 0.78rem;
-    color: #059669;
+    color: var(--sl-success);
     margin-top: 8px;
     font-weight: 500;
 }
@@ -480,7 +479,7 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 }
 
 .ix-link-row:last-child { border-bottom: none; }
-.ix-link-row:hover { background: #fef2f2; color: var(--ix-accent); }
+.ix-link-row:hover { background: var(--sl-red-soft); color: var(--sl-accent); }
 
 .ix-link-row-left {
     display: flex;
@@ -492,11 +491,12 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
     width: 40px;
     height: 40px;
     border-radius: 10px;
-    background: #fef2f2;
+    background: var(--sl-red-soft);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
+    color: var(--ix-sidebar);
+    font-size: 1.28rem;
 }
 
 .ix-link-row-title { font-weight: 600; font-size: 0.92rem; }
@@ -521,12 +521,46 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 .ix-modal .modal-body { padding: 22px; }
 
 .ix-meta { font-size: 0.82rem; color: var(--ix-muted); margin-bottom: 16px; }
-.ix-meta strong { color: var(--ix-accent); }
+.ix-meta strong { color: var(--sl-accent); }
 
 /* DTR cards inside modal */
 .dtr-records-list { display: flex; flex-direction: column; gap: 14px; max-height: 55vh; overflow-y: auto; }
+.dtr-period-panel {
+    display: grid;
+    grid-template-columns: minmax(180px, .7fr) minmax(210px, .8fr) minmax(260px, 1.5fr);
+    align-items: end;
+    gap: 12px;
+    padding: 14px;
+    margin-bottom: 16px;
+    background: var(--ix-surface);
+    border: 1px solid var(--ix-border);
+    border-radius: 12px;
+}
+.dtr-period-field label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--ix-muted);
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+.dtr-period-summary {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 12px;
+    background: var(--sl-surface-muted);
+    border: 1px solid var(--ix-border);
+    border-radius: 9px;
+    color: var(--ix-text);
+    font-size: .8rem;
+    font-weight: 600;
+}
+.dtr-period-note { grid-column: 1 / -1; margin: -2px 0 0; color: var(--ix-muted); font-size: .74rem; }
+.dtr-modal-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
 .dtr-day-card {
-    background: #f8fafc;
+    background: var(--sl-surface-muted);
     border: 1px solid var(--ix-border);
     border-radius: 12px;
     padding: 16px;
@@ -538,21 +572,21 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 }
 .dtr-day-date { font-weight: 700; color: var(--ix-text); }
 .dtr-punch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
-.dtr-punch-block { background: #fff; border-radius: 10px; padding: 12px; border: 1px solid var(--ix-border); }
+.dtr-punch-block { background: var(--sl-surface); border-radius: 10px; padding: 12px; border: 1px solid var(--ix-border); }
 .dtr-punch-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
-.dtr-punch-block.dtr-punch-am-in .dtr-punch-label { color: #059669; }
-.dtr-punch-block.dtr-punch-am-out .dtr-punch-label { color: #d97706; }
-.dtr-punch-block.dtr-punch-pm-in .dtr-punch-label { color: #dc2626; }
+.dtr-punch-block.dtr-punch-am-in .dtr-punch-label { color: var(--sl-success); }
+.dtr-punch-block.dtr-punch-am-out .dtr-punch-label { color: var(--sl-warning); }
+.dtr-punch-block.dtr-punch-pm-in .dtr-punch-label { color: var(--sl-danger); }
 .dtr-punch-block.dtr-punch-pm-out .dtr-punch-label { color: #ea580c; }
 .dtr-punch-time { color: var(--ix-text); font-weight: 700; font-size: 0.88rem; }
 .dtr-punch-meta { font-size: 0.72rem; color: var(--ix-muted); margin-top: 4px; }
-.dtr-punch-meta.dtr-geo-ok { color: #059669; }
-.dtr-punch-meta.dtr-geo-bad { color: #dc2626; }
-.dtr-punch-empty { color: #94a3b8; font-size: 0.78rem; font-style: italic; }
+.dtr-punch-meta.dtr-geo-ok { color: var(--sl-success); }
+.dtr-punch-meta.dtr-geo-bad { color: var(--sl-danger); }
+.dtr-punch-empty { color: var(--sl-muted); font-size: 0.78rem; font-style: italic; }
 .hours-badge {
-    background: #eff6ff;
-    border: 1px solid #bfdbfe;
-    color: #2563eb;
+    background: var(--sl-info-soft);
+    border: 1px solid var(--sl-line);
+    color: var(--sl-info);
     border-radius: 999px;
     padding: 2px 10px;
     font-size: 0.75rem;
@@ -572,23 +606,29 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 
 .btn-pdf:hover { background: var(--ix-accent-light); }
 
+@media (max-width: 760px) {
+    .dtr-period-panel { grid-template-columns: 1fr; }
+    .dtr-period-note { grid-column: auto; }
+    .dtr-modal-actions .btn-pdf { width: 100%; }
+}
+
 /* Incidents */
 .badge-cat {
     font-size: 0.7rem;
     padding: 4px 10px;
     border-radius: 999px;
-    background: #fef2f2;
-    color: #b91c1c;
+    background: var(--sl-red-soft);
+    color: var(--sl-danger);
     font-weight: 600;
 }
 .badge-status { font-size: 0.68rem; padding: 4px 10px; border-radius: 999px; font-weight: 600; }
-.badge-open { background: #fef2f2; color: #dc2626; }
-.badge-ack { background: #fffbeb; color: #d97706; }
-.badge-resolved { background: #ecfdf5; color: #059669; }
+.badge-open { background: var(--sl-red-soft); color: var(--sl-danger); }
+.badge-ack { background: var(--sl-warning-soft); color: var(--sl-warning); }
+.badge-resolved { background: var(--sl-success-soft); color: var(--sl-success); }
 .thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; border: 1px solid var(--ix-border); }
 .detail-photo { max-width: 100%; max-height: 360px; border-radius: 12px; }
 .ix-modal .form-control, .ix-modal .form-select {
-    background: #fff;
+    background: var(--sl-surface);
     border: 1px solid var(--ix-border);
     color: var(--ix-text);
     border-radius: 8px;
@@ -616,8 +656,7 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
     align-items: center;
     justify-content: center;
     padding: 32px 20px;
-    background:
-        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08) 0%, transparent 45%),
+    background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08) 0%, transparent 45%),
         linear-gradient(145deg, #9f1239 0%, #881337 55%, #701a35 100%);
     font-family: 'Inter', system-ui, sans-serif;
 }
@@ -627,7 +666,7 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 .ix-login-form-side {
     width: 100%;
     max-width: 440px;
-    background: #fff;
+    background: var(--sl-surface);
     display: flex;
     align-items: stretch;
     justify-content: center;
@@ -649,9 +688,9 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #be123c;
-    background: #fff1f2;
-    border: 1px solid #fecdd3;
+    color: var(--sl-danger);
+    background: var(--sl-red-soft);
+    border: 1px solid var(--sl-line);
     border-radius: 999px;
     padding: 4px 10px;
     margin-bottom: 14px;
@@ -677,7 +716,7 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 .ix-login-card .sub { color: var(--ix-muted); font-size: 0.875rem; margin-bottom: 28px; }
 .ix-login-card label { font-size: 0.78rem; font-weight: 600; color: var(--ix-muted); margin-bottom: 6px; display: block; }
 .ix-login-card .form-control {
-    background: #f8fafc;
+    background: var(--sl-surface-muted);
     border: 1px solid var(--ix-border);
     border-radius: 10px;
     padding: 11px 14px;
@@ -704,9 +743,9 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 }
 .ix-login-btn:hover { background: var(--ix-accent-light); }
 .ix-login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.ix-login-error { color: #dc2626; font-size: 0.85rem; text-align: center; min-height: 20px; margin-bottom: 8px; }
+.ix-login-error { color: var(--sl-danger); font-size: 0.85rem; text-align: center; min-height: 20px; margin-bottom: 8px; }
 .ix-login-admin-link { text-align: center; margin-top: 24px; font-size: 0.82rem; color: var(--ix-muted); }
-.ix-login-admin-link a { color: var(--ix-accent); font-weight: 600; text-decoration: none; }
+.ix-login-admin-link a { color: var(--sl-accent); font-weight: 600; text-decoration: none; }
 
 @media (max-width: 900px) {
     .ix-shell-bar { padding: 12px 16px; }
@@ -731,7 +770,7 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 @media (max-width: 520px) {
     .ix-shell-tagline, .ix-brand-badge, .ix-user-chip { display: none; }
     .ix-shell-brand { gap: 9px; }
-    .ix-shell-brand::before { width: 36px; height: 36px; flex-basis: 36px; border-radius: 11px; }
+    .ix-shell-brand::before { width: 36px; height: 36px; flex-basis: 36px; }
     .ix-topnav-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ix-stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ix-content { padding: 16px 0 32px; }

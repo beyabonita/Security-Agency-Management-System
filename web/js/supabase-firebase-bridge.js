@@ -1,5 +1,5 @@
 /*
- * Compatibility facade for the legacy Admin/Inspector markup.
+ * Compatibility facade for the legacy Operations Head/Inspector markup.
  *
  * The underlying client is the official Supabase browser SDK: it owns session
  * persistence, refresh, PostgREST, Edge Function, Storage, and Realtime
@@ -10,9 +10,12 @@
 (function () {
   'use strict';
 
-  const URL = 'https://uqtupmpofjqrnefgrexm.supabase.co';
-  const KEY = 'sb_publishable_WhymBQujSZgXctoTe0hwCA_Q4DRCPcw';
-  const SESSION_KEY = 'security_time_tracker_supabase_session';
+  // Only the loopback development server may inject an alternate backend.
+  const localConfig = ['localhost','127.0.0.1','[::1]'].includes(location.hostname)
+    ? window.SENTINEL_LOCAL_SUPABASE : null;
+  const URL = localConfig?.url || 'https://uqtupmpofjqrnefgrexm.supabase.co';
+  const KEY = localConfig?.key || 'sb_publishable_WhymBQujSZgXctoTe0hwCA_Q4DRCPcw';
+  const SESSION_KEY = localConfig ? 'sentinel_local_supabase_session' : 'security_time_tracker_supabase_session';
   // Every portal page loads the version-pinned official UMD SDK immediately
   // before this bridge. Keeping loading in markup avoids runtime injection and
   // guarantees the legacy inline scripts below it see firebase.auth() ready.
@@ -30,6 +33,12 @@
     },
   });
   window.appSupabase = client;
+  if (document.currentScript?.src) {
+    const presenceScript = document.createElement('script');
+    presenceScript.src = new globalThis.URL('account-presence.js', document.currentScript.src).href;
+    document.head.appendChild(presenceScript);
+  }
+  window.SENTINEL_LIVE_TRACKING_ENABLED = true;
 
   const toLegacyUser = (session) => session?.user
     ? { uid: session.user.id, email: session.user.email }
@@ -67,7 +76,7 @@
       userId: 'user_id', organizationId: 'organization_id', locationId: 'location_id',
       locationLabel: 'location_label', locationAddress: 'location_address',
       startAt: 'start_at', endAt: 'end_at', dutyCategory: 'duty_category',
-      dutyDays: 'duty_days', markedDone: 'marked_done', completedAt: 'completed_at',
+      dutyDays: 'duty_days', dtrPeriod: 'dtr_period', dutyDate: 'duty_date', markedDone: 'marked_done', completedAt: 'completed_at',
       completedBy: 'completed_by', firstName: 'first_name', middleInitial: 'middle_initial',
       lastName: 'last_name', deviceId: 'device_id', deviceLocked: 'device_locked',
       createdAt: 'created_at', updatedAt: 'updated_at', updatedBy: 'updated_by',
@@ -76,8 +85,8 @@
     const allowed = {
       users: ['id', 'username', 'email', 'first_name', 'middle_initial', 'last_name', 'role', 'organization_id', 'active', 'device_id', 'device_locked', 'created_at'],
       locations: ['id', 'label', 'address', 'latitude', 'longitude', 'radius_meters', 'active', 'created_at'],
-      schedules: ['id', 'user_id', 'location_id', 'location_label', 'location_address', 'guard_name', 'start_at', 'end_at', 'duty_category', 'duty_days', 'approval_status', 'marked_done', 'completed_at', 'completed_by', 'created_at'],
-      incidents: ['id', 'user_id', 'guard_name', 'guard_email', 'category', 'description', 'photo_data', 'latitude', 'longitude', 'location_label', 'status', 'status_note', 'created_at', 'updated_at', 'updated_by'],
+      schedules: ['id', 'user_id', 'location_id', 'location_label', 'location_address', 'guard_name', 'start_at', 'end_at', 'duty_date', 'dtr_period', 'duty_category', 'duty_days', 'approval_status', 'marked_done', 'completed_at', 'completed_by', 'created_at'],
+      incidents: ['id', 'user_id', 'guard_name', 'guard_email', 'category', 'description', 'photo_data', 'latitude', 'longitude', 'location_label', 'status', 'status_note', 'created_at', 'updated_at', 'updated_by', 'deletion_requested_at'],
     };
     return Object.fromEntries(
       Object.entries(data)
@@ -99,7 +108,8 @@
       user_id: 'userId', organization_id: 'organizationId', location_id: 'locationId',
       assigned_location_id: 'assignedLocationId', inspector_id: 'inspectorId',
       employment_category: 'employmentCategory', duty_days_total: 'dutyDaysTotal',
-      duty_days: 'dutyDays', location_label: 'locationLabel', location_address: 'locationAddress',
+      contract_start_date: 'contractStartDate', contract_end_date: 'contractEndDate',
+      duty_days: 'dutyDays', duty_date: 'dutyDate', dtr_period: 'dtrPeriod', location_label: 'locationLabel', location_address: 'locationAddress',
       start_at: 'startAt', end_at: 'endAt', marked_done: 'markedDone',
       completed_at: 'completedAt', completed_by: 'completedBy', first_name: 'firstName',
       middle_initial: 'middleInitial', last_name: 'lastName', device_id: 'deviceId',
@@ -108,7 +118,7 @@
       photo_data: 'photoData', radius_meters: 'radius', guard_name: 'guardName',
       guard_email: 'guardEmail', incident_title: 'incidentTitle',
       detailed_narrative: 'detailedNarrative', immediate_action: 'immediateAction',
-      status_note: 'statusNote', video_path: 'videoPath',
+      status_note: 'statusNote', review_history: 'reviewHistory', video_path: 'videoPath',
       video_duration_seconds: 'videoDurationSeconds',
     };
     const timeKey = /(_at|createdAt|updatedAt|startAt|endAt|completedAt|capturedAt|filedAt)$/;
@@ -288,27 +298,4 @@
   window.db = { collection: (name) => new Query(name) };
   window.applyAdminRoleNavigation = () => {};
 
-  function renderPlatformAnnouncement() {
-    if (document.body?.dataset.platformAnnouncementLoaded) return;
-    if (document.body) document.body.dataset.platformAnnouncementLoaded = 'true';
-    client.rpc('current_platform_announcement')
-      .then(({ data, error }) => {
-        if (error || !data) return;
-        const target = document.querySelector('.ax-content, .ix-content, .simple-card');
-        if (!target) return;
-        const notice = document.createElement('div');
-        notice.className = 'sl-platform-announcement';
-        notice.setAttribute('role', 'status');
-        const label = document.createElement('strong');
-        label.textContent = 'System notice';
-        const message = document.createElement('span');
-        message.textContent = data;
-        notice.append(label, message);
-        target.prepend(notice);
-      })
-      .catch(() => {});
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderPlatformAnnouncement);
-  else renderPlatformAnnouncement();
 })();

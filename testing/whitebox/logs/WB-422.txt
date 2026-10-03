@@ -1,0 +1,12 @@
+WB-422 — PASS
+SchedulePeriod.buildDutyPlan
+Scenario: sum periods excludes unpaid gap
+Input: "08-12 + 13-17"
+Expected: 480
+Actual: 480
+UTC: 2026-09-05T08:53:03.561Z
+Evidence: logs/node.tap:23
+Source: testing/whitebox/unit_tests/web_test.cjs
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

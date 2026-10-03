@@ -1,3 +1,4 @@
+import { passwordError } from "../_shared/password-policy.ts";
 import {
   ApiError,
   authenticatedUserId,
@@ -8,10 +9,10 @@ import {
   serviceClient,
 } from "../_shared/api.ts";
 import {
-  AUTH_EMAIL_DOMAIN,
   authProviderMessage,
   beneficiaryOrganizationId,
   databaseBusinessMessage,
+  emailValid,
   FIELD_ROLES,
   isAppRole,
   isEmploymentCategory,
@@ -20,9 +21,10 @@ import {
   optionalBoolean,
   optionalString,
   PLATFORM_ROLES,
-  usernameValid,
   uuidValid,
 } from "../_shared/accounts.ts";
+
+import { contractPeriod } from "../_shared/contract-period.ts";
 
 Deno.serve((request) =>
   handleJsonPost(request, async ({
@@ -38,7 +40,7 @@ Deno.serve((request) =>
     if (!isItAdmin && !isHr) {
       reject(
         403,
-        "Only IT Admin or HR / Operations can manage accounts.",
+        "Only IT Admin or Admin can manage accounts.",
         "forbidden",
       );
     }
@@ -69,7 +71,7 @@ Deno.serve((request) =>
     const { data: targetData, error: targetError } = await service
       .from("profiles")
       .select(
-        "id,username,email,first_name,middle_initial,last_name,role,active,organization_id,employment_category,device_id,device_locked",
+        "id,username,email,first_name,middle_initial,last_name,role,active,organization_id,employment_category,contract_start_date,contract_end_date,device_id,device_locked",
       )
       .eq("id", targetId)
       .maybeSingle();
@@ -86,11 +88,39 @@ Deno.serve((request) =>
     const target = targetData as ManagedProfile;
 
     if (targetId === callerId) {
-      reject(
-        400,
-        "Use a different IT Admin account to edit or disable your own account.",
-        "self_management_blocked",
-      );
+      // A sole IT Admin can migrate their own email, without granting self role/access changes.
+      const allowed = ["action", "userId", "email", "currentPassword"];
+      if (
+        !isItAdmin || body.email === undefined ||
+        Object.keys(body).some((key) => !allowed.includes(key))
+      ) {
+        reject(
+          400,
+          "You can only change your own email here. Use another IT Admin to edit account access.",
+          "self_management_blocked",
+        );
+      }
+      if (typeof body.currentPassword !== "string" || !body.currentPassword) {
+        reject(
+          400,
+          "Enter your current app password.",
+          "current_password_required",
+        );
+      }
+      const verifier = serviceClient();
+      const { data: verified, error: verificationError } = await verifier.auth
+        .signInWithPassword({
+          email: target.email,
+          password: body.currentPassword,
+        });
+      if (verified.session) await verifier.auth.signOut({ scope: "local" });
+      if (verificationError || verified.user?.id !== callerId) {
+        reject(
+          403,
+          "The current password is incorrect.",
+          "password_verification_failed",
+        );
+      }
     }
     if (
       isHr &&
@@ -101,7 +131,7 @@ Deno.serve((request) =>
     ) {
       reject(
         403,
-        "HR / Operations can manage Guard and Inspector accounts in their own organization only.",
+        "Admin can manage Guard and Inspector accounts in their own organization only.",
         "forbidden_target",
       );
     }
@@ -111,7 +141,7 @@ Deno.serve((request) =>
     ) {
       reject(
         403,
-        "IT Admin maintains IT and HR / Operations access. Guard and Inspector accounts are managed by HR / Operations.",
+        "IT Admin maintains IT and Admin access. Guard and Inspector accounts are managed by Admin.",
         "forbidden_target",
       );
     }
@@ -123,7 +153,7 @@ Deno.serve((request) =>
     if (isHr && requestedRole !== target.role) {
       reject(
         403,
-        "HR / Operations cannot change Guard and Inspector role types.",
+        "Admin cannot change Guard and Inspector role types.",
         "forbidden_role",
       );
     }
@@ -133,7 +163,7 @@ Deno.serve((request) =>
     ) {
       reject(
         403,
-        "IT Admin may assign only IT Admin or HR / Operations Head roles.",
+        "IT Admin may assign only IT Admin or Admin roles.",
         "forbidden_role",
       );
     }
@@ -143,6 +173,13 @@ Deno.serve((request) =>
       target.active;
     const resetDevice = optionalBoolean(body, "resetDevice", "Reset device") ??
       false;
+    if (resetDevice && isItAdmin) {
+      reject(
+        403,
+        "Device reset is available to Admin for personnel accounts only.",
+        "forbidden_device_reset",
+      );
+    }
     const removesActiveItAdmin = target.role === "it_admin" && target.active &&
       (role !== "it_admin" || !active);
     if (removesActiveItAdmin) {
@@ -167,33 +204,33 @@ Deno.serve((request) =>
       }
     }
 
-    const username = optionalString(body, "username", "Username", {
-      min: 3,
-      max: 32,
+    const username = target.username;
+    const requestedEmail = optionalString(body, "email", "Email", {
+      max: 254,
       normalize: (value) => value.trim().toLowerCase(),
-    }) ?? target.username;
-    if (!usernameValid(username)) {
+    });
+    if (requestedEmail !== undefined && !emailValid(requestedEmail)) {
       reject(
         400,
-        "Username must use 3–32 lowercase letters, numbers, dots, or underscores.",
-        "invalid_username",
+        "Enter a valid email address, such as name@gmail.com.",
+        "invalid_email",
       );
     }
-    const { data: duplicate, error: duplicateError } = await service
-      .from("profiles")
-      .select("id")
-      .eq("username", username)
-      .neq("id", targetId)
-      .maybeSingle();
+    // Status/device updates must not require an email migration or recreate an alias.
+    const authEmail = requestedEmail ?? target.email;
+    const { data: duplicate, error: duplicateError } = await service.from(
+      "profiles",
+    )
+      .select("id").eq("email", authEmail).neq("id", targetId).maybeSingle();
     if (duplicateError) {
       backendFailure(
-        "The username availability check could not be completed.",
-        "username_check_failed",
+        "The email availability check could not be completed.",
+        "email_check_failed",
         duplicateError,
       );
     }
     if (duplicate) {
-      reject(409, "That username is already in use.", "username_in_use");
+      reject(409, "That email address is already in use.", "email_in_use");
     }
 
     let password = "";
@@ -202,10 +239,11 @@ Deno.serve((request) =>
         reject(400, "Password must be text.", "invalid_input");
       }
       password = body.password;
-      if (password && (password.length < 6 || password.length > 128)) {
+      const invalidPassword = password ? passwordError(password) : null;
+      if (invalidPassword) {
         reject(
           400,
-          "Password must contain 6 to 128 characters.",
+          invalidPassword,
           "invalid_input",
         );
       }
@@ -234,12 +272,24 @@ Deno.serve((request) =>
       reject(400, "Choose Regular or Contract duty.", "invalid_duty_category");
     }
     const employmentCategory = role === "user" ? employmentValue : "regular";
+    const contract = contractPeriod(
+      employmentCategory,
+      body.contractStartDate === undefined
+        ? target.contract_start_date
+        : body.contractStartDate,
+      body.contractEndDate === undefined
+        ? target.contract_end_date
+        : body.contractEndDate,
+      body.employmentCategory === undefined &&
+        body.contractStartDate === undefined &&
+        body.contractEndDate === undefined,
+    );
+    if (contract.error) reject(400, contract.error, "invalid_contract_period");
 
     let organizationId: string | null = isHr ? caller.organization_id : null;
     if (isItAdmin && role === "admin") {
       organizationId = await beneficiaryOrganizationId(service);
     }
-    const authEmail = `${username}@${AUTH_EMAIL_DOMAIN}`;
 
     const { data: authRecord, error: authLookupError } = await service.auth
       .admin
@@ -262,6 +312,8 @@ Deno.serve((request) =>
       active: target.active,
       organization_id: target.organization_id,
       employment_category: target.employment_category,
+      contract_start_date: target.contract_start_date,
+      contract_end_date: target.contract_end_date,
       device_id: target.device_id,
       device_locked: target.device_locked,
     };
@@ -275,6 +327,8 @@ Deno.serve((request) =>
       active,
       organization_id: organizationId,
       employment_category: employmentCategory,
+      contract_start_date: contract.start,
+      contract_end_date: contract.end,
       ...(resetDevice ? { device_id: null, device_locked: false } : {}),
     };
     const { data: updatedProfile, error: profileError } = await service
@@ -302,6 +356,7 @@ Deno.serve((request) =>
 
     const authUpdate: Record<string, unknown> = {
       email: authEmail,
+      ...(requestedEmail !== undefined ? { email_confirm: true } : {}),
       user_metadata: {
         ...(authRecord.user.user_metadata ?? {}),
         username,

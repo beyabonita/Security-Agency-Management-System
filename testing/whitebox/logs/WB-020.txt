@@ -1,0 +1,12 @@
+WB-020 — PASS
+auth_username.displayLoginId
+Scenario: profile fallback
+Input: {"username":12}
+Expected: "12"
+Actual: "12"
+UTC: 2026-09-05T08:57:23.519375Z
+Evidence: logs/flutter-verified.jsonl:70
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

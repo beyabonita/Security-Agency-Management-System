@@ -1,0 +1,74 @@
+{
+  "checkedAt": "2026-09-07T15:10:34.343Z",
+  "results": [
+    {
+      "check": "admin/live-tracking.html",
+      "status": "PASS",
+      "http": 200
+    },
+    {
+      "check": "Map tiles allowed by deployed CSP",
+      "status": "PASS"
+    },
+    {
+      "check": "inspector/live-tracking.html",
+      "status": "PASS",
+      "http": 200
+    },
+    {
+      "check": "js/live-tracking.js",
+      "status": "PASS",
+      "http": 200
+    },
+    {
+      "check": "js/live-tracking-model.js",
+      "status": "PASS",
+      "http": 200
+    },
+    {
+      "check": "js/supabase-firebase-bridge.js",
+      "status": "PASS",
+      "http": 200
+    },
+    {
+      "check": "admin/js/admin-shell.js",
+      "status": "PASS",
+      "http": 200
+    },
+    {
+      "check": "inspector/js/inspector-shell.js",
+      "status": "PASS",
+      "http": 200
+    },
+    {
+      "check": "css/live-tracking.css",
+      "status": "PASS",
+      "http": 200
+    },
+    {
+      "check": "staff/login.html",
+      "status": "PASS",
+      "http": 200
+    },
+    {
+      "check": "staff/guard-app-qr.png",
+      "status": "PASS",
+      "http": 200
+    },
+    {
+      "check": "Published APK matches signed v1.0.11 build",
+      "status": "FAIL",
+      "bytes": 63218358,
+      "sha256": "3c80dcce72fad29988714ee37814611818ba0fc500937e3c5221917a42362aa3"
+    },
+    {
+      "check": "APK download filename",
+      "status": "FAIL"
+    },
+    {
+      "check": "Live locations deny anonymous callers",
+      "status": "PASS",
+      "http": 401
+    }
+  ]
+}

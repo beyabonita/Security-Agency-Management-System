@@ -1,0 +1,12 @@
+WB-449 — PASS
+DtrReport.periodFromSelection
+Scenario: calendar selection
+Input: ["bad","first"]
+Expected: null
+Actual: null
+UTC: 2026-09-05T08:53:03.571Z
+Evidence: logs/node.tap:50
+Source: testing/whitebox/unit_tests/web_test.cjs
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

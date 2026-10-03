@@ -9,17 +9,19 @@ import {
 } from "../_shared/api.ts";
 import {
   APP_ROLES,
-  AUTH_EMAIL_DOMAIN,
   authProviderMessage,
   beneficiaryOrganizationId,
+  emailValid,
   FIELD_ROLES,
   isAppRole,
   isEmploymentCategory,
   loadCallerProfile,
   optionalString,
   PLATFORM_ROLES,
-  usernameValid,
 } from "../_shared/accounts.ts";
+
+import { contractPeriod } from "../_shared/contract-period.ts";
+import { passwordError } from "../_shared/password-policy.ts";
 
 Deno.serve((request) =>
   handleJsonPost(request, async ({
@@ -36,33 +38,35 @@ Deno.serve((request) =>
     if (!isPlatformAdmin && !isHr) {
       reject(
         403,
-        "Only IT Admin or an active HR / Operations Head can create accounts.",
+        "Only IT Admin or an active Admin can create accounts.",
         "forbidden",
       );
     }
 
-    const requestedEmail = optionalString(body, "email", "Email", {
-      max: 320,
+    const authEmail = optionalString(body, "email", "Email", {
+      max: 254,
       normalize: (value) => value.trim().toLowerCase(),
     }) ?? "";
-    const requestedUsername = optionalString(body, "username", "Username", {
-      max: 32,
-      normalize: (value) => value.trim().toLowerCase(),
-    }) ?? "";
-    const username = requestedUsername ||
-      (requestedEmail.endsWith(`@${AUTH_EMAIL_DOMAIN}`)
-        ? requestedEmail.slice(0, -(`@${AUTH_EMAIL_DOMAIN}`).length)
-        : "");
-    const authEmail = `${username}@${AUTH_EMAIL_DOMAIN}`;
+    if (!emailValid(authEmail)) {
+      reject(
+        400,
+        "Enter a valid email address, such as name@gmail.com.",
+        "invalid_email",
+      );
+    }
+    // Retain the legacy internal field for compatibility; email is the login identity.
+    const username = "u_" +
+      crypto.randomUUID().replaceAll("-", "").slice(0, 30);
 
     if (typeof body.password !== "string") {
       reject(400, "Password is required.", "invalid_input");
     }
     const password = body.password;
-    if (password.length < 6 || password.length > 128) {
+    const invalidPassword = passwordError(password);
+    if (invalidPassword) {
       reject(
         400,
-        "Password must contain 6 to 128 characters.",
+        invalidPassword,
         "invalid_input",
       );
     }
@@ -75,7 +79,7 @@ Deno.serve((request) =>
     if (isHr && !FIELD_ROLES.includes(role as "user" | "inspector")) {
       reject(
         403,
-        "HR / Operations may create Guard and Inspector accounts only.",
+        "Admin may create Guard and Inspector accounts only.",
         "forbidden_role",
       );
     }
@@ -85,27 +89,12 @@ Deno.serve((request) =>
     ) {
       reject(
         403,
-        "IT Admin may create IT Admin and HR / Operations Head accounts only. HR / Operations manages Guard and Inspector accounts.",
+        "IT Admin may create IT Admin and Admin accounts only. Admin manages Guard and Inspector accounts.",
         "forbidden_role",
       );
     }
     if (!APP_ROLES.includes(role)) {
       reject(400, "Choose a valid account role.", "invalid_role");
-    }
-
-    if (!usernameValid(username)) {
-      reject(
-        400,
-        "Username must use 3–32 lowercase letters, numbers, dots, or underscores.",
-        "invalid_username",
-      );
-    }
-    if (requestedEmail && requestedEmail !== authEmail) {
-      reject(
-        400,
-        "Account email must match the username sign-in format.",
-        "invalid_email_alias",
-      );
     }
 
     const firstName = optionalString(body, "firstName", "First name", {
@@ -127,6 +116,12 @@ Deno.serve((request) =>
       reject(400, "Choose Regular or Contract duty.", "invalid_duty_category");
     }
     const employmentCategory = employmentValue;
+    const contract = contractPeriod(
+      role === "user" ? employmentCategory : "regular",
+      body.contractStartDate,
+      body.contractEndDate,
+    );
+    if (contract.error) reject(400, contract.error, "invalid_contract_period");
 
     let targetOrganizationId: string | null = null;
     if (isHr) {
@@ -138,17 +133,17 @@ Deno.serve((request) =>
     const { data: duplicate, error: duplicateError } = await service
       .from("profiles")
       .select("id")
-      .eq("username", username)
+      .eq("email", authEmail)
       .maybeSingle();
     if (duplicateError) {
       backendFailure(
-        "The username availability check could not be completed.",
-        "username_check_failed",
+        "The email availability check could not be completed.",
+        "email_check_failed",
         duplicateError,
       );
     }
     if (duplicate) {
-      reject(409, "That username is already in use.", "username_in_use");
+      reject(409, "That email address is already in use.", "email_in_use");
     }
 
     const { data: authData, error: authError } = await service.auth.admin
@@ -183,6 +178,8 @@ Deno.serve((request) =>
         role,
         organization_id: targetOrganizationId,
         employment_category: role === "user" ? employmentCategory : "regular",
+        contract_start_date: contract.start,
+        contract_end_date: contract.end,
       })
       .eq("id", targetId)
       .select("id")

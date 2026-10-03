@@ -1,0 +1,12 @@
+WB-505 — PASS
+UserProfileService.validateGuardLogin
+Scenario: role and active branches
+Input: {"role":"admin","active":false}
+Expected: "admin"
+Actual: "admin"
+UTC: 2026-09-05T08:57:23.710377Z
+Evidence: logs/flutter-verified.jsonl:201
+Source: testing/whitebox/unit_tests/services_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

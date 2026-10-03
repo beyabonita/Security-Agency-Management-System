@@ -1,0 +1,18 @@
+WB-510 — FAIL
+UserProfileService.validateGuardLogin
+Scenario: unknown active role must be denied
+Input: {"role":"owner","active":true}
+Expected: true
+Actual: false
+UTC: 2026-09-05T08:57:23.741378Z
+Evidence: logs/flutter-verified.jsonl:253
+Source: testing/whitebox/unit_tests/services_test.dart
+Runner error: Expected: <true>
+  Actual: <false>
+
+package:matcher                                     expect
+package:flutter_test/src/widget_tester.dart 473:18  expect
+testing\whitebox\unit_tests\core_test.dart 31:7     wb.<fn>
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

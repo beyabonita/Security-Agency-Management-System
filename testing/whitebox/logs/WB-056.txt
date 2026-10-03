@@ -1,0 +1,12 @@
+WB-056 — PASS
+ContractPeriod.timeInBlockReason
+Scenario: inclusive Manila date boundaries
+Input: "2026-09-05T16:00:00Z"
+Expected: false
+Actual: false
+UTC: 2026-09-05T08:57:23.698377Z
+Evidence: logs/flutter-verified.jsonl:186
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

@@ -1,0 +1,12 @@
+WB-047 — PASS
+GeofenceService.loadSitesForUser
+Scenario: empty ids avoid database
+Input: []
+Expected: 0
+Actual: 0
+UTC: 2026-09-05T08:57:23.661373Z
+Evidence: logs/flutter-verified.jsonl:153
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

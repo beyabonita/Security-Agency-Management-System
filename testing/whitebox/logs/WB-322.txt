@@ -1,0 +1,12 @@
+WB-322 — PASS
+admin-manage-user.registered handler
+Scenario: successful update and rollback safety
+Input: {"options":{},"body":{"firstName":"Changed"}}
+Expected: [200,null,["profileUpdate","authUpdate"]]
+Actual: [200,null,["profileUpdate","authUpdate"]]
+UTC: 2026-09-05T08:56:20.255Z
+Evidence: logs/deno-final.log:626
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

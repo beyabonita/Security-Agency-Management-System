@@ -1,0 +1,68 @@
+/* Guard roster and DTR schedule history. */
+.schedule-list-filters {
+    display: grid;
+    grid-template-columns: minmax(160px, .8fr) minmax(180px, .8fr) minmax(230px, 1.4fr);
+    gap: 16px;
+    padding: 20px 24px 12px;
+}
+.schedule-list-note { margin: 0; padding: 0 24px 20px; color: var(--ax-muted); font-size: .78rem; }
+.schedule-dtr-table { min-width: 900px; }
+.schedule-dtr-table thead th { text-align: center; vertical-align: middle; border: 1px solid var(--ax-border); }
+.schedule-dtr-table thead th:first-child { text-align: left; }
+.schedule-dtr-table td { vertical-align: top; }
+.schedule-dtr-time { text-align: center; font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1.7; }
+.schedule-dtr-time > span { color: var(--ax-muted); }
+.schedule-period-actions { min-width: 104px; }
+.schedule-period-action { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; }
+.schedule-period-action + .schedule-period-action { border-top: 1px solid var(--ax-border); }
+.schedule-period-action strong { font-size: .78rem; }
+.schedule-period-action .action-btn { flex: 0 0 auto; }
+.schedule-inspector-assignment { color: var(--ax-muted); }
+@media (max-width: 760px) {
+    .schedule-plan-settings, .schedule-list-filters { grid-template-columns: 1fr; }
+    .schedule-list-filters { padding: 18px; gap: 12px; }
+    .schedule-list-note { padding: 0 18px 18px; }
+}
+/* Guard roster setup shares the existing scheduling controls and theme. */
+.shift-roster-card { padding: 24px; display: grid; gap: 20px; }
+.shift-roster-card .schedule-plan-settings { grid-template-columns: minmax(140px,1fr) minmax(180px,1fr) minmax(200px,1.5fr); }
+#rosterGuards { grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); }
+#rosterPreview, #assignedRoster { padding: 16px; border: 1px solid var(--ax-border); border-radius: 12px; }
+#rosterPreview p, #assignedRoster p { margin: 0 0 8px; }
+#rosterPreview p:last-child, #assignedRoster p:last-child { margin-bottom: 0; }
+#saveRoster { justify-self: start; min-height: 44px; padding-inline: 20px; }
+.shift-roster-card .form-hint { margin: 0; }
+.roster-dtr-scroll { overflow-x: auto; max-width: 100%; margin: 12px 0; }
+.roster-dtr-preview { width: 100%; min-width: 580px; border-collapse: collapse; font-size: .8rem; }
+.roster-dtr-preview th, .roster-dtr-preview td { padding: 12px; border: 1px solid var(--ax-border); vertical-align: top; }
+.roster-dtr-preview th { background: var(--ax-bg); }
+.roster-dtr-preview td:not(:first-child) { white-space: nowrap; }
+.shift-roster-card > * { min-width: 0; }
+.roster-setup-loading:has(#rosterSetupsStatus:empty):has(#retryRosterSetups[hidden]) { display: none; }
+.roster-setup-loading { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: .8rem; }
+.roster-setup-editor { border: 1px solid var(--ax-border); border-radius: 12px; padding: 16px; }
+.roster-setup-editor summary { cursor: pointer; font-weight: 600; }
+#rosterSetupForm { display: grid; gap: 16px; margin-top: 16px; }
+#rosterSetupForm .schedule-form-grid { display: grid; grid-template-columns: minmax(0,2fr) minmax(0,1fr); gap: 16px; }
+.roster-setup-times { display: grid; gap: 12px; }
+.roster-setup-time { display: grid; grid-template-columns: 80px minmax(0,1fr) minmax(0,1fr); gap: 12px; align-items: center; }
+.roster-setup-time .form-control { min-width: 0; }
+.roster-setup-time label { font-size: .8rem; }
+#rosterSetupError { color: var(--sl-danger, #b02a37); margin: 0; }
+#saveRosterSetup { justify-self: start; }
+.roster-setup-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.roster-setup-actions[hidden] { display: none; }
+.roster-setup-actions .btn-outline-secondary, #retryRosterSetups {
+  color: var(--ax-text); background: var(--sl-surface); border-color: var(--ax-border);
+}
+.roster-setup-actions .btn-outline-danger {
+  color: var(--sl-danger, #b02a37); background: var(--sl-surface); border-color: currentColor;
+}
+.roster-setup-actions .btn:hover, #retryRosterSetups:hover { filter: brightness(.94); }
+@media(max-width:700px) {
+  .shift-roster-card { padding: 16px; gap: 16px; }
+  .shift-roster-card .schedule-plan-settings, #rosterGuards { grid-template-columns: minmax(0,1fr); }
+  #rosterSetupForm .schedule-form-grid { grid-template-columns: minmax(0,1fr); }
+  .roster-setup-time { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+  .roster-setup-time strong { grid-column: 1 / -1; }
+}

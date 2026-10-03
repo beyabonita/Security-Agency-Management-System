@@ -46,9 +46,11 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo library access is needed to attach images to incident reports.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs your location to verify attendance within the allowed area.</string>
+	<string>Location verifies attendance and, when enabled, shares your on-duty position with authorized supervisors.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>This app needs your location to verify attendance within the allowed area.</string>
+	<string>When you enable duty sharing, location updates continue during your active duty with a visible location indicator.</string>
+	<key>UIBackgroundModes</key>
+	<array><string>location</string></array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>

@@ -29,7 +29,7 @@ void main() {
     expect(find.text('Camera unavailable'), findsOneWidget);
     expect(find.text('Capture or choose photo'), findsOneWidget);
     expect(
-      find.text('A photo is required. Video evidence is optional.'),
+      find.text('Capture a photo, or retry the camera to record a video.'),
       findsOneWidget,
     );
 

@@ -1,0 +1,24 @@
+body[data-it-page] .ax-content.it-controls { max-width: none; }
+.it-controls [hidden] { display: none !important; }
+.it-controls-nav { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; margin-bottom:20px; }
+.it-tabs { display:flex; flex-wrap:wrap; gap:6px; padding:5px; border:1px solid var(--ax-border); border-radius:12px; background:var(--sl-surface); }
+.it-tabs button { border:0; border-radius:8px; padding:11px 16px; background:transparent; color:var(--sl-muted); font:inherit; font-weight:700; cursor:pointer; }
+.it-tabs button[aria-selected="true"] { background:#c51c2b; color:white; }
+.it-tabs button:focus-visible,.it-portal-link:focus-visible { outline:2px solid #c51c2b; outline-offset:3px; }
+.it-portal-link { font-size:13px; font-weight:700; color:var(--ax-text); text-decoration:none; }
+.it-controls-grid { display:grid; gap:20px; align-items:start; }
+.it-settings-grid { grid-template-columns:minmax(0,1fr); }
+.it-accounts-grid { grid-template-columns:minmax(260px,.65fr) minmax(0,1.5fr); }
+body[data-it-page] .it-controls .it-card { margin:0; min-width:0; padding:24px; }
+.it-controls .it-beneficiary { grid-template-columns:1fr 1fr; }
+.it-controls .it-form { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.it-accounts-grid .it-form > :first-child,.it-accounts-grid .it-form > :nth-child(n+4) { grid-column:1/-1; }
+.it-controls .sl-table-frame { max-height:520px; overflow:auto; }
+.it-controls .it-table th { position:sticky; top:0; background:var(--sl-surface); z-index:1; }
+.it-controls #accountActivity { display:grid; gap:20px; }
+@media(min-width:1700px) { .it-controls #accountActivity { grid-template-columns:1fr 1fr; align-items:start; } }
+@media(max-width:1150px) { .it-settings-grid { grid-template-columns:1fr; } .it-controls .it-beneficiary { grid-template-columns:repeat(4,minmax(0,1fr)); } }
+@media(max-width:800px) { .it-accounts-grid { grid-template-columns:1fr; } .it-controls .it-beneficiary { grid-template-columns:1fr 1fr; } .it-controls .it-card { padding:18px; } .it-tabs button { padding:10px; font-size:13px; } }
+@media(max-width:400px) { .it-tabs { width:100%; } .it-tabs button { flex:1; padding:10px 6px; font-size:12px; } }
+/* Tab panels appear together without staggered entrance offsets. */
+.it-controls .it-card { animation: none !important; transform: none !important; opacity: 1 !important; }

@@ -1,0 +1,16 @@
+[
+  {
+    "portal": "https://security-agency-management-system-nu.vercel.app",
+    "passwordPolicy": "PASS"
+  },
+  {
+    "portal": "https://security-agency-management-system-admin.vercel.app",
+    "passwordPolicy": "PASS"
+  },
+  {
+    "download": "PASS",
+    "version": "1.0.12",
+    "bytes": 63562646,
+    "sha256": "32bfcca62ca2b3be0bbe55821520787cae3450e613b966dd1c24f09cf9189ddd"
+  }
+]

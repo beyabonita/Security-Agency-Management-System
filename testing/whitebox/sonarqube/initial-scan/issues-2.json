@@ -1,0 +1,217 @@
+{
+  "total": 504,
+  "p": 2,
+  "ps": 500,
+  "paging": {
+    "pageIndex": 2,
+    "pageSize": 500,
+    "total": 504
+  },
+  "effortTotal": 4148,
+  "issues": [
+    {
+      "key": "5a1e13e8-07d2-40ed-bf86-4aebfbbea39d",
+      "rule": "Web:S6819",
+      "severity": "MAJOR",
+      "component": "sentinel-link-whitebox:web/staff/login.html",
+      "project": "sentinel-link-whitebox",
+      "line": 24,
+      "hash": "94e25834bc0e2232f409f9b511d521ed",
+      "textRange": {
+        "startLine": 24,
+        "endLine": 24,
+        "startOffset": 0,
+        "endOffset": 91
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Use <output> instead of the status role to ensure accessibility across all devices.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "",
+      "tags": [
+        "accessibility"
+      ],
+      "creationDate": "2026-09-05T20:31:01+08:00",
+      "updateDate": "2026-09-05T20:31:01+08:00",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CONVENTIONAL",
+      "cleanCodeAttributeCategory": "CONSISTENT",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "eaa04496-9f6f-4cd0-b1cb-5d820c9615c7",
+      "rule": "Web:S6819",
+      "severity": "MAJOR",
+      "component": "sentinel-link-whitebox:web/staff/login.html",
+      "project": "sentinel-link-whitebox",
+      "line": 161,
+      "hash": "323c2af2ea48ad0998feabebc88f5036",
+      "textRange": {
+        "startLine": 161,
+        "endLine": 161,
+        "startOffset": 4,
+        "endOffset": 73
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Use <output> instead of the status role to ensure accessibility across all devices.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "",
+      "tags": [
+        "accessibility"
+      ],
+      "creationDate": "2026-09-05T20:31:01+08:00",
+      "updateDate": "2026-09-05T20:31:01+08:00",
+      "type": "CODE_SMELL",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "CONVENTIONAL",
+      "cleanCodeAttributeCategory": "CONSISTENT",
+      "impacts": [
+        {
+          "softwareQuality": "MAINTAINABILITY",
+          "severity": "MEDIUM"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "2d6d4129-4241-4b5c-8744-1834c1577f5f",
+      "rule": "Web:S5725",
+      "severity": "MINOR",
+      "component": "sentinel-link-whitebox:web/staff/login.html",
+      "project": "sentinel-link-whitebox",
+      "line": 175,
+      "hash": "4b9af4042e1d6879e8af4ab0b923a2bc",
+      "textRange": {
+        "startLine": 175,
+        "endLine": 175,
+        "startOffset": 0,
+        "endOffset": 73
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Add integrity and crossorigin=\"anonymous\" attributes to this element to enforce integrity checks.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "",
+      "tags": [
+        "cwe",
+        "former-hotspot"
+      ],
+      "creationDate": "2026-09-05T20:31:01+08:00",
+      "updateDate": "2026-09-05T20:31:01+08:00",
+      "type": "VULNERABILITY",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "COMPLETE",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "SECURITY",
+          "severity": "LOW"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    },
+    {
+      "key": "bebb0877-d85a-4074-8cc3-5a12637526b1",
+      "rule": "Web:S5725",
+      "severity": "MINOR",
+      "component": "sentinel-link-whitebox:web/system-access-7d92a4/login.html",
+      "project": "sentinel-link-whitebox",
+      "line": 77,
+      "hash": "4b9af4042e1d6879e8af4ab0b923a2bc",
+      "textRange": {
+        "startLine": 77,
+        "endLine": 77,
+        "startOffset": 0,
+        "endOffset": 73
+      },
+      "flows": [],
+      "status": "OPEN",
+      "message": "Add integrity and crossorigin=\"anonymous\" attributes to this element to enforce integrity checks.",
+      "effort": "5min",
+      "debt": "5min",
+      "author": "",
+      "tags": [
+        "cwe",
+        "former-hotspot"
+      ],
+      "creationDate": "2026-09-05T20:31:01+08:00",
+      "updateDate": "2026-09-05T20:31:01+08:00",
+      "type": "VULNERABILITY",
+      "scope": "MAIN",
+      "quickFixAvailable": false,
+      "messageFormattings": [],
+      "codeVariants": [],
+      "cleanCodeAttribute": "COMPLETE",
+      "cleanCodeAttributeCategory": "INTENTIONAL",
+      "impacts": [
+        {
+          "softwareQuality": "SECURITY",
+          "severity": "LOW"
+        }
+      ],
+      "issueStatus": "OPEN",
+      "prioritizedRule": false,
+      "fromSonarQubeUpdate": false,
+      "internalTags": [],
+      "linkedTicketStatus": "NOT_LINKED"
+    }
+  ],
+  "components": [
+    {
+      "key": "sentinel-link-whitebox:web/system-access-7d92a4/login.html",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "login.html",
+      "longName": "web/system-access-7d92a4/login.html",
+      "path": "web/system-access-7d92a4/login.html"
+    },
+    {
+      "key": "sentinel-link-whitebox",
+      "enabled": true,
+      "qualifier": "TRK",
+      "name": "Sentinel Link White-Box Assessment",
+      "longName": "Sentinel Link White-Box Assessment"
+    },
+    {
+      "key": "sentinel-link-whitebox:web/staff/login.html",
+      "enabled": true,
+      "qualifier": "FIL",
+      "name": "login.html",
+      "longName": "web/staff/login.html",
+      "path": "web/staff/login.html"
+    }
+  ],
+  "facets": []
+}

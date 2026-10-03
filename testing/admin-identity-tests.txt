@@ -1,0 +1,14 @@
+
+Running 7 tests using 1 worker
+
+(node:14704) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 admin_identity.spec.js:23:1 › every Operations Head header has only an initially hidden name chip and the shared loader (31ms)
+  ok 2 admin_identity.spec.js:32:1 › shared loader displays the account name including on pages without their own loader (716ms)
+  ok 3 admin_identity.spec.js:40:1 › brief profile failure retries and token refresh keeps the same account name (972ms)
+  ok 4 admin_identity.spec.js:49:1 › late responses cannot restore an old account name after switching or signing out (828ms)
+  ok 5 admin_identity.spec.js:57:1 › stalled profile request times out and retries without displaying a role placeholder (553ms)
+  ok 6 admin_identity.spec.js:65:1 › missing names and failed loads never display Operations Head as the person name (770ms)
+  ok 7 admin_identity.spec.js:75:1 › inactive accounts clear names and profile text is rendered safely (834ms)
+
+  7 passed (10.2s)

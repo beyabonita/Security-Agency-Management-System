@@ -1,0 +1,12 @@
+WB-514 — PASS
+UserRoleService.isAdmin
+Scenario: anonymous user denied
+Input: null
+Expected: false
+Actual: false
+UTC: 2026-09-05T08:57:23.805374Z
+Evidence: logs/flutter-verified.jsonl:281
+Source: testing/whitebox/unit_tests/services_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

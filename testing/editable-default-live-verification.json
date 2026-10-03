@@ -1,0 +1,18 @@
+[
+  {
+    "path": "/admin/schedule.html",
+    "verified": true
+  },
+  {
+    "path": "/admin/js/shift-roster.js",
+    "verified": true
+  },
+  {
+    "path": "/admin/css/dtr-scheduling.css",
+    "verified": true
+  },
+  {
+    "path": "/js/roster-setup.js",
+    "verified": true
+  }
+]

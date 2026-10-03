@@ -1,0 +1,26 @@
+{
+  "deployment": "dpl_6HoLqqgak4xKqjNDrXQqoRTtiX6T",
+  "verifiedAt": "2026-09-12T04:55:16.171Z",
+  "results": [
+    {
+      "host": "security-agency-management-system-nu.vercel.app",
+      "file": "/js/dtr-report.js",
+      "status": "PASS"
+    },
+    {
+      "host": "security-agency-management-system-nu.vercel.app",
+      "file": "/css/dtr-report.css",
+      "status": "PASS"
+    },
+    {
+      "host": "security-agency-management-system-admin.vercel.app",
+      "file": "/js/dtr-report.js",
+      "status": "PASS"
+    },
+    {
+      "host": "security-agency-management-system-admin.vercel.app",
+      "file": "/css/dtr-report.css",
+      "status": "PASS"
+    }
+  ]
+}

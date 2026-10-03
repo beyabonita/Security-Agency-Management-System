@@ -1,0 +1,12 @@
+WB-021 — PASS
+auth_username.validateUsername
+Scenario: incorrect runtime type
+Input: 123
+Expected: "_TypeError"
+Actual: "_TypeError"
+UTC: 2026-09-05T08:57:23.525373Z
+Evidence: logs/flutter-verified.jsonl:73
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

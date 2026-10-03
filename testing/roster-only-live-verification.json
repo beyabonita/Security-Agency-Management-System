@@ -1,0 +1,44 @@
+{
+  "deployment": "dpl_BoNPK9oZKrTFuoLcFUVtWagZsNGe",
+  "verifiedAt": "2026-09-12T03:42:41.144Z",
+  "results": [
+    {
+      "host": "security-agency-management-system-nu.vercel.app",
+      "file": "/admin/js/shift-roster.js",
+      "status": "PASS"
+    },
+    {
+      "host": "security-agency-management-system-nu.vercel.app",
+      "file": "/admin/css/dtr-scheduling.css",
+      "status": "PASS"
+    },
+    {
+      "host": "security-agency-management-system-nu.vercel.app",
+      "file": "/js/dtr-report.js",
+      "status": "PASS"
+    },
+    {
+      "host": "security-agency-management-system-nu.vercel.app",
+      "file": "/admin/schedule.html",
+      "status": "PASS"
+    },
+    {
+      "host": "security-agency-management-system-admin.vercel.app",
+      "file": "/admin/js/shift-roster.js",
+      "status": "PASS"
+    },
+    {
+      "host": "security-agency-management-system-admin.vercel.app",
+      "file": "/admin/css/dtr-scheduling.css",
+      "status": "PASS"
+    },
+    {
+      "host": "security-agency-management-system-admin.vercel.app",
+      "file": "/js/dtr-report.js",
+      "status": "PASS"
+    },
+    {
+      "dedicatedITAdminRedirect": "PASS"
+    }
+  ]
+}

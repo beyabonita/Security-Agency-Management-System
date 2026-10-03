@@ -1,0 +1,12 @@
+WB-523 — PASS
+NotificationService.markAllRead
+Scenario: numeric result or safe default
+Input: 3
+Expected: 3
+Actual: 3
+UTC: 2026-09-05T08:57:23.875376Z
+Evidence: logs/flutter-verified.jsonl:337
+Source: testing/whitebox/unit_tests/services_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

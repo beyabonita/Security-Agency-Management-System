@@ -1,0 +1,12 @@
+WB-321 — PASS
+it-provision-client.registered handler
+Scenario: retired provisioning returns gone
+Input: {}
+Expected: [410,"client_provisioning_retired"]
+Actual: [410,"client_provisioning_retired"]
+UTC: 2026-09-05T08:56:20.250Z
+Evidence: logs/deno-final.log:620
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

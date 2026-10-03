@@ -1,0 +1,12 @@
+WB-026 — PASS
+LocationIntegrityService.validationError
+Scenario: 45-second absolute age boundary
+Input: {"ageSeconds":0}
+Expected: true
+Actual: true
+UTC: 2026-09-05T08:57:23.552376Z
+Evidence: logs/flutter-verified.jsonl:88
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

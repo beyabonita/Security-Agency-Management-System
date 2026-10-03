@@ -156,8 +156,10 @@ select ok(
     join pg_namespace namespace on namespace.oid = procedure.pronamespace
     where namespace.nspname = 'public'
       and procedure.prosecdef
-      and procedure.oid <>
-        'public.current_platform_announcement()'::regprocedure
+      and procedure.oid not in (
+        'public.current_platform_announcement()'::regprocedure,
+        'public.current_platform_support_email()'::regprocedure
+      )
       and has_function_privilege('anon', procedure.oid, 'EXECUTE')
   ),
   'No private SECURITY DEFINER function is executable by anonymous callers'

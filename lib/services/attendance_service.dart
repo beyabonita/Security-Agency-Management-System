@@ -1,8 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter_application_1/models/attendance_session.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AttendanceService {
-  static final _sessions = Supabase.instance.client.from('attendance_sessions');
+  static final _recorded = StreamController<AttendanceSession>.broadcast(
+    sync: true,
+  );
+  static Stream<AttendanceSession> get recordedEvents => _recorded.stream;
+  // Each stream needs its own realtime topic. Reusing a query builder reuses
+  // its channel ID, so cancelling an old listener can close the new one.
+  static SupabaseQueryBuilder get _sessions =>
+      Supabase.instance.client.from('attendance_sessions');
 
   static AttendanceSession _sessionFrom(dynamic value) {
     if (value is Map<String, dynamic>) return AttendanceSession.fromRow(value);
@@ -16,13 +25,53 @@ class AttendanceService {
     String action,
     AttendanceSession? openSession,
   ) {
-    if (action == 'clock_in' && openSession != null) {
+    if (action == 'clock_in' &&
+        openSession != null &&
+        openSession.isActiveAt(DateTime.now())) {
       return 'Time In was recorded at ${formatTime(openSession.clockInAt)}. Record Time Out when this duty ends.';
     }
     if (action == 'clock_out' && openSession == null) {
       return 'Record Time In before Time Out.';
     }
+    if (action == 'clock_out' && openSession != null && !openSession.isOpen) {
+      return 'This duty is no longer open. Ask your Operations Head to review the missing Time Out.';
+    }
     return null;
+  }
+
+  /// Keep late Time Out available until a new eligible duty takes precedence.
+  static AttendanceSession? sessionForDuty(
+    AttendanceSession? session,
+    String? nextScheduleId, {
+    DateTime? now,
+  }) {
+    if (session == null || !session.isOpen) return null;
+    if (!session.isActiveAt(now ?? DateTime.now()) &&
+        nextScheduleId != null &&
+        nextScheduleId != session.scheduleId) {
+      return null;
+    }
+    return session;
+  }
+
+  static Future<AttendanceSession?> loadLatestSession(String userId) async {
+    final row = await _sessions
+        .select()
+        .eq('user_id', userId)
+        .order('clock_in_at', ascending: false)
+        .limit(1)
+        .maybeSingle()
+        .timeout(const Duration(seconds: 15));
+    return row == null ? null : _sessionFrom(row);
+  }
+
+  static Stream<AttendanceSession?> latestSessionStream(String userId) async* {
+    yield await loadLatestSession(userId);
+    yield* sessionsStream(userId).map((sessions) {
+      if (sessions.isEmpty) return null;
+      sessions.sort((a, b) => b.clockInAt.compareTo(a.clockInAt));
+      return sessions.first;
+    });
   }
 
   static Future<AttendanceSession?> loadOpenSession(String userId) async {
@@ -32,46 +81,108 @@ class AttendanceService {
         .eq('status', 'open')
         .order('clock_in_at', ascending: false)
         .limit(1)
-        .maybeSingle();
+        .maybeSingle()
+        .timeout(const Duration(seconds: 15));
     return row == null ? null : _sessionFrom(row);
   }
 
-  static Stream<AttendanceSession?> openSessionStream(String userId) =>
-      _sessions
-          .stream(primaryKey: ['id'])
-          .eq('user_id', userId)
-          .eq('status', 'open')
-          .map((rows) {
-            if (rows.isEmpty) return null;
-            rows.sort(
-              (a, b) => b['clock_in_at'].toString().compareTo(
-                a['clock_in_at'].toString(),
-              ),
-            );
-            return _sessionFrom(rows.first);
-          });
+  static Stream<AttendanceSession?> openSessionStream(String userId) async* {
+    // The punch button must not wait for a websocket connection to become ready.
+    yield await loadOpenSession(userId);
+    yield* _sessions.stream(primaryKey: ['id']).eq('user_id', userId).map((
+      rows,
+    ) {
+      // Only one server stream filter is supported. Filter status here so
+      // a closing UPDATE removes the open duty immediately.
+      rows = rows
+          .where((row) => row['user_id'] == userId && row['status'] == 'open')
+          .toList();
+      if (rows.isEmpty) return null;
+      rows.sort(
+        (a, b) =>
+            b['clock_in_at'].toString().compareTo(a['clock_in_at'].toString()),
+      );
+      return _sessionFrom(rows.first);
+    });
+  }
 
   static Stream<List<AttendanceSession>> sessionsStream(String userId) =>
-      _sessions.stream(primaryKey: ['id']).eq('user_id', userId).map((rows) {
-        final sessions = rows.map(_sessionFrom).toList()
-          ..sort((a, b) => b.scheduledStartAt.compareTo(a.scheduledStartAt));
-        return sessions;
-      });
+      refreshAtShiftEnd(
+        _sessions.stream(primaryKey: ['id']).eq('user_id', userId).map((rows) {
+          final sessions = rows.map(_sessionFrom).toList()
+            ..sort((a, b) => b.scheduledStartAt.compareTo(a.scheduledStartAt));
+          return sessions;
+        }),
+      );
+
+  /// A shift can end without a database update. Refresh its displayed status.
+  static Stream<List<AttendanceSession>> refreshAtShiftEnd(
+    Stream<List<AttendanceSession>> source,
+  ) => Stream.multi((controller) {
+    Timer? timer;
+    void emit(List<AttendanceSession> sessions) {
+      timer?.cancel();
+      controller.add(sessions);
+      final now = DateTime.now();
+      final ends =
+          sessions
+              .where((s) => s.isActiveAt(now))
+              .map((s) => s.scheduledEndAt)
+              .toList()
+            ..sort();
+      if (ends.isNotEmpty) {
+        timer = Timer(ends.first.difference(now), () => emit(sessions));
+      }
+    }
+
+    final subscription = source.listen(
+      emit,
+      onError: controller.addError,
+      onDone: () {
+        timer?.cancel();
+        controller.close();
+      },
+    );
+    controller.onCancel = () {
+      timer?.cancel();
+      return subscription.cancel();
+    };
+    controller.onPause = subscription.pause;
+    controller.onResume = subscription.resume;
+  });
 
   static Future<AttendanceSession> recordEvent({
     required String action,
     required double latitude,
     required double longitude,
+    String? sessionId,
+    bool? claimOvertime,
   }) async {
-    final row = await Supabase.instance.client.rpc(
-      'record_attendance_event',
-      params: {
-        'p_action': action,
-        'p_latitude': latitude,
-        'p_longitude': longitude,
-      },
-    );
-    return _sessionFrom(row);
+    if (action == 'clock_out' && sessionId == null) {
+      throw ArgumentError('A duty session is required for Time Out.');
+    }
+    final row = await Supabase.instance.client
+        .rpc(
+          action == 'clock_out'
+              ? 'record_guard_timeout'
+              : 'record_attendance_event',
+          params: action == 'clock_out'
+              ? {
+                  'p_session_id': sessionId,
+                  'p_claim_overtime': claimOvertime,
+                  'p_latitude': latitude,
+                  'p_longitude': longitude,
+                }
+              : {
+                  'p_action': action,
+                  'p_latitude': latitude,
+                  'p_longitude': longitude,
+                },
+        )
+        .timeout(const Duration(seconds: 20));
+    final session = _sessionFrom(row);
+    _recorded.add(session);
+    return session;
   }
 
   static String formatTime(DateTime? date) {

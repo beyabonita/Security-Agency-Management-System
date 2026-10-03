@@ -1,0 +1,69 @@
+
+Running 15 tests using 1 worker
+
+(node:2548) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 web\tests\incident_report.spec.js:66:3 › admin displays video-only evidence without claiming a photo is attached (2.9s)
+  ok  2 web\tests\incident_report.spec.js:79:3 › admin shows Emergency and attributes acknowledgement and notes to their reviewers (1.7s)
+  ok  3 web\tests\incident_report.spec.js:102:3 › admin incident report shows detailed private video evidence (2.2s)
+  ok  4 web\tests\incident_report.spec.js:131:3 › admin detailed incident modal is readable in dark mode without altering media (2.7s)
+  ok  5 web\tests\incident_report.spec.js:66:3 › inspector displays video-only evidence without claiming a photo is attached (3.2s)
+  ok  6 web\tests\incident_report.spec.js:79:3 › inspector shows Emergency and attributes acknowledgement and notes to their reviewers (1.9s)
+  ok  7 web\tests\incident_report.spec.js:102:3 › inspector incident report shows detailed private video evidence (3.8s)
+  ok  8 web\tests\incident_report.spec.js:131:3 › inspector detailed incident modal is readable in dark mode without altering media (3.7s)
+  ok  9 web\tests\it_admin_accounts.spec.js:141:1 › IT Admin creation rejects each missing password requirement and accepts an eight-character mix (5.4s)
+  ok 10 web\tests\it_admin_accounts.spec.js:157:1 › IT Admin reset validates each password requirement before sending a change (4.2s)
+  ok 11 web\tests\it_admin_accounts.spec.js:174:1 › IT Admin keeps the password when the optional edit field is blank (2.3s)
+  ok 12 web\tests\it_admin_accounts.spec.js:185:1 › current IT Admin is protected while another Operations Head keeps account actions (867ms)
+  x  13 web\tests\it_admin_accounts.spec.js:201:1 › account editing shows the Edge Function public JSON message (5.2s)
+(node:10540) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 14 web\tests\it_admin_accounts.spec.js:231:1 › IT Admin changes own email with current password and no access fields (1.9s)
+  ok 15 web\tests\it_admin_accounts.spec.js:241:1 › account creation rejects legacy aliases and invalid email (3.0s)
+
+
+  1) web\tests\it_admin_accounts.spec.js:201:1 › account editing shows the Edge Function public JSON message 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+        Object {
+          "body": Object {
+            "action": "update",
+    +       "email": "operations.admin@gmail.com",
+            "firstName": "Operations",
+            "lastName": "Operations Head",
+            "password": "",
+            "role": "admin",
+            "userId": "22222222-2222-4222-8222-222222222222",
+    -       "username": "operations.admin",
+          },
+          "name": "admin-manage-user",
+        },
+      ]
+
+      215 |
+      216 |   const calls = await page.evaluate(() => window.itAdminAccountTestBackend.invoked);
+    > 217 |   expect(calls).toEqual([{
+          |                 ^
+      218 |     name: 'admin-manage-user',
+      219 |     body: {
+      220 |       action: 'update',
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\it_admin_accounts.spec.js:217:17
+
+    Error Context: web\tests\test-results-account-email\it_admin_accounts-account--23456-unction-public-JSON-message\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    web\tests\test-results-account-email\it_admin_accounts-account--23456-unction-public-JSON-message\trace.zip
+    Usage:
+
+        npx playwright show-trace web\tests\test-results-account-email\it_admin_accounts-account--23456-unction-public-JSON-message\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    web\tests\it_admin_accounts.spec.js:201:1 › account editing shows the Edge Function public JSON message 
+  14 passed (1.1m)

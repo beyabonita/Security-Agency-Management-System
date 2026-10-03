@@ -1,0 +1,12 @@
+WB-213 — PASS
+accounts.isEmploymentCategory
+Scenario: employment allowlist
+Input: 42
+Expected: false
+Actual: false
+UTC: 2026-09-05T08:56:18.228Z
+Evidence: logs/deno-final.log:64
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

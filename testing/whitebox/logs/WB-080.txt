@@ -1,0 +1,12 @@
+WB-080 — PASS
+AttendanceSession.workedDuration
+Scenario: eight-hour calculation
+Input: {"id":"s1","schedule_id":"d1","duty_date":"2026-09-05","scheduled_start_at":"2026-09-05T00:00:00Z","scheduled_end_at":"2026-09-05T08:00:00Z","clock_in_at":"2026-09-05T00:00:00Z","clock_out_at":"2026-09-05T08:00:00Z","status":"closed"}
+Expected: 480
+Actual: 480
+UTC: 2026-09-05T08:57:23.825374Z
+Evidence: logs/flutter-verified.jsonl:302
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

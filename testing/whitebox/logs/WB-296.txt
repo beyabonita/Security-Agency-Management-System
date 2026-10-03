@@ -1,0 +1,12 @@
+WB-296 — PASS
+admin-create-user.registered handler
+Scenario: caller role and active restrictions
+Input: {"role":"admin","active":true}
+Expected: 200
+Actual: 200
+UTC: 2026-09-05T08:56:19.969Z
+Evidence: logs/deno-final.log:489
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

@@ -14,8 +14,8 @@ class AuthGate extends StatelessWidget {
       stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            backgroundColor: AppColors.scaffold,
+          return Scaffold(
+            backgroundColor: AppColors.of(context).scaffold,
             body: GuardLoadingView(label: 'Checking your secure session…'),
           );
         }

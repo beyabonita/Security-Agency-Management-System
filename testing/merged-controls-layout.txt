@@ -1,0 +1,36 @@
+
+Running 1 test using 1 worker
+
+(node:18332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 web\tests\platform_controls.spec.js:474:1 › merged controls uses accessible tabs, desktop columns and contained mobile layout (8.5s)
+
+
+  1) web\tests\platform_controls.spec.js:474:1 › merged controls uses accessible tabs, desktop columns and contained mobile layout 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 2
+    Received:   5.7170867919921875
+
+      491 |     const cards=await page.locator('#panel-accounts > .it-card').all();
+      492 |     const left=await cards[0].boundingBox(),right=await cards[1].boundingBox();
+    > 493 |     expect(Math.abs(left.y-right.y)).toBeLessThan(2);
+          |                                      ^
+      494 |   }
+      495 |   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+      496 |   await page.screenshot({path:info.outputPath('accounts-'+width+'.png'),fullPage:true});
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\platform_controls.spec.js:493:38
+
+    Error Context: web\tests\test-results-merged-layout\platform_controls-merged-c-41e87-and-contained-mobile-layout\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    web\tests\test-results-merged-layout\platform_controls-merged-c-41e87-and-contained-mobile-layout\trace.zip
+    Usage:
+
+        npx playwright show-trace web\tests\test-results-merged-layout\platform_controls-merged-c-41e87-and-contained-mobile-layout\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    web\tests\platform_controls.spec.js:474:1 › merged controls uses accessible tabs, desktop columns and contained mobile layout 

@@ -1,0 +1,12 @@
+WB-242 — PASS
+accounts.databaseBusinessMessage
+Scenario: unique username
+Input: "23505 username"
+Expected: "That username is already in use."
+Actual: "That username is already in use."
+UTC: 2026-09-05T08:56:18.894Z
+Evidence: logs/deno-final.log:209
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

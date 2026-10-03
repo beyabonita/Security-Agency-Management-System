@@ -1,0 +1,13 @@
+{
+  "qrVerified": true,
+  "functions": [
+    {
+      "function": "admin-create-user",
+      "unauthenticatedStatus": 401
+    },
+    {
+      "function": "admin-manage-user",
+      "unauthenticatedStatus": 401
+    }
+  ]
+}

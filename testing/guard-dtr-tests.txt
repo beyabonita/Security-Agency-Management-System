@@ -1,0 +1,16 @@
+00:00 +0: loading C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart
+00:00 +0: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: matches web DTR: verified overtime
+00:00 +1: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: matches web DTR: unverified three minutes
+00:00 +2: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: matches web DTR: missing timeout
+00:00 +3: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: matches web DTR: overnight cutoff and multiple sessions
+00:00 +4: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: matches web DTR: empty cutoff
+00:00 +5: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: leap month and overnight hours stay in the starting cutoff
+00:00 +6: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: generates printable PDF for empty, populated and multi-page periods
+00:02 +7: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: short accomplishment entries submit without character minimum prompts
+00:03 +8: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: phone DTR can select cutoff and save that exact report
+00:03 +9: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: phone DTR can select cutoff and save that exact report
+00:03 +10: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: phone DTR can select cutoff and save that exact report
+00:03 +11: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: phone DTR can select cutoff and save that exact report
+00:04 +12: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: old responses cannot overwrite a newly selected month
+00:05 +13: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: failed loading disables download and retry recovers
+00:05 +14: All tests passed!

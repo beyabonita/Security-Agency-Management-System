@@ -37,13 +37,11 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text;
 
     if (username.isEmpty || password.isEmpty) {
-      setState(
-        () => _errorMessage = 'Please enter your username and password.',
-      );
+      setState(() => _errorMessage = 'Please enter your email and password.');
       return;
     }
     final usernameError = username.contains('@')
-        ? null
+        ? validateEmail(username)
         : validateUsername(username);
     if (usernameError != null) {
       setState(() => _errorMessage = usernameError);
@@ -69,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           _isLoading = false;
           _errorMessage =
-              'HR and Inspector accounts use the Staff web panel at /staff/login.html';
+              'Operational Head and Inspector accounts use the Staff web panel at /staff/login.html';
         });
         return;
       }
@@ -113,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } on AuthException catch (e) {
       setState(() {
         _errorMessage = switch (e.code) {
-          'invalid_credentials' => 'Incorrect username or password.',
+          'invalid_credentials' => 'Incorrect email or password.',
           'email_not_confirmed' => 'Confirm your email before signing in.',
           'over_request_rate_limit' =>
             'Too many attempts. Please try again later.',
@@ -200,22 +198,22 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              _buildLabel('USERNAME'),
+                              _buildLabel('EMAIL'),
                               const SizedBox(height: 8),
                               TextField(
                                 controller: _usernameController,
                                 focusNode: _usernameFocus,
-                                autofillHints: const [AutofillHints.username],
-                                keyboardType: TextInputType.text,
+                                autofillHints: const [AutofillHints.email],
+                                keyboardType: TextInputType.emailAddress,
                                 textInputAction: TextInputAction.next,
                                 autocorrect: false,
                                 enableSuggestions: false,
                                 style: TextStyle(color: colors.onSurface),
-                                decoration: const InputDecoration(
-                                  hintText: 'juan.delacruz',
+                                decoration: InputDecoration(
+                                  hintText: 'name@gmail.com',
                                   prefixIcon: Icon(
-                                    Icons.person_outline_rounded,
-                                    color: AppColors.textHint,
+                                    Icons.email_outlined,
+                                    color: AppColors.of(context).textHint,
                                     size: 20,
                                   ),
                                 ),
@@ -234,9 +232,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: TextStyle(color: colors.onSurface),
                                 decoration: InputDecoration(
                                   hintText: '••••••••',
-                                  prefixIcon: const Icon(
+                                  prefixIcon: Icon(
                                     Icons.lock_outline_rounded,
-                                    color: AppColors.textHint,
+                                    color: AppColors.of(context).textHint,
                                     size: 20,
                                   ),
                                   suffixIcon: IconButton(
@@ -244,7 +242,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       _obscurePassword
                                           ? Icons.visibility_off_outlined
                                           : Icons.visibility_outlined,
-                                      color: AppColors.textHint,
+                                      color: AppColors.of(context).textHint,
                                       size: 20,
                                     ),
                                     onPressed: () => setState(
@@ -261,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   liveRegion: true,
                                   child: GuardStatusBanner(
                                     message: _errorMessage,
-                                    color: AppColors.error,
+                                    color: AppColors.of(context).error,
                                     icon: Icons.error_outline_rounded,
                                   ),
                                 ),

@@ -1,0 +1,9 @@
+
+Running 2 tests using 1 worker
+
+(node:14488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 responsive_shells.spec.js:106:1 › Guard DTR modals show the agency PDF layout for both cut-off periods (4.4s)
+  ok 2 schedule_lifecycle.spec.js:230:1 › attendance reports completion and requests protect period history (4.8s)
+
+  2 passed (34.2s)

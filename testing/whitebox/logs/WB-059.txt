@@ -1,0 +1,12 @@
+WB-059 — PASS
+DtrAlignment.cutoffForDutyDate
+Scenario: invalid calendar date
+Input: "2026-13-01"
+Expected: null
+Actual: null
+UTC: 2026-09-05T08:57:23.713376Z
+Evidence: logs/flutter-verified.jsonl:204
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

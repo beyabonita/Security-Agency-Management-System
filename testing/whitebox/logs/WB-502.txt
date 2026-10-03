@@ -1,0 +1,12 @@
+WB-502 — PASS
+UserProfileService.validateGuardLogin
+Scenario: role and active branches
+Input: {"role":"user","active":true}
+Expected: null
+Actual: null
+UTC: 2026-09-05T08:57:23.690376Z
+Evidence: logs/flutter-verified.jsonl:180
+Source: testing/whitebox/unit_tests/services_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

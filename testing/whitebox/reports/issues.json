@@ -1,0 +1,71 @@
+[
+  {
+    "id": "WB-084",
+    "module": "AttendanceSession",
+    "method": "fromRow",
+    "scenario": "malformed supplied clock-out must not disappear",
+    "input": "clock_out_at=garbage",
+    "expected": "FormatException",
+    "framework": "flutter_test",
+    "source": "testing/whitebox/unit_tests/core_test.dart",
+    "actual": "no exception",
+    "at": "2026-09-05T08:57:23.848376Z",
+    "evidence": "logs/flutter-verified.jsonl:333",
+    "status": "FAIL",
+    "error": "Expected: 'FormatException'\n  Actual: 'no exception'\n   Which: is different.\n          Expected: FormatExce ...\n            Actual: no excepti ...\n                    ^\n           Differ at offset 0\n",
+    "stack": "package:matcher                                     expect\npackage:flutter_test/src/widget_tester.dart 473:18  expect\ntesting\\whitebox\\unit_tests\\core_test.dart 31:7     wb.<fn>\n",
+    "remarks": "Direct production function execution.",
+    "file": "lib/models/attendance_session.dart",
+    "cause": "parseOptional uses DateTime.tryParse(...), returning null for malformed supplied values.",
+    "impact": "A corrupt closed-session timestamp can disappear; worked time becomes zero and status can become inconsistent.",
+    "fix": "Reject non-null invalid clock_out_at values with FormatException; distinguish absent from malformed data.",
+    "severity": "Medium"
+  },
+  {
+    "id": "WB-423",
+    "module": "SchedulePeriod",
+    "method": "buildDutyPlan",
+    "scenario": "null entry should return validation error",
+    "input": [
+      null
+    ],
+    "expected": true,
+    "framework": "node:test",
+    "source": "testing/whitebox/unit_tests/web_test.cjs",
+    "error": "TypeError: Cannot read properties of null (reading 'period')",
+    "evidence": "logs/node.tap:24",
+    "status": "FAIL",
+    "remarks": "Direct production function execution.",
+    "actual": "Exception: TypeError: Cannot read properties of null (reading 'period')",
+    "file": "web/js/schedule-period.js",
+    "cause": "buildDutyPlan dereferences entry.period before validating the entry object.",
+    "impact": "Malformed/null entries cause an uncaught TypeError rather than a user-facing validation result.",
+    "fix": "Validate each entry is a non-null object and validate field types before reading period.",
+    "severity": "Medium"
+  },
+  {
+    "id": "WB-510",
+    "module": "UserProfileService",
+    "method": "validateGuardLogin",
+    "scenario": "unknown active role must be denied",
+    "input": {
+      "role": "owner",
+      "active": true
+    },
+    "expected": true,
+    "framework": "flutter_test",
+    "source": "testing/whitebox/unit_tests/services_test.dart",
+    "actual": false,
+    "at": "2026-09-05T08:57:23.741378Z",
+    "evidence": "logs/flutter-verified.jsonl:253",
+    "status": "FAIL",
+    "error": "Expected: <true>\n  Actual: <false>\n",
+    "stack": "package:matcher                                     expect\npackage:flutter_test/src/widget_tester.dart 473:18  expect\ntesting\\whitebox\\unit_tests\\core_test.dart 31:7     wb.<fn>\n",
+    "remarks": "Real Dart service and Supabase client; HTTP responses mocked.",
+    "file": "lib/services/user_profile_service.dart",
+    "cause": "validateGuardLogin rejects three named web roles, then allows every other active role.",
+    "impact": "The helper accepts unknown active roles. A server authorization bypass was not established; RLS and database role constraints were not executed.",
+    "fix": "Explicitly allow only the guard role user; deny missing/unknown roles by default.",
+    "severity": "Medium; defense in depth"
+  }
+]

@@ -1,0 +1,19 @@
+<!doctype html><meta charset='utf-8'><title>WB-510 Actual Test Evidence</title><style>body{font:17px Consolas,monospace;margin:30px;background:#fafafa;color:#172536}pre{white-space:pre-wrap;overflow-wrap:anywhere}</style><h2>WB-510 — Extracted runner evidence</h2><pre>WB-510 — FAIL
+UserProfileService.validateGuardLogin
+Scenario: unknown active role must be denied
+Input: {&quot;role&quot;:&quot;owner&quot;,&quot;active&quot;:true}
+Expected: true
+Actual: false
+UTC: 2026-09-05T08:57:23.741378Z
+Evidence: logs/flutter-verified.jsonl:253
+Source: testing/whitebox/unit_tests/services_test.dart
+Runner error: Expected: &lt;true&gt;
+  Actual: &lt;false&gt;
+
+package:matcher                                     expect
+package:flutter_test/src/widget_tester.dart 473:18  expect
+testing\whitebox\unit_tests\core_test.dart 31:7     wb.&lt;fn&gt;
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.
+</pre>

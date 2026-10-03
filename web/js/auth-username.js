@@ -1,4 +1,4 @@
-/** Username login — Supabase Auth uses email/password with a synthetic address. */
+/** Email/password sign-in, with temporary compatibility for existing username accounts. */
 const AUTH_EMAIL_DOMAIN = 'asamanion-26858.auth';
 
 function normalizeUsername(raw) {
@@ -28,10 +28,20 @@ function resolveAuthEmail(input) {
 
 function displayLoginId(data) {
     if (!data) return '';
-    if (data.username) return data.username;
+
     const email = data.email || '';
     if (email.endsWith('@' + AUTH_EMAIL_DOMAIN)) {
-        return email.split('@')[0];
+        return 'Email not added';
     }
-    return email;
+    return email || 'Email not added';
 }
+
+function validateEmail(raw) {
+    const email = normalizeUsername(raw);
+    return email.length <= 254 && /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/i.test(email)
+      && email.split('@')[0].length <= 64 && !email.startsWith('.') && !email.includes('..')
+      && !email.split('@')[0].endsWith('.') && !email.endsWith('.auth')
+      ? null : 'Enter a valid email address, such as name@gmail.com.';
+}
+function editableEmail(data) { return data?.email && !validateEmail(data.email) ? data.email : ''; }
+function reportEmail(value) { return value && !String(value).toLowerCase().endsWith('.auth') ? value : 'Email not added'; }

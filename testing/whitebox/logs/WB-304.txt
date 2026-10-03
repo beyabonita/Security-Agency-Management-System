@@ -1,0 +1,12 @@
+WB-304 — PASS
+admin-create-user.registered handler
+Scenario: validation, duplicate and rollback
+Input: {"options":{},"body":{"password":"12345"}}
+Expected: [400,"invalid_input"]
+Actual: [400,"invalid_input"]
+UTC: 2026-09-05T08:56:20.041Z
+Evidence: logs/deno-final.log:531
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

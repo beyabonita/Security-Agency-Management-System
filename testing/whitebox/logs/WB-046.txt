@@ -1,0 +1,12 @@
+WB-046 — PASS
+GeofenceService.nearestSite
+Scenario: stable equal-distance tie
+Input: ["a","z"]
+Expected: "a"
+Actual: "a"
+UTC: 2026-09-05T08:57:23.653377Z
+Evidence: logs/flutter-verified.jsonl:150
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

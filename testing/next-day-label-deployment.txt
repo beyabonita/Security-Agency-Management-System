@@ -1,0 +1,49 @@
+Vercel CLI 59.5.0 (Node.js 24.13.0)
+Deploying security-agency-management-system
+Uploading [--------------------] (0.0B/72.7KB)
+Uploading [========------------] (31.7KB/72.7KB)
+Uploading [===========---------] (41.7KB/72.7KB)
+Uploading [===============-----] (57.7KB/72.7KB)
+Uploading [====================] (72.7KB/72.7KB)
+  Inspect         https://vercel.com/codex-a9d1/security-agency-management-system/942qKUi4WMk22ecQv3drAfdm5Z57
+  Production      https://security-agency-management-system-58boaeqgh-codex-a9d1.vercel.app
+Building…
+Building…
+Running build in Washington, D.C., USA (East) – iad1
+Build machine configuration: 2 cores, 8 GB
+Retrieving list of deployment files...
+Previous build caches not available.
+Downloading 75 deployment files...
+Running "vercel build"
+Vercel CLI 59.11.7
+Build Completed in /vercel/output [293ms]
+Deploying outputs...
+[2K[1A[2K[G  Production      https://security-agency-management-system-58boaeqgh-codex-a9d1.vercel.app
+Completing…
+▲ Aliased         https://security-agency-management-system-nu.vercel.app
+{
+  "status": "ok",
+  "deployment": {
+    "id": "dpl_942qKUi4WMk22ecQv3drAfdm5Z57",
+    "url": "https://security-agency-management-system-58boaeqgh-codex-a9d1.vercel.app",
+    "inspectorUrl": "https://vercel.com/codex-a9d1/security-agency-management-system/942qKUi4WMk22ecQv3drAfdm5Z57",
+    "readyState": "READY",
+    "target": "production",
+    "deploymentApiUrl": "https://api.vercel.com/v13/deployments/dpl_942qKUi4WMk22ecQv3drAfdm5Z57"
+  },
+  "message": "Deployment security-agency-management-system-58boaeqgh-codex-a9d1.vercel.app ready.",
+  "next": [
+    {
+      "command": "vercel curl https://security-agency-management-system-58boaeqgh-codex-a9d1.vercel.app",
+      "when": "Verify deployment, including when Deployment Protection is enabled"
+    },
+    {
+      "command": "vercel inspect security-agency-management-system-58boaeqgh-codex-a9d1.vercel.app --scope codex-a9d1",
+      "when": "Inspect deployment"
+    },
+    {
+      "command": "vercel deploy --prod --scope codex-a9d1",
+      "when": "Promote to production"
+    }
+  ]
+}

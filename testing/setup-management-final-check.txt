@@ -1,0 +1,9 @@
+
+Running 2 tests using 1 worker
+
+(node:14580) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 schedule_lifecycle.spec.js:498:1 › reload reflects edits and removals from another session, and stale edits are rejected (2.9s)
+  ok 2 schedule_lifecycle.spec.js:509:1 › setup edit and removal controls fit on a phone and failed removal keeps the selection (4.9s)
+
+  2 passed (13.7s)

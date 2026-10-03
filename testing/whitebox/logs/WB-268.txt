@@ -1,0 +1,12 @@
+WB-268 — PASS
+api.authenticatedUserId
+Scenario: malformed authorization rejected
+Input: ""
+Expected: "unauthorized"
+Actual: "unauthorized"
+UTC: 2026-09-05T08:56:19.408Z
+Evidence: logs/deno-final.log:341
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

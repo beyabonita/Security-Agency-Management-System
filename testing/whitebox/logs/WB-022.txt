@@ -1,0 +1,12 @@
+WB-022 — PASS
+UserProfileService.displayName
+Scenario: missing names
+Input: {}
+Expected: "Security Guard"
+Actual: "Security Guard"
+UTC: 2026-09-05T08:57:23.530374Z
+Evidence: logs/flutter-verified.jsonl:76
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

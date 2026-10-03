@@ -1,0 +1,4 @@
+Vercel CLI 59.5.0 (Node.js 24.13.0)
+> Assigning alias security-agency-management-system-admin.vercel.app to security-agency-management-system-nxsa1l6zu-codex-a9d1.vercel.app
+Creating alias
+> Success! https://security-agency-management-system-admin.vercel.app now points to security-agency-management-system-nxsa1l6zu-codex-a9d1.vercel.app [503ms]

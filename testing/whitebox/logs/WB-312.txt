@@ -1,0 +1,12 @@
+WB-312 — PASS
+admin-manage-user.registered handler
+Scenario: management permission and retention rules
+Input: {"options":{"caller":{"active":false}},"body":{}}
+Expected: [403,"forbidden",[]]
+Actual: [403,"forbidden",[]]
+UTC: 2026-09-05T08:56:20.126Z
+Evidence: logs/deno-final.log:575
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

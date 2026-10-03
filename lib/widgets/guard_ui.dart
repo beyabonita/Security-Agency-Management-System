@@ -19,7 +19,6 @@ class SentinelBrandMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final mark = Image.asset(
       'assets/branding/sentinel_link_mark.png',
       fit: BoxFit.contain,
@@ -29,27 +28,9 @@ class SentinelBrandMark extends StatelessWidget {
     );
     if (!framed) return SizedBox.square(dimension: size, child: mark);
 
-    return Container(
-      width: size,
-      height: size,
-      padding: EdgeInsets.all(size * .14),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF21181B) : const Color(0xFFFFFDF4),
-        borderRadius: BorderRadius.circular(size * .27),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withValues(alpha: .12)
-              : const Color(0xFFE7D5D5),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF7F1230).withValues(alpha: .26),
-            blurRadius: size * .28,
-            offset: Offset(0, size * .08),
-          ),
-        ],
-      ),
-      child: mark,
+    return SizedBox.square(
+      dimension: size,
+      child: Padding(padding: EdgeInsets.all(size * .14), child: mark),
     );
   }
 }
@@ -82,6 +63,7 @@ class GuardSurfaceCard extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: AppColors.card(
+        context: context,
         radius: radius,
         color: resolvedColor,
         borderColor: resolvedBorder,
@@ -241,49 +223,56 @@ class GuardStatusBanner extends StatelessWidget {
   final IconData icon;
 
   @override
-  Widget build(BuildContext context) => Container(
-    width: double.infinity,
-    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: 0.08),
-      borderRadius: BorderRadius.circular(14),
-      border: Border.all(color: color.withValues(alpha: 0.24)),
-    ),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, color: color, size: 19),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (title != null) ...[
+  Widget build(BuildContext context) {
+    final color = AppColors.resolve(context, this.color);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.24)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 19),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (title != null) ...[
+                  Text(
+                    title!,
+                    style: TextStyle(
+                      color: color,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                ],
                 Text(
-                  title!,
+                  message,
                   style: TextStyle(
-                    color: color,
+                    color: title == null
+                        ? color
+                        : AppColors.of(context).textMuted,
                     fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                    height: 1.4,
+                    fontWeight: title == null
+                        ? FontWeight.w600
+                        : FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 2),
               ],
-              Text(
-                message,
-                style: TextStyle(
-                  color: title == null ? color : AppColors.textMuted,
-                  fontSize: 12,
-                  height: 1.4,
-                  fontWeight: title == null ? FontWeight.w600 : FontWeight.w500,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }
 
 class GuardBusyLabel extends StatelessWidget {
@@ -306,10 +295,13 @@ class GuardBusyLabel extends StatelessWidget {
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       if (busy)
-        const SizedBox(
+        SizedBox(
           width: 18,
           height: 18,
-          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: DefaultTextStyle.of(context).style.color,
+          ),
         )
       else if (icon != null)
         Icon(icon, size: 19),
@@ -401,10 +393,10 @@ class GuardEmptyState extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: AppColors.surfaceMuted,
+              color: AppColors.of(context).surfaceMuted,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 30),
+            child: Icon(icon, color: AppColors.of(context).accent, size: 30),
           ),
           const SizedBox(height: 16),
           Text(
@@ -440,7 +432,9 @@ Future<bool> showGuardConfirmation(
     builder: (dialogContext) => AlertDialog(
       icon: Icon(
         destructive ? Icons.warning_amber_rounded : Icons.help_outline_rounded,
-        color: destructive ? AppColors.error : AppColors.primary,
+        color: destructive
+            ? AppColors.of(dialogContext).error
+            : AppColors.of(dialogContext).accent,
       ),
       title: Text(title),
       content: Text(message),
@@ -478,12 +472,18 @@ class GuardIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-    color: color.withValues(alpha: 0.08),
+    color: AppColors.resolve(context, color).withValues(alpha: 0.08),
     borderRadius: BorderRadius.circular(12),
     child: IconButton(
       tooltip: tooltip,
       onPressed: onPressed,
-      icon: Icon(icon, color: color, size: 20),
+      icon: Icon(
+        icon,
+        color: onPressed == null
+            ? AppColors.of(context).textHint
+            : AppColors.resolve(context, color),
+        size: 20,
+      ),
     ),
   );
 }

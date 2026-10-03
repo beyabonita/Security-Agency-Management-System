@@ -1,0 +1,12 @@
+WB-090 — PASS
+AttendanceService.formatDuration
+Scenario: duration display boundaries
+Input: 61
+Expected: "1h 1m"
+Actual: "1h 1m"
+UTC: 2026-09-05T08:57:23.897374Z
+Evidence: logs/flutter-verified.jsonl:361
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

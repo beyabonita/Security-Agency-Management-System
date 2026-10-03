@@ -8,7 +8,7 @@ import 'package:flutter_application_1/theme/app_colors.dart';
 import 'package:flutter_application_1/widgets/incident_in_app_camera.dart';
 import 'package:flutter_application_1/widgets/guard_ui.dart';
 
-/// Fast emergency flow: pick type → capture photo → send alert.
+/// Pick a type, capture a photo or video, and send the emergency report.
 class IncidentReportScreen extends StatefulWidget {
   const IncidentReportScreen({super.key});
 
@@ -20,7 +20,7 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
   String _category = 'crime';
   Uint8List? _photoBytes;
   Uint8List? _videoBytes;
-  DateTime? _photoCapturedAt;
+  DateTime? _evidenceCapturedAt;
   int? _videoDurationSeconds;
   String? _videoContentType;
   int _cameraSession = 0;
@@ -60,9 +60,13 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
   }
 
   void _onPhotoCaptured(Uint8List bytes) {
+    if (!mounted || _submitting || bytes.isEmpty) return;
     setState(() {
       _photoBytes = bytes;
-      _photoCapturedAt = DateTime.now().toUtc();
+      _videoBytes = null;
+      _videoDurationSeconds = null;
+      _videoContentType = null;
+      _evidenceCapturedAt = DateTime.now().toUtc();
     });
   }
 
@@ -71,17 +75,23 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
     Duration duration,
     String contentType,
   ) {
+    if (!mounted || _submitting || bytes.isEmpty) return;
     setState(() {
+      _photoBytes = null;
       _videoBytes = bytes;
+      _evidenceCapturedAt = DateTime.now().toUtc();
       _videoDurationSeconds = duration.inSeconds.clamp(1, 15);
       _videoContentType = contentType;
     });
   }
 
-  void _retakePhoto() {
+  void _retakeEvidence() {
     setState(() {
       _photoBytes = null;
-      _photoCapturedAt = null;
+      _videoBytes = null;
+      _videoDurationSeconds = null;
+      _videoContentType = null;
+      _evidenceCapturedAt = null;
       _cameraSession++;
     });
   }
@@ -93,32 +103,23 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
   }
 
   Future<void> _submit() async {
-    if (_photoBytes == null) {
+    if ((_photoBytes == null && _videoBytes == null) ||
+        _evidenceCapturedAt == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Take a photo first'),
+          content: Text('Capture a photo or record a video first.'),
           backgroundColor: AppColors.error,
         ),
       );
       return;
     }
-    if (_remarksController.text.trim().length < 10) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Describe the incident before filing the alert.'),
-          backgroundColor: AppColors.error,
-        ),
-      );
-      return;
-    }
-
     setState(() => _submitting = true);
     try {
       await IncidentService.submitReport(
         category: _category,
-        photoBytes: _photoBytes!,
+        photoBytes: _photoBytes,
         remarks: _remarksController.text,
-        capturedAt: _photoCapturedAt ?? DateTime.now().toUtc(),
+        capturedAt: _evidenceCapturedAt!,
         videoBytes: _videoBytes,
         videoDurationSeconds: _videoDurationSeconds,
         videoContentType: _videoContentType,
@@ -149,9 +150,11 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
   @override
   Widget build(BuildContext context) {
     final hasPhoto = _photoBytes != null;
+    final hasVideo = _videoBytes != null;
+    final hasEvidence = hasPhoto || hasVideo;
 
     return Scaffold(
-      backgroundColor: AppColors.scaffold,
+      backgroundColor: AppColors.of(context).scaffold,
       body: SafeArea(
         child: Column(
           children: [
@@ -169,10 +172,10 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Incident type',
                       style: TextStyle(
-                        color: AppColors.text,
+                        color: AppColors.of(context).text,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -185,24 +188,24 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
                         return ChoiceChip(
                           label: Text(e.value),
                           selected: selected,
-                          onSelected: _submitting || hasPhoto
+                          onSelected: _submitting
                               ? null
                               : (v) {
                                   if (v) setState(() => _category = e.key);
                                 },
                           selectedColor: AppColors.primary,
-                          backgroundColor: AppColors.surface,
+                          backgroundColor: AppColors.of(context).surface,
                           labelStyle: TextStyle(
                             color: selected
                                 ? Colors.white
-                                : AppColors.textMuted,
+                                : AppColors.of(context).textMuted,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
                           side: BorderSide(
                             color: selected
                                 ? AppColors.primary
-                                : AppColors.border,
+                                : AppColors.of(context).border,
                           ),
                         );
                       }).toList(),
@@ -223,7 +226,7 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
                   textCapitalization: TextCapitalization.sentences,
                   enabled: !_submitting,
                   decoration: const InputDecoration(
-                    labelText: 'Incident remarks (required)',
+                    labelText: 'Incident narrative (required)',
                     hintText: 'What happened? Include immediate actions taken.',
                     border: OutlineInputBorder(),
                   ),
@@ -231,21 +234,56 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            if (_videoBytes != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                child: GuardStatusBanner(
-                  icon: Icons.videocam_rounded,
-                  color: AppColors.success,
-                  title: 'Video ready',
-                  message:
-                      '${_videoDurationSeconds ?? 15}-second incident video captured.',
-                ),
-              ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: hasPhoto
+                child: hasVideo
+                    ? GuardSurfaceCard(
+                        padding: const EdgeInsets.all(16),
+                        child: Center(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.videocam_rounded,
+                                  size: 48,
+                                  color: AppColors.of(context).success,
+                                ),
+                                const SizedBox(height: 12),
+                                Text(
+                                  'Video ready',
+                                  style: TextStyle(
+                                    color: AppColors.of(context).text,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                Text(
+                                  '$_videoDurationSeconds-second recording',
+                                  style: TextStyle(
+                                    color: AppColors.of(context).textMuted,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                OutlinedButton.icon(
+                                  onPressed: _submitting
+                                      ? null
+                                      : _retakeEvidence,
+                                  icon: const Icon(Icons.refresh_rounded),
+                                  label: const Text('Retake video'),
+                                ),
+                                TextButton(
+                                  onPressed: _submitting
+                                      ? null
+                                      : _retakeEvidence,
+                                  child: const Text('Use a photo instead'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                    : hasPhoto
                     ? Stack(
                         fit: StackFit.expand,
                         children: [
@@ -260,7 +298,8 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
                             top: 8,
                             right: 8,
                             child: IconButton.filled(
-                              onPressed: _submitting ? null : _retakePhoto,
+                              onPressed: _submitting ? null : _retakeEvidence,
+                              tooltip: 'Retake photo or record video',
                               icon: const Icon(Icons.refresh_rounded),
                               style: IconButton.styleFrom(
                                 backgroundColor: Colors.black54,
@@ -282,10 +321,11 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: FilledButton(
-                  onPressed: (_submitting || !hasPhoto) ? null : _submit,
+                  onPressed: (_submitting || !hasEvidence) ? null : _submit,
                   style: FilledButton.styleFrom(
                     backgroundColor: AppColors.primary,
-                    disabledBackgroundColor: AppColors.textHint,
+                    disabledBackgroundColor: AppColors.of(context).surfaceMuted,
+                    disabledForegroundColor: AppColors.of(context).textHint,
                     padding: const EdgeInsets.symmetric(vertical: 18),
                     textStyle: const TextStyle(
                       fontSize: 15,
@@ -297,9 +337,9 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
                   ),
                   child: GuardBusyLabel(
                     busy: _submitting,
-                    label: hasPhoto
+                    label: hasEvidence
                         ? 'Send emergency alert'
-                        : 'Capture photo to continue',
+                        : 'Capture photo or video to continue',
                     busyLabel: 'Sending alert…',
                     icon: Icons.emergency_rounded,
                   ),

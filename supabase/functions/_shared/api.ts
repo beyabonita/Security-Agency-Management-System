@@ -18,6 +18,8 @@ export interface ApiResult {
 
 const MAX_JSON_BODY_BYTES = 32 * 1024;
 const DEFAULT_ALLOWED_ORIGINS = new Set([
+  "https://security-agency-management-system-nu.vercel.app",
+  "https://security-agency-management-system-admin.vercel.app",
   "https://sentinel-link-portal.vercel.app",
   "https://sentinel-link-system.vercel.app",
   "http://127.0.0.1:3000",

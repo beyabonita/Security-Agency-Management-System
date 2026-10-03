@@ -1,4 +1,4 @@
-/// Username-based login for Supabase Auth (email/password uses a synthetic email).
+/// Email sign-in with compatibility for existing username accounts.
 const authEmailDomain = 'asamanion-26858.auth';
 
 String normalizeUsername(String raw) => raw.trim().toLowerCase();
@@ -30,11 +30,26 @@ String resolveAuthEmail(String input) {
 
 String displayLoginId(Map<String, dynamic>? data) {
   if (data == null) return '';
-  final username = data['username']?.toString();
-  if (username != null && username.isNotEmpty) return username;
   final email = data['email']?.toString() ?? '';
   if (email.endsWith('@$authEmailDomain')) {
-    return email.split('@').first;
+    return 'Email not added';
   }
-  return email;
+  return email.isEmpty ? 'Email not added' : email;
+}
+
+String? validateEmail(String raw) {
+  final email = raw.trim().toLowerCase();
+  final pattern = RegExp(
+    r"^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$",
+    caseSensitive: false,
+  );
+  return email.length <= 254 &&
+          pattern.hasMatch(email) &&
+          email.split('@').first.length <= 64 &&
+          !email.startsWith('.') &&
+          !email.contains('..') &&
+          !email.split('@').first.endsWith('.') &&
+          !email.endsWith('.auth')
+      ? null
+      : 'Enter a valid email address, such as name@gmail.com.';
 }

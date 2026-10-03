@@ -63,6 +63,42 @@ async function openTestIncident(page, panel) {
 }
 
 for (const panel of ['admin', 'inspector']) {
+  test(`${panel} displays video-only evidence without claiming a photo is attached`, async ({ page }) => {
+    await openTestIncident(page, panel);
+    await page.evaluate(() => {
+      incidents[0].photoData = null;
+      openDetail(incidents[0].id);
+      renderTable();
+    });
+    await expect(page.locator('#incidentTableBody')).toContainText('3 sec video');
+    await expect(page.locator('#incidentTableBody')).not.toContainText('+ photo');
+    await expect(page.locator('#modalBody')).not.toContainText('Incident photo');
+    await expect(page.locator('#modalBody')).not.toContainText('Required capture');
+    await expect(page.locator('#incidentEvidenceVideo')).toHaveAttribute('src', TEST_SIGNED_URL);
+  });
+  test(`${panel} shows Emergency and attributes acknowledgement and notes to their reviewers`, async ({ page }) => {
+    await openTestIncident(page, panel);
+    await page.evaluate(() => {
+      incidents[0].category = 'other';
+      incidents[0].status = 'acknowledged';
+      incidents[0].reviewHistory = [
+        { reviewer_name: 'Sam Inspector', reviewer_role: 'inspector', status: 'acknowledged', note: 'Responding now', reviewed_at: '2026-09-14T01:00:00Z' },
+        { reviewer_name: 'Alex Head', reviewer_role: 'admin', status: 'acknowledged', note: '<img src=x onerror=alert(1)>', reviewed_at: '2026-09-14T02:00:00Z' },
+      ];
+      openDetail(incidents[0].id);
+      renderTable();
+    });
+    await expect(page.locator('#incidentTableBody')).toContainText('Emergency');
+    await expect(page.locator('#modalBody')).toContainText('Emergency');
+    await expect(page.locator('#modalBody')).not.toContainText('Other');
+    await expect(page.locator('#modalBody')).toContainText('Acknowledged by');
+    await expect(page.locator('#modalBody')).toContainText('Sam Inspector · Inspector');
+    await expect(page.locator('#modalBody')).toContainText('Alex Head · Operations Head');
+    await expect(page.locator('#modalBody')).toContainText('Responding now');
+    await expect(page.locator('#modalBody')).toContainText('<img src=x onerror=alert(1)>');
+    await expect(page.locator('#modalBody img[src="x"]')).toHaveCount(0);
+  });
+
   test(`${panel} incident report shows detailed private video evidence`, async ({ page }) => {
     await page.setViewportSize({ width: 1100, height: 820 });
     await openTestIncident(page, panel);
@@ -90,5 +126,18 @@ for (const panel of ['admin', 'inspector']) {
     expect(modalBounds).not.toBeNull();
     expect(modalBounds.x).toBeGreaterThanOrEqual(-1);
     expect(modalBounds.width).toBeLessThanOrEqual(391);
+  });
+
+  test(`${panel} detailed incident modal is readable in dark mode without altering media`, async ({ page }, info) => {
+    await page.addInitScript(() => localStorage.setItem('sentinel-link-theme', 'dark'));
+    await page.setViewportSize({ width: 1200, height: 1000 });
+    await openTestIncident(page, panel);
+    await expect(page.locator('#detailModal')).toHaveClass(/show/);
+    await expect(page.locator('.incident-report-card').first()).toHaveCSS('background-color', 'rgb(33, 24, 27)');
+    await expect(page.locator('.incident-meta-value').first()).toHaveCSS('color', 'rgb(248, 236, 238)');
+    await expect(page.locator('.incident-report-copy').first()).toHaveCSS('color', 'rgb(248, 236, 238)');
+    await expect(page.locator('#incidentEvidenceVideo')).toHaveCSS('filter', 'none');
+    await expect(page.locator('.incident-report-photo')).toHaveCSS('filter', 'none');
+    await page.screenshot({ path: info.outputPath(panel + '-incident-dark.png') });
   });
 }

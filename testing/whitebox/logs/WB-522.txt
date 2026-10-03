@@ -1,0 +1,12 @@
+WB-522 — PASS
+NotificationService.acknowledge
+Scenario: acknowledgement RPC
+Input: "n1"
+Expected: {"p_notification_id":"n1"}
+Actual: {"p_notification_id":"n1"}
+UTC: 2026-09-05T08:57:23.870373Z
+Evidence: logs/flutter-verified.jsonl:329
+Source: testing/whitebox/unit_tests/services_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

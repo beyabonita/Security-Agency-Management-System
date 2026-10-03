@@ -1,0 +1,12 @@
+WB-070 — PASS
+DtrAlignment.normalizePeriod
+Scenario: normalize explicit period
+Input: "afternoon"
+Expected: "afternoon"
+Actual: "afternoon"
+UTC: 2026-09-05T08:57:23.759375Z
+Evidence: logs/flutter-verified.jsonl:249
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

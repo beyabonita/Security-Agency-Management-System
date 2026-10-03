@@ -82,7 +82,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     final user = Supabase.instance.client.auth.currentUser;
     return Scaffold(
-      backgroundColor: AppColors.scaffold,
+      backgroundColor: AppColors.of(context).scaffold,
       body: SafeArea(
         child: GuardAmbientBackground(
           child: Column(
@@ -169,7 +169,7 @@ class _NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _priorityColor(notification.priority);
+    final color = _priorityColor(context, notification.priority);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -180,12 +180,12 @@ class _NotificationCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: notification.isUnread
                 ? color.withValues(alpha: 0.055)
-                : AppColors.surface,
+                : AppColors.of(context).surface,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: notification.isCritical
                   ? color.withValues(alpha: 0.42)
-                  : AppColors.border,
+                  : AppColors.of(context).border,
             ),
             boxShadow: const [
               BoxShadow(
@@ -222,8 +222,8 @@ class _NotificationCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             notification.title,
-                            style: const TextStyle(
-                              color: AppColors.text,
+                            style: TextStyle(
+                              color: AppColors.of(context).text,
                               fontWeight: FontWeight.w700,
                               fontSize: 14,
                             ),
@@ -244,8 +244,8 @@ class _NotificationCard extends StatelessWidget {
                     const SizedBox(height: 5),
                     Text(
                       notification.message,
-                      style: const TextStyle(
-                        color: AppColors.textMuted,
+                      style: TextStyle(
+                        color: AppColors.of(context).textMuted,
                         fontSize: 12,
                         height: 1.45,
                       ),
@@ -262,8 +262,8 @@ class _NotificationCard extends StatelessWidget {
                         ),
                         Text(
                           _relativeTime(notification.createdAt),
-                          style: const TextStyle(
-                            color: AppColors.textHint,
+                          style: TextStyle(
+                            color: AppColors.of(context).textHint,
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                           ),
@@ -314,12 +314,13 @@ class _PriorityChip extends StatelessWidget {
   );
 }
 
-Color _priorityColor(String priority) => switch (priority) {
-  'critical' => AppColors.error,
-  'high' => AppColors.warning,
-  'low' => AppColors.textMuted,
-  _ => AppColors.primary,
-};
+Color _priorityColor(BuildContext context, String priority) =>
+    switch (priority) {
+      'critical' => AppColors.of(context).error,
+      'high' => AppColors.of(context).warning,
+      'low' => AppColors.of(context).textMuted,
+      _ => AppColors.of(context).accent,
+    };
 
 IconData _kindIcon(String kind) => switch (kind) {
   'emergency' => Icons.emergency_rounded,

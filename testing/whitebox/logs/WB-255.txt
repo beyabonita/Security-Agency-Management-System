@@ -1,0 +1,12 @@
+WB-255 — PASS
+api.handleJsonPost
+Scenario: JSON object validation
+Input: null
+Expected: 400
+Actual: 400
+UTC: 2026-09-05T08:56:19.237Z
+Evidence: logs/deno-final.log:274
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

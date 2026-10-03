@@ -1,0 +1,12 @@
+WB-228 — PASS
+accounts.optionalString
+Scenario: type, missing, boundary, NUL
+Input: "a"
+Expected: "invalid_input"
+Actual: "invalid_input"
+UTC: 2026-09-05T08:56:18.642Z
+Evidence: logs/deno-final.log:139
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

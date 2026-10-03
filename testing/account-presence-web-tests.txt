@@ -1,0 +1,93 @@
+
+Running 46 tests using 1 worker
+
+(node:17848) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 account_presence.spec.js:4:1 › browser presence follows auth, stops on logout, and rejects a delayed initial session (2.1s)
+  x   2 account_presence.spec.js:30:1 › activity table includes all roles, updates logout in place, filters, and clears unverified status on errors (9.3s)
+(node:16804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  3 it_admin_accounts.spec.js:141:1 › IT Admin creation rejects each missing password requirement and accepts an eight-character mix (6.6s)
+  ok  4 it_admin_accounts.spec.js:157:1 › IT Admin reset validates each password requirement before sending a change (5.9s)
+  ok  5 it_admin_accounts.spec.js:174:1 › IT Admin keeps the password when the optional edit field is blank (2.2s)
+  ok  6 it_admin_accounts.spec.js:185:1 › current IT Admin is protected while another Operations Head keeps account actions (1.8s)
+  ok  7 it_admin_accounts.spec.js:201:1 › account editing shows the Edge Function public JSON message (7.5s)
+  ok  8 platform_controls.spec.js:148:3 › button submits the real form and renders the RPC-returned settings (8.2s)
+  ok  9 platform_controls.spec.js:148:3 › Enter submits the real form and renders the RPC-returned settings (4.8s)
+  ok 10 platform_controls.spec.js:175:1 › publishing requires three trimmed characters and input changes recover validation (11.3s)
+  ok 11 platform_controls.spec.js:195:1 › radius validation rejects missing, out-of-range and fractional values and accepts both boundaries (9.6s)
+  ok 12 platform_controls.spec.js:214:1 › a failed save preserves entered fields and clears busy state so retry succeeds (3.3s)
+  ok 13 platform_controls.spec.js:239:1 › an in-flight save blocks duplicate submissions and preserves the submitted snapshot (6.4s)
+  ok 14 platform_controls.spec.js:256:1 › an unavailable audit log does not block loading or saving configuration (4.7s)
+  ok 15 platform_controls.spec.js:267:1 › a pending audit query does not hold the configuration form or save busy state (4.8s)
+  ok 16 platform_controls.spec.js:278:1 › a configuration load failure disables the form until Retry loading succeeds (5.3s)
+  ok 17 platform_controls.spec.js:306:3 › /staff/login.html opens support without leaving the page and supports keyboard copy (4.1s)
+  ok 18 platform_controls.spec.js:345:3 › /staff/login.html refreshes support and safe announcement text without duplicates (3.3s)
+  ok 19 platform_controls.spec.js:306:3 › /system-access-7d92a4/login.html opens support without leaving the page and supports keyboard copy (3.3s)
+  ok 20 platform_controls.spec.js:345:3 › /system-access-7d92a4/login.html refreshes support and safe announcement text without duplicates (13.5s)
+  ok 21 platform_controls.spec.js:306:3 › /admin/dashboard.html opens support without leaving the page and supports keyboard copy (5.1s)
+  ok 22 platform_controls.spec.js:345:3 › /admin/dashboard.html refreshes support and safe announcement text without duplicates (3.0s)
+  ok 23 platform_controls.spec.js:306:3 › /inspector/dashboard.html opens support without leaving the page and supports keyboard copy (4.3s)
+  ok 24 platform_controls.spec.js:345:3 › /inspector/dashboard.html refreshes support and safe announcement text without duplicates (1.7s)
+  ok 25 platform_controls.spec.js:306:3 › /it-admin/dashboard.html opens support without leaving the page and supports keyboard copy (2.7s)
+  ok 26 platform_controls.spec.js:345:3 › /it-admin/dashboard.html refreshes support and safe announcement text without duplicates (12.3s)
+  ok 27 platform_controls.spec.js:392:3 › support gives a manual-copy fallback when clipboard is denied (5.3s)
+  ok 28 platform_controls.spec.js:392:3 › support gives a manual-copy fallback when clipboard is missing (3.4s)
+  ok 29 platform_controls.spec.js:411:1 › pending clipboard access keeps keyboard focus and prevents duplicate copies (9.0s)
+  ok 30 platform_controls.spec.js:438:1 › dialog forms still submit with Enter while cancel buttons activate natively (2.7s)
+  ok 31 platform_controls.spec.js:458:7 › /staff/login.html 1366px light: notice, theme and support do not overlap (15.4s)
+  ok 32 platform_controls.spec.js:458:7 › /staff/login.html 1366px dark: notice, theme and support do not overlap (15.5s)
+  ok 33 platform_controls.spec.js:458:7 › /staff/login.html 740px light: notice, theme and support do not overlap (6.9s)
+  ok 34 platform_controls.spec.js:458:7 › /staff/login.html 740px dark: notice, theme and support do not overlap (9.0s)
+  ok 35 platform_controls.spec.js:458:7 › /staff/login.html 390px light: notice, theme and support do not overlap (7.0s)
+  ok 36 platform_controls.spec.js:458:7 › /staff/login.html 390px dark: notice, theme and support do not overlap (7.7s)
+  ok 37 platform_controls.spec.js:458:7 › /staff/login.html 320px light: notice, theme and support do not overlap (4.6s)
+  ok 38 platform_controls.spec.js:458:7 › /staff/login.html 320px dark: notice, theme and support do not overlap (4.6s)
+  ok 39 platform_controls.spec.js:458:7 › /system-access-7d92a4/login.html 1366px light: notice, theme and support do not overlap (5.5s)
+  ok 40 platform_controls.spec.js:458:7 › /system-access-7d92a4/login.html 1366px dark: notice, theme and support do not overlap (4.5s)
+  ok 41 platform_controls.spec.js:458:7 › /system-access-7d92a4/login.html 740px light: notice, theme and support do not overlap (5.5s)
+  ok 42 platform_controls.spec.js:458:7 › /system-access-7d92a4/login.html 740px dark: notice, theme and support do not overlap (3.8s)
+  ok 43 platform_controls.spec.js:458:7 › /system-access-7d92a4/login.html 390px light: notice, theme and support do not overlap (1.6s)
+  ok 44 platform_controls.spec.js:458:7 › /system-access-7d92a4/login.html 390px dark: notice, theme and support do not overlap (2.5s)
+  ok 45 platform_controls.spec.js:458:7 › /system-access-7d92a4/login.html 320px light: notice, theme and support do not overlap (1.3s)
+  ok 46 platform_controls.spec.js:458:7 › /system-access-7d92a4/login.html 320px dark: notice, theme and support do not overlap (2.8s)
+
+
+  1) account_presence.spec.js:30:1 › activity table includes all roles, updates logout in place, filters, and clears unverified status on errors 
+
+    Error: expect(locator).not.toContainText(expected) failed
+
+    Locator: locator('[data-accounts]')
+    Expected substring: not "Online"
+    Received string: "Online status could not be verified."
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "not toContainText" with timeout 5000ms
+      - waiting for locator('[data-accounts]')
+        14 × locator resolved to <tbody data-accounts="">…</tbody>
+           - unexpected value "Online status could not be verified."
+
+
+      57 |   await page.locator('[data-refresh]').click();
+      58 |   await expect(page.locator('[data-feedback]')).toContainText('Status unavailable');
+    > 59 |   await expect(page.locator('[data-accounts]')).not.toContainText('Online');
+         |                                                     ^
+      60 |   await page.setViewportSize({width:390,height:844});
+      61 |   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+      62 | });
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\account_presence.spec.js:59:53
+
+    Error Context: test-results-account-presence\account_presence-activity--32b9f-unverified-status-on-errors\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-account-presence\account_presence-activity--32b9f-unverified-status-on-errors\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-account-presence\account_presence-activity--32b9f-unverified-status-on-errors\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    account_presence.spec.js:30:1 › activity table includes all roles, updates logout in place, filters, and clears unverified status on errors 
+  45 passed (5.2m)

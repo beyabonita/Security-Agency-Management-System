@@ -1,0 +1,12 @@
+WB-402 — PASS
+SchedulePeriod.calculate
+Scenario: shift duration and time validity
+Input: ["2026-09-05","20:00","04:00"]
+Expected: 480
+Actual: 480
+UTC: 2026-09-05T08:53:03.551Z
+Evidence: logs/node.tap:3
+Source: testing/whitebox/unit_tests/web_test.cjs
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

@@ -1,0 +1,16 @@
+
+Running 9 tests using 1 worker
+
+(node:16928) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 timeout_verification.spec.js:46:1 › Operations Head records verified Philippine time, refreshes hours and sees preserved history (6.3s)
+  ok 2 timeout_verification.spec.js:64:1 › Invalid and cancelled reviews never submit a correction (7.9s)
+  ok 3 timeout_verification.spec.js:77:1 › Rejected server review leaves missing punch and hours unchanged (10.5s)
+  ok 4 timeout_verification.spec.js:86:1 › Uncertain submission reuses request identity for same review (6.0s)
+  ok 5 timeout_verification.spec.js:97:1 › Newly selected guard cannot receive the previous guard review result (3.0s)
+  ok 6 timeout_verification.spec.js:104:1 › DTR PDF includes pending review notes and excludes an unverified 24-hour punch (1.8s)
+  ok 7 timeout_verification.spec.js:117:1 › Review form fits a mobile screen and supports keyboard entry (5.3s)
+  ok 8 timeout_verification.spec.js:128:1 › time evaluation uses readable hours and minutes without explanatory text (2.2s)
+  ok 9 timeout_verification.spec.js:139:1 › overtime request stays off DTR until the Operations Head approves the submitted time (3.3s)
+
+  9 passed (53.5s)

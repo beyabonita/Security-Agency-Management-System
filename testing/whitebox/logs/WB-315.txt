@@ -1,0 +1,12 @@
+WB-315 — PASS
+admin-manage-user.registered handler
+Scenario: management permission and retention rules
+Input: {"options":{},"body":{"userId":"11111111-1111-4111-8111-111111111111"}}
+Expected: [400,"self_management_blocked",[]]
+Actual: [400,"self_management_blocked",[]]
+UTC: 2026-09-05T08:56:20.170Z
+Evidence: logs/deno-final.log:590
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

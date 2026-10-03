@@ -1,0 +1,12 @@
+WB-266 — PASS
+api.handleJsonPost
+Scenario: unexpected exception sanitized
+Input: "Error(secret)"
+Expected: [500,"internal_error",false]
+Actual: [500,"internal_error",false]
+UTC: 2026-09-05T08:56:19.374Z
+Evidence: logs/deno-final.log:330
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

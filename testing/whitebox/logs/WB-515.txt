@@ -1,0 +1,12 @@
+WB-515 — PASS
+UserProfileService.registerDeviceIfNeeded
+Scenario: RPC body preserves device identity
+Input: "device-fixture"
+Expected: {"p_device_id":"device-fixture"}
+Actual: {"p_device_id":"device-fixture"}
+UTC: 2026-09-05T08:57:23.815377Z
+Evidence: logs/flutter-verified.jsonl:290
+Source: testing/whitebox/unit_tests/services_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

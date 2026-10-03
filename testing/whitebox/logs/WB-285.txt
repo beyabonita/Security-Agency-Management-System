@@ -1,0 +1,12 @@
+WB-285 — PASS
+deleteIncidentHandler.deleteIncidentHandler
+Scenario: authorization and ordered failure handling
+Input: {"mediaError":true}
+Expected: [502,["begin","remove"]]
+Actual: [502,["begin","remove"]]
+UTC: 2026-09-05T08:56:19.820Z
+Evidence: logs/deno-final.log:431
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

@@ -51,13 +51,15 @@ test('HR navigation opens and closes as a mobile drawer', async ({ page }) => {
   await expect(page.locator('.ax-sidebar')).not.toHaveClass(/ax-open/);
 });
 
-test('Inspector navigation exposes a compact mobile menu', async ({ page }) => {
+test('Inspector navigation uses the shared mobile sidebar', async ({ page }) => {
   await openProtectedLayout(page, '/inspector/dashboard.html');
   const toggle = page.locator('#ixMenuToggle');
   await expect(toggle).toBeVisible();
   await toggle.click();
-  await expect(page.locator('#ixTopnav')).toHaveClass(/ix-open/);
-  await expect(page.locator('.ix-topnav-links')).toBeVisible();
+  await expect(page.locator('.ax-sidebar')).toHaveClass(/ax-open/);
+  await expect(page.locator('.ax-nav')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.ax-sidebar')).not.toHaveClass(/ax-open/);
 });
 
 test('Inspector portal has no personal attendance controls', async ({ page }) => {
@@ -79,6 +81,80 @@ test('HR Personnel keeps DTR available for Guards only', async ({ page }) => {
   await expect(page.locator('[aria-labelledby="inspectorPersonnelHeading"] thead')).toContainText('Device');
 });
 
+test('roster DTR preview fits phone and desktop in light and dark themes', async ({ page }, testInfo) => {
+  await page.route('**/supabase-firebase-bridge.js',route=>route.fulfill({contentType:'text/javascript',body:`
+    window.firebase={auth:()=>({onAuthStateChanged(){}}),firestore:()=>({})};
+    window.appSupabase={rpc:async()=>({data:[2,3].map(count=>({id:String(count),name:count+' Shifts',version:1,in_use:false,shifts:RosterSetup.defaults(count)})),error:null})};
+  `}));
+  await openProtectedLayout(page, '/admin/schedule.html');
+  await page.evaluate(()=>loadRosterSetups());
+  await expect(page.locator('#scheduleMode')).toHaveCount(0);
+  await page.locator('#rosterDate').fill('2099-09-15');
+  await page.locator('#rosterSetup').selectOption('3');
+  await expect(page.locator('#rosterPreview')).toContainText('Sep 1–15, 2099');
+  await expect(page.locator('#rosterPreview')).toContainText('6:00 AM (next day)');
+  await expect(page.locator('#rosterGuards select')).toHaveCount(3);
+  for (const width of [390,1440]) {
+    await page.setViewportSize({width,height:1000});
+    for (const theme of ['light','dark']) {
+      await page.evaluate(theme => sentinelTheme.set(theme), theme);
+      await expect(page.locator('#rosterPreview')).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.screenshot({path:testInfo.outputPath('roster-'+width+'-'+theme+'.png'),fullPage:true});
+    }
+  }
+});
+
+test('Guard DTR modals show the agency PDF layout for both cut-off periods', async ({ page }) => {
+  for (const path of ['/admin/users.html', '/inspector/users.html']) {
+    await openProtectedLayout(page, path);
+    await page.waitForFunction(() => typeof window.DtrReport?.renderPreview === 'function');
+    await page.locator('#dtrModal').evaluate((modal) => {
+      modal.style.display = 'block';
+      modal.classList.add('show');
+    });
+    await page.locator('#dtrRecordsList').evaluate((container) => {
+      const period = window.DtrReport.periodFromSelection('2026-09', 'first');
+      container.innerHTML = window.DtrReport.renderPreview({
+        period,
+        account: { firstName: 'Pedro', middleInitial: 'D', lastName: 'Dela Cruz' },
+        detachment: 'Main Detachment',
+        logoUrl: '../icons/sentinel-link-mark.png',
+        sessions: [{
+          duty_date: '2026-09-03',
+          clock_in_at: '2026-09-03T08:00:00+08:00',
+          clock_out_at: '2026-09-03T17:00:00+08:00',
+          location_label: 'Main Detachment',
+        }],
+      });
+    });
+    await expect(page.locator('#dtrPeriodMonth')).toBeVisible();
+    await expect(page.locator('#dtrPeriodCutoff option')).toHaveCount(2);
+    await expect(page.locator('#dtrModal')).toContainText('1st–15th');
+    await expect(page.locator('#dtrModal')).toContainText('16th–end of month');
+    await expect(page.locator('.dtr-sheet-preview')).toBeVisible();
+    await expect(page.locator('.dtr-sheet-preview')).toContainText('TWENTY TWENTY SECURITY AGENCY, INC.');
+    await expect(page.locator('.dtr-sheet-preview')).toContainText('DAILY TIME RECORD');
+    await expect(page.locator('.dtr-sheet-meta')).toContainText('Pedro D. Dela Cruz');
+    await expect(page.locator('.dtr-sheet-table tbody tr')).toHaveCount(15);
+    await expect(page.locator('.dtr-sheet-table thead')).toContainText('Assigned shift / Site');
+    await expect(page.locator('.dtr-sheet-table thead')).toContainText('Actual');
+    await expect(page.locator('.dtr-sheet-table thead')).toContainText('Worked');
+    await expect(page.locator('.dtr-day-card')).toHaveCount(0);
+    if(path.startsWith('/admin/'))await expect(page.getByRole('button', { name: 'Download Agency DTR' })).toBeVisible();
+    else await expect(page.getByRole('button', { name: 'Download Agency DTR' })).toHaveCount(0);
+
+    const dimensions = await page.evaluate(() => ({
+      viewport: document.documentElement.clientWidth,
+      page: document.documentElement.scrollWidth,
+      stageScrollable: document.querySelector('#dtrRecordsList').scrollWidth
+        > document.querySelector('#dtrRecordsList').clientWidth,
+    }));
+    expect(dimensions.page).toBeLessThanOrEqual(dimensions.viewport + 1);
+    expect(dimensions.stageScrollable).toBe(true);
+  }
+});
+
 test('IT Admin navigation opens as a mobile drawer', async ({ page }) => {
   await openProtectedLayout(page, '/it-admin/clients.html');
   const toggle = page.locator('[data-it-nav-toggle]');
@@ -91,7 +167,7 @@ test('IT Admin navigation opens as a mobile drawer', async ({ page }) => {
 test('every staff role shell uses the shared agency mark', async ({ page }) => {
   for (const [path, selector] of [
     ['/admin/dashboard.html', '.ax-brand'],
-    ['/inspector/dashboard.html', '.ix-shell-brand'],
+    ['/inspector/dashboard.html', '.ax-brand'],
     ['/it-admin/dashboard.html', '.ax-brand'],
   ]) {
     await openProtectedLayout(page, path);
@@ -148,7 +224,7 @@ test('an open personnel action menu stays above action triggers in later rows', 
   const firstActions = page.locator('.personnel-actions').first();
   const firstMenu = page.locator('#personnel-actions-first');
   const secondTrigger = page.locator('.personnel-actions-trigger').nth(1);
-  await firstActions.hover();
+  await firstActions.locator('.personnel-actions-trigger').focus();
   await expect(firstMenu).toBeVisible();
 
   const secondTriggerBounds = await secondTrigger.boundingBox();

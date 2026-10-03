@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Incident Reports — HR / Operations</title>
+    <title>Incident Reports — Operations Head</title>
     <link rel="icon" type="image/png" href="../favicon.png">
-    <script src="../js/theme-preference.js" defer></script>
+    <script src="../js/theme-preference.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link href="css/admin-theme.css" rel="stylesheet">
@@ -21,30 +21,29 @@
 <div class="ax-app">
     <aside class="ax-sidebar">
         <div class="ax-brand">
-            <div class="ax-brand-badge">Control center</div>
-            <p class="ax-brand-title">HR / Operations</p>
+            
+            <p class="ax-brand-title">Operations Head</p>
             <p class="ax-brand-sub">Security Agency Management System</p>
         </div>
         <nav class="ax-nav">
             <div class="ax-nav-label">Manage</div>
-            <a href="dashboard.html"><span class="ax-nav-icon">📊</span> Dashboard</a>
-            <a href="users.html"><span class="ax-nav-icon">👥</span> Personnel</a>
-            <a href="locations.html"><span class="ax-nav-icon">📍</span> Deployment Sites</a>
-            <a href="schedule.html"><span class="ax-nav-icon">📅</span> Schedule</a>
-            <a href="incidents.html"><span class="ax-nav-icon">🚨</span> Incidents</a>
-            <a href="swaps.html"><span class="ax-nav-icon">🔁</span> Shift approvals</a>
+            <a href="dashboard.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">dashboard</span> Dashboard</a>
+            <a href="users.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">groups</span> Personnel</a>
+            <a href="locations.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">location_on</span> Deployment Sites</a>
+            <a href="schedule.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">calendar_month</span> Schedule</a>
+            <a href="incidents.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">emergency</span> Incidents</a>
+            <a href="swaps.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">swap_horiz</span> Duty requests</a>
         </nav>
         <div class="ax-sidebar-foot">TwentyTwenty Security Agency</div>
     </aside>
     <div class="ax-main">
         <header class="ax-topbar">
             <div class="ax-topbar-left">
-                <button type="button" class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu">☰</button>
-                <div><div class="ax-breadcrumb">HR / Operations Console</div><h1 class="ax-page-title">Incidents</h1></div>
+                <button type="button" class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button>
+                <div><div class="ax-breadcrumb">Operations Head Console</div><h1 class="ax-page-title">Incidents</h1></div>
             </div>
             <div class="ax-topbar-right">
-                <span class="ax-role-pill">HR / Operations Head</span>
-                <span class="ax-user-chip" id="axUserName">Admin</span>
+                <span class="ax-user-chip" id="axUserName" hidden aria-live="polite"></span>
                 <button type="button" class="ax-btn-logout" onclick="adminLogout()">Sign out</button>
             </div>
         </header>
@@ -78,13 +77,14 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalTitle">Incident</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close report"></button>
+                <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close report"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
             </div>
             <div class="modal-body" id="modalBody"></div>
             <div class="modal-footer incident-review-footer">
                 <div class="incident-review-head">
                     <strong>Review and disposition</strong>
                     <span>Update the case status and document the follow-up action.</span>
+                    <button type="button" class="action-btn btn-disable" id="deleteIncidentBtn">Delete report</button>
                 </div>
                 <div class="incident-review-grid">
                     <div class="incident-review-field">
@@ -110,6 +110,7 @@
 <script src="js/admin-shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
 <script src="../js/supabase-firebase-bridge.js"></script>
+<script src="../js/platform-configuration.js"></script>
 <script src="../js/notification-center.js"></script>
 <script src="../js/incident-report-view.js"></script>
 
@@ -134,7 +135,7 @@ const CATEGORY_LABELS = {
   fire: 'Fire / hazard',
   medical: 'Medical emergency',
   disturbance: 'Disturbance / fight',
-  other: 'Other'
+  other: 'Emergency'
 };
 
 let incidents = [];
@@ -143,23 +144,20 @@ let currentUser = null;
 const detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
 
 auth.onAuthStateChanged(async function(user) {
-  if (!user) { window.location.href = 'login.html'; return; }
+  if (!user) { window.location.href = '../staff/login.html'; return; }
   try {
     const doc = await db.collection('users').doc(user.uid).get();
     if (!doc.exists || doc.data().role !== 'admin') {
-      window.location.href = 'login.html';
+      window.location.href = '../staff/login.html';
       return;
     }
     const d = doc.data();
-    const name = [d.firstName, d.middleInitial ? d.middleInitial + '.' : '', d.lastName]
-      .filter(Boolean).join(' ') || d.name || displayLoginId(d);
-    setAdminUserName(name);
     applyAdminRoleNavigation(d.role);
     currentUser = user;
     loadIncidents();
     finishPageLoading();
   } catch (e) {
-    window.location.href = 'login.html';
+    window.location.href = '../staff/login.html';
   }
 });
 
@@ -170,6 +168,8 @@ function loadIncidents() {
       incidents.push({ id: d.id, ...d.data() });
     });
     renderTable();
+    const currentRecords = incidents;
+    incidentReportView.refreshEmails(currentRecords).then(() => { if (incidents === currentRecords) renderTable(); });
   }, function(err) {
     document.getElementById('incidentTableBody').innerHTML =
       '<tr><td colspan="6" class="empty-state text-danger">Error: ' + escapeHtml(err?.message || 'Could not load incident reports.') + '</td></tr>';
@@ -201,15 +201,15 @@ function renderTable() {
     const src = incidentPhotoSrc(inc);
     const thumb = src
       ? '<img src="' + escapeHtml(src) + '" class="thumb" alt="photo">'
-      : '<span style="color:#64748b">—</span>';
+      : '<span style="color:var(--sl-muted)">—</span>';
     const cat = CATEGORY_LABELS[inc.category] || inc.category || '—';
     return '<tr onclick="openDetail(\'' + inc.id + '\')">' +
       '<td>' + thumb + '</td>' +
       '<td>' + formatWhen(inc.capturedAt || inc.createdAt) + '</td>' +
-      '<td><strong>' + escapeHtml(inc.guardName || '—') + '</strong><br><small style="color:#64748b">' + escapeHtml(inc.guardEmail || '') + '</small></td>' +
+      '<td><strong>' + escapeHtml(inc.guardName || '—') + '</strong><br><small style="color:var(--sl-muted)">' + escapeHtml(reportEmail(inc.guardEmail)) + '</small></td>' +
       '<td><span class="badge-cat">' + escapeHtml(cat) + '</span></td>' +
-      '<td>' + statusBadge(inc.status) + '</td>' +
-      '<td style="color:#94a3b8">' + (inc.videoPath ? escapeHtml(String(inc.videoDurationSeconds || 15) + ' sec video + photo') : 'Photo alert') + '</td>' +
+      '<td>' + (inc.deletion_requested_at ? '<span class="badge-status badge-open">Deletion retry</span>' : statusBadge(inc.status)) + '</td>' +
+      '<td style="color:var(--sl-muted)">' + (inc.deletion_requested_at ? 'Cleanup interrupted · open report and retry' : (inc.videoPath ? escapeHtml(String(inc.videoDurationSeconds || 15) + ' sec video' + (src ? ' + photo' : '')) : 'Photo alert')) + '</td>' +
       '</tr>';
   }).join('');
 }
@@ -234,12 +234,44 @@ function openDetail(id) {
 
   document.getElementById('statusSelect').value = inc.status || 'open';
   document.getElementById('statusNote').value = inc.statusNote || '';
+  document.getElementById('deleteIncidentBtn').textContent = inc.deletion_requested_at ? 'Retry deletion' : 'Delete report';
+  document.getElementById('saveStatusBtn').disabled = !!inc.deletion_requested_at;
   detailModal.show();
   if (inc.videoPath) incidentReportView.loadVideo(inc, requestId);
 }
 
 document.getElementById('detailModal').addEventListener('hidden.bs.modal', function() {
   incidentReportView.close();
+});
+
+let deletingIncident = false;
+document.getElementById('deleteIncidentBtn').addEventListener('click', async function() {
+  if (!selectedId || !currentUser || deletingIncident) return;
+  const id = selectedId;
+  deletingIncident = true;
+  try {
+    const confirmed = await appDialog.confirm(
+      'This removes the report, its photo, its video, and related alerts. This cannot be undone. Save any evidence you need first.', {
+      title: 'Permanently delete emergency report?',
+      confirmText: 'Delete report and media', cancelText: 'Keep report', danger: true,
+    });
+    if (!confirmed) return;
+    await appDialog.runBusy(this, async () => {
+      const result = await appSupabase.functions.invoke('admin-delete-incident', { body: { incidentId: id } });
+      if (result.error) {
+        let message = 'Could not delete the report. Try again.';
+        try { message = (await result.error.context?.json())?.error || result.error.message || message; } catch (_) {}
+        throw new Error(message);
+      }
+      if (!result.data?.ok) throw new Error(result.data?.error || 'Deletion was not confirmed. Refresh and try again.');
+      incidents = incidents.filter(item => item.id !== id);
+      renderTable();
+      detailModal.hide();
+    }, { label: 'Deleting report & media…' });
+    appDialog.toast('Emergency report and its media deleted.', { tone: 'success' });
+  } catch (error) {
+    appDialog.toast(error.message || 'Deletion failed. The report remains available for retry.', { tone: 'danger' });
+  } finally { deletingIncident = false; }
 });
 
 document.getElementById('saveStatusBtn').addEventListener('click', async function() {

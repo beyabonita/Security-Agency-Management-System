@@ -1,0 +1,10 @@
+{
+  "version": "1.0.18",
+  "build": 19,
+  "applicationId": "com.sentinellink.app",
+  "releaseMode": true,
+  "sameSigningCertificate": true,
+  "certificateSha256": "75dd2aacacb48ee6ffcc6567c7e1381e273d0bc7d6c56c0f90842b772efdb15d",
+  "sha256": "3612bdd12848441c5a8acbd67b04281118e3624b48427ec6f281af27c4290dde",
+  "bytes": 66854073
+}

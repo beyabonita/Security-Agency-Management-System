@@ -1,0 +1,12 @@
+WB-451 — PASS
+DtrReport.buildReport
+Scenario: empty attendance creates zero totals
+Input: []
+Expected: [0,0,15]
+Actual: [0,0,15]
+UTC: 2026-09-05T08:53:03.573Z
+Evidence: logs/node.tap:52
+Source: testing/whitebox/unit_tests/web_test.cjs
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

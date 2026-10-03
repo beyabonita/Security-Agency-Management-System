@@ -1,0 +1,26 @@
+{
+  "deployment": "dpl_hrh2YxWSm3LcygQHriY6cm5qXXV2",
+  "verifiedAt": "2026-09-12T04:09:10.396Z",
+  "results": [
+    {
+      "file": "/admin/schedule.html",
+      "status": "PASS"
+    },
+    {
+      "file": "/admin/js/shift-roster.js",
+      "status": "PASS"
+    },
+    {
+      "file": "/admin/css/dtr-scheduling.css",
+      "status": "PASS"
+    },
+    {
+      "file": "/js/dtr-report.js",
+      "status": "PASS"
+    },
+    {
+      "file": "/css/dtr-report.css",
+      "status": "PASS"
+    }
+  ]
+}

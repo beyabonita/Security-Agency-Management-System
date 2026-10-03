@@ -17,9 +17,86 @@ AttendanceSession buildSession({
   clockInAt: clockIn ?? DateTime.utc(2026, 8, 22, 14, 10),
   clockOutAt: clockOut ?? DateTime.utc(2026, 8, 22, 22, 5),
   status: status,
+  timeoutVerifiedAt: DateTime.utc(2026, 8, 23),
 );
 
 void main() {
+  test('unverified next-day checkout does not count 24 hours', () {
+    final row = <String, dynamic>{
+      'id': 'late',
+      'schedule_id': 'old',
+      'duty_date': '2026-09-08',
+      'scheduled_start_at': '2026-09-08T00:00:00Z',
+      'scheduled_end_at': '2026-09-08T12:00:00Z',
+      'clock_in_at': '2026-09-08T00:00:00Z',
+      'clock_out_at': '2026-09-09T00:00:00Z',
+      'status': 'closed',
+    };
+    final pending = AttendanceSession.fromRow(row);
+    expect(pending.needsTimeoutReview, isTrue);
+    expect(pending.clockOutAt, isNotNull);
+    expect(pending.workedDuration, Duration.zero);
+    row['clock_out_at'] = '2026-09-08T12:00:00Z';
+    row['timeout_verified_at'] = '2026-09-09T01:00:00Z';
+    final verified = AttendanceSession.fromRow(row);
+    expect(verified.needsTimeoutReview, isFalse);
+    expect(verified.workedDuration, const Duration(hours: 12));
+    expect(verified.timeoutVerifiedAt, isNotNull);
+  });
+  test(
+    'parses snapshotted DTR period without substituting actual punch columns',
+    () {
+      final session = AttendanceSession.fromRow({
+        'id': 'split-1',
+        'schedule_id': 'morning-1',
+        'duty_date': '2026-09-15',
+        'dtr_period': 'morning',
+        'location_label': 'Main Gate',
+        'scheduled_start_at': '2026-09-15T00:00:00Z',
+        'scheduled_end_at': '2026-09-15T04:00:00Z',
+        'clock_in_at': '2026-09-15T00:05:00Z',
+        'clock_out_at': '2026-09-15T04:15:00Z',
+        'status': 'closed',
+        'timeout_verified_at': '2026-09-16T00:00:00Z',
+      });
+      expect(session.dtrPeriod, 'morning');
+      expect(session.dtrMappingLabel, 'Morning IN → Morning OUT');
+      expect(session.workedDuration, const Duration(hours: 4, minutes: 10));
+      expect(session.lateDuration, const Duration(minutes: 5));
+      expect(session.undertimeDuration, Duration.zero);
+    },
+  );
+
+  test('next-day overtime keeps the originating DTR date', () {
+    final session = AttendanceSession.fromRow({
+      'id': 'ot-1',
+      'schedule_id': 'ot-schedule',
+      'duty_date': '2026-09-15',
+      'dtr_period': 'overtime',
+      'location_label': 'Main Gate',
+      'scheduled_start_at': '2026-09-15T21:00:00Z',
+      'scheduled_end_at': '2026-09-15T23:00:00Z',
+      'clock_in_at': '2026-09-15T21:01:00Z',
+      'clock_out_at': '2026-09-15T23:01:00Z',
+      'status': 'closed',
+      'timeout_verified_at': '2026-09-16T00:00:00Z',
+    });
+    expect(session.dutyDate, '2026-09-15');
+    expect(session.dtrCutoffLabel, 'Sep 1–15, 2026');
+    expect(session.dtrMappingLabel, 'Overtime IN (+1) → Overtime OUT (+1)');
+    expect(session.workedDuration, const Duration(hours: 2));
+  });
+
+  test(
+    'invalid required attendance timestamps fail instead of inventing punches',
+    () {
+      expect(
+        () => AttendanceSession.fromRow({'id': 'invalid'}),
+        throwsFormatException,
+      );
+    },
+  );
+
   test('keeps an overnight duty as one session', () {
     final session = buildSession();
 

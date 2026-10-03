@@ -1,0 +1,23 @@
+WB-084 — FAIL
+AttendanceSession.fromRow
+Scenario: malformed supplied clock-out must not disappear
+Input: "clock_out_at=garbage"
+Expected: "FormatException"
+Actual: "no exception"
+UTC: 2026-09-05T08:57:23.848376Z
+Evidence: logs/flutter-verified.jsonl:333
+Source: testing/whitebox/unit_tests/core_test.dart
+Runner error: Expected: 'FormatException'
+  Actual: 'no exception'
+   Which: is different.
+          Expected: FormatExce ...
+            Actual: no excepti ...
+                    ^
+           Differ at offset 0
+
+package:matcher                                     expect
+package:flutter_test/src/widget_tester.dart 473:18  expect
+testing\whitebox\unit_tests\core_test.dart 31:7     wb.<fn>
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

@@ -31,10 +31,10 @@ begin
     'public.update_incident_status(uuid,text,text)'::regprocedure
   ) into v_status_definition;
   if v_status_definition not like '%p_status = ''resolved''%'
-    or v_status_definition not like '%incident.filed_at is not null%'
-    or v_status_definition not like '%incident.detailed_narrative%'
+    or v_status_definition not like '%incident.filed_at is null%'
+    or v_status_definition not like '%incident.captured_at is null%'
   then
-    raise exception 'incident closure must require a filed report with guard remarks';
+    raise exception 'incident closure must require a timestamped filed report';
   end if;
 
   select qual into v_delete_policy

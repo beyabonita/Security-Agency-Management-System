@@ -1,0 +1,44 @@
+/* Google Material Symbols, bundled locally so controls do not rely on a CDN.
+   See assets/fonts/material-symbols-rounded.json for the licensed subset. */
+@font-face {
+  font-family: 'Material Symbols Rounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url('../assets/fonts/material-symbols-rounded.woff2') format('woff2');
+}
+
+/* Shared Google Material Symbols treatment for every web portal. */
+.material-symbols-rounded {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  overflow: hidden;
+  flex-shrink: 0;
+  direction: ltr;
+  color: inherit;
+  font-family: 'Material Symbols Rounded';
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 500;
+  font-feature-settings: 'liga';
+  font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  letter-spacing: normal;
+  line-height: 1;
+  text-rendering: optimizeLegibility;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+.material-symbols-rounded.sl-icon-filled {
+  font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+}
+
+.sl-inline-icon {
+  margin-right: .28em;
+  font-size: 1.12em;
+  vertical-align: -.16em;
+}

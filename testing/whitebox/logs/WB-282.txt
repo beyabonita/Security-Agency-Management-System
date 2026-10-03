@@ -1,0 +1,12 @@
+WB-282 — PASS
+deleteIncidentHandler.deleteIncidentHandler
+Scenario: authorization and ordered failure handling
+Input: {"path":null}
+Expected: [200,["begin","finish"]]
+Actual: [200,["begin","finish"]]
+UTC: 2026-09-05T08:56:19.767Z
+Evidence: logs/deno-final.log:416
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

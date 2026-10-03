@@ -1,0 +1,16 @@
+
+Running 9 tests using 1 worker
+
+(node:15664) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 web\tests\account_email.spec.js:3:55 › staff email login normalizes Gmail and retains legacy access (1.3s)
+  ok 2 web\tests\account_email.spec.js:3:55 › system-access-7d92a4 email login normalizes Gmail and retains legacy access (991ms)
+  ok 3 web\tests\account_email.spec.js:15:1 › older incident aliases resolve to the current real email without changing saved reports (410ms)
+  ok 4 web\tests\contract_personnel.spec.js:20:1 › Contract creation requires dates and sends the inclusive period (5.6s)
+  ok 5 web\tests\contract_personnel.spec.js:40:1 › Inspector and Regular creation do not require contract dates (2.4s)
+  ok 6 web\tests\contract_personnel.spec.js:51:1 › Editing loads saved dates, validates and submits renewal (3.0s)
+  ok 7 web\tests\contract_personnel.spec.js:67:1 › Operations Head creation rejects each missing password requirement and accepts an eight-character mix (5.7s)
+  ok 8 web\tests\contract_personnel.spec.js:84:1 › Operations Head reset validates all password requirements before sending a change (4.9s)
+  ok 9 web\tests\contract_personnel.spec.js:99:1 › Legacy missing-date contract is identified, not silently treated as Regular (2.5s)
+
+  9 passed (32.3s)

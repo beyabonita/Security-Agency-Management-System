@@ -1,0 +1,12 @@
+WB-446 — PASS
+DtrReport.periodFromSelection
+Scenario: calendar selection
+Input: ["2026-02","second"]
+Expected: "2026-02-28"
+Actual: "2026-02-28"
+UTC: 2026-09-05T08:53:03.570Z
+Evidence: logs/node.tap:47
+Source: testing/whitebox/unit_tests/web_test.cjs
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

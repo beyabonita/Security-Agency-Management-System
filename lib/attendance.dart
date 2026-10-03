@@ -1,56 +1,157 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'widgets/overtime_timeout_dialog.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutter_application_1/models/attendance_session.dart';
 import 'package:flutter_application_1/models/geofence_site.dart';
 import 'package:flutter_application_1/services/attendance_service.dart';
+import 'package:flutter_application_1/services/attendance_state_controller.dart';
+import 'package:flutter_application_1/services/device_location_service.dart';
 import 'package:flutter_application_1/services/geofence_service.dart';
 import 'package:flutter_application_1/services/location_integrity_service.dart';
 import 'package:flutter_application_1/services/schedule_service.dart';
 import 'package:flutter_application_1/theme/app_colors.dart';
 import 'package:flutter_application_1/widgets/guard_ui.dart';
+import 'package:flutter_application_1/widgets/attendance_punch_action.dart';
+import 'package:flutter_application_1/widgets/attendance_actual_times.dart';
+import 'package:flutter_application_1/models/contract_period.dart';
+import 'package:flutter_application_1/services/user_profile_service.dart';
+
+/// Public, no-key tile source used by the Guard attendance map.
+///
+/// Keep this independent from Supabase credentials: a map-provider key must
+/// never be required before a Guard can verify a duty location.
+const attendanceMapTileUrlTemplate =
+    'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 class Attendance extends StatefulWidget {
-  const Attendance({super.key});
+  const Attendance({super.key, this.onAttendanceRecorded});
+  final VoidCallback? onAttendanceRecorded;
 
   @override
   State<Attendance> createState() => _AttendanceState();
 }
 
-class _AttendanceState extends State<Attendance> {
+class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
+  Timer? _dutyRefreshTimer;
+  Timer? _gpsRefreshTimer;
+  StreamSubscription<Position>? _gpsUpdates;
+  Timer? _shiftEndTimer;
+  bool _loadingDutyContext = false;
   bool locationGranted = false;
   bool withinAllowedArea = false;
   LatLng? _currentPosition;
   String? _locationError;
   String? _matchedSiteLabel;
   double? _accuracyMeters;
+  DateTime? _positionCapturedAt;
   List<GeofenceSite> _sites = [];
+  Map<String, dynamic>? _activeSchedule;
   bool _loadingSites = true;
   bool _refreshingLocation = false;
+  Future<Position?>? _locationRequest;
   String? _punchingAction;
+  late final AttendanceStateController _attendance;
+  StreamSubscription<AttendanceSession?>? _sessionChanges;
   final MapController _mapController = MapController();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _attendance = AttendanceStateController(
+      loadSession: () async {
+        final user = Supabase.instance.client.auth.currentUser;
+        if (user == null) throw StateError('Sign in to record attendance.');
+        return AttendanceService.loadLatestSession(user.id);
+      },
+    );
+    _attendance.addListener(_scheduleAttendanceBoundary);
+    _dutyRefreshTimer = Timer.periodic(const Duration(seconds: 60), (_) {
+      if (_punchingAction == null) {
+        _loadAssignedSites();
+        _attendance.refresh();
+      }
+    });
+    _attendance.refresh();
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user != null) {
+      _sessionChanges = AttendanceService.latestSessionStream(
+        user.id,
+      ).listen(_attendance.accept, onError: (_) => _attendance.refresh());
+    }
     _loadAssignedSites();
     _initLocation();
+    _gpsRefreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed &&
+          _punchingAction == null) {
+        unawaited(_initLocation());
+      }
+    });
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _initLocation();
+      _attendance.refresh();
+      _loadAssignedSites();
+    } else if (state == AppLifecycleState.paused) {
+      // The app-wide duty subscription keeps its native service. Verification
+      // alone must not keep collecting after the attendance screen is hidden.
+      unawaited(_gpsUpdates?.cancel());
+      _gpsUpdates = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _shiftEndTimer?.cancel();
+    _gpsRefreshTimer?.cancel();
+    _gpsUpdates?.cancel();
+    _dutyRefreshTimer?.cancel();
+    _sessionChanges?.cancel();
+    _attendance.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    _mapController.dispose();
+    super.dispose();
+  }
+
+  void _scheduleAttendanceBoundary() {
+    _shiftEndTimer?.cancel();
+    final session = _attendance.session;
+    if (session == null || !session.isActiveAt(DateTime.now())) return;
+    _shiftEndTimer = Timer(
+      session.scheduledEndAt.difference(DateTime.now()),
+      () {
+        if (!mounted) return;
+        setState(() {});
+        _loadAssignedSites();
+      },
+    );
   }
 
   Future<void> _loadAssignedSites() async {
+    if (_loadingDutyContext || !mounted) return;
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) {
       setState(() => _loadingSites = false);
       return;
     }
+    _loadingDutyContext = true;
     try {
-      final sites = await ScheduleService.loadAttendanceSites(user.id);
+      final dutyContext = await ScheduleService.loadAttendanceContext(user.id);
+      final sites = dutyContext.sites;
       if (!mounted) return;
       setState(() {
         _sites = sites;
+        _activeSchedule = dutyContext.primarySchedule;
         _loadingSites = false;
       });
       if (_currentPosition != null) {
@@ -67,7 +168,7 @@ class _AttendanceState extends State<Attendance> {
       if (sites.isEmpty && mounted) {
         setState(
           () => _locationError =
-              'No active duty schedule right now. Check My Schedule or ask your admin.',
+              'No active duty schedule right now. Check My Schedule or ask your Operational Head.',
         );
       }
     } catch (_) {
@@ -77,37 +178,79 @@ class _AttendanceState extends State<Attendance> {
         _locationError =
             'Could not load your current duty schedule. Refresh and try again.';
       });
+    } finally {
+      _loadingDutyContext = false;
     }
   }
 
   Future<void> _initLocation() async {
-    final permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.always ||
-        permission == LocationPermission.whileInUse) {
-      await _fetchCurrentLocation();
+    try {
+      final permission = await Geolocator.checkPermission().timeout(
+        const Duration(seconds: 10),
+      );
+      if (permission == LocationPermission.always ||
+          permission == LocationPermission.whileInUse) {
+        if (mounted) setState(() => locationGranted = true);
+        await _fetchCurrentLocation();
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _locationError =
+              'Could not check location permission. Tap Enable location access to retry.',
+        );
+      }
     }
   }
 
   Future<void> _requestLocationPermission() async {
     setState(() => _locationError = null);
-    var permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-    if (permission == LocationPermission.denied ||
-        permission == LocationPermission.deniedForever) {
+    try {
+      var permission = await Geolocator.checkPermission().timeout(
+        const Duration(seconds: 10),
+      );
+      if (permission == LocationPermission.deniedForever) {
+        await Geolocator.openAppSettings();
+        return;
+      }
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission().timeout(
+          const Duration(seconds: 30),
+        );
+      }
       if (!mounted) return;
-      setState(() {
-        locationGranted = false;
-        _locationError =
-            'Location permission denied. Allow it in device settings.';
-      });
-      return;
+      final allowed =
+          permission == LocationPermission.always ||
+          permission == LocationPermission.whileInUse;
+      setState(() => locationGranted = allowed);
+      if (!allowed) {
+        setState(
+          () => _locationError =
+              'Location permission denied. Allow it in device settings.',
+        );
+        return;
+      }
+      await _fetchCurrentLocation();
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => _locationError =
+              'Could not check location access. Retry or open device settings.',
+        );
+      }
     }
-    await _fetchCurrentLocation();
   }
 
-  Future<Position?> _fetchCurrentLocation({List<GeofenceSite>? sites}) async {
+  Future<Position?> _fetchCurrentLocation({List<GeofenceSite>? sites}) {
+    if (_locationRequest != null) return _locationRequest!;
+    final operation = _loadCurrentLocation(sites: sites);
+    _locationRequest = operation;
+    return operation.whenComplete(() {
+      if (identical(_locationRequest, operation)) _locationRequest = null;
+    });
+  }
+
+  Future<Position?> _loadCurrentLocation({List<GeofenceSite>? sites}) async {
     if (mounted) {
       setState(() {
         _locationError = null;
@@ -115,22 +258,31 @@ class _AttendanceState extends State<Attendance> {
       });
     }
     try {
-      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled()
+          .timeout(const Duration(seconds: 10));
       if (!serviceEnabled) {
         if (!mounted) return null;
         setState(() {
-          locationGranted = false;
           _locationError = 'Enable location services on your device.';
+          withinAllowedArea = false;
         });
         return null;
       }
 
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.bestForNavigation,
-          timeLimit: Duration(seconds: 20),
-        ),
+      _gpsUpdates ??= DeviceLocationService.instance.foregroundPositions().listen(
+        (_) {
+          if (mounted && !_refreshingLocation) {
+            unawaited(_fetchCurrentLocation());
+          }
+        },
+        onError: (_) {
+          // Keep the screen usable; the timer and native service recover GPS.
+        },
+        onDone: () {
+          _gpsUpdates = null;
+        },
       );
+      final position = await DeviceLocationService.instance.currentPosition();
       final integrityError = LocationIntegrityService.validationError(
         latitude: position.latitude,
         longitude: position.longitude,
@@ -154,6 +306,7 @@ class _AttendanceState extends State<Attendance> {
         withinAllowedArea = activeSites.isNotEmpty && inside;
         _matchedSiteLabel = inside ? nearest?.label : null;
         _accuracyMeters = position.accuracy;
+        _positionCapturedAt = position.timestamp;
         _locationError = integrityError;
       });
       _mapController.move(current, 16);
@@ -161,8 +314,15 @@ class _AttendanceState extends State<Attendance> {
     } catch (e) {
       if (!mounted) return null;
       setState(() {
-        locationGranted = false;
-        _locationError = 'Could not get a fresh location: $e';
+        withinAllowedArea = false;
+        _matchedSiteLabel = null;
+        _locationError = e is TimeoutException
+            ? e.message ??
+                  'Acquiring GPS automatically. Keep precise location enabled; attendance updates when a usable fix arrives.'
+            : e is PermissionDeniedException
+            ? 'Location permission is denied. Enable it in device settings.'
+            : 'GPS is reconnecting automatically. Check that location services are on.';
+        if (e is PermissionDeniedException) locationGranted = false;
       });
       return null;
     } finally {
@@ -186,16 +346,47 @@ class _AttendanceState extends State<Attendance> {
         _showSnack(blockReason, isError: true);
         return;
       }
+      bool? claimOvertime;
+      if (action == 'clock_out' &&
+          DateTime.now().isAfter(openSession!.scheduledEndAt)) {
+        if (!mounted) return;
+        claimOvertime = await askOvertimeTimeout(
+          context,
+          AttendanceActualTimes.timestamp(openSession.scheduledEndAt),
+        );
+        if (!mounted || claimOvertime == null) return;
+      }
 
-      final activeSites = await ScheduleService.loadAttendanceSites(user.id);
+      if (action == 'clock_in') {
+        final profile = await UserProfileService.getProfile(user.id);
+        if (!mounted) return;
+        if (profile == null) {
+          throw Exception('Could not verify your contract. Please retry.');
+        }
+        final contractReason = ContractPeriod.fromProfile(
+          profile,
+        ).timeInBlockReason(DateTime.now());
+        if (contractReason != null) {
+          _showSnack(contractReason, isError: true);
+          return;
+        }
+      }
+
+      final dutyContext = await ScheduleService.loadAttendanceContext(user.id);
+      // Time Out must use the original session post, never another nearby
+      // post belonging to a new or overlapping schedule.
+      final activeSites = action == 'clock_out'
+          ? await GeofenceService.loadSitesForUser([openSession!.locationId])
+          : dutyContext.sites;
       if (!mounted) return;
       setState(() {
         _sites = activeSites;
+        _activeSchedule = dutyContext.primarySchedule;
         _loadingSites = false;
       });
       if (activeSites.isEmpty) {
         _showSnack(
-          'No scheduled duty post is available for attendance right now. Ask your admin to check your schedule and deployment.',
+          'No scheduled duty post is available for attendance right now. Ask your Operations Head to check your schedule and deployment.',
           isError: true,
         );
         return;
@@ -210,6 +401,13 @@ class _AttendanceState extends State<Attendance> {
         );
         return;
       }
+      if (action == 'clock_out' && position.accuracy > 100) {
+        _showSnack(
+          'Time Out needs GPS accuracy of 100 m or better. GPS will retry automatically.',
+          isError: true,
+        );
+        return;
+      }
       final current = LatLng(position.latitude, position.longitude);
       final inside = GeofenceService.isWithinAnySite(current, activeSites);
       if (!inside) {
@@ -219,21 +417,49 @@ class _AttendanceState extends State<Attendance> {
         );
         return;
       }
-      await AttendanceService.recordEvent(
+      final recordedSession = await AttendanceService.recordEvent(
         action: action,
+        sessionId: openSession?.id,
+        claimOvertime: claimOvertime,
         latitude: position.latitude,
         longitude: position.longitude,
       );
+      _attendance.accept(recordedSession);
+      widget.onAttendanceRecorded?.call();
       if (!mounted) return;
       _showSnack(
-        '${action == 'clock_in' ? 'Time In' : 'Time Out'} recorded successfully ✓',
+        recordedSession.overtimeApprovalPending
+            ? 'Overtime Time Out submitted. Your Operations Head has been notified.'
+            : action == 'clock_out' && claimOvertime == false
+            ? 'Time Out recorded using your scheduled end. No overtime requested.'
+            : '${action == 'clock_in' ? 'Time In' : 'Time Out'} recorded successfully.',
         isError: false,
       );
+      // Time Out completes only this scheduled period. Refresh the context
+      // before another punch so the next Morning/Afternoon/Overtime labels
+      // replace the completed period instead of staying cached on screen.
+      if (action == 'clock_out') {
+        setState(() => _activeSchedule = null);
+      }
+      await _loadAssignedSites();
     } catch (e) {
       if (!mounted) return;
-      _showSnack(e.toString().replaceFirst('Exception: ', ''), isError: true);
+      _showSnack(
+        e is PostgrestException
+            ? e.message
+            : e is TimeoutException
+            ? 'Attendance could not be confirmed in time. Check the updated duty record before retrying.'
+            : e.toString().replaceFirst('Exception: ', ''),
+        isError: true,
+      );
     } finally {
-      if (mounted) setState(() => _punchingAction = null);
+      if (mounted) {
+        setState(() {
+          _punchingAction = null;
+          // Verify uncertain results without discarding confirmed attendance.
+        });
+        _attendance.refresh();
+      }
     }
   }
 
@@ -268,14 +494,19 @@ class _AttendanceState extends State<Attendance> {
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = _sites.isEmpty
-        ? AppColors.warning
+    final positionFresh =
+        _positionCapturedAt != null &&
+        DateTime.now().difference(_positionCapturedAt!).abs() <=
+            LocationIntegrityService.maxFixAge;
+    final locationVerified = positionFresh && _locationError == null;
+    final statusColor = !locationVerified || _sites.isEmpty
+        ? AppColors.of(context).warning
         : withinAllowedArea
-        ? AppColors.success
-        : AppColors.error;
+        ? AppColors.of(context).success
+        : AppColors.of(context).error;
 
     return Scaffold(
-      backgroundColor: AppColors.scaffold,
+      backgroundColor: AppColors.of(context).scaffold,
       body: SafeArea(
         child: Column(
           children: [
@@ -296,7 +527,7 @@ class _AttendanceState extends State<Attendance> {
                   : GuardIconButton(
                       icon: Icons.refresh_rounded,
                       tooltip: 'Refresh location',
-                      color: AppColors.primary,
+                      color: AppColors.of(context).accent,
                       onPressed: _fetchCurrentLocation,
                     ),
             ),
@@ -315,13 +546,13 @@ class _AttendanceState extends State<Attendance> {
                         horizontal: 18,
                         vertical: 14,
                       ),
-                      decoration: AppColors.card(radius: 14),
+                      decoration: AppColors.card(context: context, radius: 14),
                       child: StreamBuilder<void>(
                         stream: Stream.periodic(const Duration(seconds: 1)),
                         builder: (_, __) => Text(
                           _formatNow(),
-                          style: const TextStyle(
-                            color: AppColors.textMuted,
+                          style: TextStyle(
+                            color: AppColors.of(context).textMuted,
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
                             letterSpacing: 0.3,
@@ -335,13 +566,15 @@ class _AttendanceState extends State<Attendance> {
 
                     // ── Sites status ──────────────────────────────────
                     if (_loadingSites)
-                      const LinearProgressIndicator(
-                        color: AppColors.primary,
-                        backgroundColor: AppColors.border,
+                      LinearProgressIndicator(
+                        color: AppColors.of(context).accent,
+                        backgroundColor: AppColors.of(context).border,
                       )
                     else
                       GuardStatusBanner(
-                        message: _sites.isEmpty
+                        message: !locationVerified
+                            ? 'Duty location not verified yet'
+                            : _sites.isEmpty
                             ? 'No active duty site right now'
                             : withinAllowedArea
                             ? 'Within ${_matchedSiteLabel ?? "your duty site"}'
@@ -360,15 +593,15 @@ class _AttendanceState extends State<Attendance> {
                       GuardStatusBanner(
                         title: 'Location needs attention',
                         message: _locationError!,
-                        color: AppColors.error,
+                        color: AppColors.of(context).error,
                         icon: Icons.warning_amber_rounded,
                       ),
                       if (_accuracyMeters != null) ...[
                         const SizedBox(height: 6),
                         Text(
                           'Last GPS accuracy: ${_accuracyMeters!.round()} m. Move to an open area if the signal remains unstable.',
-                          style: const TextStyle(
-                            color: AppColors.textMuted,
+                          style: TextStyle(
+                            color: AppColors.of(context).textMuted,
                             fontSize: 11,
                           ),
                           textAlign: TextAlign.center,
@@ -384,7 +617,7 @@ class _AttendanceState extends State<Attendance> {
                       clipBehavior: Clip.antiAlias,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: AppColors.of(context).border),
                         boxShadow: const [
                           BoxShadow(
                             color: Color(0x0D451014),
@@ -399,15 +632,21 @@ class _AttendanceState extends State<Attendance> {
                     const SizedBox(height: 14),
 
                     // ── Location button ───────────────────────────────
-                    if (!locationGranted)
+                    if (!locationGranted || !locationVerified)
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton.icon(
                           onPressed: _refreshingLocation
                               ? null
+                              : locationGranted
+                              ? () => _fetchCurrentLocation()
                               : _requestLocationPermission,
                           icon: const Icon(Icons.location_on_rounded),
-                          label: const Text('Enable location access'),
+                          label: Text(
+                            locationGranted
+                                ? 'Retry GPS'
+                                : 'Enable location access',
+                          ),
                         ),
                       ),
 
@@ -428,29 +667,29 @@ class _AttendanceState extends State<Attendance> {
                                     vertical: 6,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.primary.withValues(
-                                      alpha: 0.09,
-                                    ),
+                                    color: AppColors.of(
+                                      context,
+                                    ).accent.withValues(alpha: 0.09),
                                     borderRadius: BorderRadius.circular(20),
                                     border: Border.all(
-                                      color: AppColors.primary.withValues(
-                                        alpha: 0.24,
-                                      ),
+                                      color: AppColors.of(
+                                        context,
+                                      ).accent.withValues(alpha: 0.24),
                                     ),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(
+                                      Icon(
                                         Icons.place_rounded,
-                                        color: AppColors.primary,
+                                        color: AppColors.of(context).accent,
                                         size: 14,
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
                                         s.label,
-                                        style: const TextStyle(
-                                          color: AppColors.primaryDark,
+                                        style: TextStyle(
+                                          color: AppColors.of(context).accent,
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
                                         ),
@@ -466,60 +705,56 @@ class _AttendanceState extends State<Attendance> {
                     ],
 
                     // ── Schedule-linked Time In / Time Out ─────────────
-                    StreamBuilder<AttendanceSession?>(
-                      stream: Supabase.instance.client.auth.currentUser == null
-                          ? null
-                          : AttendanceService.openSessionStream(
-                              Supabase.instance.client.auth.currentUser!.id,
-                            ),
-                      builder: (context, recordSnap) {
-                        final openSession = recordSnap.data;
+                    ListenableBuilder(
+                      listenable: _attendance,
+                      builder: (context, _) {
+                        final openSession = AttendanceService.sessionForDuty(
+                          _attendance.session,
+                          _activeSchedule?['id']?.toString(),
+                        );
+                        final missingTimeOut =
+                            _attendance.latestSession?.isMissingTimeOutAt(
+                              DateTime.now(),
+                            ) ??
+                            false;
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            GuardStatusBanner(
-                              message: openSession == null
-                                  ? 'Your approved schedule controls when and where you can Time In.'
-                                  : 'Open duty at ${openSession.locationLabel.isEmpty ? 'your scheduled post' : openSession.locationLabel}. Time Out at the same post.',
-                              color: AppColors.primary,
-                              icon: openSession == null
-                                  ? Icons.info_outline_rounded
-                                  : Icons.timelapse_rounded,
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _PunchButton(
-                                    label: 'Time In',
-                                    icon: Icons.login_rounded,
-                                    color: const Color(0xFF4ADE80),
-                                    enabled:
-                                        openSession == null &&
-                                        _punchingAction == null,
-                                    busy: _punchingAction == 'clock_in',
-                                    recordedTime: openSession == null
-                                        ? null
-                                        : AttendanceService.formatTime(
-                                            openSession.clockInAt,
-                                          ),
-                                    onTap: () => _punch('clock_in'),
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: _PunchButton(
-                                    label: 'Time Out',
-                                    icon: Icons.logout_rounded,
-                                    color: const Color(0xFFFBBF24),
-                                    enabled:
-                                        openSession != null &&
-                                        _punchingAction == null,
-                                    busy: _punchingAction == 'clock_out',
-                                    onTap: () => _punch('clock_out'),
-                                  ),
-                                ),
-                              ],
+                            if (missingTimeOut && openSession == null) ...[
+                              GuardStatusBanner(
+                                message:
+                                    'Missing Time Out. Ask your Operations Head to verify the actual end time.',
+                                color: AppColors.of(context).accent,
+                                icon: Icons.info_outline_rounded,
+                              ),
+                              const SizedBox(height: 10),
+                            ],
+                            if (_attendance.error != null)
+                              GuardStatusBanner(
+                                message:
+                                    'Could not confirm attendance. Retry before recording a punch.',
+                                color: AppColors.of(context).error,
+                                icon: Icons.sync_problem_rounded,
+                              ),
+                            if (_attendance.error != null)
+                              TextButton(
+                                onPressed: _attendance.refresh,
+                                child: const Text('Retry attendance'),
+                              ),
+                            AttendancePunchAction(
+                              hasOpenDuty: openSession != null,
+                              loading: _attendance.initialLoading,
+                              busy: _punchingAction != null,
+                              enabled:
+                                  _attendance.error == null &&
+                                  _attendance.hasConfirmedSession &&
+                                  (openSession != null ||
+                                      (_activeSchedule != null &&
+                                          !ScheduleService.isScheduleEnded(
+                                            _activeSchedule!,
+                                          ))) &&
+                                  (openSession != null || !_loadingSites),
+                              onPunch: _punch,
                             ),
                           ],
                         );
@@ -554,10 +789,9 @@ class _AttendanceState extends State<Attendance> {
       ),
       children: [
         TileLayer(
-          urlTemplate:
-              'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-          subdomains: const ['a', 'b', 'c', 'd'],
+          urlTemplate: attendanceMapTileUrlTemplate,
           userAgentPackageName: 'com.sentinellink.app',
+          maxNativeZoom: 19,
         ),
         CircleLayer(
           circles: [
@@ -611,101 +845,37 @@ class _AttendanceState extends State<Attendance> {
               ),
           ],
         ),
-      ],
-    );
-  }
-}
-
-// ─── Punch button ─────────────────────────────────────────────────────────────
-class _PunchButton extends StatelessWidget {
-  const _PunchButton({
-    required this.label,
-    required this.icon,
-    required this.color,
-    required this.onTap,
-    this.enabled = true,
-    this.recordedTime,
-    this.busy = false,
-  });
-  final String label;
-  final IconData icon;
-  final Color color;
-  final VoidCallback onTap;
-  final bool enabled;
-  final String? recordedTime;
-  final bool busy;
-
-  bool get _recorded =>
-      recordedTime != null && recordedTime!.isNotEmpty && recordedTime != '—';
-
-  @override
-  Widget build(BuildContext context) {
-    final displayColor = _recorded
-        ? AppColors.textMuted
-        : (enabled ? color : AppColors.textHint);
-    return Semantics(
-      button: true,
-      enabled: enabled && !_recorded,
-      label: busy ? 'Recording $label' : label,
-      child: GestureDetector(
-        onTap: enabled && !_recorded && !busy ? onTap : null,
-        child: Opacity(
-          opacity: enabled || _recorded ? 1 : 0.4,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            decoration: BoxDecoration(
-              color: displayColor.withValues(
-                alpha: _recorded ? 0.08 : (enabled ? 0.1 : 0.05),
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: displayColor.withValues(
-                  alpha: _recorded ? 0.25 : (enabled ? 0.3 : 0.15),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Material(
+            color: const Color(0xEFFFFFFF),
+            child: InkWell(
+              onTap: () async {
+                try {
+                  await launchUrl(
+                    Uri.parse('https://www.openstreetmap.org/copyright'),
+                    mode: LaunchMode.externalApplication,
+                  );
+                } catch (_) {
+                  if (mounted) {
+                    _showSnack(
+                      'Could not open map information.',
+                      isError: true,
+                    );
+                  }
+                }
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 5, vertical: 4),
+                child: Text(
+                  '© OpenStreetMap contributors',
+                  style: TextStyle(fontSize: 10, color: Color(0xFF334155)),
                 ),
               ),
-            ),
-            child: Column(
-              children: [
-                if (busy)
-                  SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.4,
-                      color: displayColor,
-                    ),
-                  )
-                else
-                  Icon(
-                    _recorded ? Icons.check_circle_rounded : icon,
-                    color: _recorded ? AppColors.success : displayColor,
-                    size: 24,
-                  ),
-                const SizedBox(height: 6),
-                Text(
-                  busy ? 'Recording…' : label,
-                  style: TextStyle(
-                    color: displayColor,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                if (_recorded) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    recordedTime!,
-                    style: const TextStyle(
-                      color: AppColors.success,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ],
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

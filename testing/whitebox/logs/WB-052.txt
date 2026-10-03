@@ -1,0 +1,12 @@
+WB-052 — PASS
+ContractPeriod.configured
+Scenario: real dates and ordered range
+Input: ["2028-02-29","2028-02-29"]
+Expected: true
+Actual: true
+UTC: 2026-09-05T08:57:23.682375Z
+Evidence: logs/flutter-verified.jsonl:168
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

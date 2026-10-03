@@ -1,0 +1,12 @@
+PASS Time In at assigned post remains available
+PASS missing GPS cannot close attendance
+PASS partial GPS cannot close attendance
+PASS outside original post cannot close attendance
+PASS different assigned post cannot close attendance
+PASS invalid latitude cannot close attendance
+PASS NaN cannot close attendance
+PASS verified original-post Time Out closes attendance
+PASS duplicate Time Out is rejected
+PASS ended missing Time Out still needs Operations Head verification
+PASS Inspector cannot punch
+11 strict Time Out database checks passed.

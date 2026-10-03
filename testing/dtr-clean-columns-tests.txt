@@ -1,0 +1,100 @@
+
+Running 51 tests using 2 workers
+
+(node:6964) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1096) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  2 schedule_lifecycle.spec.js:114:1 › roster is the only editor and the explanation panel is removed (3.1s)
+  ok  1 dtr_pdf.spec.js:5:1 › agency DTR downloads with the selected semi-monthly period (5.0s)
+  ok  3 schedule_lifecycle.spec.js:124:1 › personnel and site loading work without custom-editor controls (2.9s)
+  ok  5 schedule_lifecycle.spec.js:138:1 › an overnight roster remains on the starting date and first DTR cutoff (2.2s)
+  ok  6 schedule_lifecycle.spec.js:154:3 › missing contract dates prevents a roster request (2.2s)
+  ok  4 timeout_verification.spec.js:46:1 › Operations Head records verified Philippine time, refreshes hours and sees preserved history (6.9s)
+  ok  7 schedule_lifecycle.spec.js:154:3 › outside contract dates prevents a roster request (2.3s)
+  ok  9 schedule_lifecycle.spec.js:154:3 › overnight contract end prevents a roster request (1.7s)
+  ok 10 schedule_lifecycle.spec.js:154:3 › inactive guard prevents a roster request (2.1s)
+  ok 11 schedule_lifecycle.spec.js:154:3 › past date prevents a roster request (1.7s)
+  ok 12 schedule_lifecycle.spec.js:172:1 › a failed save prevents duplicate submission and preserves selected guards (1.9s)
+  ok 13 schedule_lifecycle.spec.js:186:1 › an incomplete RPC response cannot report a saved roster (4.0s)
+  ok  8 timeout_verification.spec.js:64:1 › Invalid and cancelled reviews never submit a correction (13.5s)
+  ok 14 schedule_lifecycle.spec.js:193:1 › after the first shift ends today remains available for the night shift (3.1s)
+  ok 15 timeout_verification.spec.js:77:1 › Rejected server review leaves missing punch and hours unchanged (5.2s)
+  ok 16 schedule_lifecycle.spec.js:202:1 › today at 7 PM assigns only the ongoing night shift, preserving its actual overnight hours (3.1s)
+  ok 18 schedule_lifecycle.spec.js:214:1 › three-shift setup at exactly 2 PM skips the completed morning and requires both remaining guards (4.0s)
+  ok 17 timeout_verification.spec.js:86:1 › Uncertain submission reuses request identity for same review (8.1s)
+  ok 20 timeout_verification.spec.js:97:1 › Newly selected guard cannot receive the previous guard review result (3.3s)
+  ok 21 timeout_verification.spec.js:104:1 › DTR PDF includes pending review notes and excludes an unverified 24-hour punch (1.4s)
+  ok 22 timeout_verification.spec.js:117:1 › Review form fits a mobile screen and supports keyboard entry (2.9s)
+  ok 23 timeout_verification.spec.js:128:1 › time evaluation uses readable hours and minutes without explanatory text (2.7s)
+  x  19 schedule_lifecycle.spec.js:230:1 › attendance reports completion and requests protect period history (9.7s)
+(node:3112) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 24 schedule_lifecycle.spec.js:245:1 › schedule loading explicitly selects both swap relationships in one query (1.7s)
+  ok 25 schedule_lifecycle.spec.js:258:1 › schedule names prefer the current profile and safely preserve historical names (1.7s)
+  ok 26 schedule_lifecycle.spec.js:267:1 › cancelled deletion leaves the period and confirmed deletion has a busy state (3.2s)
+  ok 27 schedule_lifecycle.spec.js:278:1 › concurrent Time In protects the schedule with readable error feedback (2.8s)
+  ok 28 schedule_lifecycle.spec.js:289:1 › legacy foreign-key errors do not expose SQL details (2.8s)
+  ok 29 schedule_lifecycle.spec.js:297:1 › failed history load offers retry and older responses cannot erase newer protection (2.0s)
+  ok 30 schedule_lifecycle.spec.js:312:1 › linked-record realtime refreshes protection without duplicate subscriptions (2.5s)
+  ok 31 schedule_lifecycle.spec.js:320:1 › 2- and 3-shift rosters show named Guards and save one atomic request (2.4s)
+  ok 32 schedule_lifecycle.spec.js:347:1 › roster prevents duplicate guards and preserves selection on save failure (2.0s)
+  ok 33 schedule_lifecycle.spec.js:356:1 › saved custom setup survives reload and assigns exact midnight and overnight times (3.1s)
+  ok 34 schedule_lifecycle.spec.js:383:1 › custom shift setup supports changed times and skips ended shifts today (2.3s)
+  ok 35 schedule_lifecycle.spec.js:399:1 › setup editor rejects gaps and preserves entered values after save errors (3.1s)
+  ok 36 schedule_lifecycle.spec.js:416:1 › setup saving blocks duplicate submission and safely displays names (2.4s)
+  ok 37 schedule_lifecycle.spec.js:430:1 › saved setups have a retry when loading fails without blocking standard rosters (2.8s)
+  ok 38 schedule_lifecycle.spec.js:440:1 › custom setup editor fits desktop and phone in both themes (6.2s)
+  ok 39 schedule_lifecycle.spec.js:452:1 › duplicate built-in and saved shift times are blocked even with a different name (2.5s)
+  ok 40 schedule_lifecycle.spec.js:465:1 › edit opens saved values and updates future assignment preview, cancel preserves setup (3.8s)
+  ok 41 schedule_lifecycle.spec.js:483:1 › remove can be cancelled, then persists after reload without removing scheduled duty (4.5s)
+  ok 42 schedule_lifecycle.spec.js:497:1 › setup mutations wait until the usage check finishes (3.1s)
+  ok 43 schedule_lifecycle.spec.js:507:1 › reload reflects edits and removals from another session, and stale edits are rejected (3.7s)
+  ok 44 schedule_lifecycle.spec.js:518:1 › setup edit and removal controls fit on a phone and failed removal keeps the selection (3.6s)
+  ok 45 schedule_lifecycle.spec.js:530:1 › both initial setups expose edit and remove and edited times drive assignments (3.5s)
+  ok 46 schedule_lifecycle.spec.js:547:1 › remove both initial setups, reload an empty list, and recreate a removed setup (5.4s)
+  ok 47 schedule_lifecycle.spec.js:565:1 › initial loading failure never falls back to fixed or removed setups (3.0s)
+  ok 48 schedule_lifecycle.spec.js:575:1 › assignment immediately locks edit and remove but allows further assignments (2.2s)
+  ok 49 schedule_lifecycle.spec.js:583:1 › usage refresh locks an open editor and later unlocks finished duties (2.7s)
+  ok 50 schedule_lifecycle.spec.js:595:1 › failed usage check disables mutations until a successful retry (1.7s)
+  ok 51 schedule_lifecycle.spec.js:602:1 › usage-only refresh preserves the guard selection and focused control (3.6s)
+
+
+  1) schedule_lifecycle.spec.js:230:1 › attendance reports completion and requests protect period history 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('#scheduleTable button[disabled]')
+    Expected: 5
+    Received: 6
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('#scheduleTable button[disabled]')
+        13 × locator resolved to 6 elements
+           - unexpected value "6"
+
+
+      237 |     record('legacy', 'Legacy', { marked_done: true })]);
+      238 |   await expect(deleteButtons(page)).toHaveCount(1);
+    > 239 |   await expect(page.locator('#scheduleTable button[disabled]')).toHaveCount(6);
+          |                                                                 ^
+      240 |   await expect(page.locator('#scheduleTable button[disabled]')).toHaveText(['Delete','Delete','Delete','Delete','Delete','Delete']);
+      241 |   await expect(page.locator('#scheduleTable button[title="A duty request is linked."]')).toHaveCount(2);
+      242 |   await page.locator('.schedule-table').screenshot({ path: info.outputPath('schedule-history-protection.png') });
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\schedule_lifecycle.spec.js:239:65
+
+    Error Context: test-results-dtr-clean-columns\schedule_lifecycle-attenda-6221c-ests-protect-period-history\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-dtr-clean-columns\schedule_lifecycle-attenda-6221c-ests-protect-period-history\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-dtr-clean-columns\schedule_lifecycle-attenda-6221c-ests-protect-period-history\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    schedule_lifecycle.spec.js:230:1 › attendance reports completion and requests protect period history 
+  50 passed (2.7m)

@@ -1,0 +1,12 @@
+WB-202 — PASS
+accounts.isAppRole
+Scenario: role allowlist
+Input: "inspector"
+Expected: true
+Actual: true
+UTC: 2026-09-05T08:56:18.024Z
+Evidence: logs/deno-final.log:9
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

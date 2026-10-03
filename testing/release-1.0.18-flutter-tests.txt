@@ -1,0 +1,20 @@
+00:00 +0: loading C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/account_email_test.dart
+00:00 +0: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/account_email_test.dart: real emails normalize without making aliases
+00:00 +1: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/account_email_test.dart: invalid and synthetic addresses are rejected for email entry
+00:00 +2: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/account_email_test.dart: existing usernames still sign in during migration; aliases are not displayed as mailboxes
+00:10 +3: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/account_presence_service_test.dart: app reports contact while signed in and stops after sign out
+00:29 +4: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/incident_in_app_camera_test.dart: offers a photo fallback when no camera is detected
+00:31 +5: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: (setUpAll)
+00:31 +6: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: (setUpAll)
+00:32 +6: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: short accomplishment entries submit without character minimum prompts
+00:36 +7: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: short accomplishment entries submit without character minimum prompts
+00:36 +8: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/incident_video_format_test.dart: uses the captured file extension when MIME metadata is absent
+00:36 +9: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/incident_video_format_test.dart: uses the captured file extension when MIME metadata is absent
+00:36 +10: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: emergency alert requires a narrative and accepts short text
+00:37 +11: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/incident_video_format_test.dart: normalizes mobile M4V and defaults unknown recordings to MP4
+00:37 +12: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/incident_video_format_test.dart: normalizes mobile M4V and defaults unknown recordings to MP4
+00:37 +13: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/incident_video_format_test.dart: normalizes mobile M4V and defaults unknown recordings to MP4
+00:37 +14: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/incident_video_format_test.dart: normalizes mobile M4V and defaults unknown recordings to MP4
+00:37 +15: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: recorded video enables Send; retake discards it and sends only the new recording
+00:37 +16: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: (tearDownAll)
+00:38 +16: All tests passed!

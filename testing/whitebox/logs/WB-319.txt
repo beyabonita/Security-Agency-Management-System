@@ -1,0 +1,12 @@
+WB-319 — PASS
+admin-manage-user.registered handler
+Scenario: management permission and retention rules
+Input: {"options":{"caller":{"role":"it_admin"},"target":{"role":"it_admin"},"itCount":1},"body":{"active":false}}
+Expected: [409,"last_it_admin",[]]
+Actual: [409,"last_it_admin",[]]
+UTC: 2026-09-05T08:56:20.233Z
+Evidence: logs/deno-final.log:610
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

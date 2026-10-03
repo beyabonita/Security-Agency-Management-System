@@ -1,0 +1,12 @@
+WB-214 — PASS
+accounts.usernameValid
+Scenario: username bounds
+Input: "ab"
+Expected: false
+Actual: false
+UTC: 2026-09-05T08:56:18.273Z
+Evidence: logs/deno-final.log:69
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

@@ -1,0 +1,12 @@
+WB-057 — PASS
+ContractPeriod.timeInBlockReason
+Scenario: regular staff unrestricted
+Input: {}
+Expected: null
+Actual: null
+UTC: 2026-09-05T08:57:23.702375Z
+Evidence: logs/flutter-verified.jsonl:192
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

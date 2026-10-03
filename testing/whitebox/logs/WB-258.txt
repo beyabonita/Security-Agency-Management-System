@@ -1,0 +1,12 @@
+WB-258 — PASS
+api.handleJsonPost
+Scenario: request headers validated
+Input: {"Content-Type":"text/plain"}
+Expected: 415
+Actual: 415
+UTC: 2026-09-05T08:56:19.270Z
+Evidence: logs/deno-final.log:289
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

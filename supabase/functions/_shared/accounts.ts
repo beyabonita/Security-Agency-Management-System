@@ -22,6 +22,8 @@ export interface ManagedProfile extends CallerProfile {
   device_locked: boolean;
   email: string;
   employment_category: EmploymentCategory;
+  contract_start_date: string | null;
+  contract_end_date: string | null;
   first_name: string;
   id: string;
   last_name: string;
@@ -39,6 +41,15 @@ export function isEmploymentCategory(
   return typeof value === "string" && EMPLOYMENT_CATEGORIES.includes(
     value as EmploymentCategory,
   );
+}
+
+export function emailValid(value: string): boolean {
+  return value.length <= 254 &&
+    /^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/i
+      .test(value) &&
+    value.split("@")[0].length <= 64 && !value.startsWith(".") &&
+    !value.includes("..") &&
+    !value.split("@")[0].endsWith(".") && !value.endsWith(".auth");
 }
 
 export function usernameValid(value: string): boolean {
@@ -146,7 +157,7 @@ export function authProviderMessage(error: unknown): string {
     normalized.includes("registered") ||
     normalized.includes("duplicate")
   ) {
-    return "That username is already in use.";
+    return "That email address is already in use.";
   }
   if (normalized.includes("password")) {
     return "The password does not meet the authentication requirements.";
@@ -168,8 +179,8 @@ export function databaseBusinessMessage(
     "Reassign or clear all Guard Inspector assignments before disabling, moving, or changing this Inspector.",
     "The last active IT Admin must remain active and keep the IT Admin role.",
   ];
-  if (code === "23505" && message.toLowerCase().includes("username")) {
-    return "That username is already in use.";
+  if (code === "23505" && /email|username/i.test(message)) {
+    return "That email address is already in use.";
   }
   return allowedMessages.find((allowed) => message.includes(allowed));
 }

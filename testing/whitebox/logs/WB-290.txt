@@ -1,0 +1,12 @@
+WB-290 — PASS
+deleteIncidentHandler.deleteIncidentHandler
+Scenario: invalid ID never touches database
+Input: "invalid"
+Expected: [400,[]]
+Actual: [400,[]]
+UTC: 2026-09-05T08:56:19.905Z
+Evidence: logs/deno-final.log:458
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

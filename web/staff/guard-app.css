@@ -1,0 +1,20 @@
+.sl-guard-app { padding:0 24px; color:var(--sl-ink); }
+.sl-guard-app-summary { display:flex; align-items:center; gap:14px; padding:16px; border:1px solid var(--sl-line); border-radius:14px; background:var(--sl-surface-muted); }
+.sl-guard-app-icon.material-symbols-rounded { display:grid; place-items:center; width:44px; height:44px; border-radius:12px; background:var(--sl-success-soft); color:var(--sl-success); font-size:26px; }
+.sl-guard-app-summary h3 { margin:0 0 4px; font-size:1rem; font-weight:750; }
+.sl-guard-app-summary p { margin:0; color:var(--sl-muted); font-size:.875rem; }
+.sl-guard-app-message { margin:18px 0; font-size:.9375rem; line-height:1.5; }
+.sl-guard-download { display:flex; align-items:center; justify-content:center; gap:10px; min-height:48px; padding:10px 16px; border:1px solid var(--sl-red); border-radius:12px; background:var(--sl-red); color:#fff; font-weight:750; text-decoration:none; transition:background .2s; }
+.sl-guard-download:hover { color:#fff; background:var(--sl-red-deep); }
+.sl-guard-download[aria-disabled="true"] { background:var(--sl-surface-muted); border-color:var(--sl-line); color:var(--sl-muted); cursor:not-allowed; }
+.sl-guard-download-status { margin:10px 0 18px; color:var(--sl-muted); font-size:.875rem; line-height:1.5; }
+.sl-guard-install-help { padding:14px 16px; border:1px solid var(--sl-line); border-radius:12px; background:var(--sl-surface-muted); font-size:.875rem; }
+.sl-guard-install-help summary { cursor:pointer; font-weight:700; }
+.sl-guard-install-help ol { padding-left:20px; margin:12px 0 0; }
+.sl-guard-install-help li + li { margin-top:8px; }
+.sl-guard-build-note { margin:14px 0 0; color:var(--sl-muted); font-size:.75rem; }
+@media(max-width:400px) {
+  .sl-guard-app { padding:0 18px; }
+  .sl-guard-app-summary { padding:12px; gap:10px; }
+}
+@media(prefers-reduced-motion:reduce) { .sl-guard-download { transition:none; } }

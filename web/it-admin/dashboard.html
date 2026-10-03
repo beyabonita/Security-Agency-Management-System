@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>System Overview — Security Agency Management System</title>
   <link rel="icon" type="image/png" href="../favicon.png">
-  <script src="../js/theme-preference.js" defer></script>
+  <script src="../js/theme-preference.js"></script>
   <link href="../admin/css/admin-theme.css" rel="stylesheet">
 </head>
 <body class="admin-body" data-it-page="dashboard">
@@ -18,9 +18,8 @@
       </div>
       <nav class="ax-nav">
         <div class="ax-nav-label">System</div>
-        <a href="dashboard.html">📊 System overview</a>
-        <a href="clients.html">🛠️ System controls</a>
-        <a href="users.html">🔐 IT &amp; HR access</a>
+        <a href="dashboard.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">dashboard</span> System overview</a>
+        <a href="clients.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">tune</span> System controls</a>
       </nav>
       <div class="ax-sidebar-foot">System administration</div>
     </aside>
@@ -28,7 +27,7 @@
     <div class="ax-main">
       <header class="ax-topbar">
         <div class="ax-topbar-left">
-          <button type="button" class="ax-menu-toggle" data-it-nav-toggle aria-label="Open navigation" aria-controls="itSidebar" aria-expanded="false">☰</button>
+          <button type="button" class="ax-menu-toggle" data-it-nav-toggle aria-label="Open navigation" aria-controls="itSidebar" aria-expanded="false"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button>
           <div>
             <div class="ax-breadcrumb">System Administration</div>
             <h1 class="ax-page-title">System overview</h1>
@@ -37,7 +36,7 @@
         <div class="ax-topbar-right">
           <span class="ax-role-pill">IT Admin</span>
           <span class="ax-user-chip" id="name">IT Admin</span>
-          <button class="ax-btn-logout" onclick="auth.signOut().then(() => location.href = 'login.html')">Sign out</button>
+          <button class="ax-btn-logout" onclick="auth.signOut().then(() => location.href = '../system-access-7d92a4/login.html')">Sign out</button>
         </div>
       </header>
 
@@ -45,7 +44,7 @@
         <div class="ax-stat-strip">
           <div class="ax-stat-item"><div class="ax-stat-num" id="accounts">—</div><div class="ax-stat-lbl">Active platform accounts</div></div>
           <div class="ax-stat-item"><div class="ax-stat-num" id="itAdmins">—</div><div class="ax-stat-lbl">IT Admins</div></div>
-          <div class="ax-stat-item"><div class="ax-stat-num" id="operationsHeads">—</div><div class="ax-stat-lbl">HR / Operations Heads</div></div>
+          <div class="ax-stat-item"><div class="ax-stat-num" id="adminAccounts">—</div><div class="ax-stat-lbl">Admins</div></div>
           <div class="ax-stat-item"><div class="ax-stat-num" id="personnel">—</div><div class="ax-stat-lbl">Active field personnel</div></div>
         </div>
 
@@ -53,11 +52,11 @@
           <div class="ax-link-list">
             <a class="ax-link-row" href="clients.html">
               <div><strong>System controls</strong><div class="ax-link-row-desc">Run a live platform check, review the beneficiary workspace, and open approved administrative actions.</div></div>
-              <span aria-hidden="true">→</span>
+              <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
             </a>
-            <a class="ax-link-row" href="users.html">
-              <div><strong>IT &amp; HR access</strong><div class="ax-link-row-desc">Create, recover, disable, or secure IT Admin and HR / Operations accounts.</div></div>
-              <span>→</span>
+            <a class="ax-link-row" href="clients.html#accounts">
+              <div><strong>IT &amp; Operations Head access</strong><div class="ax-link-row-desc">Create, recover, disable, or secure IT Admin and Operations Head accounts.</div></div>
+              <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
             </a>
           </div>
         </section>
@@ -67,7 +66,8 @@
 
   <script src="../js/auth-username.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
-  <script src="../js/supabase-firebase-bridge.js"></script>
+<script src="../js/supabase-firebase-bridge.js"></script>
+<script src="../js/platform-configuration.js"></script>
   <script src="../js/notification-center.js"></script>
   <script src="../js/app-dialogs.js"></script>
   <script src="it-admin-ui.js"></script>
@@ -76,12 +76,12 @@
     const db = firebase.firestore();
 
     auth.onAuthStateChanged(async (user) => {
-      if (!user) { location.href = 'login.html'; return; }
+      if (!user) { location.href = '../system-access-7d92a4/login.html'; return; }
       try {
         const profile = await db.collection('users').doc(user.uid).get();
         if (!profile.exists || profile.data().role !== 'it_admin' || profile.data().active === false) {
           await auth.signOut();
-          location.href = 'login.html';
+          location.href = '../system-access-7d92a4/login.html';
           return;
         }
         const data = profile.data();
@@ -95,7 +95,7 @@
         const active = profiles.filter((person) => person.active !== false);
         document.getElementById('accounts').textContent = active.filter((person) => ['it_admin', 'admin'].includes(person.role)).length;
         document.getElementById('itAdmins').textContent = active.filter((person) => person.role === 'it_admin').length;
-        document.getElementById('operationsHeads').textContent = active.filter((person) => person.role === 'admin').length;
+        document.getElementById('adminAccounts').textContent = active.filter((person) => person.role === 'admin').length;
         document.getElementById('personnel').textContent = active.filter((person) => ['user', 'inspector'].includes(person.role)).length;
       } catch (error) {
         appDialog.toast(error?.message || 'Could not load system overview.', { tone: 'danger' });

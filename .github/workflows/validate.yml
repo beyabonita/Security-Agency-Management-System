@@ -44,7 +44,15 @@ jobs:
         run: node test/android_release_config_test.js
 
       - name: Run web rendering security checks
-        run: node web/tests/security_rendering_test.js
+        run: |
+          node web/tests/security_rendering_test.js
+          node web/tests/edge_function_errors_test.js
+          node web/tests/password_policy_test.js
+
+      - name: Run schedule and DTR calculation checks
+        run: |
+          node web/tests/schedule_period_test.js
+          node web/tests/dtr_report_test.js
 
       - name: Check official Supabase web client compatibility
         run: node web/tests/official_supabase_client_test.js
@@ -55,6 +63,9 @@ jobs:
       - name: Validate web security headers
         run: node web/tests/vercel_security_headers_test.js
 
+      - name: Validate bundled Google Material icons
+        run: node web/tests/google_icons_test.js
+
       - name: Run Edge Function authorization checks
         run: |
           node supabase/tests/admin_create_user_security_test.js
@@ -64,7 +75,9 @@ jobs:
         run: |
           deno fmt --check supabase/functions
           deno lint supabase/functions
-          deno check supabase/functions/admin-create-user/index.ts supabase/functions/admin-manage-user/index.ts supabase/functions/it-provision-client/index.ts
+          deno check supabase/functions/admin-create-user/index.ts supabase/functions/admin-manage-user/index.ts supabase/functions/it-provision-client/index.ts supabase/functions/admin-delete-incident/index.ts
+          deno test --allow-env --allow-net supabase/functions/admin-delete-incident/handler_test.ts
+          deno test supabase/functions/_shared/password-policy_test.ts
 
   browser-smoke:
     name: Browser smoke checks

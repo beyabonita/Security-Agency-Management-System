@@ -1,0 +1,11 @@
+PASS email uniqueness is case insensitive without rewriting existing profiles
+PASS all four roles appear and enabled accounts are offline without contact
+PASS sign-in records history and heartbeat marks the Operations Head online
+PASS repeated heartbeats and tabs do not duplicate login history
+PASS sign-out ends presence immediately and a stale JWT cannot restore it
+PASS another connected session keeps the account online until it also ends
+PASS lost contact expires after 90 seconds; reconnect reuses the same session
+PASS expired and disabled sessions cannot claim online
+PASS only authenticated active IT Admin can read activity and other users cannot write directly
+PASS role, search and online filters use server results and support empty pages
+10 account presence database checks passed.

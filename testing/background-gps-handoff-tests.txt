@@ -1,0 +1,48 @@
+00:00 +0: loading C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/android_location_bridge_test.dart
+00:00 +0: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/android_location_bridge_test.dart: attendance upgrades to duty and survives attendance disposal without restarting Android
+00:00 +1: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: off by default and rejects hosted tracking endpoints
+00:00 +2: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: permission denied does not subscribe
+00:00 +3: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: no duty does not capture; time in starts capture
+00:00 +4: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: app owner has no location panel and follows Time In and Time Out
+[Duty GPS] Checking duty for automatic location sharing…
+[Duty GPS] Location sharing starts automatically when you Time In.
+[Duty GPS] Checking location permission…
+[Duty GPS] On duty · waiting for an accurate GPS fix…
+[Duty GPS] Sharing on-duty location · accuracy 10 m
+[Duty GPS] Location sharing starts automatically when you Time In.
+00:01 +5: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: opening the app while clocked in resumes sharing automatically
+[Duty GPS] Checking duty for automatic location sharing…
+[Duty GPS] Checking location permission…
+[Duty GPS] On duty · waiting for an accurate GPS fix…
+[Duty GPS] Sharing on-duty location · accuracy 10 m
+00:01 +6: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: Time In arriving during a duty check is processed immediately afterwards
+00:01 +7: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: successful Time In starts tracking from its server result without a second network read
+00:01 +8: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: Time In owns GPS immediately through screen lock and delayed duty lookup
+[Duty GPS] Checking duty for automatic location sharing…
+[Duty GPS] Checking location permission…
+[Duty GPS] On duty · waiting for an accurate GPS fix…
+[Duty GPS] Sharing on-duty location · accuracy 10 m
+00:01 +9: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: mock, stale and inaccurate fixes are rejected
+00:01 +10: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: rejected fixes explain the actual reason
+00:01 +11: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: first fresh fix uploads even when the position stream is silent
+00:01 +12: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: poor initial accuracy recovers through a fresh request
+00:01 +13: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: fresh request is single flight and discarded after stopping
+00:01 +14: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: a pending fix from the previous duty cannot publish on the next duty
+00:01 +15: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: server rejection is distinguished from GPS acquisition failure
+00:01 +16: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: fresh publications limited to one per 30 seconds
+00:01 +17: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: a cached fix is not published twice with a newer delivery time
+00:01 +18: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: 114 m fix publishes as approximate without inventing better accuracy
+00:01 +19: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: time out cancels GPS and removes latest position
+00:01 +20: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: scheduled end stops capture without a new fix
+00:01 +21: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: known shift deadline stops GPS while duty refresh is stalled
+00:03 +22: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: permission granted after scheduled end never starts GPS
+00:03 +23: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: previous duty deadline cannot stop a new active duty
+00:05 +24: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: network loss preserves verified duty capture and reconnects without restarting GPS
+00:05 +25: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: GPS interruption retains last point, but confirmed Time Out removes it
+00:05 +26: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: moving guard publishes every five seconds; stationary jitter waits
+00:05 +27: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: page disposal stops capture without deleting last known position
+00:05 +28: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: stop during permission request prevents late GPS start
+00:05 +29: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: stop waits for in-flight publish before removal
+00:05 +30: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: page disposal preserves a late real point without deleting the marker
+00:05 +31: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart: stalled upload releases subsequent fixes and late completion is cleaned after stop
+00:05 +32: All tests passed!

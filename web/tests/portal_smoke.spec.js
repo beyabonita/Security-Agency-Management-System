@@ -1,4 +1,5 @@
 const { expect, test } = require('@playwright/test');
+const {apkUrl,apkFileName,qrSource}=require('./release_fixture.cjs');
 
 function collectFatalClientErrors(page) {
   const errors = [];
@@ -28,6 +29,17 @@ test('staff sign-in renders and initializes the official Supabase client', async
   )).toBe('function');
 
   expect(errors.filter((message) => /could not load the official Supabase client|firebase is not defined/i.test(message))).toEqual([]);
+});
+
+test('local legacy login paths redirect to the correct access pages', async ({ page }) => {
+  await page.goto('/admin/login.html', { waitUntil: 'domcontentloaded' });
+  await expect(page).toHaveURL(/\/staff\/login\.html$/);
+
+  await page.goto('/inspector/login.html', { waitUntil: 'domcontentloaded' });
+  await expect(page).toHaveURL(/\/staff\/login\.html$/);
+
+  await page.goto('/it-admin/login.html', { waitUntil: 'domcontentloaded' });
+  await expect(page).toHaveURL(/\/system-access-7d92a4\/login\.html$/);
 });
 
 test('staff sign-in remains contained on a phone viewport', async ({ page }) => {
@@ -106,33 +118,37 @@ test('login pages use the agency-office background and keep dark fields legible'
   expect(itStyles.inputColor).toBe('rgb(248, 236, 238)');
 });
 
-test('staff sign-in routes every phone through mobile app setup', async ({ page, request }) => {
+test('staff sign-in offers a setup modal and a direct APK QR code', async ({ page, request }) => {
   await page.goto('/staff/login.html');
 
-  const qr = page.getByRole('img', { name: /QR code for opening Security Agency Management System mobile app download options/i });
+  const qr = page.getByRole('img', { name: 'Scan to download the Android Guard app APK directly' });
   await expect(qr).toBeVisible();
-  await expect(qr).toHaveAttribute('src', './guard-app-qr.png');
+  await expect(qr).toHaveAttribute('src', qrSource);
+  await expect(page.locator('.qr-frame')).toHaveAttribute('href', apkUrl);
 
   const setup = page.getByRole('link', { name: 'Open mobile setup' });
   await expect(setup).toHaveAttribute('href', './app-download.html');
   await expect(page.getByRole('link', { name: 'Get app' })).toHaveAttribute('href', './app-download.html');
+  await setup.click();
+  await expect(page.getByRole('dialog', { name: 'Install the Guard app', exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/staff\/login\.html$/);
 
   const qrResponse = await request.get('/staff/guard-app-qr.png');
   expect(qrResponse.ok()).toBeTruthy();
   expect(qrResponse.headers()['content-type']).toContain('image/png');
 });
 
-test('mobile setup offers the verified Android app only', async ({ page }) => {
+test('old mobile setup URL opens the Android modal on staff sign-in', async ({ page }) => {
   await page.goto('/staff/app-download.html');
 
-  await expect(page).toHaveTitle(/Twenty-Twenty Security Agency — Android Guard App/i);
+  await expect(page).toHaveURL(/\/staff\/login\.html#guard-app-setup$/);
   await expect(page.getByRole('heading', { name: 'Install the Guard app' })).toBeVisible();
   const androidDownload = page.getByRole('link', { name: 'Download for Android' });
   await expect(androidDownload).toHaveAttribute(
     'href',
-    'https://security-agency-management-system-download.vercel.app/downloads/security-agency-management-system-guard.apk?v=1.0.2',
+    apkUrl,
   );
-  await expect(androidDownload).toHaveAttribute('download', 'Security-Agency-Management-System-Guard-v1.0.2.apk');
+  await expect(androidDownload).toHaveAttribute('download', apkFileName);
   await expect(page.locator('body')).not.toContainText(/iOS|iPhone|iPad|TestFlight/);
 });
 
@@ -144,7 +160,7 @@ test('mobile setup blocks the APK on unsupported phones', async ({ browser }) =>
   const page = await context.newPage();
   await page.goto('/staff/app-download.html');
 
-  await expect(page.locator('html')).toHaveAttribute('data-platform', 'unsupported');
+  await expect(page.locator('.sl-guard-app')).toHaveAttribute('data-platform', 'unsupported');
   await expect(page.locator('#deviceMessage')).toContainText('supports Android devices only');
   await expect(page.locator('#androidDownload')).not.toHaveAttribute('href');
   await expect(page.locator('#androidDownload')).toHaveAttribute('aria-disabled', 'true');
@@ -160,8 +176,7 @@ test('mobile setup stays contained on an Android phone', async ({ browser }) => 
   const page = await context.newPage();
   await page.goto('/staff/app-download.html');
 
-  await expect(page.locator('html')).toHaveAttribute('data-platform', 'android');
-  await expect(page.locator('#androidCard')).toHaveClass(/is-detected/);
+  await expect(page.locator('.sl-guard-app')).toHaveAttribute('data-platform', 'android');
   await expect(page.locator('#deviceMessage')).toContainText('Android detected');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await context.close();
@@ -225,7 +240,8 @@ test('shared action buttons expose and restore an animated busy state', async ({
   await page.evaluate(() => window.appDialog.setBusy(document.getElementById('loginBtn'), false));
   await expect(button).toBeEnabled();
   await expect(button).not.toHaveAttribute('aria-busy', 'true');
-  await expect(button).toHaveText('Sign in');
+  await expect(button).toHaveAccessibleName('Sign in');
+  await expect(button.locator('.material-symbols-rounded')).toHaveText('arrow_forward');
 
   await page.evaluate(() => window.appDialog.toast('Guard account created.', { tone: 'success' }));
   await expect(page.locator('.sl-toast[data-tone="success"]')).toContainText('Guard account created.');

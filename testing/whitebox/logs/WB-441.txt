@@ -1,0 +1,12 @@
+WB-441 — PASS
+DtrReport.sessionMinutes
+Scenario: duration boundaries
+Input: {"clock_in_at":"invalid","clock_out_at":"invalid"}
+Expected: 0
+Actual: 0
+UTC: 2026-09-05T08:53:03.566Z
+Evidence: logs/node.tap:42
+Source: testing/whitebox/unit_tests/web_test.cjs
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

@@ -1,0 +1,12 @@
+WB-517 — PASS
+AttendanceService.loadOpenSession
+Scenario: query scoped to owner and open status
+Input: "g"
+Expected: ["eq.g","eq.open","1"]
+Actual: ["eq.g","eq.open","1"]
+UTC: 2026-09-05T08:57:23.834375Z
+Evidence: logs/flutter-verified.jsonl:308
+Source: testing/whitebox/unit_tests/services_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

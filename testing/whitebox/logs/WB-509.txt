@@ -1,0 +1,12 @@
+WB-509 — PASS
+UserProfileService.validateGuardLogin
+Scenario: missing profile
+Input: null
+Expected: "Account profile not found. Contact your administrator."
+Actual: "Account profile not found. Contact your administrator."
+UTC: 2026-09-05T08:57:23.733377Z
+Evidence: logs/flutter-verified.jsonl:230
+Source: testing/whitebox/unit_tests/services_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

@@ -1,0 +1,8 @@
+
+Running 1 test using 1 worker
+
+(node:7696) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 responsive_shells.spec.js:82:1 › roster DTR preview fits phone and desktop in light and dark themes (4.1s)
+
+  1 passed (11.6s)

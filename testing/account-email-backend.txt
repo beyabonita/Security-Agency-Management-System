@@ -1,0 +1,57 @@
+Check testing/account_email_test.ts
+running 15 tests from ./testing/account_email_test.ts
+email validation accepts real providers and rejects aliases/malformed addresses ... ok (1ms)
+create user with normalized email and same authorized role ...
+------- output -------
+{"timestamp":"2026-09-14T06:31:46.866Z","level":"info","event":"account_created","requestId":"3299c1da-2a1b-4212-b9db-19a050f5eba7","actorId":"11111111-1111-4111-8111-111111111111","organizationId":"org","role":"user","targetId":"22222222-2222-4222-8222-222222222222"}
+----- output end -----
+create user with normalized email and same authorized role ... ok (14ms)
+create inspector with normalized email and same authorized role ...
+------- output -------
+{"timestamp":"2026-09-14T06:31:46.879Z","level":"info","event":"account_created","requestId":"ad2b7061-477e-4af2-9f4e-8b727311c658","actorId":"11111111-1111-4111-8111-111111111111","organizationId":"org","role":"inspector","targetId":"22222222-2222-4222-8222-222222222222"}
+----- output end -----
+create inspector with normalized email and same authorized role ... ok (1ms)
+create admin with normalized email and same authorized role ...
+------- output -------
+{"timestamp":"2026-09-14T06:31:46.884Z","level":"info","event":"account_created","requestId":"e099d508-a00d-40d2-a6e4-189fd7fb994c","actorId":"11111111-1111-4111-8111-111111111111","organizationId":"org","role":"admin","targetId":"22222222-2222-4222-8222-222222222222"}
+----- output end -----
+create admin with normalized email and same authorized role ... ok (3ms)
+create it_admin with normalized email and same authorized role ...
+------- output -------
+{"timestamp":"2026-09-14T06:31:46.892Z","level":"info","event":"account_created","requestId":"aad0763e-ec57-441d-8e6d-f13e4ff46175","actorId":"11111111-1111-4111-8111-111111111111","organizationId":null,"role":"it_admin","targetId":"22222222-2222-4222-8222-222222222222"}
+----- output end -----
+create it_admin with normalized email and same authorized role ... ok (749µs)
+creation refuses invalid email undefined ... ok (2ms)
+creation refuses invalid email legacy ... ok (2ms)
+creation refuses invalid email a@asamanion-26858.auth ... ok (673µs)
+duplicate email rejected before account creation ... ok (733µs)
+failed profile creation deletes incomplete Auth account ...
+------- output -------
+{"timestamp":"2026-09-14T06:31:46.908Z","level":"error","event":"api_request_failed","requestId":"0abed777-9435-48c6-86b0-19da817cbf72","code":"profile_create_failed","status":500,"error":{"name":"ApiError","message":"Account provisioning could not be completed. No account was created.","cause":{"message":"fail"}}}
+----- output end -----
+failed profile creation deletes incomplete Auth account ... ok (1ms)
+email migration retains user ID, internal username and password ...
+------- output -------
+{"timestamp":"2026-09-14T06:31:46.920Z","level":"info","event":"account_updated","requestId":"47a8b306-26e2-4981-8487-a3ae4373bcc0","actorId":"11111111-1111-4111-8111-111111111111","changedFields":["email"],"organizationId":"org","role":"user","targetId":"22222222-2222-4222-8222-222222222222"}
+----- output end -----
+email migration retains user ID, internal username and password ... ok (4ms)
+status/device changes preserve legacy and real login addresses ...
+------- output -------
+{"timestamp":"2026-09-14T06:31:46.923Z","level":"info","event":"account_updated","requestId":"cd525c16-b749-44d2-96ed-d484b0a37ea1","actorId":"11111111-1111-4111-8111-111111111111","changedFields":["active"],"organizationId":"org","role":"user","targetId":"22222222-2222-4222-8222-222222222222"}
+{"timestamp":"2026-09-14T06:31:46.924Z","level":"info","event":"account_updated","requestId":"acfedd9c-d5f4-4b2d-ac14-583ba90eac78","actorId":"11111111-1111-4111-8111-111111111111","changedFields":["active"],"organizationId":"org","role":"user","targetId":"22222222-2222-4222-8222-222222222222"}
+----- output end -----
+status/device changes preserve legacy and real login addresses ... ok (3ms)
+auth failure rolls the profile email back ...
+------- output -------
+{"timestamp":"2026-09-14T06:31:46.936Z","level":"error","event":"api_request_failed","requestId":"1a2a4ff9-aced-4cbc-aed0-836a69409345","code":"auth_account_update_failed","status":400,"error":{"name":"ApiError","message":"That email address is already in use.","cause":{"message":"already registered"}}}
+----- output end -----
+auth failure rolls the profile email back ... ok (1ms)
+Guard and Inspector cannot create accounts, Operations Head cannot create privileged users ... ok (1ms)
+sole IT Admin can change only own email after password verification ...
+------- output -------
+{"timestamp":"2026-09-14T06:31:46.948Z","level":"info","event":"account_updated","requestId":"09c45846-2614-475f-bd2b-6d8aebc7f092","actorId":"11111111-1111-4111-8111-111111111111","changedFields":["email"],"organizationId":null,"role":"it_admin","targetId":"11111111-1111-4111-8111-111111111111"}
+----- output end -----
+sole IT Admin can change only own email after password verification ... ok (1ms)
+
+ok | 15 passed | 0 failed (119ms)
+

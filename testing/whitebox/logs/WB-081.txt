@@ -1,0 +1,12 @@
+WB-081 — PASS
+AttendanceSession.workedDuration
+Scenario: reversed punches clamp to zero
+Input: "out before in"
+Expected: 0
+Actual: 0
+UTC: 2026-09-05T08:57:23.832375Z
+Evidence: logs/flutter-verified.jsonl:305
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

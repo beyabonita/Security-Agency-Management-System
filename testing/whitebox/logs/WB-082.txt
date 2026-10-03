@@ -1,0 +1,12 @@
+WB-082 — PASS
+AttendanceSession.lateDuration
+Scenario: late punch
+Input: "00:15"
+Expected: 15
+Actual: 15
+UTC: 2026-09-05T08:57:23.837375Z
+Evidence: logs/flutter-verified.jsonl:311
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

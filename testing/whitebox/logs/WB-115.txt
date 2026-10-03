@@ -1,0 +1,12 @@
+WB-115 — PASS
+DutyRequestService.prepareRequestLetterUpload
+Scenario: duplicate requires confirmed object
+Input: {"duplicate409":true,"exists":true}
+Expected: true
+Actual: true
+UTC: 2026-09-05T08:57:24.032375Z
+Evidence: logs/flutter-verified.jsonl:437
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

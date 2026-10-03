@@ -1,0 +1,9 @@
+
+Running 2 tests using 1 worker
+
+(node:8832) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 live_tracking_updates.spec.js:135:1 › realtime bursts are batched and update coordinates and accuracy in place (1.3s)
+  ok 2 live_tracking_updates.spec.js:246:1 › guard waiting for GPS gets a list entry and only gains a marker with real coordinates (1.0s)
+
+  2 passed (10.7s)

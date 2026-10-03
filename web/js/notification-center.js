@@ -17,22 +17,24 @@
     summary: null,
     criticalLayer: null,
     initializedFor: null,
+    closeTimer: null,
+    viewing: false,
   };
 
   const iconByKind = {
-    emergency: '🚨',
-    incident_status: '🛡️',
-    schedule: '📅',
-    assignment: '📍',
-    shift_request: '🔁',
-    accomplishment: '📝',
-    account: '👤',
-    system: '📢',
+    emergency: 'emergency',
+    incident_status: 'health_and_safety',
+    schedule: 'calendar_month',
+    assignment: 'location_on',
+    shift_request: 'swap_horiz',
+    accomplishment: 'assignment_turned_in',
+    account: 'manage_accounts',
+    system: 'campaign',
   };
 
   const roleLabels = {
     it_admin: 'IT Admin',
-    admin: 'HR / Operations Head',
+    admin: 'Operations Head',
     inspector: 'Inspector',
     user: 'Guard',
   };
@@ -67,6 +69,8 @@
 
   function actionUrl(item) {
     const role = state.profile && state.profile.role;
+    // Broadcasts are the content, not links to a dashboard or system controls.
+    if (item.kind === 'system' || item.action_key === 'system') return null;
     const maps = {
       admin: {
         emergency: 'incidents.html',
@@ -74,7 +78,6 @@
         personnel: 'users.html',
         shift_request: 'swaps.html',
         accomplishment: 'users.html',
-        system: 'dashboard.html',
       },
       inspector: {
         emergency: 'incidents.html',
@@ -82,18 +85,83 @@
         personnel: 'users.html',
         shift_request: 'swaps.html',
         accomplishment: 'users.html',
-        system: 'dashboard.html',
       },
       it_admin: {
-        emergency: 'dashboard.html',
-        schedule: 'dashboard.html',
         personnel: 'users.html',
-        shift_request: 'dashboard.html',
-        accomplishment: 'dashboard.html',
-        system: 'clients.html',
       },
     };
-    return (maps[role] && maps[role][item.action_key]) || null;
+    const page = maps[role] && maps[role][item.action_key];
+    const folder = { admin: 'admin', inspector: 'inspector', it_admin: 'it-admin' }[role];
+    return page && folder ? '/' + folder + '/' + page : null;
+  }
+
+  function relatedActionLabel(item) {
+    return {
+      emergency: 'Open incident reports',
+      schedule: state.profile.role === 'inspector' ? 'Open duty overview' : 'Open schedules',
+      personnel: state.profile.role === 'it_admin' ? 'Open accounts' : 'Open personnel',
+      shift_request: 'Open duty requests',
+      accomplishment: 'Open personnel reports',
+    }[item.action_key] || 'Open related page';
+  }
+
+  async function viewNotification(item) {
+    if (state.viewing) return;
+    if (!window.appDialog) {
+      notifyError(null, 'Notification details are still loading. Please try again.');
+      return;
+    }
+    state.viewing = true;
+    const returnToDrawer = state.drawer && !state.drawer.hidden;
+    closeDrawer({ immediate: true });
+    const url = actionUrl(item);
+    const details = create('div', 'sl-notification-detail');
+    details.appendChild(create('p', 'sl-notification-detail-message', item.message));
+    const metadata = create('dl', 'sl-notification-detail-meta');
+    const date = new Date(item.created_at);
+    const sent = Number.isNaN(date.getTime()) ? 'Unavailable' : new Intl.DateTimeFormat(undefined, {
+      dateStyle: 'medium', timeStyle: 'short',
+    }).format(date);
+    metadata.append(
+      create('dt', '', 'Sent'), create('dd', '', sent),
+      create('dt', '', 'Priority'), create('dd', 'sl-notification-detail-priority', item.priority || 'normal')
+    );
+    details.appendChild(metadata);
+    const readStatus = create('p', 'sl-notification-detail-status');
+    readStatus.setAttribute('role', 'status');
+    readStatus.textContent = item.read_at ? 'Read' : 'Marking as read…';
+    details.appendChild(readStatus);
+    if (item.requires_ack && !item.acknowledged_at) {
+      details.appendChild(create('p', 'sl-notification-ack-label', 'Acknowledgement is still required. Viewing does not acknowledge this alert.'));
+    }
+    try {
+      const choice = window.appDialog.open({
+        title: item.title || 'Notification',
+        icon: iconByKind[item.kind] || 'notifications',
+        content: details,
+        dismissOnEscape: true,
+        confirmText: url ? relatedActionLabel(item) : 'Done',
+        cancelText: url ? 'Back to notifications' : null,
+      });
+      // Reading the content must not depend on a successful background update.
+      markRead(item.id, false).then(function () {
+        readStatus.textContent = 'Read';
+      }).catch(function () {
+        readStatus.dataset.error = 'true';
+        readStatus.textContent = 'Could not mark this notification as read. Close and reopen it to retry.';
+      });
+      const openRelatedPage = await choice;
+      if (openRelatedPage && url) location.href = url;
+      else if (returnToDrawer && state.user) {
+        render();
+        openDrawer();
+      }
+    } catch (error) {
+      notifyError(error, 'Could not open notification details. Please try again.');
+      if (returnToDrawer && state.user) openDrawer();
+    } finally {
+      state.viewing = false;
+    }
   }
 
   function unreadCount() {
@@ -134,7 +202,7 @@
     wrapper.dataset.priority = item.priority;
     wrapper.dataset.read = item.read_at ? 'true' : 'false';
 
-    const icon = create('div', 'sl-notification-item-icon', iconByKind[item.kind] || '🔔');
+    const icon = create('div', 'sl-notification-item-icon material-symbols-rounded', iconByKind[item.kind] || 'notifications');
     icon.setAttribute('aria-hidden', 'true');
     const content = create('div', 'sl-notification-item-content');
     const heading = create('div', 'sl-notification-item-heading');
@@ -151,7 +219,6 @@
     content.append(heading, message, tags);
 
     const actions = create('div', 'sl-notification-item-actions');
-    const url = actionUrl(item);
     if (item.requires_ack && !item.acknowledged_at) {
       const acknowledge = create('button', 'sl-notification-action sl-notification-action-primary', 'Acknowledge');
       acknowledge.type = 'button';
@@ -167,20 +234,10 @@
       });
       actions.appendChild(acknowledge);
     }
-    if (url) {
-      const view = create('button', 'sl-notification-action', item.kind === 'emergency' ? 'Open alert' : 'View');
-      view.type = 'button';
-      view.addEventListener('click', async function () {
-        await markRead(item.id, false);
-        location.href = url;
-      });
-      actions.appendChild(view);
-    } else if (!item.read_at) {
-      const read = create('button', 'sl-notification-action', 'Mark read');
-      read.type = 'button';
-      read.addEventListener('click', function () { markRead(item.id, true); });
-      actions.appendChild(read);
-    }
+    const view = create('button', 'sl-notification-action', item.kind === 'emergency' ? 'Open alert' : 'View');
+    view.type = 'button';
+    view.addEventListener('click', function () { viewNotification(item); });
+    actions.appendChild(view);
 
     wrapper.append(icon, content);
     if (actions.childElementCount) wrapper.appendChild(actions);
@@ -197,8 +254,10 @@
     state.list.replaceChildren();
     if (!state.items.length) {
       const empty = create('div', 'sl-notification-empty');
+      const emptyIcon = create('span', 'sl-notification-empty-icon material-symbols-rounded', 'notifications');
+      emptyIcon.setAttribute('aria-hidden', 'true');
       empty.append(
-        create('span', 'sl-notification-empty-icon', '🔔'),
+        emptyIcon,
         create('strong', '', 'No notifications yet'),
         create('p', '', 'Emergency alerts and operational updates will appear here.')
       );
@@ -211,6 +270,7 @@
 
   function openDrawer() {
     if (!state.drawer) return;
+    clearTimeout(state.closeTimer);
     state.drawer.hidden = false;
     state.backdrop.hidden = false;
     requestAnimationFrame(function () {
@@ -221,15 +281,18 @@
     state.drawer.querySelector('.sl-notification-close').focus();
   }
 
-  function closeDrawer() {
+  function closeDrawer(options) {
     if (!state.drawer || state.drawer.hidden) return;
     state.drawer.classList.remove('sl-notification-drawer-open');
     state.backdrop.classList.remove('sl-notification-backdrop-open');
     document.body.classList.remove('sl-notifications-open');
-    setTimeout(function () {
+    clearTimeout(state.closeTimer);
+    const hide = function () {
       state.drawer.hidden = true;
       state.backdrop.hidden = true;
-    }, 220);
+    };
+    if (options && options.immediate) hide();
+    else state.closeTimer = setTimeout(hide, 220);
     if (state.bell) state.bell.focus();
   }
 
@@ -243,7 +306,7 @@
     state.root = create('div', 'sl-notification-root');
     state.bell = create('button', 'sl-notification-bell');
     state.bell.type = 'button';
-    state.bell.innerHTML = '<span aria-hidden="true">🔔</span>';
+    state.bell.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">notifications</span>';
     state.badge = create('span', 'sl-notification-badge', '0');
     state.badge.hidden = true;
     state.bell.appendChild(state.badge);
@@ -269,9 +332,10 @@
       create('span', 'sl-notification-eyebrow', 'Security Agency Management System'),
       create('h2', '', 'Notifications')
     );
-    const close = create('button', 'sl-notification-close', '×');
+    const close = create('button', 'sl-notification-close');
     close.type = 'button';
     close.setAttribute('aria-label', 'Close notifications');
+    close.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">close</span>';
     close.addEventListener('click', closeDrawer);
     head.append(headText, close);
 
@@ -291,8 +355,9 @@
     toolbar.append(state.summary, toolbarActions);
 
     if (state.profile && ['admin', 'it_admin'].includes(state.profile.role)) {
-      const compose = create('button', 'sl-notification-compose', '＋ Send notice');
+      const compose = create('button', 'sl-notification-compose');
       compose.type = 'button';
+      compose.innerHTML = '<span class="material-symbols-rounded" aria-hidden="true">add</span><span>Send notice</span>';
       compose.addEventListener('click', composeNotice);
       toolbar.appendChild(compose);
     }
@@ -414,8 +479,7 @@
       });
       notification.onclick = function () {
         window.focus();
-        const url = actionUrl(item);
-        if (url) location.href = url;
+        viewNotification(item);
         notification.close();
       };
     } catch (_) {
@@ -440,7 +504,7 @@
     dialog.setAttribute('role', 'alertdialog');
     dialog.setAttribute('aria-modal', 'true');
     dialog.setAttribute('aria-labelledby', 'sl-critical-title');
-    const siren = create('div', 'sl-critical-siren', '🚨');
+    const siren = create('div', 'sl-critical-siren material-symbols-rounded sl-icon-filled', 'emergency');
     siren.setAttribute('aria-hidden', 'true');
     const eyebrow = create('div', 'sl-critical-eyebrow', 'IMMEDIATE ATTENTION');
     const title = create('h2', '', item.title);
@@ -493,7 +557,7 @@
     const audiences = isItAdmin
       ? [
           { value: 'all', label: 'Everyone' },
-          { value: 'operations_heads', label: 'HR / Operations Heads' },
+          { value: 'operations_heads', label: 'Admins' },
           { value: 'platform_admins', label: 'IT Admins' },
         ]
       : [
@@ -507,7 +571,7 @@
       message: isItAdmin
         ? 'Publish a platform or maintenance notice.'
         : 'Send an operational notice to TwentyTwenty personnel.',
-      icon: '🔔',
+      icon: 'notifications_active',
       confirmText: 'Send notification',
       busyText: 'Sending…',
       fields: [

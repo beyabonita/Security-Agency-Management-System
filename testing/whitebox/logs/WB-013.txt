@@ -1,0 +1,12 @@
+WB-013 — PASS
+auth_username.usernameToAuthEmail
+Scenario: synthetic email
+Input: " Guard "
+Expected: "guard@asamanion-26858.auth"
+Actual: "guard@asamanion-26858.auth"
+UTC: 2026-09-05T08:57:23.487375Z
+Evidence: logs/flutter-verified.jsonl:49
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

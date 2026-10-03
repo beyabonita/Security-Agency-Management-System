@@ -1,0 +1,43 @@
+
+Running 7 tests using 1 worker
+
+(node:15932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 web\tests\password_stationary.spec.js:2:90 › staff light eye stays stationary on hover, focus and press (4.0s)
+  ok 2 web\tests\password_stationary.spec.js:2:90 › staff dark eye stays stationary on hover, focus and press (3.3s)
+  ok 3 web\tests\password_stationary.spec.js:2:90 › system-access-7d92a4 light eye stays stationary on hover, focus and press (2.3s)
+  ok 4 web\tests\password_stationary.spec.js:2:90 › system-access-7d92a4 dark eye stays stationary on hover, focus and press (1.8s)
+  ok 5 web\tests\platform_controls.spec.js:148:3 › button submits the real form and renders the RPC-returned settings (1.7s)
+  ok 6 web\tests\platform_controls.spec.js:148:3 › Enter submits the real form and renders the RPC-returned settings (1.4s)
+  x  7 web\tests\platform_controls.spec.js:474:1 › merged controls uses accessible tabs, desktop columns and contained mobile layout (2.6s)
+
+
+  1) web\tests\platform_controls.spec.js:474:1 › merged controls uses accessible tabs, desktop columns and contained mobile layout 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 2
+    Received:   15
+
+      489 |     const cards=await page.locator('#panel-accounts > .it-card').all();
+      490 |     const left=await cards[0].boundingBox(),right=await cards[1].boundingBox();
+    > 491 |     expect(Math.abs(left.y-right.y)).toBeLessThan(2);
+          |                                      ^
+      492 |   }
+      493 |   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+      494 |   await page.screenshot({path:info.outputPath('accounts-'+width+'.png'),fullPage:true});
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\platform_controls.spec.js:491:38
+
+    Error Context: web\tests\test-results-controls-clean-final\platform_controls-merged-c-41e87-and-contained-mobile-layout\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    web\tests\test-results-controls-clean-final\platform_controls-merged-c-41e87-and-contained-mobile-layout\trace.zip
+    Usage:
+
+        npx playwright show-trace web\tests\test-results-controls-clean-final\platform_controls-merged-c-41e87-and-contained-mobile-layout\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    web\tests\platform_controls.spec.js:474:1 › merged controls uses accessible tabs, desktop columns and contained mobile layout 
+  6 passed (30.8s)

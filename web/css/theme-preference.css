@@ -1,4 +1,6 @@
 /* Shared, persisted colour-mode controls for the system portals. */
+@import url('./google-icons.css');
+
 :root {
   color-scheme: light;
   --sl-toggle-bg: #fffdfc;
@@ -10,11 +12,43 @@
 
 html[data-theme="dark"] {
   color-scheme: dark;
+  /* One semantic palette for every role, including components mounted in body.
+     Brand-red stays a solid button fill; accent is a readable foreground. */
+  --sl-ink: #f8ecee;
+  --sl-muted: #d1b5ba;
+  --sl-line: #60464e;
+  --sl-surface: #21181b;
+  --sl-surface-muted: #302328;
+  --sl-accent: #fda4af;
+  --sl-red-soft: #43212b;
+  --sl-success: #6ee7b7;
+  --sl-success-soft: #14382d;
+  --sl-warning: #fcd34d;
+  --sl-warning-soft: #3d3019;
+  --sl-danger: #fda4af;
+  --sl-info: #93c5fd;
+  --sl-info-soft: #1c3048;
+  --sl-shadow-sm: 0 8px 24px rgba(0,0,0,.18);
+  --sl-shadow-md: 0 16px 42px rgba(0,0,0,.24);
+  --sl-shadow-lg: 0 26px 70px rgba(0,0,0,.35);
   --brand-bg: #151114;
   --brand-surface: #21181b;
-  --brand-border: #493337;
+  --brand-border: #60464e;
   --brand-text: #f8ecee;
-  --brand-muted: #c9adb2;
+  --brand-muted: #d1b5ba;
+  --brand-success: var(--sl-success);
+  --brand-warning: var(--sl-warning);
+  --bs-body-bg: var(--sl-surface);
+  --bs-body-color: var(--sl-ink);
+  --bs-secondary-color: var(--sl-muted);
+  --bs-tertiary-bg: var(--sl-surface-muted);
+  --bs-border-color: var(--sl-line);
+  --bs-heading-color: var(--sl-ink);
+  --bs-link-color: var(--sl-accent);
+  --bs-link-hover-color: #fecdd3;
+  --bs-emphasis-color: var(--sl-ink);
+  --bs-body-color-rgb: 248,236,238;
+  --bs-secondary-color-rgb: 209,181,186;
   --ax-sidebar: #3b1117;
   --ax-sidebar-deep: #190b0e;
   --ax-sidebar-text: #ffe7e9;
@@ -262,7 +296,11 @@ html[data-theme="dark"] body.admin-body .it-btn,
 html[data-theme="dark"] body.admin-body .btn-cancel-form,
 html[data-theme="dark"] body.admin-body .btn-cancel,
 html[data-theme="dark"] body.admin-body .address-suggestion,
-html[data-theme="dark"] body.admin-body .btn-map-tool {
+html[data-theme="dark"] body.admin-body .btn-map-tool,
+html[data-theme="dark"] body.admin-body .dtr-period-panel,
+html[data-theme="dark"] body.admin-body .dtr-period-summary,
+html[data-theme="dark"] body.admin-body .dtr-day-card,
+html[data-theme="dark"] body.admin-body .dtr-punch-block {
   color: #f8ecee !important;
   background: #2a1d21 !important;
   border-color: #493337 !important;
@@ -284,6 +322,8 @@ html[data-theme="dark"] body.inspector-body .ix-menu-toggle,
 html[data-theme="dark"] body.inspector-body .ix-btn-outline,
 html[data-theme="dark"] body.inspector-body .dtr-day-card,
 html[data-theme="dark"] body.inspector-body .dtr-punch-block,
+html[data-theme="dark"] body.inspector-body .dtr-period-panel,
+html[data-theme="dark"] body.inspector-body .dtr-period-summary,
 html[data-theme="dark"] body.inspector-body .ix-modal .form-control,
 html[data-theme="dark"] body.inspector-body .ix-modal .form-select {
   color: #f8ecee !important;
@@ -305,6 +345,13 @@ html[data-theme="dark"] body.inspector-body .ix-link-row:hover { background: #2a
 html[data-theme="dark"] body.inspector-body .ix-link-row-icon { background: #3a242a; }
 html[data-theme="dark"] body.inspector-body #loadingScreen { background: #151114; }
 
+html[data-theme="dark"] body.admin-body .dtr-day-date,
+html[data-theme="dark"] body.admin-body .dtr-punch-time,
+html[data-theme="dark"] body.inspector-body .dtr-day-date,
+html[data-theme="dark"] body.inspector-body .dtr-punch-time {
+  color: #f8ecee !important;
+}
+
 @media (max-width: 700px) {
   .sl-theme-toggle { min-width: 34px; padding: 8px; }
   .sl-theme-toggle-label { display: none; }
@@ -313,3 +360,73 @@ html[data-theme="dark"] body.inspector-body #loadingScreen { background: #151114
 @media (prefers-reduced-motion: reduce) {
   .sl-theme-toggle { transition: none; }
 }
+
+/* Interaction states are shared too, not only the page's resting background. */
+html[data-theme="dark"] :is(.admin-body, .inspector-body) #loadingScreen {
+  background: var(--brand-bg);
+  color: var(--sl-muted);
+}
+html[data-theme="dark"] :is(input, select, textarea)::placeholder {
+  color: var(--sl-muted);
+  opacity: 1;
+}
+html[data-theme="dark"] :is(input, select, textarea):hover:not(:disabled):not(:focus) {
+  border-color: #9c717d !important;
+}
+html[data-theme="dark"] :is(input, select, textarea):focus {
+  border-color: var(--sl-accent) !important;
+}
+html[data-theme="dark"] :is(input, select, textarea):disabled,
+html[data-theme="dark"] :is(input, textarea)[readonly] {
+  color: var(--sl-muted) !important;
+  background: var(--sl-surface-muted) !important;
+}
+html[data-theme="dark"] input:-webkit-autofill {
+  -webkit-text-fill-color: var(--sl-ink);
+  caret-color: var(--sl-ink);
+  box-shadow: 0 0 0 1000px var(--sl-surface-muted) inset !important;
+}
+html[data-theme="dark"] :is(input[type="checkbox"], input[type="radio"], input[type="range"]) {
+  accent-color: #dc2626;
+}
+html[data-theme="dark"] :is(.user-table, .it-table) thead :is(tr, th) {
+  color: var(--sl-muted);
+  background: var(--sl-surface-muted);
+}
+html[data-theme="dark"] .btn-close:not(.sl-material-close) { filter: invert(1) grayscale(1) brightness(2); }
+html[data-theme="dark"] :is(.modal-header, .modal-footer) {
+  border-color: var(--sl-line);
+}
+html[data-theme="dark"] :is(.sl-dialog, .sl-toast, .sl-notification-drawer, .sl-critical-dialog) {
+  color: var(--sl-ink);
+  background: var(--sl-surface);
+  border-color: var(--sl-line);
+}
+html[data-theme="dark"] :is(.sl-dialog-field input, .sl-dialog-field select, .sl-dialog-field textarea):focus {
+  background: var(--sl-surface-muted);
+}
+html[data-theme="dark"] :is(.sl-dialog-close, .sl-toast-close, .sl-notification-close) {
+  color: var(--sl-muted);
+}
+html[data-theme="dark"] .sl-notification-priority {
+  color: var(--sl-muted);
+  background: var(--sl-surface-muted);
+}
+html[data-theme="dark"] .sl-notification-badge { border-color: var(--sl-surface); }
+html[data-theme="dark"] .incident-report-modal .modal-header {
+  background: var(--sl-surface-muted);
+}
+html[data-theme="dark"] .incident-video-loading {
+  background-image: linear-gradient(110deg, #21181b 8%, #38282e 18%, #21181b 33%);
+}
+html[data-theme="dark"] :is(.ax-nav-label, .ax-brand-sub, .ax-sidebar-foot) { color: #e6b4bc; }
+html[data-theme="dark"] .text-muted { color: var(--sl-muted) !important; }
+html[data-theme="dark"] .text-danger { color: var(--sl-danger) !important; }
+html[data-theme="dark"] .text-success { color: var(--sl-success) !important; }
+html[data-theme="dark"] .text-warning { color: var(--sl-warning) !important; }
+html[data-theme="dark"] * { scrollbar-color: #79535e transparent; }
+html[data-theme="dark"] *::-webkit-scrollbar-thumb { background-color: #79535e; }
+html[data-theme="dark"] :focus-visible { outline-color: var(--sl-accent); }
+/* Map tiles, evidence images/video, logo artwork, QR codes and the printable
+   DTR paper intentionally retain their own colours. Do not invert media. */
+html[data-theme="dark"] .dtr-sheet-stage { background: var(--brand-bg); border-color: var(--sl-line); }

@@ -1,0 +1,19 @@
+
+Running 12 tests using 1 worker
+
+(node:10564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 responsive_shells.spec.js:31:1 › all protected pages stay contained on a phone viewport (15.8s)
+  ok  2 responsive_shells.spec.js:43:1 › HR navigation opens and closes as a mobile drawer (2.7s)
+  ok  3 responsive_shells.spec.js:54:1 › Inspector navigation exposes a compact mobile menu (2.2s)
+  ok  4 responsive_shells.spec.js:63:1 › Inspector portal has no personal attendance controls (2.3s)
+  ok  5 responsive_shells.spec.js:72:1 › HR Personnel keeps DTR available for Guards only (3.1s)
+  ok  6 responsive_shells.spec.js:82:1 › roster DTR preview fits phone and desktop in light and dark themes (6.7s)
+  ok  7 responsive_shells.spec.js:106:1 › Guard DTR modals show the agency PDF layout for both cut-off periods (6.0s)
+  ok  8 responsive_shells.spec.js:156:1 › IT Admin navigation opens as a mobile drawer (2.5s)
+  ok  9 responsive_shells.spec.js:165:1 › every staff role shell uses the shared agency mark (3.6s)
+  ok 10 responsive_shells.spec.js:180:1 › HR create-personnel modal keeps its actions visible on a phone (2.3s)
+  ok 11 responsive_shells.spec.js:200:1 › an open personnel action menu stays above action triggers in later rows (2.9s)
+  ok 12 responsive_shells.spec.js:239:1 › deployment-site search, location permission, and cached edit stay reliable (7.6s)
+
+  12 passed (1.4m)

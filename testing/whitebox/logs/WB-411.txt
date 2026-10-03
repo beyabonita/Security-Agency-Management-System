@@ -1,0 +1,12 @@
+WB-411 — PASS
+SchedulePeriod.dtrPeriodForDate
+Scenario: calendar and cutoff boundary
+Input: "2028-02-29"
+Expected: "2028-02-29"
+Actual: "2028-02-29"
+UTC: 2026-09-05T08:53:03.555Z
+Evidence: logs/node.tap:12
+Source: testing/whitebox/unit_tests/web_test.cjs
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

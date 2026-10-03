@@ -1,0 +1,12 @@
+WB-205 — PASS
+accounts.isAppRole
+Scenario: role allowlist
+Input: "owner"
+Expected: false
+Actual: false
+UTC: 2026-09-05T08:56:18.032Z
+Evidence: logs/deno-final.log:24
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

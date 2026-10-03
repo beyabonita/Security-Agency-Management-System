@@ -22,9 +22,11 @@ assert.match(manageAccount, /Account deletion is disabled/);
 assert.match(manageAccount, /removesActiveItAdmin/);
 assert.match(manageAccount, /PLATFORM_ROLES/);
 assert.match(manageAccount, /beneficiaryOrganizationId/);
-assert.match(manageAccount, /Guard and Inspector accounts are managed by HR/);
+assert.match(manageAccount, /Guard and Inspector accounts are managed by Admin/);
 assert.doesNotMatch(manageAccount, /select\(['"]\*['"]\)/);
 assert.match(manageAccount, /optionalBoolean\(body, ["']active["']/);
+assert.match(manageAccount, /resetDevice && isItAdmin/);
+assert.match(manageAccount, /forbidden_device_reset/);
 assert.match(manageAccount, /account_update_rollback_failed/);
 
 const provisionClient = read('it-provision-client', 'index.ts');
@@ -39,6 +41,13 @@ assert.match(sharedApi, /Content-Type must be application\/json/);
 assert.match(sharedApi, /crypto\.randomUUID\(\)/);
 assert.match(sharedApi, /persistSession: false/);
 assert.doesNotMatch(sharedApi, /Access-Control-Allow-Origin['"]?\s*[:,]\s*['"]\*/);
+
+const deleteIncident = read('admin-delete-incident', 'handler.ts');
+assert.match(deleteIncident, /authenticatedUserId\(request, service\)/);
+assert.match(deleteIncident, /manage_incident_deletion/);
+assert.match(deleteIncident, /storage\.from\(\s*["']incident-videos["']\s*,?\s*\)\.remove/);
+assert.match(deleteIncident, /incident\.user_id/);
+assert.doesNotMatch(deleteIncident, /body\.video/);
 
 const sharedAccounts = read('_shared', 'accounts.ts');
 assert.match(sharedAccounts, /databaseBusinessMessage/);

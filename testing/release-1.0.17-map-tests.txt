@@ -1,0 +1,9 @@
+
+Running 2 tests using 1 worker
+
+(node:13680) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 live_tracking_updates.spec.js:75:1 › age updates preserve guard focus, marker, popup and user map view (4.0s)
+  ok 2 live_tracking_updates.spec.js:95:1 › a real GPS update glides marker and accuracy circle without replacing either (4.9s)
+
+  2 passed (42.3s)

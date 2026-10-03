@@ -1,0 +1,12 @@
+WB-092 — PASS
+AttendanceService.blockReasonForAction
+Scenario: duplicate and missing punch
+Input: ["clock_in",false]
+Expected: false
+Actual: false
+UTC: 2026-09-05T08:57:23.916378Z
+Evidence: logs/flutter-verified.jsonl:368
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

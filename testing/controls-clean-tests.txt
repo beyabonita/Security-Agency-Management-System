@@ -1,0 +1,218 @@
+
+Running 50 tests using 2 workers
+
+(node:1492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9600) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  2 web\tests\it_admin_accounts.spec.js:141:1 › IT Admin creation rejects each missing password requirement and accepts an eight-character mix (3.6s)
+  ok  1 web\tests\password_stationary.spec.js:2:90 › staff light eye stays stationary on hover, focus and press (4.4s)
+  ok  4 web\tests\password_stationary.spec.js:2:90 › staff dark eye stays stationary on hover, focus and press (3.8s)
+  ok  3 web\tests\it_admin_accounts.spec.js:157:1 › IT Admin reset validates each password requirement before sending a change (7.8s)
+  ok  6 web\tests\it_admin_accounts.spec.js:174:1 › IT Admin keeps the password when the optional edit field is blank (2.2s)
+  ok  7 web\tests\it_admin_accounts.spec.js:185:1 › current IT Admin is protected while another Operations Head keeps account actions (905ms)
+  ok  8 web\tests\it_admin_accounts.spec.js:201:1 › account editing shows the Edge Function public JSON message (1.9s)
+  ok  9 web\tests\it_admin_accounts.spec.js:231:1 › IT Admin changes own email with current password and no access fields (2.0s)
+  ok 10 web\tests\it_admin_accounts.spec.js:241:1 › account creation rejects legacy aliases and invalid email (2.0s)
+  x   5 web\tests\password_stationary.spec.js:2:90 › system-access-7d92a4 light eye stays stationary on hover, focus and press (2.8s)
+(node:16784) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  11 web\tests\platform_controls.spec.js:148:3 › button submits the real form and renders the RPC-returned settings (7.8s)
+(node:17436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  12 web\tests\password_stationary.spec.js:2:90 › system-access-7d92a4 dark eye stays stationary on hover, focus and press (1.8s)
+  x  13 web\tests\platform_controls.spec.js:148:3 › Enter submits the real form and renders the RPC-returned settings (6.8s)
+(node:17956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 14 web\tests\platform_controls.spec.js:175:1 › publishing requires three trimmed characters and input changes recover validation (2.6s)
+  ok 15 web\tests\platform_controls.spec.js:195:1 › radius validation rejects missing, out-of-range and fractional values and accepts both boundaries (3.5s)
+  ok 16 web\tests\platform_controls.spec.js:214:1 › a failed save preserves entered fields and clears busy state so retry succeeds (2.9s)
+  ok 17 web\tests\platform_controls.spec.js:239:1 › an in-flight save blocks duplicate submissions and preserves the submitted snapshot (1.7s)
+  ok 18 web\tests\platform_controls.spec.js:256:1 › removed audit and administrative sections are not rendered or queried (818ms)
+  ok 19 web\tests\platform_controls.spec.js:263:1 › a configuration load failure disables the form until Retry loading succeeds (1.8s)
+  ok 20 web\tests\platform_controls.spec.js:291:3 › /staff/login.html opens support without leaving the page and supports keyboard copy (3.1s)
+  ok 21 web\tests\platform_controls.spec.js:330:3 › /staff/login.html refreshes support and safe announcement text without duplicates (1.3s)
+  ok 22 web\tests\platform_controls.spec.js:291:3 › /system-access-7d92a4/login.html opens support without leaving the page and supports keyboard copy (2.6s)
+  ok 23 web\tests\platform_controls.spec.js:330:3 › /system-access-7d92a4/login.html refreshes support and safe announcement text without duplicates (871ms)
+  ok 24 web\tests\platform_controls.spec.js:291:3 › /admin/dashboard.html opens support without leaving the page and supports keyboard copy (2.4s)
+  ok 25 web\tests\platform_controls.spec.js:330:3 › /admin/dashboard.html refreshes support and safe announcement text without duplicates (715ms)
+  ok 26 web\tests\platform_controls.spec.js:291:3 › /inspector/dashboard.html opens support without leaving the page and supports keyboard copy (2.8s)
+  ok 27 web\tests\platform_controls.spec.js:330:3 › /inspector/dashboard.html refreshes support and safe announcement text without duplicates (882ms)
+  ok 28 web\tests\platform_controls.spec.js:291:3 › /it-admin/dashboard.html opens support without leaving the page and supports keyboard copy (2.4s)
+  ok 29 web\tests\platform_controls.spec.js:330:3 › /it-admin/dashboard.html refreshes support and safe announcement text without duplicates (984ms)
+  ok 30 web\tests\platform_controls.spec.js:377:3 › support gives a manual-copy fallback when clipboard is denied (2.3s)
+  ok 31 web\tests\platform_controls.spec.js:377:3 › support gives a manual-copy fallback when clipboard is missing (3.5s)
+  ok 32 web\tests\platform_controls.spec.js:396:1 › pending clipboard access keeps keyboard focus and prevents duplicate copies (1.9s)
+  ok 33 web\tests\platform_controls.spec.js:423:1 › dialog forms still submit with Enter while cancel buttons activate natively (756ms)
+  ok 34 web\tests\platform_controls.spec.js:443:7 › /staff/login.html 1366px light: notice, theme and support do not overlap (2.4s)
+  ok 35 web\tests\platform_controls.spec.js:443:7 › /staff/login.html 1366px dark: notice, theme and support do not overlap (2.4s)
+  ok 36 web\tests\platform_controls.spec.js:443:7 › /staff/login.html 740px light: notice, theme and support do not overlap (2.3s)
+  ok 37 web\tests\platform_controls.spec.js:443:7 › /staff/login.html 740px dark: notice, theme and support do not overlap (2.2s)
+  ok 38 web\tests\platform_controls.spec.js:443:7 › /staff/login.html 390px light: notice, theme and support do not overlap (3.0s)
+  ok 39 web\tests\platform_controls.spec.js:443:7 › /staff/login.html 390px dark: notice, theme and support do not overlap (3.4s)
+  ok 40 web\tests\platform_controls.spec.js:443:7 › /staff/login.html 320px light: notice, theme and support do not overlap (2.6s)
+  ok 41 web\tests\platform_controls.spec.js:443:7 › /staff/login.html 320px dark: notice, theme and support do not overlap (1.8s)
+  ok 42 web\tests\platform_controls.spec.js:443:7 › /system-access-7d92a4/login.html 1366px light: notice, theme and support do not overlap (2.2s)
+  ok 43 web\tests\platform_controls.spec.js:443:7 › /system-access-7d92a4/login.html 1366px dark: notice, theme and support do not overlap (2.2s)
+  ok 44 web\tests\platform_controls.spec.js:443:7 › /system-access-7d92a4/login.html 740px light: notice, theme and support do not overlap (2.2s)
+  ok 45 web\tests\platform_controls.spec.js:443:7 › /system-access-7d92a4/login.html 740px dark: notice, theme and support do not overlap (3.7s)
+  ok 46 web\tests\platform_controls.spec.js:443:7 › /system-access-7d92a4/login.html 390px light: notice, theme and support do not overlap (3.2s)
+  ok 47 web\tests\platform_controls.spec.js:443:7 › /system-access-7d92a4/login.html 390px dark: notice, theme and support do not overlap (3.8s)
+  ok 48 web\tests\platform_controls.spec.js:443:7 › /system-access-7d92a4/login.html 320px light: notice, theme and support do not overlap (2.1s)
+  ok 49 web\tests\platform_controls.spec.js:443:7 › /system-access-7d92a4/login.html 320px dark: notice, theme and support do not overlap (2.2s)
+  x  50 web\tests\platform_controls.spec.js:474:1 › merged controls uses accessible tabs, desktop columns and contained mobile layout (3.9s)
+
+
+  1) web\tests\password_stationary.spec.js:2:90 › system-access-7d92a4 light eye stays stationary on hover, focus and press 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 485
+    Received:    486.59375
+
+      11 |  const assertFixed=async()=>{
+      12 |   const rect=await eye.boundingBox();expect(Math.abs(rect.x-original.x)).toBeLessThan(.5);expect(Math.abs(rect.y-original.y)).toBeLessThan(.5);
+    > 13 |   const box=await input.boundingBox();expect(rect.y).toBeGreaterThanOrEqual(box.y-1);expect(rect.y+rect.height).toBeLessThanOrEqual(box.y+box.height+1);
+         |                                                                                                                 ^
+      14 |  };
+      15 |  await eye.hover();await assertFixed();await eye.focus();await assertFixed();
+      16 |  await page.mouse.down();await assertFixed();await page.mouse.up();
+        at assertFixed (C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\password_stationary.spec.js:13:113)
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\password_stationary.spec.js:15:20
+
+    Error Context: web\tests\test-results-controls-clean\password_stationary-system-cdde8-ry-on-hover-focus-and-press\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    web\tests\test-results-controls-clean\password_stationary-system-cdde8-ry-on-hover-focus-and-press\trace.zip
+    Usage:
+
+        npx playwright show-trace web\tests\test-results-controls-clean\password_stationary-system-cdde8-ry-on-hover-focus-and-press\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) web\tests\password_stationary.spec.js:2:90 › system-access-7d92a4 dark eye stays stationary on hover, focus and press 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 485
+    Received:    486.59375
+
+      11 |  const assertFixed=async()=>{
+      12 |   const rect=await eye.boundingBox();expect(Math.abs(rect.x-original.x)).toBeLessThan(.5);expect(Math.abs(rect.y-original.y)).toBeLessThan(.5);
+    > 13 |   const box=await input.boundingBox();expect(rect.y).toBeGreaterThanOrEqual(box.y-1);expect(rect.y+rect.height).toBeLessThanOrEqual(box.y+box.height+1);
+         |                                                                                                                 ^
+      14 |  };
+      15 |  await eye.hover();await assertFixed();await eye.focus();await assertFixed();
+      16 |  await page.mouse.down();await assertFixed();await page.mouse.up();
+        at assertFixed (C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\password_stationary.spec.js:13:113)
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\password_stationary.spec.js:15:20
+
+    Error Context: web\tests\test-results-controls-clean\password_stationary-system-b8517-ry-on-hover-focus-and-press\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    web\tests\test-results-controls-clean\password_stationary-system-b8517-ry-on-hover-focus-and-press\trace.zip
+    Usage:
+
+        npx playwright show-trace web\tests\test-results-controls-clean\password_stationary-system-b8517-ry-on-hover-focus-and-press\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) web\tests\platform_controls.spec.js:148:3 › button submits the real form and renders the RPC-returned settings 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('[data-platform-support] a')
+    Expected: "mailto:canonical@example.com"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" with timeout 5000ms
+      - waiting for locator('[data-platform-support] a')
+
+
+      167 |     await expect(page.locator('#portalAnnouncement')).toHaveValue('Saved server notice');
+      168 |     await expect(page.locator('[data-platform-announcement]')).toContainText('Saved server notice');
+    > 169 |     await expect(page.locator('[data-platform-support] a')).toHaveAttribute('href', 'mailto:canonical@example.com');
+          |                                                             ^
+      170 |     await expect(page.locator('#platformSettingsForm')).toHaveAttribute('aria-busy', 'false');
+      171 |     await expect(page.locator('#savePlatformSettings')).toBeEnabled();
+      172 |   });
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\platform_controls.spec.js:169:61
+
+    Error Context: web\tests\test-results-controls-clean\platform_controls-button-s-508d3-s-the-RPC-returned-settings\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    web\tests\test-results-controls-clean\platform_controls-button-s-508d3-s-the-RPC-returned-settings\trace.zip
+    Usage:
+
+        npx playwright show-trace web\tests\test-results-controls-clean\platform_controls-button-s-508d3-s-the-RPC-returned-settings\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) web\tests\platform_controls.spec.js:148:3 › Enter submits the real form and renders the RPC-returned settings 
+
+    Error: expect(locator).toHaveAttribute(expected) failed
+
+    Locator: locator('[data-platform-support] a')
+    Expected: "mailto:canonical@example.com"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveAttribute" with timeout 5000ms
+      - waiting for locator('[data-platform-support] a')
+
+
+      167 |     await expect(page.locator('#portalAnnouncement')).toHaveValue('Saved server notice');
+      168 |     await expect(page.locator('[data-platform-announcement]')).toContainText('Saved server notice');
+    > 169 |     await expect(page.locator('[data-platform-support] a')).toHaveAttribute('href', 'mailto:canonical@example.com');
+          |                                                             ^
+      170 |     await expect(page.locator('#platformSettingsForm')).toHaveAttribute('aria-busy', 'false');
+      171 |     await expect(page.locator('#savePlatformSettings')).toBeEnabled();
+      172 |   });
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\platform_controls.spec.js:169:61
+
+    Error Context: web\tests\test-results-controls-clean\platform_controls-Enter-su-10f94-s-the-RPC-returned-settings\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    web\tests\test-results-controls-clean\platform_controls-Enter-su-10f94-s-the-RPC-returned-settings\trace.zip
+    Usage:
+
+        npx playwright show-trace web\tests\test-results-controls-clean\platform_controls-Enter-su-10f94-s-the-RPC-returned-settings\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) web\tests\platform_controls.spec.js:474:1 › merged controls uses accessible tabs, desktop columns and contained mobile layout 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 2
+    Received:   15
+
+      489 |     const cards=await page.locator('#panel-accounts > .it-card').all();
+      490 |     const left=await cards[0].boundingBox(),right=await cards[1].boundingBox();
+    > 491 |     expect(Math.abs(left.y-right.y)).toBeLessThan(2);
+          |                                      ^
+      492 |   }
+      493 |   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+      494 |   await page.screenshot({path:info.outputPath('accounts-'+width+'.png'),fullPage:true});
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\platform_controls.spec.js:491:38
+
+    Error Context: web\tests\test-results-controls-clean\platform_controls-merged-c-41e87-and-contained-mobile-layout\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    web\tests\test-results-controls-clean\platform_controls-merged-c-41e87-and-contained-mobile-layout\trace.zip
+    Usage:
+
+        npx playwright show-trace web\tests\test-results-controls-clean\platform_controls-merged-c-41e87-and-contained-mobile-layout\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    web\tests\password_stationary.spec.js:2:90 › system-access-7d92a4 light eye stays stationary on hover, focus and press 
+    web\tests\password_stationary.spec.js:2:90 › system-access-7d92a4 dark eye stays stationary on hover, focus and press 
+    web\tests\platform_controls.spec.js:148:3 › button submits the real form and renders the RPC-returned settings 
+    web\tests\platform_controls.spec.js:148:3 › Enter submits the real form and renders the RPC-returned settings 
+    web\tests\platform_controls.spec.js:474:1 › merged controls uses accessible tabs, desktop columns and contained mobile layout 
+  45 passed (2.5m)

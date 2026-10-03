@@ -1,0 +1,25 @@
+
+Running 18 tests using 1 worker
+
+(node:7432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 incident_report.spec.js:66:3 › admin displays video-only evidence without claiming a photo is attached (2.3s)
+  ok  2 incident_report.spec.js:79:3 › admin shows Emergency and attributes acknowledgement and notes to their reviewers (1.8s)
+  ok  3 incident_report.spec.js:102:3 › admin incident report shows detailed private video evidence (2.1s)
+  ok  4 incident_report.spec.js:131:3 › admin detailed incident modal is readable in dark mode without altering media (1.6s)
+  ok  5 incident_report.spec.js:66:3 › inspector displays video-only evidence without claiming a photo is attached (1.4s)
+  ok  6 incident_report.spec.js:79:3 › inspector shows Emergency and attributes acknowledgement and notes to their reviewers (1.4s)
+  ok  7 incident_report.spec.js:102:3 › inspector incident report shows detailed private video evidence (2.4s)
+  ok  8 incident_report.spec.js:131:3 › inspector detailed incident modal is readable in dark mode without altering media (2.1s)
+  ok  9 inspector_consistency.spec.js:7:1 › all Inspector pages use the Operations Head sidebar and contained content (23.1s)
+  ok 10 inspector_consistency.spec.js:35:1 › assigned shift totals count Guard assignments across dates while excluding drafts and cancellations (608ms)
+  ok 11 inspector_consistency.spec.js:43:54 › staff has one icon-only accessible password toggle (2.0s)
+  ok 12 inspector_consistency.spec.js:43:54 › system-access-7d92a4 has one icon-only accessible password toggle (1.5s)
+  ok 13 inspector_team.spec.js:60:1 › My Guards queries assigned personnel and opens their DTR (2.7s)
+  ok 14 inspector_team.spec.js:73:1 › Inspector views only an assigned Guard active schedule, grouped by DTR cut-off (2.5s)
+  ok 15 inspector_team.spec.js:89:1 › empty assignment explains who assigns the Inspector team (1.4s)
+  ok 16 inspector_team.spec.js:96:1 › unknown Guard cannot open a cached DTR and reassignment clears open records (2.2s)
+  ok 17 inspector_team.spec.js:110:1 › Inspector overview counts assigned Guards only (1.4s)
+  ok 18 inspector_team.spec.js:118:1 › Inspector acknowledges an assigned Guard incident through the secured RPC (2.8s)
+
+  18 passed (1.0m)

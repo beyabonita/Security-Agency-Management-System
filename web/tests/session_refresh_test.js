@@ -39,6 +39,7 @@ const window = {
 window.window = window;
 const context = vm.createContext({
   window,
+  location: { hostname: 'security-agency-management-system-nu.vercel.app' },
   document: { readyState: 'complete', write() { throw new Error('Unexpected SDK loading fallback'); } },
   Promise,
   Set,

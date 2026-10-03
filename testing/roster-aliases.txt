@@ -1,0 +1,13 @@
+Vercel CLI 59.5.0 (Node.js 24.13.0)
+Fetching aliases under codex-a9d1
+> aliases found under codex-a9d1 [1s]
+  source                                                               url                                                        age    
+  jelaneandcharlie-f1mxia0s8-codex-a9d1.vercel.app                     rsvp-responsesjelaneandcharlie.vercel.app                   7d    
+  jelaneandcharlie-f1mxia0s8-codex-a9d1.vercel.app                     jelaneandcharlie-codex-a9d1.vercel.app                     11d    
+  jelaneandcharlie-f1mxia0s8-codex-a9d1.vercel.app                     jelaneandcharlie.vercel.app                                11d    
+  security-agency-management-system-4b9px11xj-codex-a9d1.vercel.app    security-agency-management-system-download.vercel.app      12d    
+  security-agency-management-system-4b9px11xj-codex-a9d1.vercel.app    security-agency-management-system-admin.vercel.app         12d    
+  security-agency-management-system-pnswuv6gd-codex-a9d1.vercel.app    security-agency-management-system-codex-a9d1.vercel.app    12d    
+  security-agency-management-system-pnswuv6gd-codex-a9d1.vercel.app    security-agency-management-system-nu.vercel.app            12d    
+  web-99fmdp0nj-codex-a9d1.vercel.app                                  web-codex-a9d1.vercel.app                                  22d    
+

@@ -1,0 +1,12 @@
+WB-078 — PASS
+AttendanceSession.fromRow
+Scenario: required timestamp rejected
+Input: {"missing":"scheduled_end_at"}
+Expected: "FormatException"
+Actual: "FormatException"
+UTC: 2026-09-05T08:57:23.816375Z
+Evidence: logs/flutter-verified.jsonl:293
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

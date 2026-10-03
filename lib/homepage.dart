@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:flutter_application_1/widgets/duty_tracking_scope.dart';
+import 'package:flutter_application_1/models/contract_period.dart';
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -28,6 +30,7 @@ class _HomePageState extends State<HomePage> {
   final Set<String> _knownNotificationIds = <String>{};
   bool _notificationsSeeded = false;
   bool _criticalDialogOpen = false;
+  int _scheduleRevision = 0;
 
   @override
   void initState() {
@@ -56,7 +59,13 @@ class _HomePageState extends State<HomePage> {
       ..clear()
       ..addAll(notifications.map((item) => item.id));
     _notificationsSeeded = true;
-    if (mounted) setState(() => _notifications = notifications);
+    if (mounted) {
+      setState(() {
+        _notifications = notifications;
+        // Ownership changes may no longer be visible through schedule RLS.
+        if (newNotifications.isNotEmpty) _scheduleRevision++;
+      });
+    }
     final notificationToShow =
         pendingCritical ??
         (newNotifications.isEmpty ? null : newNotifications.first);
@@ -79,9 +88,9 @@ class _HomePageState extends State<HomePage> {
         builder: (dialogContext) => PopScope(
           canPop: false,
           child: AlertDialog(
-            icon: const Icon(
+            icon: Icon(
               Icons.notification_important_rounded,
-              color: AppColors.error,
+              color: AppColors.of(context).error,
               size: 36,
             ),
             title: Text(notification.title),
@@ -152,11 +161,12 @@ class _HomePageState extends State<HomePage> {
     final confirmed = await showGuardConfirmation(
       context,
       title: 'Sign out?',
-      message: 'You will need your username and password to sign in again.',
+      message: 'You will need your email and password to sign in again.',
       confirmLabel: 'Sign out',
       destructive: true,
     );
-    if (!confirmed) return;
+    if (!confirmed || !mounted) return;
+    await DutyTrackingScope.of(context)?.stopSharing();
     await Supabase.instance.client.auth.signOut();
     if (!mounted) return;
     Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
@@ -166,8 +176,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) {
-      return const Scaffold(
-        backgroundColor: AppColors.scaffold,
+      return Scaffold(
+        backgroundColor: AppColors.of(context).scaffold,
         body: GuardLoadingView(label: 'Preparing your duty workspace…'),
       );
     }
@@ -258,7 +268,7 @@ class _HomePageState extends State<HomePage> {
                           // Sign out
                           _GlassButton(
                             icon: Icons.logout_rounded,
-                            color: AppColors.primary,
+                            color: AppColors.of(context).accent,
                             onTap: _signOut,
                           ),
                         ],
@@ -270,6 +280,7 @@ class _HomePageState extends State<HomePage> {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
                       child: _StatusCard(
+                        contract: ContractPeriod.fromProfile(profile ?? {}),
                         displayName: displayName,
                         isActive: isActive,
                         employmentCategory:
@@ -293,7 +304,7 @@ class _HomePageState extends State<HomePage> {
                         icon: Icons.fingerprint_rounded,
                         label: 'Time In / Out',
                         subtitle: 'Verify your post and record attendance',
-                        color: AppColors.primary,
+                        color: AppColors.of(context).accent,
                         horizontal: true,
                         emphasized: true,
                         onTap: () => Navigator.of(context).push(
@@ -312,7 +323,7 @@ class _HomePageState extends State<HomePage> {
                               icon: Icons.history_rounded,
                               label: 'Duty Logs',
                               subtitle: 'View DTR',
-                              color: AppColors.primaryLight,
+                              color: AppColors.of(context).accent,
                               onTap: () => Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) => const TimeLogsScreen(),
@@ -324,9 +335,9 @@ class _HomePageState extends State<HomePage> {
                           Expanded(
                             child: _ActionCard(
                               icon: Icons.swap_horiz_rounded,
-                              label: 'Shift Change',
-                              subtitle: 'Send request',
-                              color: AppColors.secondary,
+                              label: 'Letter Requests',
+                              subtitle: 'Absence or swap',
+                              color: AppColors.of(context).accent,
                               onTap: () => Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (_) =>
@@ -346,7 +357,7 @@ class _HomePageState extends State<HomePage> {
                         icon: Icons.emergency_rounded,
                         label: 'Emergency Alert',
                         subtitle: 'Capture and send an incident immediately',
-                        color: AppColors.error,
+                        color: AppColors.of(context).error,
                         horizontal: true,
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
@@ -367,7 +378,10 @@ class _HomePageState extends State<HomePage> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-                      child: _SchedulesCard(userId: user.id),
+                      child: _SchedulesCard(
+                        userId: user.id,
+                        revision: _scheduleRevision,
+                      ),
                     ),
                   ),
                 ],
@@ -386,10 +400,12 @@ class _StatusCard extends StatelessWidget {
     required this.displayName,
     required this.isActive,
     required this.employmentCategory,
+    required this.contract,
   });
   final String displayName;
   final bool isActive;
   final String employmentCategory;
+  final ContractPeriod contract;
 
   @override
   Widget build(BuildContext context) {
@@ -459,7 +475,7 @@ class _StatusCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         isActive
-                            ? '${employmentCategory == 'contract' ? 'Contract' : 'Regular'} Guard • Active'
+                            ? '${employmentCategory == 'contract' ? 'Contract' : 'Regular'} Guard'
                             : 'Account Disabled',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -470,6 +486,11 @@ class _StatusCard extends StatelessWidget {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  contract.label(DateTime.now()),
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
                 ),
               ],
             ),
@@ -543,13 +564,14 @@ class _ActionCard extends StatelessWidget {
         child: Ink(
           padding: EdgeInsets.all(horizontal ? 16 : 17),
           decoration: AppColors.card(
+            context: context,
             radius: 18,
             color: emphasized
                 ? color.withValues(alpha: 0.035)
-                : AppColors.surface,
+                : AppColors.of(context).surface,
             borderColor: emphasized
                 ? color.withValues(alpha: 0.22)
-                : AppColors.border,
+                : AppColors.of(context).border,
           ),
           child: horizontal
               ? Row(
@@ -584,8 +606,8 @@ class _SectionLabel extends StatelessWidget {
     children: [
       Text(
         label,
-        style: const TextStyle(
-          color: AppColors.primary,
+        style: TextStyle(
+          color: AppColors.of(context).accent,
           fontSize: 11,
           fontWeight: FontWeight.w600,
           letterSpacing: 2,
@@ -675,21 +697,96 @@ class _NotificationButton extends StatelessWidget {
 }
 
 // ─── Schedules card ───────────────────────────────────────────────────────────
-class _SchedulesCard extends StatelessWidget {
-  const _SchedulesCard({required this.userId});
+class _SchedulesCard extends StatefulWidget {
+  const _SchedulesCard({required this.userId, required this.revision});
   final String userId;
+  final int revision;
+
+  @override
+  State<_SchedulesCard> createState() => _SchedulesCardState();
+
+  static bool _hasLocation(Map<String, dynamic> data) =>
+      _SchedulesCardState._hasLocation(data);
+  static String _locationLine(Map<String, dynamic> data) =>
+      _SchedulesCardState._locationLine(data);
+  static ({String dateLine, String dutyHoursLine}) _formatScheduleLines(
+    Map<String, dynamic> data,
+  ) => _SchedulesCardState._formatScheduleLines(data);
+}
+
+class _SchedulesCardState extends State<_SchedulesCard>
+    with WidgetsBindingObserver {
+  late Future<List<Map<String, dynamic>>> _duties;
+  StreamSubscription<List<Map<String, dynamic>>>? _changes;
+  Timer? _refreshTimer;
+
+  Future<List<Map<String, dynamic>>> _load() async =>
+      ScheduleService.visibleSchedules(
+        await Supabase.instance.client
+            .from('schedules')
+            .select()
+            .eq('user_id', widget.userId)
+            .inFilter('approval_status', ['approved', 'changed'])
+            .order('start_at', ascending: false)
+            .timeout(const Duration(seconds: 15)),
+        widget.userId,
+      );
+
+  void _refresh() {
+    if (mounted) {
+      setState(() {
+        _duties = _load();
+        _duties.ignore(); // The FutureBuilder still displays errors on rebuild.
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _duties = _load();
+    _duties.ignore();
+    _changes = Supabase.instance.client
+        .from('schedules')
+        .stream(primaryKey: ['id'])
+        .eq('user_id', widget.userId)
+        .listen((_) => _refresh(), onError: (_) => _refresh());
+    // Fallback for missed realtime events (including duties reassigned away).
+    _refreshTimer = Timer.periodic(
+      const Duration(seconds: 20),
+      (_) => _refresh(),
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant _SchedulesCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.revision != widget.revision) _refresh();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _refresh();
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    _changes?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: AppColors.card(radius: 20),
-      child: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: Supabase.instance.client
-            .from('schedules')
-            .stream(primaryKey: ['id'])
-            .eq('user_id', userId),
+      decoration: AppColors.card(context: context, radius: 20),
+      child: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _duties,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          if (!snapshot.hasData &&
+              snapshot.connectionState == ConnectionState.waiting) {
             return const SizedBox(
               height: 150,
               child: GuardLoadingView(label: 'Loading your schedule…'),
@@ -697,11 +794,13 @@ class _SchedulesCard extends StatelessWidget {
           }
 
           if (snapshot.hasError) {
-            return const GuardEmptyState(
+            return GuardEmptyState(
               icon: Icons.sync_problem_rounded,
               title: 'Schedule unavailable',
               message:
                   'Could not load your duties. Check your connection and try again.',
+              actionLabel: 'Refresh schedule',
+              onAction: _refresh,
             );
           }
 
@@ -713,22 +812,25 @@ class _SchedulesCard extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.calendar_today_outlined,
-                    color: AppColors.textHint,
+                    color: AppColors.of(context).textHint,
                     size: 40,
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'No schedules assigned yet',
+                  Text(
+                    'No assigned duties',
                     style: TextStyle(
-                      color: AppColors.text,
+                      color: AppColors.of(context).text,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Your admin assigns duty sites and times under Schedule.',
-                    style: TextStyle(color: AppColors.textMuted, fontSize: 12),
+                  Text(
+                    'Approved absences are kept in Letter Requests.',
+                    style: TextStyle(
+                      color: AppColors.of(context).textMuted,
+                      fontSize: 12,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -744,6 +846,7 @@ class _SchedulesCard extends StatelessWidget {
           return Column(
             children: sorted.map((schedule) {
               return _ScheduleTile(
+                key: ValueKey(schedule['id']),
                 scheduleId: schedule['id'].toString(),
                 data: schedule,
               );
@@ -769,7 +872,7 @@ class _SchedulesCard extends StatelessWidget {
       }
       return 'Duty site: $label';
     }
-    return 'Duty site: not assigned — ask your admin';
+    return 'Duty site: not assigned — ask your Operational Head';
   }
 
   static String _scheduleSortKey(Map<String, dynamic> data) {
@@ -839,7 +942,11 @@ class _SchedulesCard extends StatelessWidget {
 
 // ─── Single schedule row with Mark as done ───────────────────────────────────
 class _ScheduleTile extends StatefulWidget {
-  const _ScheduleTile({required this.scheduleId, required this.data});
+  const _ScheduleTile({
+    super.key,
+    required this.scheduleId,
+    required this.data,
+  });
 
   final String scheduleId;
   final Map<String, dynamic> data;
@@ -852,14 +959,16 @@ class _ScheduleTileState extends State<_ScheduleTile> {
   @override
   Widget build(BuildContext context) {
     final s = widget.data;
-    const accent = AppColors.primary;
+    final accent = AppColors.of(context).accent;
     final scheduleLines = _SchedulesCard._formatScheduleLines(s);
+    final dtrMapping = ScheduleService.dtrMappingLabel(s);
+    final dtrCutoff = ScheduleService.dtrCutoffLabel(s);
     final markedDone = ScheduleService.isMarkedDone(s);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       decoration: BoxDecoration(
-        border: const Border(bottom: BorderSide(color: AppColors.border)),
+        border: Border(bottom: BorderSide(color: AppColors.of(context).border)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -878,7 +987,7 @@ class _ScheduleTileState extends State<_ScheduleTile> {
                   markedDone
                       ? Icons.check_circle_rounded
                       : Icons.schedule_rounded,
-                  color: markedDone ? AppColors.success : accent,
+                  color: markedDone ? AppColors.of(context).success : accent,
                   size: 20,
                 ),
               ),
@@ -892,8 +1001,8 @@ class _ScheduleTileState extends State<_ScheduleTile> {
                         Expanded(
                           child: Text(
                             scheduleLines.dateLine,
-                            style: const TextStyle(
-                              color: AppColors.text,
+                            style: TextStyle(
+                              color: AppColors.of(context).text,
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                             ),
@@ -906,18 +1015,20 @@ class _ScheduleTileState extends State<_ScheduleTile> {
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.success.withValues(alpha: 0.12),
+                              color: AppColors.of(
+                                context,
+                              ).success.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                color: AppColors.success.withValues(
-                                  alpha: 0.35,
-                                ),
+                                color: AppColors.of(
+                                  context,
+                                ).success.withValues(alpha: 0.35),
                               ),
                             ),
-                            child: const Text(
+                            child: Text(
                               'Done',
                               style: TextStyle(
-                                color: AppColors.success,
+                                color: AppColors.of(context).success,
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -928,19 +1039,32 @@ class _ScheduleTileState extends State<_ScheduleTile> {
                     const SizedBox(height: 4),
                     Text(
                       scheduleLines.dutyHoursLine,
-                      style: const TextStyle(
-                        color: AppColors.primary,
+                      style: TextStyle(
+                        color: AppColors.of(context).accent,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
+                    if (dtrMapping != null && dtrCutoff != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'DTR: $dtrMapping · $dtrCutoff',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColors.of(context).accent,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 4),
                     Text(
                       _SchedulesCard._locationLine(s),
                       style: TextStyle(
                         color: _SchedulesCard._hasLocation(s)
-                            ? AppColors.textMuted
-                            : AppColors.warning,
+                            ? AppColors.of(context).textMuted
+                            : AppColors.of(context).warning,
                         fontSize: 12,
                       ),
                       maxLines: 3,
@@ -955,9 +1079,12 @@ class _ScheduleTileState extends State<_ScheduleTile> {
             const SizedBox(height: 8),
             Text(
               ScheduleService.isScheduleEnded(s)
-                  ? 'Time Out at the post to complete this duty.'
+                  ? 'Schedule ended. Check Duty time records for attendance.'
                   : 'Use Attendance at your scheduled post.',
-              style: TextStyle(color: AppColors.textMuted, fontSize: 11),
+              style: TextStyle(
+                color: AppColors.of(context).textMuted,
+                fontSize: 11,
+              ),
             ),
           ] else if (markedDone) ...[
             const SizedBox(height: 12),

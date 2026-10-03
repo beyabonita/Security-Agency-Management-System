@@ -1,0 +1,12 @@
+WB-504 — PASS
+UserProfileService.validateGuardLogin
+Scenario: role and active branches
+Input: {"role":"inspector","active":true}
+Expected: "Inspector accounts use the web panel."
+Actual: "Inspector accounts use the web panel."
+UTC: 2026-09-05T08:57:23.704377Z
+Evidence: logs/flutter-verified.jsonl:195
+Source: testing/whitebox/unit_tests/services_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

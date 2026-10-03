@@ -14,6 +14,21 @@
       .replace(/'/g, '&#039;');
   }
 
+  function materialIcon(value, tone) {
+    const aliases = {
+      '!': 'error',
+      '?': 'help',
+      'i': 'info',
+      '✓': 'check_circle',
+      '🔔': 'notifications_active',
+      '🚨': 'emergency',
+    };
+    const requested = String(value == null ? '' : value).trim();
+    if (aliases[requested]) return aliases[requested];
+    if (/^[a-z][a-z0-9_]{1,39}$/.test(requested)) return requested;
+    return { danger: 'error', warning: 'warning', success: 'check_circle' }[tone] || 'info';
+  }
+
   function ensureToastRegion() {
     let region = document.querySelector('.sl-toast-region');
     if (!region) {
@@ -76,12 +91,12 @@
   function toast(message, options) {
     const opts = options || {};
     const tone = opts.tone || 'info';
-    const icons = { success: '✓', danger: '!', warning: '!', info: 'i' };
+    const icons = { success: 'check_circle', danger: 'error', warning: 'warning', info: 'info' };
     const item = document.createElement('div');
     item.className = 'sl-toast';
     item.dataset.tone = tone;
     item.setAttribute('role', tone === 'danger' ? 'alert' : 'status');
-    item.innerHTML = '<span class="sl-toast-icon">' + (icons[tone] || 'i') + '</span><span>' + escapeHtml(message) + '</span><button type="button" class="sl-toast-close" aria-label="Dismiss notification">×</button>';
+    item.innerHTML = '<span class="sl-toast-icon material-symbols-rounded" aria-hidden="true">' + (icons[tone] || 'info') + '</span><span>' + escapeHtml(message) + '</span><button type="button" class="sl-toast-close" aria-label="Dismiss notification"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>';
     ensureToastRegion().appendChild(item);
     let dismissed = false;
     function dismiss() {
@@ -141,15 +156,15 @@
       layer.setAttribute('role', 'presentation');
       const fields = opts.fields || [];
       const tone = opts.tone || (opts.danger ? 'danger' : 'info');
-      const icon = opts.icon || (tone === 'danger' ? '!' : tone === 'success' ? '✓' : '?');
+      const icon = materialIcon(opts.icon, tone);
       layer.innerHTML =
         '<div class="sl-dialog-backdrop" data-dialog-cancel></div>' +
         '<section class="sl-dialog" role="dialog" aria-modal="true" aria-labelledby="sl-dialog-title"' + (opts.message ? ' aria-describedby="sl-dialog-message"' : '') + '>' +
           '<div class="sl-dialog-head">' +
-            '<span class="sl-dialog-icon" data-tone="' + escapeHtml(tone) + '">' + escapeHtml(icon) + '</span>' +
+            '<span class="sl-dialog-icon material-symbols-rounded" data-tone="' + escapeHtml(tone) + '" aria-hidden="true">' + escapeHtml(icon) + '</span>' +
             '<div><h2 class="sl-dialog-title" id="sl-dialog-title">' + escapeHtml(opts.title || 'Security Agency Management System') + '</h2>' +
             (opts.message ? '<p class="sl-dialog-message" id="sl-dialog-message">' + escapeHtml(opts.message) + '</p>' : '') + '</div>' +
-            (opts.hideClose ? '' : '<button class="sl-dialog-close" type="button" aria-label="Close" data-dialog-cancel>×</button>') +
+            (opts.hideClose ? '' : '<button class="sl-dialog-close" type="button" aria-label="Close" data-dialog-cancel><span class="material-symbols-rounded" aria-hidden="true">close</span></button>') +
           '</div>' +
           (fields.length ? '<form class="sl-dialog-form"><div class="sl-dialog-fields">' + fields.map(fieldMarkup).join('') + '</div><p class="sl-dialog-error" aria-live="polite"></p></form>' : '') +
           '<div class="sl-dialog-actions">' +
@@ -157,6 +172,15 @@
             '<button class="sl-dialog-btn ' + (opts.danger ? 'sl-dialog-btn-danger' : 'sl-dialog-btn-primary') + '" type="button" data-dialog-confirm>' + escapeHtml(opts.confirmText || 'Continue') + '</button>' +
           '</div>' +
         '</section>';
+
+      // Optional caller-built content stays DOM-only; never interpret it as HTML.
+      if (opts.content instanceof HTMLElement) {
+        layer.querySelector('.sl-dialog').insertBefore(opts.content, layer.querySelector('.sl-dialog-actions'));
+        if (!opts.message) {
+          opts.content.id = opts.content.id || 'sl-dialog-content';
+          layer.querySelector('.sl-dialog').setAttribute('aria-describedby', opts.content.id);
+        }
+      }
 
       const previousOverflow = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
@@ -187,12 +211,15 @@
         try {
           if (typeof opts.validate === 'function') {
             const validation = await opts.validate(values);
+            // A cancelled or replaced dialog must never confirm the next one
+            // when its asynchronous validation eventually finishes.
+            if (activeDialog?.layer !== layer) return;
             if (validation) {
               if (errorEl) errorEl.textContent = validation;
               return;
             }
           }
-          closeDialog(fields.length ? values : true);
+          if (activeDialog?.layer === layer) closeDialog(fields.length ? values : true);
         } catch (error) {
           if (errorEl) errorEl.textContent = error && error.message ? error.message : 'Please try again.';
         } finally {
@@ -204,7 +231,7 @@
       }
 
       const onKeyDown = function (event) {
-        if (event.key === 'Escape' && opts.cancelText !== null) closeDialog(null);
+        if (event.key === 'Escape' && (opts.cancelText !== null || opts.dismissOnEscape)) closeDialog(null);
         if (event.key === 'Tab') {
           const focusable = Array.from(layer.querySelectorAll('button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [href]'));
           if (!focusable.length) return;
@@ -219,7 +246,10 @@
           }
           return;
         }
-        if (event.key === 'Enter' && !event.shiftKey && event.target.tagName !== 'TEXTAREA') {
+        // Let links and buttons activate natively, including caller-built content.
+        // Enter in a dialog form field still submits the dialog's confirmation.
+        if (event.key === 'Enter' && !event.shiftKey &&
+            event.target.matches('.sl-dialog-form input')) {
           event.preventDefault();
           confirmSelection();
         }
@@ -231,7 +261,9 @@
       });
       layer.querySelector('[data-dialog-confirm]').addEventListener('click', confirmSelection);
       const focusTarget = layer.querySelector('input, select, textarea, [data-dialog-confirm]');
-      if (focusTarget) setTimeout(function () { focusTarget.focus(); }, 20);
+      // The layer is already attached. A delayed focus can steal focus from a
+      // user's first action (for example Cancel or Copy email).
+      if (focusTarget) focusTarget.focus({ preventScroll: true });
     });
   }
 
@@ -241,11 +273,11 @@
     setBusy: setBusy,
     runBusy: runBusy,
     alert: function (message, options) {
-      const opts = Object.assign({ title: 'Security Agency Management System', cancelText: null, confirmText: 'Got it', icon: 'i' }, options || {}, { message: message });
+      const opts = Object.assign({ title: 'Security Agency Management System', cancelText: null, confirmText: 'Got it', icon: 'info' }, options || {}, { message: message });
       return open(opts);
     },
     confirm: function (message, options) {
-      return open(Object.assign({ title: 'Please confirm', confirmText: 'Confirm', icon: '?' }, options || {}, { message: message }));
+      return open(Object.assign({ title: 'Please confirm', confirmText: 'Confirm', icon: 'help' }, options || {}, { message: message }));
     },
     form: function (options) { return open(options); }
   };

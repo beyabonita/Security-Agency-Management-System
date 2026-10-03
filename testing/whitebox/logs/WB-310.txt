@@ -1,0 +1,12 @@
+WB-310 — PASS
+admin-create-user.registered handler
+Scenario: validation, duplicate and rollback
+Input: {"options":{"profileError":true,"rollbackError":true},"body":{}}
+Expected: [500,"account_create_rollback_failed"]
+Actual: [500,"account_create_rollback_failed"]
+UTC: 2026-09-05T08:56:20.112Z
+Evidence: logs/deno-final.log:563
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

@@ -5,60 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duty Sites — Security Agency Management System</title>
     <link rel="icon" type="image/png" href="../favicon.png">
-    <script src="../js/theme-preference.js" defer></script>
+    <script src="../js/theme-preference.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/inspector-theme.css" rel="stylesheet">
+    <link href="../admin/css/admin-theme.css" rel="stylesheet">
     <style>
         .loc-address { font-size: 0.82rem; color: var(--ix-muted); line-height: 1.45; max-width: 360px; }
-        .loc-coords { font-size: 0.72rem; color: #94a3b8; font-family: monospace; margin-top: 4px; }
+        .loc-coords { font-size: 0.72rem; color: var(--sl-muted); font-family: monospace; margin-top: 4px; }
     </style>
 </head>
-<body class="inspector-body" data-ix-page="locations">
+<body class="admin-body inspector-body" data-ix-page="locations">
 
 <div id="loadingScreen">
     <div class="spinner-border text-success"></div>
     <p>Loading sites…</p>
 </div>
 
-<div class="ix-app">
-    <header class="ix-shell">
-        <div class="ix-shell-bar">
-            <div class="ix-shell-brand">
-                <span class="ix-brand-badge">Field audit</span>
-                <div class="ix-shell-titles">
-                    <p class="ix-shell-product">Security Agency Management System</p>
-                    <p class="ix-shell-tagline">Read-only field review</p>
-                </div>
-            </div>
-            <div class="ix-shell-actions">
-                <span class="ix-readonly-pill">Audit mode</span>
-                <span class="ix-user-chip" id="ixUserName">Inspector</span>
-                <button type="button" class="ix-btn-logout" onclick="inspectorLogout()">Sign out</button>
-            </div>
-        </div>
-        <nav class="ix-topnav" id="ixTopnav" aria-label="Inspector navigation">
-            <button type="button" class="ix-menu-toggle" id="ixMenuToggle" aria-label="Menu">☰ Menu</button>
-            <div class="ix-topnav-links">
-                <a href="dashboard.html"><span class="ix-nav-icon">📊</span> Overview</a>
-                <a href="users.html"><span class="ix-nav-icon">📋</span> Guard DTR</a>
-                <a href="locations.html"><span class="ix-nav-icon">📍</span> Sites</a>
-                <a href="incidents.html"><span class="ix-nav-icon">🚨</span> Alerts</a>
-                <a href="swaps.html"><span class="ix-nav-icon">🔁</span> Shift requests</a>
-            </div>
-        </nav>
-    </header>
-
-    <div class="ix-main">
-        <div class="ix-page-head">
-            <p class="ix-breadcrumb">Sites</p>
-            <h1 class="ix-page-title">Duty sites</h1>
-        </div>
-        <main class="ix-content">
-
-            <div class="ix-notice">
-                <span>ℹ️</span>
-                <span><strong>Inspector view:</strong> Site management is restricted to administrators. Contact your admin to add or edit locations.</span>
-            </div>
+<div class="ax-app">
+    <aside class="ax-sidebar" id="inspector-navigation">
+      <div class="ax-brand"><p class="ax-brand-title">Inspector</p><p class="ax-brand-sub">Security Agency Management System</p></div>
+      <nav class="ax-nav" aria-label="Inspector navigation"><div class="ax-nav-label">Manage</div>
+        <a href="dashboard.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">dashboard</span> Dashboard</a>
+        <a href="users.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">groups</span> My Guards &amp; DTR</a>
+        <a href="locations.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">location_on</span> Deployment Sites</a>
+        <a href="incidents.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">emergency</span> Incidents</a>
+        <a href="live-tracking.html"><svg class="ax-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z"/><path d="M9 3v15M15 6v15"/><circle cx="15" cy="11" r="2" fill="currentColor"/></svg> Live guard map</a>
+      </nav>
+      <div class="ax-sidebar-foot">TwentyTwenty Security Agency</div>
+    </aside>
+    <div class="ax-main">
+      <header class="ax-topbar"><div class="ax-topbar-left">
+        <button type="button" class="ax-menu-toggle" id="ixMenuToggle" aria-label="Open navigation"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button>
+        <div><div class="ax-breadcrumb">Inspector Console</div><h1 class="ax-page-title">Duty sites</h1></div>
+      </div><div class="ax-topbar-right">
+        <span class="ax-user-chip" id="ixUserName" hidden aria-live="polite"></span>
+        <button type="button" class="ax-btn-logout" onclick="inspectorLogout()">Sign out</button>
+      </div></header>
+      <main class="ax-content">
 
             <div class="ix-section-label">All locations</div>
             <div class="ix-panel">
@@ -86,6 +69,7 @@
 <script src="js/inspector-shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
 <script src="../js/supabase-firebase-bridge.js"></script>
+<script src="../js/platform-configuration.js"></script>
 <script src="../js/notification-center.js"></script>
 
 <script>
@@ -93,17 +77,18 @@ const auth = firebase.auth();
 const db   = firebase.firestore();
 
 auth.onAuthStateChanged(user => {
-    if (!user) { window.location.href = "login.html"; return; }
+    if (!user) { window.location.href = "../staff/login.html"; return; }
     db.collection("users").doc(user.uid).get().then(doc => {
-        if (!doc.exists) { window.location.href = "login.html"; return; }
+        if (!doc.exists) { window.location.href = "../staff/login.html"; return; }
         const role = doc.data().role;
         if (role === "admin") { window.location.href = "../admin/locations.html"; return; }
-        if (role !== "inspector") { window.location.href = "login.html"; return; }
+        if (role !== "inspector") { window.location.href = "../staff/login.html"; return; }
         const d = doc.data();
         const name = [d.firstName, d.middleInitial ? d.middleInitial + "." : "", d.lastName]
             .filter(Boolean).join(" ") || d.name || displayLoginId(d);
         setInspectorUserName(name);
         loadLocations();
+        watchInspectorAssignments(loadLocations);
     });
 });
 
@@ -116,7 +101,7 @@ function escapeHtml(text) {
 }
 
 function loadLocations() {
-    db.collection("locations").orderBy("label").get().then(snapshot => {
+    return db.collection("locations").orderBy("label").get().then(snapshot => {
         let html = "";
         snapshot.forEach(doc => {
             const d = doc.data();
@@ -139,7 +124,7 @@ function loadLocations() {
             </tr>`;
         });
         document.getElementById("locationTable").innerHTML = html ||
-            `<tr><td colspan="4" class="empty-state">No locations found.</td></tr>`;
+            `<tr><td colspan="4" class="empty-state">No sites assigned to you or your Guards yet.</td></tr>`;
         finishPageLoading();
     }).catch(err => {
         document.getElementById("locationTable").innerHTML =

@@ -1,0 +1,12 @@
+WB-097 — PASS
+ScheduleService.isScheduleEnded
+Scenario: end equality
+Input: "end=now"
+Expected: true
+Actual: true
+UTC: 2026-09-05T08:57:23.941376Z
+Evidence: logs/flutter-verified.jsonl:383
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

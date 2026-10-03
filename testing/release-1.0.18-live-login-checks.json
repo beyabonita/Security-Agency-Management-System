@@ -1,0 +1,14 @@
+[
+  {
+    "url": "https://security-agency-management-system-nu.vercel.app/staff/login.html",
+    "emailLabel": true,
+    "eyeToggle": true,
+    "scriptErrors": []
+  },
+  {
+    "url": "https://security-agency-management-system-admin.vercel.app/system-access-7d92a4/login.html",
+    "emailLabel": true,
+    "eyeToggle": true,
+    "scriptErrors": []
+  }
+]

@@ -1,0 +1,12 @@
+WB-106 — PASS
+RequestLetter.constructor
+Scenario: filename, content signature and empty bytes
+Input: {"name":"ok.pdf","bytes":[1,2,3]}
+Expected: false
+Actual: false
+UTC: 2026-09-05T08:57:23.984374Z
+Evidence: logs/flutter-verified.jsonl:410
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

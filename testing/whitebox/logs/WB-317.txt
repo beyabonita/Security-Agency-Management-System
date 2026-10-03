@@ -1,0 +1,12 @@
+WB-317 — PASS
+admin-manage-user.registered handler
+Scenario: management permission and retention rules
+Input: {"options":{},"body":{"role":"inspector"}}
+Expected: [403,"forbidden_role",[]]
+Actual: [403,"forbidden_role",[]]
+UTC: 2026-09-05T08:56:20.188Z
+Evidence: logs/deno-final.log:600
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

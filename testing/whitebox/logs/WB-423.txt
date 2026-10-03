@@ -1,0 +1,13 @@
+WB-423 — FAIL
+SchedulePeriod.buildDutyPlan
+Scenario: null entry should return validation error
+Input: [null]
+Expected: true
+Actual: "Exception: TypeError: Cannot read properties of null (reading 'period')"
+UTC: see runner log
+Evidence: logs/node.tap:24
+Source: testing/whitebox/unit_tests/web_test.cjs
+Runner error: TypeError: Cannot read properties of null (reading 'period')
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

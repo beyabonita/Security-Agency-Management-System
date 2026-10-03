@@ -1,0 +1,12 @@
+WB-260 — PASS
+api.handleJsonPost
+Scenario: request headers validated
+Input: {"Content-Length":"32769"}
+Expected: 413
+Actual: 413
+UTC: 2026-09-05T08:56:19.279Z
+Evidence: logs/deno-final.log:299
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

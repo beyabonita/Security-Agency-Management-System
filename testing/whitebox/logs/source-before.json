@@ -1,0 +1,918 @@
+[
+  {
+    "hash": "D7C376BFFE7CA0F6B59793760949F4D5E36538327C3D24B7027CD8927C3CF0F4",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\admin_web_notice.dart"
+  },
+  {
+    "hash": "193721981BE6235742306DD8A5F1912E31E5369C3BF901B071410D9A5C7C6099",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\app_role_gate.dart"
+  },
+  {
+    "hash": "722B4AF9F12FEE0E2725DB5A13ED6786185916022BFA7321A42450C34A1B56DF",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\attendance.dart"
+  },
+  {
+    "hash": "016B68BA7EAA4FAACA6E42AD9EA3E2407C7128775715F1B9716F71FF55955CD0",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\auth_gate.dart"
+  },
+  {
+    "hash": "DDA53F05ED443AFE3014D487E1BBC11EC2250474AF25D5C6FD45325C722747FF",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\duty_requests.dart"
+  },
+  {
+    "hash": "8BE25DBC2AA3669FE922176A95E488FE421CEE9396260B5411359739C018F795",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\homepage.dart"
+  },
+  {
+    "hash": "BC0EC737C91425541957FD752928EDD613273154A527FDDB8CEAB113A1BEC43A",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\incident_report.dart"
+  },
+  {
+    "hash": "99CAAC358A801998584C8B826C95C403100A66D8F16EFC89C3DA9C15DC8B0837",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\letter_request.dart"
+  },
+  {
+    "hash": "35938B1619CA18B5B5C5407CD14015EE0AC4C045F89A25FE68CB52D3F07A27BB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\login.dart"
+  },
+  {
+    "hash": "35C43C70EAFE81E3A81A7EE2B7813E21F399A72BBFECC1D5424E4E47DD7D9841",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\main.dart"
+  },
+  {
+    "hash": "A73023FFA17612BAB20AC873E23200D9B49BD8D8F237F9E56C1695C1D5FA8AFF",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\notifications.dart"
+  },
+  {
+    "hash": "EB2AF133FC39B64A2DCC88258BBBEB8CD759980F38942B35B43C82C22C42D392",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\supabase_config.dart"
+  },
+  {
+    "hash": "2E4306363BF7E1CC08A00BC274B71251B552F2825C4369422E72463EC0D4E725",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\time_logs.dart"
+  },
+  {
+    "hash": "DE17ED963FC2F8296E04721C434F591EC24C504F352641C600A0D48B33CAC7D8",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\config\\admin_web_config.dart"
+  },
+  {
+    "hash": "628D85BFE7DED6B0F5CAD06664D7119A387CAD4309DD0D3917D75F4878063266",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\models\\app_notification.dart"
+  },
+  {
+    "hash": "5E55736E6D78867E1BCB4EFFE6B73936053466EF64D20F4D2635E0DE5A701A45",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\models\\attendance_session.dart"
+  },
+  {
+    "hash": "D0AA4A70DDA59842DE4FDCE32E572791E3297DA0A57C0D6071AC968304ECB82A",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\models\\contract_period.dart"
+  },
+  {
+    "hash": "C711C7D29F67397B6F7CBE2A69636E8E5EF9AF220FBF2130079111A86DA3D677",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\models\\dtr_alignment.dart"
+  },
+  {
+    "hash": "AC854D4DD3F971CA2ACB924B3D0D2A826CD33B70B1C08E0A70479DBF711C80A6",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\models\\geofence_site.dart"
+  },
+  {
+    "hash": "496A379D2B95D057C96FABCA8E233617C40A5F9B16D58E2C0F9BC731FDF4B05F",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\models\\request_letter.dart"
+  },
+  {
+    "hash": "E990CAE3076C9D010EF7079FD6451861A882FC320E797DDEF91524BFD673B1D0",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\services\\attendance_service.dart"
+  },
+  {
+    "hash": "2C50761B9C5C05F6CB1C3E05CDF177353C9DC481EACB2FC373EF4B6B38EE4158",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\services\\device_service.dart"
+  },
+  {
+    "hash": "51BF6A6ADC370B33DD8773EEDCAA8D72955BFE7DE7DA6736BD7356FBAF695A4F",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\services\\duty_request_service.dart"
+  },
+  {
+    "hash": "F91FB5B3C3A28A822B1402798DC13DF40F02EBAB48E384191380808B2D55BC7D",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\services\\geofence_service.dart"
+  },
+  {
+    "hash": "9757689140F6D0D34A0AAA1C49F50F59B8D1BE56DAC3AF4ABBD250E4CB813757",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\services\\incident_image_codec.dart"
+  },
+  {
+    "hash": "5751FE9E1436690BCDE97DBBBCFD02C6F8AEA96EA2656317B61701083011E2C9",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\services\\incident_service.dart"
+  },
+  {
+    "hash": "D04589C652CF6F613AE18CD0272D3AE02BB8675676D55BBFD067F806E2C9AD27",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\services\\incident_video_format.dart"
+  },
+  {
+    "hash": "4BF11E0A11CE663DC22ECF3B7C9FAE94AF94D364CFA42530EF978E9828B04779",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\services\\location_integrity_service.dart"
+  },
+  {
+    "hash": "11209985332188DC447AA40BF11646EE681ABC3F10E86010C3158200C59AE89D",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\services\\notification_service.dart"
+  },
+  {
+    "hash": "C13CA65AF616AC8DB2AFB8BE3C7D3712DA87DD88FDDAA09C7571B210323ED698",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\services\\request_letter_picker.dart"
+  },
+  {
+    "hash": "441447411F867793B60717990FC0C72DEFD74FC53DC2BCD6DC307FD8C2E998A4",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\services\\schedule_service.dart"
+  },
+  {
+    "hash": "CD8DFD9C4DA0819D6C21DFE339B9FDB26235BA046F658767125B47E27E4044CE",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\services\\user_profile_service.dart"
+  },
+  {
+    "hash": "CD6AB31D9A3A56CFBE99C53469261457236EEDE41786BDA0794B79F5767DFCD0",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\services\\user_role_service.dart"
+  },
+  {
+    "hash": "51284CC9643FAC0E626439318C05A065B08B319867D04FB8B68BFA50463CB1E2",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\theme\\app_colors.dart"
+  },
+  {
+    "hash": "A8645D830DF3E1D1A70357A3E530502C8663DCF758C671D2C9A91F8F09E51916",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\theme\\app_theme_controller.dart"
+  },
+  {
+    "hash": "1E805D1D59BCD12F9849070D0A8B5254F2A3979A6F0F6C8517B12201876142D2",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\theme\\app_theme.dart"
+  },
+  {
+    "hash": "6357614BCCD8AE7992195575A94C4A98B1AE761C0031104B77E7CEA6C935C865",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\utils\\auth_username.dart"
+  },
+  {
+    "hash": "1E68C3802F0DAE7ACC7E56A1CEEB67A4736772F3FC41DE24BBA9A1D569D2A93E",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\widgets\\attendance_punch_action.dart"
+  },
+  {
+    "hash": "9A6E8E59E9159640FCB1D7D62E6AE0477C665F68311BA056E2D559228A01F321",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\widgets\\guard_ui.dart"
+  },
+  {
+    "hash": "605327A2BE039BD2C1FDBA6CF967D8CAFF731715E069CDE251012AB17C2032E5",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\lib\\widgets\\incident_in_app_camera.dart"
+  },
+  {
+    "hash": "6FB4EA1C55247BCE0D72BDABAFC300FC9ED75A86EDCB8C1BFF1005C94844D114",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.env.local"
+  },
+  {
+    "hash": "5342D590B785DFCA844CF341379D0556A23225F09DBDCBC9FA5879544897A1BB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.gitignore"
+  },
+  {
+    "hash": "C53E5071ABA150CBB9289ECC45C80B105164019507916F16C3BAA6AD6A360D53",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercelignore"
+  },
+  {
+    "hash": "B7F23EEC6DDCE46B4468470EAC2F834866A345F975B93CAE2CD470AF7754F6CD",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\favicon.png"
+  },
+  {
+    "hash": "93F8F0647E14CB0ABDA9502D1C2561687842AAE712FEC6FFB1C263697FAB4326",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\index.html"
+  },
+  {
+    "hash": "2E95F833F9B7E889FB700C1148185DEFC9D0A0848EF527BCD3721D6F0CAA2040",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\manifest.json"
+  },
+  {
+    "hash": "FB8DEB5D001B41845BADC80057B4903942EDA400EDC1C0A2314DF2988E78A676",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\vercel.json"
+  },
+  {
+    "hash": "2886FA3518BC9AAACD869159ED28B9800E9464CB3B0A903521CCD87141D5192C",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\project.json"
+  },
+  {
+    "hash": "F5D1ED0F5032AE128931F46459B5FAA1AF6319FC2DFB3E7A5FE54A84BF93DBD6",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\README.txt"
+  },
+  {
+    "hash": "797475F092FF602611C5CF40BC7724842B6BCDA9BCC7D0E93800282133C5EB6C",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\builds.json"
+  },
+  {
+    "hash": "EA849A0AE600DC3CBDB3B7AE0FEBE3D26D636DAFB680FA23FA05A3288435D8A7",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\config.json"
+  },
+  {
+    "hash": "6314A03F44BCF484615A4A222593A1A368EEE118979C9A79C5E652D82B384C6E",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\diagnostics\\cli_traces.json"
+  },
+  {
+    "hash": "B7F23EEC6DDCE46B4468470EAC2F834866A345F975B93CAE2CD470AF7754F6CD",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\favicon.png"
+  },
+  {
+    "hash": "93F8F0647E14CB0ABDA9502D1C2561687842AAE712FEC6FFB1C263697FAB4326",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\index.html"
+  },
+  {
+    "hash": "2E95F833F9B7E889FB700C1148185DEFC9D0A0848EF527BCD3721D6F0CAA2040",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\manifest.json"
+  },
+  {
+    "hash": "C88F2C2D841BE13734CE9B018B3282AEFF8993C60C53622DA87ABF49BF8F815F",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\admin\\dashboard.html"
+  },
+  {
+    "hash": "F281B48E9DA6BBFDDB50654DF1F6F8B62A31AFDA2F1BD3B76E8F9FFB899B5409",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\admin\\incidents.html"
+  },
+  {
+    "hash": "A343062C3FD6923B232030A4BCCFF2F00BC35D9185ACA847033A24004DE082A8",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\admin\\locations.html"
+  },
+  {
+    "hash": "0A20CBCC9C329305C7ACA38E2CA7A21EB4801DCFA42F84C7EE71E3905220E47E",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\admin\\schedule.html"
+  },
+  {
+    "hash": "1BA42A4B03D9267DD05D25E3260041C963EB6FB25C0A429F943D19D95403EE9C",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\admin\\swaps.html"
+  },
+  {
+    "hash": "7C71DED5AC22462AB3B592C3133A333E61EE8A04C59EDF427B28BB18A03C57AB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\admin\\users.html"
+  },
+  {
+    "hash": "FC30CB705E72E10E76EB772EE9FE4A377E62B0A6D4F6F20461AE7492FA48FFFD",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\admin\\css\\admin-theme.css"
+  },
+  {
+    "hash": "EDE9C84F110B4E44F82AAC84F52FC4835B7235FC27FAE642B7A80424649B7982",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\admin\\js\\admin-shell.js"
+  },
+  {
+    "hash": "2B7CBF1F62305C787FF70A3F93F071B67931EB162EB35A30561252557D87F6F6",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\assets\\twentytwenty-agency-office.jpg"
+  },
+  {
+    "hash": "85B5C773F091E6A7B845C07114EDE135A3AEAAA1E55F8B8344CD431E0BAD9BE9",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\css\\app-experience.css"
+  },
+  {
+    "hash": "30AF2E34462FDCEBC8235C3B7AFD6B3D1B8905EDAF779C2ECC1588726D9B8424",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\css\\brand.css"
+  },
+  {
+    "hash": "2E2244E4A526F2036F720DA4931AA49499B5A81968F85FA0E00F89C1357B1E57",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\css\\dtr-report.css"
+  },
+  {
+    "hash": "660E53EEB9CE20F0071E7B7261E3E90050E4010CA484C33684FCEA5594DCA57A",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\css\\incident-report.css"
+  },
+  {
+    "hash": "898361298D502E35046A00D38EFE45108DD142665E68B3C37AAAA813F02E149B",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\css\\login-transitions.css"
+  },
+  {
+    "hash": "C8CF7816721FA6DC36253E2017CFB6E23FC017B26FA5CD939440FE7F56064539",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\css\\theme-preference.css"
+  },
+  {
+    "hash": "DBAA6F558AFF9B357FF24D913E3FE5CA6C4C84EBC6F5EF5E905E05BFCE34EAC8",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\icons\\Icon-192.png"
+  },
+  {
+    "hash": "FDFF2E3B198A057E44082DF4D473A7486A274C41B145FF6D06AD28DEC47742BB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\icons\\Icon-512.png"
+  },
+  {
+    "hash": "DBAA6F558AFF9B357FF24D913E3FE5CA6C4C84EBC6F5EF5E905E05BFCE34EAC8",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\icons\\Icon-maskable-192.png"
+  },
+  {
+    "hash": "FDFF2E3B198A057E44082DF4D473A7486A274C41B145FF6D06AD28DEC47742BB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\icons\\Icon-maskable-512.png"
+  },
+  {
+    "hash": "88023B37FEDDEE52245F605ADFDC7A8CF603B013655289F23BE75DEB34508F93",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\icons\\sentinel-link-mark.png"
+  },
+  {
+    "hash": "7779795A52A131B2105892B4297EE73F415CD86D61D60E21E270F53C99BC6CB8",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\inspector\\dashboard.html"
+  },
+  {
+    "hash": "2E05B0CF11330FC161C594FCFABFFE0DF7E34D9E1E9137BAFAA9C51AE33E27E4",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\inspector\\incidents.html"
+  },
+  {
+    "hash": "1FE4D430F1343F9CA36EE4BCD0FB6630B8B25C8196F162BA5B4ECE2CBF3F4C54",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\inspector\\locations.html"
+  },
+  {
+    "hash": "CDB2B266FD5F9BED8386D375F915027FC510F17D63C270409EE36D8F5AABC062",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\inspector\\swaps.html"
+  },
+  {
+    "hash": "ED33E53C67EC92524E09A22B624090523C6891CC2A600E0D155AAF0AF4D0C968",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\inspector\\users.html"
+  },
+  {
+    "hash": "83CE2E729A90EE756517366DF809A23086C2C5E85280CEE23663B6980226F97B",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\inspector\\css\\inspector-theme.css"
+  },
+  {
+    "hash": "4A395A0D8B0F9EEB5E34ED2A4B267A2BFED9AC9F48B3A36E1994ACE4281E49EF",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\inspector\\js\\inspector-shell.js"
+  },
+  {
+    "hash": "E393E4C060583FF9675149EFD33EB62447A8EEAB84C963447BEADBC3ED866DFD",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\it-admin\\clients.html"
+  },
+  {
+    "hash": "DDE230B3D620DDCF4C609FAFE2B4FDE95CB2C3C5CA40344E2AB5228381E97635",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\it-admin\\dashboard.html"
+  },
+  {
+    "hash": "E741C876AABC271E33F6A459096823729C28C01B453AD0BBBAF0CB09608C55C4",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\it-admin\\it-admin-ui.js"
+  },
+  {
+    "hash": "EFBA7ED57BCAA420314F0153A41B186519C4B31E9874FCDAED423ABF58696C98",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\it-admin\\users.html"
+  },
+  {
+    "hash": "3D0505998B894EEB33CA21CB18212AE64559EC0AC381CFF201C3A649297898D9",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\js\\app-dialogs.js"
+  },
+  {
+    "hash": "D4377B861B4AD01095301BC5F4446AFD5BDAA667840912249DC49F7B660CC1FB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\js\\auth-username.js"
+  },
+  {
+    "hash": "F8B1C6CF75CDB2ACE7F7A3C2DE94501A9E9E34112B90FBB6530880E712AEB987",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\js\\dtr-report.js"
+  },
+  {
+    "hash": "515386ED7230B5C052F2C2F1F6CB784DCD0DA4B95E1FAB2469482F9B3C635E9F",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\js\\incident-report-view.js"
+  },
+  {
+    "hash": "85943ABFA4C42F79E92918B4FCAB2FA60FAA682E6925A85CC59DA186D54DB3DC",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\js\\login-panel-switch.js"
+  },
+  {
+    "hash": "29D856169A40D4705CF9FD39C65525F229A082CAB30DA62DCF83051209020E3B",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\js\\notification-center.js"
+  },
+  {
+    "hash": "C16DB9C65C4C01E97E6C9CE4B7A04FC95C1A073FCDE262856074635D1014A152",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\js\\schedule-period.js"
+  },
+  {
+    "hash": "7C49E37F96181B0CA8B9E31A0CF7D98B19DFEE6C8460D5D05D9E4D27BE1AEE1A",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\js\\supabase-firebase-bridge.js"
+  },
+  {
+    "hash": "19F74716FA989BF659AC04CBDCBAF2EE9884D68A97DFE8FF0B99431C53C9147C",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\js\\theme-preference.js"
+  },
+  {
+    "hash": "68C9A9615744ED7F7A4DC1E1CDD85BACF7ADC6918DD4FD10F69D22D1B9B74826",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\staff\\app-download.css"
+  },
+  {
+    "hash": "6B5F4A641FE8AE9A7ED60419252EB0600796E3E72E18606571D2B72D17060FF0",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\staff\\app-download.html"
+  },
+  {
+    "hash": "AA310CDB55A2DA0252B95623D0DA3093D433E10CB88DADA2DF3102E6297CC6DA",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\staff\\app-download.js"
+  },
+  {
+    "hash": "DEA4AD217DC0AE32E66C125DB9896B2FA893FCC74369CEB0D047454E92C804BB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\staff\\guard-app-qr.png"
+  },
+  {
+    "hash": "14F8A87BA38A78F72E6BDEF932F0478B4BFDCC19AB45D1E1995D816CFCC54FAB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\staff\\login.css"
+  },
+  {
+    "hash": "76A0C2B4E7E3D67C3AEFEE4214A2BA49C9B4C7875B3254C36BFA7A2F3B975FBC",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\staff\\login.html"
+  },
+  {
+    "hash": "2BF185E614879BA4AEB467C573E88DACB1A3C2607140C3B7D76EB61A39870950",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\.vercel\\output\\static\\system-access-7d92a4\\login.html"
+  },
+  {
+    "hash": "C88F2C2D841BE13734CE9B018B3282AEFF8993C60C53622DA87ABF49BF8F815F",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\admin\\dashboard.html"
+  },
+  {
+    "hash": "F281B48E9DA6BBFDDB50654DF1F6F8B62A31AFDA2F1BD3B76E8F9FFB899B5409",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\admin\\incidents.html"
+  },
+  {
+    "hash": "A343062C3FD6923B232030A4BCCFF2F00BC35D9185ACA847033A24004DE082A8",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\admin\\locations.html"
+  },
+  {
+    "hash": "0A20CBCC9C329305C7ACA38E2CA7A21EB4801DCFA42F84C7EE71E3905220E47E",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\admin\\schedule.html"
+  },
+  {
+    "hash": "1BA42A4B03D9267DD05D25E3260041C963EB6FB25C0A429F943D19D95403EE9C",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\admin\\swaps.html"
+  },
+  {
+    "hash": "7C71DED5AC22462AB3B592C3133A333E61EE8A04C59EDF427B28BB18A03C57AB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\admin\\users.html"
+  },
+  {
+    "hash": "FC30CB705E72E10E76EB772EE9FE4A377E62B0A6D4F6F20461AE7492FA48FFFD",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\admin\\css\\admin-theme.css"
+  },
+  {
+    "hash": "8C76B59A920180A6518B23C84D852D920ACE26188FA177FD85A305C2EAE5ED8A",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\admin\\css\\dtr-scheduling.css"
+  },
+  {
+    "hash": "EDE9C84F110B4E44F82AAC84F52FC4835B7235FC27FAE642B7A80424649B7982",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\admin\\js\\admin-shell.js"
+  },
+  {
+    "hash": "E5A8856F5B0298504BAD71D6B31C3407DF53E6C35601C928C47AFE7252A65B0E",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\admin\\js\\duty-requests.js"
+  },
+  {
+    "hash": "2B7CBF1F62305C787FF70A3F93F071B67931EB162EB35A30561252557D87F6F6",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\assets\\twentytwenty-agency-office.jpg"
+  },
+  {
+    "hash": "58D1E17FFE5109A7AE296CAAFCADFDBE6A7D176F0BC4AB01E12A689B0499D8BD",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\assets\\fonts\\LICENSE.txt"
+  },
+  {
+    "hash": "6E3A1856467B0FE4F39FCF2FE8A21E8B0AA61BB6286200E3275DCBEF039A9A6A",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\assets\\fonts\\material-symbols-rounded.json"
+  },
+  {
+    "hash": "B639174F2101E6735688D3074FBA998E5C10A2E3B9DC3F8D0334791F7F65F72E",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\assets\\fonts\\material-symbols-rounded.woff2"
+  },
+  {
+    "hash": "EF12BE1405B7FECB4D704556620317E13DB96E1AEC98B02BD3795B65875BB965",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\assets\\fonts\\README.md"
+  },
+  {
+    "hash": "85B5C773F091E6A7B845C07114EDE135A3AEAAA1E55F8B8344CD431E0BAD9BE9",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\css\\app-experience.css"
+  },
+  {
+    "hash": "30AF2E34462FDCEBC8235C3B7AFD6B3D1B8905EDAF779C2ECC1588726D9B8424",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\css\\brand.css"
+  },
+  {
+    "hash": "2E2244E4A526F2036F720DA4931AA49499B5A81968F85FA0E00F89C1357B1E57",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\css\\dtr-report.css"
+  },
+  {
+    "hash": "19804F27E0E75B60E4FF7AA99540AA3D8F45E04C9B3C0AC134E8766FA3EB560B",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\css\\duty-requests.css"
+  },
+  {
+    "hash": "4CB250EE4E249C0377683BA46391F7321BB686A12CB0D06E8B3E5C6B152AA89D",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\css\\google-icons.css"
+  },
+  {
+    "hash": "660E53EEB9CE20F0071E7B7261E3E90050E4010CA484C33684FCEA5594DCA57A",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\css\\incident-report.css"
+  },
+  {
+    "hash": "898361298D502E35046A00D38EFE45108DD142665E68B3C37AAAA813F02E149B",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\css\\login-transitions.css"
+  },
+  {
+    "hash": "C8CF7816721FA6DC36253E2017CFB6E23FC017B26FA5CD939440FE7F56064539",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\css\\theme-preference.css"
+  },
+  {
+    "hash": "3C80DCCE72FAD29988714EE37814611818BA0FC500937E3C5221917A42362AA3",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\downloads\\security-agency-management-system-guard.apk"
+  },
+  {
+    "hash": "DBAA6F558AFF9B357FF24D913E3FE5CA6C4C84EBC6F5EF5E905E05BFCE34EAC8",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\icons\\Icon-192.png"
+  },
+  {
+    "hash": "FDFF2E3B198A057E44082DF4D473A7486A274C41B145FF6D06AD28DEC47742BB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\icons\\Icon-512.png"
+  },
+  {
+    "hash": "DBAA6F558AFF9B357FF24D913E3FE5CA6C4C84EBC6F5EF5E905E05BFCE34EAC8",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\icons\\Icon-maskable-192.png"
+  },
+  {
+    "hash": "FDFF2E3B198A057E44082DF4D473A7486A274C41B145FF6D06AD28DEC47742BB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\icons\\Icon-maskable-512.png"
+  },
+  {
+    "hash": "88023B37FEDDEE52245F605ADFDC7A8CF603B013655289F23BE75DEB34508F93",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\icons\\sentinel-link-mark.png"
+  },
+  {
+    "hash": "7779795A52A131B2105892B4297EE73F415CD86D61D60E21E270F53C99BC6CB8",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\inspector\\dashboard.html"
+  },
+  {
+    "hash": "2E05B0CF11330FC161C594FCFABFFE0DF7E34D9E1E9137BAFAA9C51AE33E27E4",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\inspector\\incidents.html"
+  },
+  {
+    "hash": "1FE4D430F1343F9CA36EE4BCD0FB6630B8B25C8196F162BA5B4ECE2CBF3F4C54",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\inspector\\locations.html"
+  },
+  {
+    "hash": "CDB2B266FD5F9BED8386D375F915027FC510F17D63C270409EE36D8F5AABC062",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\inspector\\swaps.html"
+  },
+  {
+    "hash": "ED33E53C67EC92524E09A22B624090523C6891CC2A600E0D155AAF0AF4D0C968",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\inspector\\users.html"
+  },
+  {
+    "hash": "83CE2E729A90EE756517366DF809A23086C2C5E85280CEE23663B6980226F97B",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\inspector\\css\\inspector-theme.css"
+  },
+  {
+    "hash": "4A395A0D8B0F9EEB5E34ED2A4B267A2BFED9AC9F48B3A36E1994ACE4281E49EF",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\inspector\\js\\inspector-shell.js"
+  },
+  {
+    "hash": "E393E4C060583FF9675149EFD33EB62447A8EEAB84C963447BEADBC3ED866DFD",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\it-admin\\clients.html"
+  },
+  {
+    "hash": "DDE230B3D620DDCF4C609FAFE2B4FDE95CB2C3C5CA40344E2AB5228381E97635",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\it-admin\\dashboard.html"
+  },
+  {
+    "hash": "E741C876AABC271E33F6A459096823729C28C01B453AD0BBBAF0CB09608C55C4",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\it-admin\\it-admin-ui.js"
+  },
+  {
+    "hash": "EFBA7ED57BCAA420314F0153A41B186519C4B31E9874FCDAED423ABF58696C98",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\it-admin\\users.html"
+  },
+  {
+    "hash": "3D0505998B894EEB33CA21CB18212AE64559EC0AC381CFF201C3A649297898D9",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\js\\app-dialogs.js"
+  },
+  {
+    "hash": "D4377B861B4AD01095301BC5F4446AFD5BDAA667840912249DC49F7B660CC1FB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\js\\auth-username.js"
+  },
+  {
+    "hash": "839C201DF4CB00B61462FDCF51B9FF3080B5DCB81C12A591E5EB33ECF661BDA2",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\js\\contract-period.js"
+  },
+  {
+    "hash": "F8B1C6CF75CDB2ACE7F7A3C2DE94501A9E9E34112B90FBB6530880E712AEB987",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\js\\dtr-report.js"
+  },
+  {
+    "hash": "5D7F64A3BC3C2BCF2505221E2F8B6CA97884254D26EBA241343CBC4DA3C1B1A6",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\js\\edge-function-errors.js"
+  },
+  {
+    "hash": "515386ED7230B5C052F2C2F1F6CB784DCD0DA4B95E1FAB2469482F9B3C635E9F",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\js\\incident-report-view.js"
+  },
+  {
+    "hash": "85943ABFA4C42F79E92918B4FCAB2FA60FAA682E6925A85CC59DA186D54DB3DC",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\js\\login-panel-switch.js"
+  },
+  {
+    "hash": "29D856169A40D4705CF9FD39C65525F229A082CAB30DA62DCF83051209020E3B",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\js\\notification-center.js"
+  },
+  {
+    "hash": "70AFBDF5A6F627E2F334C1213041CFA5B5F3A48D9C8F2E681308CCE5A7EC38FA",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\js\\platform-configuration.js"
+  },
+  {
+    "hash": "C16DB9C65C4C01E97E6C9CE4B7A04FC95C1A073FCDE262856074635D1014A152",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\js\\schedule-period.js"
+  },
+  {
+    "hash": "7C49E37F96181B0CA8B9E31A0CF7D98B19DFEE6C8460D5D05D9E4D27BE1AEE1A",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\js\\supabase-firebase-bridge.js"
+  },
+  {
+    "hash": "19F74716FA989BF659AC04CBDCBAF2EE9884D68A97DFE8FF0B99431C53C9147C",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\js\\theme-preference.js"
+  },
+  {
+    "hash": "68C9A9615744ED7F7A4DC1E1CDD85BACF7ADC6918DD4FD10F69D22D1B9B74826",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\staff\\app-download.css"
+  },
+  {
+    "hash": "6B5F4A641FE8AE9A7ED60419252EB0600796E3E72E18606571D2B72D17060FF0",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\staff\\app-download.html"
+  },
+  {
+    "hash": "AA310CDB55A2DA0252B95623D0DA3093D433E10CB88DADA2DF3102E6297CC6DA",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\staff\\app-download.js"
+  },
+  {
+    "hash": "DEA4AD217DC0AE32E66C125DB9896B2FA893FCC74369CEB0D047454E92C804BB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\staff\\guard-app-qr.png"
+  },
+  {
+    "hash": "CACB3C64DCC29435A5DC26FCB03988D7EA9BD39FE3F77E78171EFDBF657B1455",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\staff\\guard-app.css"
+  },
+  {
+    "hash": "5D2959070AAD9C44F17E32079FC107E0A6146BA970ABC7CC26CB09B8F49DA50A",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\staff\\guard-app.js"
+  },
+  {
+    "hash": "14F8A87BA38A78F72E6BDEF932F0478B4BFDCC19AB45D1E1995D816CFCC54FAB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\staff\\login.css"
+  },
+  {
+    "hash": "76A0C2B4E7E3D67C3AEFEE4214A2BA49C9B4C7875B3254C36BFA7A2F3B975FBC",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\staff\\login.html"
+  },
+  {
+    "hash": "2BF185E614879BA4AEB467C573E88DACB1A3C2607140C3B7D76EB61A39870950",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\web\\system-access-7d92a4\\login.html"
+  },
+  {
+    "hash": "ECCD25CD50CD8CB5447B70754F7DFA8DFC0008CE7B147C96F53FC4CFE6C78783",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\.gitignore"
+  },
+  {
+    "hash": "1C683B7D94CA2EB52FF4B553D5DDF7924930FB90134549D97A5E1918DD32A70A",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\config.toml"
+  },
+  {
+    "hash": "EEA464D2522F7508BFDDDED76E0EDEC573AF040ED5B15B1D380F00C863320C4C",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\README.md"
+  },
+  {
+    "hash": "777FD6D651101226CF5D67775D803518C5E94912772C3F936A458353B58EC9D1",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\.temp\\cli-latest"
+  },
+  {
+    "hash": "165691A635C13B4E2094D17132E0E710BD0C2C1FED3219F6487D2262C7031DEC",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\.temp\\gotrue-version"
+  },
+  {
+    "hash": "926E524C7858A0B4725AEEF506EF87974D90A357740917E6FE91DC1ED1F8A45F",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\.temp\\linked-project.json"
+  },
+  {
+    "hash": "53E27B0F0415947D79F38143632138D0A1FFB8D146D3CD6DAD8BF48F2AB00674",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\.temp\\pooler-url"
+  },
+  {
+    "hash": "F95768BBC674ABB5D20DC080654A38DBCD402DFCCA93B95EA307B64CC6050376",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\.temp\\postgres-version"
+  },
+  {
+    "hash": "45199BE6C7519A1D7383FFE5EE2CE43DAEB36FDF4D3953AA82E327B82CA995AA",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\.temp\\project-ref"
+  },
+  {
+    "hash": "8F17BFFD259458AFECA267F0C76C560A35EE9503690E41A3637D6E4DF03726B0",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\.temp\\rest-version"
+  },
+  {
+    "hash": "5B73B2415F861D2FA17D6B24B2E6DDF27FB6D34108CDCDF196AF0387B05B3D44",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\.temp\\storage-migration"
+  },
+  {
+    "hash": "CA0A549BFFC0E09D0AB9C446E27B3D7A1FE449FA8A685FF8AFDFCC323ED709A9",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\.temp\\storage-version"
+  },
+  {
+    "hash": "9C27ADAA646F685B513864B18EF2A3AA64B776E4A825C7CD8B2F715556A334D3",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\functions\\admin-create-user\\index.ts"
+  },
+  {
+    "hash": "86CF14171196ABE470488300BC0FD7776C1F77C793EC4BD14AB0DB8628AC2AD5",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\functions\\admin-delete-incident\\handler_test.ts"
+  },
+  {
+    "hash": "C0BE93AA8055F7C92C2DCBECFEB9B342AD9368BA9F46387AAC32ED45CDFE5E8F",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\functions\\admin-delete-incident\\handler.ts"
+  },
+  {
+    "hash": "C2827D46CCF9417401AF51F55D2B4B85C8CEE155149AF73C8E5FE5E7C81C0020",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\functions\\admin-delete-incident\\index.ts"
+  },
+  {
+    "hash": "85EBACE8FEBB1E22548CF456EC9226E8029C57228138780036151CDDD146EB8D",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\functions\\admin-manage-user\\index.ts"
+  },
+  {
+    "hash": "43F33B15507DEB94C0F0781B5F77BE0A4CCDA7495D4D26F09B694DD0BF9CCAB4",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\functions\\it-provision-client\\index.ts"
+  },
+  {
+    "hash": "2B772FC0547356989A09BE2DB094041B965DE90246FC776FC99EDD58A5648326",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\functions\\_shared\\accounts.ts"
+  },
+  {
+    "hash": "A59649BBDE931C4FC63321523F89A21D76B608E19AA43DB8D5C70108EF05CE7D",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\functions\\_shared\\api.ts"
+  },
+  {
+    "hash": "8AE3FE3E694233504BB3AD383D952706B2B46A3DB5C9044370177217A29015AE",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\functions\\_shared\\contract-period.ts"
+  },
+  {
+    "hash": "F2EF13F3CD9EF1609116CBE365CA1AEA31125F84DEECDFF232361435E3B04722",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260821000000_initial_schema.sql"
+  },
+  {
+    "hash": "2059D493086839EF95BE476ED03FAB2FF47C4262CD60C4F366C958CF34308066",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260821000001_add_operations_roles.sql"
+  },
+  {
+    "hash": "39E835B455F3746FAE1765FCAB5481002FE19B3FF2197CEC917A54AC53A0FA25",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260821000002_personnel_operations.sql"
+  },
+  {
+    "hash": "569D9163936DC0A53F73241E4606DADA4B9953C3F9F7628451A1B344BD11C315",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260821000003_incident_video_storage.sql"
+  },
+  {
+    "hash": "C0F364E2A35746B2A1D68FB7FB3466D970087429914E9AA83381156BBBDF7765",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260821000004_split_it_and_operations_permissions.sql"
+  },
+  {
+    "hash": "2D64B350F7E5D9CA1FA8AEB55BE9CB1E32DEBDEE6B5E4980BCA233F2BD4EB585",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260821000005_simplify_roles_and_workflow.sql"
+  },
+  {
+    "hash": "02F7002293E566E17A4FF5BDE4965322849A25A6550F39BD5D5906307F24CEFE",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260821000006_align_admin_wording.sql"
+  },
+  {
+    "hash": "F14A9314C0C83CD625347088ECDC73FD254D7ED260F78FF8092E514B1633E80B",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260821000007_enforce_shift_attendance_rules.sql"
+  },
+  {
+    "hash": "8EE9DA152C6E8ABE3BF66D8A17721C950F8AF292C7E82319C84C01FC195FC3AD",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260821000008_calculate_duty_days.sql"
+  },
+  {
+    "hash": "60B645D3FE97A77A37973F48035833E5847F1382EA596A62CB4098424E570C0A",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260821000009_finalize_attendance_validation.sql"
+  },
+  {
+    "hash": "E0705979B06C6F5B055AEF1D1D150A065726106D7222B8AE7322943B5AB50149",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260821000010_enable_inspector_attendance.sql"
+  },
+  {
+    "hash": "DF5D14BB481D185F07FC16D134FE0C0605CCFC0F112C034D0AB65D3ED70525D3",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260821000011_split_it_admin_and_hr_operations.sql"
+  },
+  {
+    "hash": "3AD1FF0716E98C60ED62C2D891DD0FFB002301A713BC69E0BA243CFAD15AB960",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260821000012_add_client_organizations.sql"
+  },
+  {
+    "hash": "270347021915B1FD049D935D991C418297E4BA08E4A5AFD5D84BF020F8E08CE5",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000000_fix_attendance_tenant_write.sql"
+  },
+  {
+    "hash": "C8DFA778EE3928BFD2FAA42795E1D70DB99F984BB1704F7EA57766594E68D0B5",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000001_secure_incident_tenant_access.sql"
+  },
+  {
+    "hash": "CF06D80B9A45BB63CD5C79E0F5F28EF816ECB2FF06C746963C542B64069C4BB9",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000002_secure_shift_swap_tenant_workflow.sql"
+  },
+  {
+    "hash": "ADC78C5929FAE0C4A3009C94C109650CE6E361F278E1DFA901335137224CC8C9",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000003_harden_attendance_location_validation.sql"
+  },
+  {
+    "hash": "936A15A512044D970EA11ED9C8EF388404EBBC8D203C7CA23791A9029828FD6B",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000004_scope_remaining_tenant_rpcs.sql"
+  },
+  {
+    "hash": "94F489B95D83235CCC5C7B2C31762EA2E5810F52172154EFE3B9AFDE4E9A62B4",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000005_prevent_historical_profile_deletion.sql"
+  },
+  {
+    "hash": "F7E155B192601A6F302404B1DA7163A92ED897F875A30C8B4D1C99A800B79E1C",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000006_secure_incident_video_storage.sql"
+  },
+  {
+    "hash": "AA8A477ED027C9E8CF46BFD33BBFD682EFA4FD88EDB736CAF8FFEE59B7B3A162",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000007_add_schedule_attendance_sessions.sql"
+  },
+  {
+    "hash": "199B05F15D7AE87415BFEBC8B03FEA9A2518025EA9FED83A02E77E94D0CE8D57",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000008_secure_accomplishment_workflow.sql"
+  },
+  {
+    "hash": "424A9B3390135C792649ED80CFC86012E6F8562DA3AD3C845C1AEB2BF1A42942",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000009_enforce_incident_filing_workflow.sql"
+  },
+  {
+    "hash": "4AE23273A65CEFC778A09557C09417436BBF49E96860B8DE8D169DC07598D164",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000010_secure_personnel_assignments.sql"
+  },
+  {
+    "hash": "6654A78E1C23C792E683D787A3873A0493DF9794861655655B2FF4D0A0AA099C",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000011_protect_inspector_assignment_lifecycle.sql"
+  },
+  {
+    "hash": "BCC114823AC5C1C5D6EC70CA5ED73B025D5C0F119638AFA9A40913BCDFFDBBA7",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000012_single_beneficiary_twenty_twenty.sql"
+  },
+  {
+    "hash": "415FE3D601F506515F6743CC6F9AA680F1FFF0791A702E000226B02F079ECA61",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000013_add_platform_configuration.sql"
+  },
+  {
+    "hash": "EE1A1618ED2BC5A2D6DB46ADD2CE08439D30EADF7A905DBAC5CC6CED1B77736F",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000014_fix_platform_configuration_function.sql"
+  },
+  {
+    "hash": "A600E3AD0D344FCEC3F2D8BD1F98C9C32C7EBC021308792F6690B92848EA695F",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000015_harden_backend_boundaries.sql"
+  },
+  {
+    "hash": "7F578DAF5A19D129E121DC3BDF30C186DD5404BE3BDC68AF2E04A4AC6073F3DC",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000016_harden_future_object_defaults.sql"
+  },
+  {
+    "hash": "AE79BD15346194EFACA93BBA43F9CC8516D8929927D05AA44436184E4FD05A40",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260822000017_optimize_rls_policies.sql"
+  },
+  {
+    "hash": "8ADD99E06788DE32F9DDBD5B18BDB88CDD6E50E2705D8AAE941E1111AE4C6DEB",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260823000000_disable_inspector_attendance.sql"
+  },
+  {
+    "hash": "6477D355ED069B517245D866D10224F2095451A27E333B7770FF1393B5843A1F",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260823000001_add_realtime_notifications.sql"
+  },
+  {
+    "hash": "697057BAFAEB7FE624CAA5F3CD7DAACCF1F14902CAA6C893C4B68CE735868A24",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260823000002_secure_notification_function_privileges.sql"
+  },
+  {
+    "hash": "C13D2700B7F446F872406E139400058BD8D977E1F7501EC6416AA2BC18D8E218",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260904000000_fix_schedule_policy_and_safe_deletion.sql"
+  },
+  {
+    "hash": "B40F57A439BB6E1154D9A65FA8A493DA618066026777E0359D375DEEE97A0F31",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260904000001_guard_request_letters.sql"
+  },
+  {
+    "hash": "F7B1076CC45701FE3D61A73DC64289AB0F95BCA398D24436DFA39F317A05B2B9",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260904000002_emergency_report_deletion.sql"
+  },
+  {
+    "hash": "79E0C0DF0EE59DB5AC3ABFA48614310F6039ED97F6FFCF4BB642875849FD1265",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260904000003_fix_platform_configuration.sql"
+  },
+  {
+    "hash": "DAF8A351D68ACD4382CA6A2C162D7A622FF5227025787325F599C782205C1D0C",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260904000004_rename_admin_display_labels.sql"
+  },
+  {
+    "hash": "C8A51B7EB0742D7B099C8303A911E8F1FED66E7CDF828598B584106417411EF6",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260905000000_dtr_schedule_periods.sql"
+  },
+  {
+    "hash": "2F6E8017B914CE608EC66D9B7B3B78201E902DEE5B541C6B0F937B58FCCD1E56",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260905000001_inspector_assigned_guard_scope.sql"
+  },
+  {
+    "hash": "62764CBBC859BBC246694FAE6F84108857DC26D65B41BE96E450D5B68C7C95A8",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260905000002_reciprocal_duty_swaps.sql"
+  },
+  {
+    "hash": "64B53B34247B06C11E5A7C6C52AF3B8E0E31C3B06C327EA174A7AB77CBED0B5B",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260905000003_bind_exchange_to_current_agency.sql"
+  },
+  {
+    "hash": "FE3AEAC284B04DA9980CF132D852547A31BEA65F8535AC67717DE932EF68FCF1",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260905000004_fixed_period_contracts.sql"
+  },
+  {
+    "hash": "17A83516127BAF34543653EC87705BD804496E31E95D781E9D9008C6FB7C3305",
+    "path": "C:\\Users\\Administrator\\Documents\\Sir tumbs\\Project1\\Security Agency Management System\\supabase\\migrations\\20260905000005_correct_time_evaluation.sql"
+  }
+]

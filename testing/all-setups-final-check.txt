@@ -1,0 +1,11 @@
+
+Running 4 tests using 1 worker
+
+(node:12752) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 schedule_lifecycle.spec.js:187:1 › after the first shift ends today remains available for the night shift (3.2s)
+  ok 2 schedule_lifecycle.spec.js:524:1 › both initial setups expose edit and remove and edited times drive assignments (5.1s)
+  ok 3 schedule_lifecycle.spec.js:541:1 › remove both initial setups, reload an empty list, and recreate a removed setup (5.5s)
+  ok 4 schedule_lifecycle.spec.js:559:1 › initial loading failure never falls back to fixed or removed setups (2.9s)
+
+  4 passed (25.9s)

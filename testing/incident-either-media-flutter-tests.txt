@@ -1,0 +1,16 @@
+00:00 +0: loading C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart
+00:00 +0: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: (setUpAll)
+00:00 +0: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/incident_in_app_camera_test.dart: offers a photo fallback when no camera is detected
+00:01 +1: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: short accomplishment entries submit without character minimum prompts
+00:01 +2: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: short accomplishment entries submit without character minimum prompts
+00:02 +3: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: empty accomplishment text is still required
+00:02 +4: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: empty accomplishment text is still required
+00:02 +5: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: empty accomplishment text is still required
+00:02 +6: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: empty accomplishment text is still required
+00:02 +7: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: emergency alert requires a narrative and accepts short text
+00:02 +8: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: a narrative does not bypass required evidence
+00:02 +9: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: video-only alert uploads video without manufacturing a photo
+00:02 +10: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: video-only alerts still reject invalid duration, stale capture and blank narrative before upload
+00:02 +11: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: recorded video enables Send; retake discards it and sends only the new recording
+00:03 +12: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/report_text_requirements_test.dart: (tearDownAll)
+00:03 +12: All tests passed!

@@ -1,0 +1,9 @@
+
+Running 2 tests using 1 worker
+
+(node:12364) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 schedule_lifecycle.spec.js:394:1 › setup saving blocks duplicate submission and safely displays names (2.8s)
+  ok 2 schedule_lifecycle.spec.js:417:1 › custom setup editor fits desktop and phone in both themes (3.8s)
+
+  2 passed (15.5s)

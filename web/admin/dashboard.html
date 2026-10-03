@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard — HR / Operations</title>
+    <title>Dashboard — Operations Head</title>
     <link rel="icon" type="image/png" href="../favicon.png">
-    <script src="../js/theme-preference.js" defer></script>
+    <script src="../js/theme-preference.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/admin-theme.css" rel="stylesheet">
 </head>
@@ -19,18 +19,18 @@
 <div class="ax-app">
     <aside class="ax-sidebar">
         <div class="ax-brand">
-            <div class="ax-brand-badge">Control center</div>
-            <p class="ax-brand-title">HR / Operations</p>
+            
+            <p class="ax-brand-title">Operations Head</p>
             <p class="ax-brand-sub">Security Agency Management System</p>
         </div>
         <nav class="ax-nav">
             <div class="ax-nav-label">Manage</div>
-            <a href="dashboard.html"><span class="ax-nav-icon">📊</span> Dashboard</a>
-            <a href="users.html"><span class="ax-nav-icon">👥</span> Personnel</a>
-            <a href="locations.html"><span class="ax-nav-icon">📍</span> Deployment Sites</a>
-            <a href="schedule.html"><span class="ax-nav-icon">📅</span> Schedule</a>
-            <a href="incidents.html"><span class="ax-nav-icon">🚨</span> Incidents</a>
-            <a href="swaps.html"><span class="ax-nav-icon">🔁</span> Shift approvals</a>
+            <a href="dashboard.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">dashboard</span> Dashboard</a>
+            <a href="users.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">groups</span> Personnel</a>
+            <a href="locations.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">location_on</span> Deployment Sites</a>
+            <a href="schedule.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">calendar_month</span> Schedule</a>
+            <a href="incidents.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">emergency</span> Incidents</a>
+            <a href="swaps.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">swap_horiz</span> Duty requests</a>
         </nav>
         <div class="ax-sidebar-foot">TwentyTwenty Security Agency</div>
     </aside>
@@ -38,15 +38,14 @@
     <div class="ax-main">
         <header class="ax-topbar">
             <div class="ax-topbar-left">
-                <button type="button" class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu">☰</button>
+                <button type="button" class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button>
                 <div>
-                    <div class="ax-breadcrumb">HR / Operations Console</div>
+                    <div class="ax-breadcrumb">Operations Head Console</div>
                     <h1 class="ax-page-title">Dashboard</h1>
                 </div>
             </div>
             <div class="ax-topbar-right">
-                <span class="ax-role-pill">HR / Operations Head</span>
-                <span class="ax-user-chip" id="axUserName">Admin</span>
+                <span class="ax-user-chip" id="axUserName" hidden aria-live="polite"></span>
                 <button type="button" class="ax-btn-logout" onclick="adminLogout()">Sign out</button>
             </div>
         </header>
@@ -65,8 +64,9 @@
                     <div class="ax-stat-hint" id="activeLocations"></div>
                 </div>
                 <div class="ax-stat-item">
-                    <div class="ax-stat-num" id="totalSchedules">—</div>
-                    <div class="ax-stat-lbl">Schedules</div>
+                    <div class="ax-stat-num" id="totalSchedules" title="One assigned guard shift counts as one. Includes past, current and future dates; excludes drafts and cancellations.">—</div>
+                    <div class="ax-stat-lbl">Assigned guard shifts</div>
+                    <div class="ax-stat-hint">All Guards · all dates</div>
                 </div>
                 <div class="ax-stat-item">
                     <div class="ax-stat-num" id="totalInspectors">—</div>
@@ -79,34 +79,34 @@
                 <div class="ax-link-list">
                     <a href="users.html" class="ax-link-row">
                         <div class="ax-link-row-left">
-                            <div class="ax-link-row-icon">👥</div>
+                            <div class="ax-link-row-icon material-symbols-rounded" aria-hidden="true">groups</div>
                             <div><div class="ax-link-row-title">Personnel records</div><div class="ax-link-row-desc">Guards, Inspectors, deployments, attendance, and DTR</div></div>
                         </div>
-                        <span>→</span>
+                        <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
                     </a>
                     <a href="locations.html" class="ax-link-row">
                         <div class="ax-link-row-left">
-                            <div class="ax-link-row-icon">📍</div>
+                            <div class="ax-link-row-icon material-symbols-rounded" aria-hidden="true">location_on</div>
                             <div><div class="ax-link-row-title">Deployment sites</div><div class="ax-link-row-desc">Jollibee branches and other guarded posts with geofences</div></div>
                         </div>
-                        <span>→</span>
+                        <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
                     </a>
                     <a href="schedule.html" class="ax-link-row">
                         <div class="ax-link-row-left">
-                            <div class="ax-link-row-icon">📅</div>
+                            <div class="ax-link-row-icon material-symbols-rounded" aria-hidden="true">calendar_month</div>
                             <div><div class="ax-link-row-title">Schedule</div><div class="ax-link-row-desc">Assign guard duty shifts</div></div>
                         </div>
-                        <span>→</span>
+                        <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
                     </a>
                     <a href="swaps.html" class="ax-link-row">
-                        <div class="ax-link-row-left"><div class="ax-link-row-icon">↔</div><div><div class="ax-link-row-title">Shift approvals</div><div class="ax-link-row-desc">Finalize Inspector-reviewed change requests</div></div></div><span class="ax-link-arrow">→</span>
+                        <div class="ax-link-row-left"><div class="ax-link-row-icon material-symbols-rounded" aria-hidden="true">swap_horiz</div><div><div class="ax-link-row-title">Duty requests</div><div class="ax-link-row-desc">Review Guard swap and absence letters</div></div></div><span class="ax-link-arrow material-symbols-rounded" aria-hidden="true">arrow_forward</span>
                     </a>
                     <a href="incidents.html" class="ax-link-row">
                         <div class="ax-link-row-left">
-                            <div class="ax-link-row-icon">🚨</div>
+                            <div class="ax-link-row-icon material-symbols-rounded" aria-hidden="true">emergency</div>
                             <div><div class="ax-link-row-title">Incidents</div><div class="ax-link-row-desc">Emergency reports from guards</div></div>
                         </div>
-                        <span>→</span>
+                        <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
                     </a>
                 </div>
             </div>
@@ -115,9 +115,11 @@
 </div>
 
 <script src="../js/auth-username.js"></script>
+<script src="../js/dashboard-shifts.js"></script>
 <script src="js/admin-shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
 <script src="../js/supabase-firebase-bridge.js"></script>
+<script src="../js/platform-configuration.js"></script>
 <script src="../js/notification-center.js"></script>
 
 <script>
@@ -125,21 +127,18 @@ const auth = firebase.auth();
 const db   = firebase.firestore();
 
 auth.onAuthStateChanged(async function(user) {
-    if (!user) { window.location.href = "login.html"; return; }
+    if (!user) { window.location.href = "../staff/login.html"; return; }
     try {
         const doc = await db.collection("users").doc(user.uid).get();
         if (!doc.exists || doc.data().role !== "admin") {
-            window.location.href = "login.html";
+            window.location.href = "../staff/login.html";
             return;
         }
         const d = doc.data();
-        const name = [d.firstName, d.middleInitial ? d.middleInitial + "." : "", d.lastName]
-            .filter(Boolean).join(" ") || d.name || displayLoginId(d);
-        setAdminUserName(name);
         await loadDashboard();
         finishPageLoading();
     } catch (e) {
-        window.location.href = "login.html";
+        window.location.href = "../staff/login.html";
     }
 });
 
@@ -160,7 +159,7 @@ async function loadDashboard() {
         let activeLocations = 0;
         locationSnapshot.forEach(d => { if (d.data().active) activeLocations++; });
         document.getElementById("activeLocations").innerText = activeLocations + " active";
-        document.getElementById("totalSchedules").innerText = scheduleSnapshot.size;
+        document.getElementById("totalSchedules").innerText = countAssignedGuardShifts(scheduleSnapshot.docs, new Set(guardSnapshot.docs.map(guard => guard.id)));
     } catch (error) {
         if (window.appDialog) appDialog.toast('Some dashboard totals could not be loaded. Refresh to try again.', { tone: 'danger' });
     }

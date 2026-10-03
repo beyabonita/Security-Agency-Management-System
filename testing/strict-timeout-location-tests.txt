@@ -1,0 +1,12 @@
+00:00 +0: loading C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart
+00:00 +0: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: (setUpAll)
+00:00 +0: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/location_integrity_service_test.dart: accepts a fresh, accurate, non-mocked location fix
+00:00 +1: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: attendance becomes ready from REST without a realtime connection
+00:00 +2: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: attendance becomes ready from REST without a realtime connection
+00:00 +3: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: attendance becomes ready from REST without a realtime connection
+00:00 +4: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: attendance becomes ready from REST without a realtime connection
+00:00 +5: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: repeated attendance refreshes each get confirmed data
+00:00 +6: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: failed attendance fetch exposes a retryable error instead of waiting
+00:00 +7: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: latest attendance restores both recorded punches after screen reopening
+00:00 +8: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: (tearDownAll)
+00:00 +8: All tests passed!

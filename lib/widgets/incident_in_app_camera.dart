@@ -43,6 +43,7 @@ class _IncidentInAppCameraState extends State<IncidentInAppCamera> {
   String? _error;
   bool _capturing = false;
   bool _recording = false;
+  bool _startingVideo = false;
   bool _stoppingVideo = false;
   bool _selectingFallbackPhoto = false;
   Timer? _videoTimer;
@@ -65,6 +66,7 @@ class _IncidentInAppCameraState extends State<IncidentInAppCamera> {
     final controller = _controller;
     if (controller == null ||
         _capturing ||
+        _startingVideo ||
         _stoppingVideo ||
         widget.onVideoCaptured == null) {
       return;
@@ -75,6 +77,7 @@ class _IncidentInAppCameraState extends State<IncidentInAppCamera> {
         _videoTimer?.cancel();
         final file = await controller.stopVideoRecording();
         final bytes = await file.readAsBytes();
+        if (!mounted) return;
         final contentType = IncidentVideoFormat.contentTypeFor(
           reportedMimeType: file.mimeType,
           fileName: file.path,
@@ -99,10 +102,12 @@ class _IncidentInAppCameraState extends State<IncidentInAppCamera> {
         }
         return;
       }
+      setState(() => _startingVideo = true);
       await controller.startVideoRecording();
       if (!mounted) return;
       setState(() {
         _recording = true;
+        _startingVideo = false;
         _videoStartedAt = DateTime.now();
       });
       _videoTimer = Timer(const Duration(seconds: 15), () async {
@@ -113,13 +118,14 @@ class _IncidentInAppCameraState extends State<IncidentInAppCamera> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Could not record video.'),
-            backgroundColor: Color(0xFFF87171),
+            backgroundColor: Color(0xFFDC2626),
           ),
         );
       }
       if (mounted) {
         setState(() {
           _recording = false;
+          _startingVideo = false;
           _stoppingVideo = false;
           _videoStartedAt = null;
         });
@@ -183,7 +189,7 @@ class _IncidentInAppCameraState extends State<IncidentInAppCamera> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Could not use that photo. Choose another image.'),
-          backgroundColor: Color(0xFFF87171),
+          backgroundColor: Color(0xFFDC2626),
         ),
       );
     } finally {
@@ -290,20 +296,26 @@ class _IncidentInAppCameraState extends State<IncidentInAppCamera> {
 
   Future<void> _capture() async {
     final controller = _controller;
-    if (controller == null || !controller.value.isInitialized || _capturing) {
+    if (controller == null ||
+        !controller.value.isInitialized ||
+        _capturing ||
+        _startingVideo ||
+        _recording ||
+        _stoppingVideo) {
       return;
     }
     setState(() => _capturing = true);
     try {
       final xFile = await controller.takePicture();
       final bytes = await xFile.readAsBytes();
+      if (!mounted) return;
       widget.onPhotoCaptured(bytes);
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Could not take photo. Try again.'),
-          backgroundColor: Color(0xFFF87171),
+          backgroundColor: Color(0xFFDC2626),
         ),
       );
     } finally {
@@ -383,7 +395,7 @@ class _IncidentInAppCameraState extends State<IncidentInAppCamera> {
                               : 'Capture or choose photo',
                         ),
                         style: FilledButton.styleFrom(
-                          backgroundColor: const Color(0xFFEF4444),
+                          backgroundColor: const Color(0xFFDC2626),
                         ),
                       ),
                       OutlinedButton.icon(
@@ -407,7 +419,7 @@ class _IncidentInAppCameraState extends State<IncidentInAppCamera> {
                   ),
                   const SizedBox(height: 10),
                   const Text(
-                    'A photo is required. Video evidence is optional.',
+                    'Capture a photo, or retry the camera to record a video.',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.white54, fontSize: 11),
                   ),
@@ -453,7 +465,13 @@ class _IncidentInAppCameraState extends State<IncidentInAppCamera> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
-                    onTap: _capturing || _recording ? null : _capture,
+                    onTap:
+                        _capturing ||
+                            _startingVideo ||
+                            _recording ||
+                            _stoppingVideo
+                        ? null
+                        : _capture,
                     child: Container(
                       width: 72,
                       height: 72,
@@ -485,7 +503,9 @@ class _IncidentInAppCameraState extends State<IncidentInAppCamera> {
                   if (widget.onVideoCaptured != null) ...[
                     const SizedBox(width: 20),
                     GestureDetector(
-                      onTap: _capturing ? null : _toggleVideo,
+                      onTap: _capturing || _startingVideo || _stoppingVideo
+                          ? null
+                          : _toggleVideo,
                       child: Container(
                         width: 58,
                         height: 58,
@@ -514,7 +534,7 @@ class _IncidentInAppCameraState extends State<IncidentInAppCamera> {
             left: 12,
             right: 12,
             child: Text(
-              'Record up to 15 seconds if needed, then capture the required photo',
+              'Capture a photo or record a video (up to 15 seconds)',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white70,

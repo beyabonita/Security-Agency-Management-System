@@ -1,0 +1,12 @@
+WB-283 — PASS
+deleteIncidentHandler.deleteIncidentHandler
+Scenario: authorization and ordered failure handling
+Input: {"path":"11111111-1111-4111-8111-111111111111/../x"}
+Expected: [409,["begin"]]
+Actual: [409,["begin"]]
+UTC: 2026-09-05T08:56:19.782Z
+Evidence: logs/deno-final.log:421
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

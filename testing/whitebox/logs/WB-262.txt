@@ -1,0 +1,12 @@
+WB-262 — PASS
+api.handleJsonPost
+Scenario: method routing
+Input: "GET"
+Expected: 405
+Actual: 405
+UTC: 2026-09-05T08:56:19.306Z
+Evidence: logs/deno-final.log:309
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

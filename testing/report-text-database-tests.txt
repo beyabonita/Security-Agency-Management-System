@@ -1,0 +1,11 @@
+PASS short accomplishment summary and narrative are accepted
+PASS empty required accomplishment fields still need text
+PASS existing maximum lengths remain enforced
+PASS unfinished duty cannot submit accomplishment
+PASS blank, whitespace, null and short emergency remarks are accepted
+PASS photo and capture timestamp remain required
+PASS staff can resolve a timestamped alert without guard remarks
+PASS resolution notes and filed evidence remain required
+PASS staff cannot file as a guard
+PASS guard cannot resolve incidents
+10 report text database checks passed.

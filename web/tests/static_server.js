@@ -13,11 +13,24 @@ const mimeTypes = {
   '.jpeg': 'image/jpeg',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
+  '.woff2': 'font/woff2',
   '.apk': 'application/vnd.android.package-archive',
 };
 
+// Mirror the login redirects configured on Vercel so local navigation behaves
+// like production instead of returning a plain 404 page.
+const localRedirects = new Map([
+  ['/admin/login.html', '/staff/login.html'],
+  ['/inspector/login.html', '/staff/login.html'],
+  ['/it-admin/login.html', '/system-access-7d92a4/login.html'],
+]);
+
+function requestPath(requestUrl) {
+  return decodeURIComponent(new URL(requestUrl, 'http://127.0.0.1').pathname);
+}
+
 function fileFor(requestUrl) {
-  const pathname = decodeURIComponent(new URL(requestUrl, 'http://127.0.0.1').pathname);
+  const pathname = requestPath(requestUrl);
   const relativePath = pathname === '/' ? 'staff/login.html' : pathname.replace(/^\/+/, '');
   const candidate = path.resolve(root, relativePath);
   if (!candidate.startsWith(`${root}${path.sep}`)) return null;
@@ -25,6 +38,14 @@ function fileFor(requestUrl) {
 }
 
 http.createServer((request, response) => {
+  const pathname = requestPath(request.url || '/');
+  const redirect = localRedirects.get(pathname);
+  if (redirect) {
+    response.writeHead(302, { Location: redirect, 'Cache-Control': 'no-store' });
+    response.end();
+    return;
+  }
+
   const file = fileFor(request.url || '/');
   if (!file) {
     response.writeHead(403);

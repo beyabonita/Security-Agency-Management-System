@@ -1,0 +1,12 @@
+WB-232 — PASS
+accounts.optionalString
+Scenario: normalization precedes validation
+Input: " ABC "
+Expected: "abc"
+Actual: "abc"
+UTC: 2026-09-05T08:56:18.682Z
+Evidence: logs/deno-final.log:159
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

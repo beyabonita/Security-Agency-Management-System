@@ -1,0 +1,12 @@
+WB-095 — PASS
+ScheduleService.visibleSchedules
+Scenario: owner and status restrictions
+Input: "own approved/changed/draft/cancelled; foreign approved"
+Expected: ["a","b"]
+Actual: ["a","b"]
+UTC: 2026-09-05T08:57:23.930374Z
+Evidence: logs/flutter-verified.jsonl:377
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

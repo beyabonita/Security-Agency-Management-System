@@ -1,0 +1,12 @@
+WB-099 — PASS
+ScheduleService.scheduleDutyDate
+Scenario: fallback to Manila start
+Input: {"start_at":"2026-09-04T16:00:00Z"}
+Expected: "2026-09-05"
+Actual: "2026-09-05"
+UTC: 2026-09-05T08:57:23.949384Z
+Evidence: logs/flutter-verified.jsonl:389
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

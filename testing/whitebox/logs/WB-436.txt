@@ -1,0 +1,12 @@
+WB-436 — PASS
+ContractPeriodJS.dutyError
+Scenario: entire duty must fit contract
+Input: ["2026-09-05T00:00:00+08:00","2026-09-06T00:00:00+08:00"]
+Expected: true
+Actual: true
+UTC: 2026-09-05T08:53:03.565Z
+Evidence: logs/node.tap:37
+Source: testing/whitebox/unit_tests/web_test.cjs
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

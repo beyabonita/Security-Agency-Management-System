@@ -1,0 +1,12 @@
+WB-043 — PASS
+GeofenceService.isWithinAnySite
+Scenario: outside radius
+Input: "1,1; radius100"
+Expected: false
+Actual: false
+UTC: 2026-09-05T08:57:23.640377Z
+Evidence: logs/flutter-verified.jsonl:141
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

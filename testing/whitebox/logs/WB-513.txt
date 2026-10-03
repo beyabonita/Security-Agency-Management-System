@@ -1,0 +1,12 @@
+WB-513 — PASS
+UserRoleService.currentUserRole
+Scenario: no auth session returns null
+Input: null
+Expected: [null,0]
+Actual: [null,0]
+UTC: 2026-09-05T08:57:23.794376Z
+Evidence: logs/flutter-verified.jsonl:275
+Source: testing/whitebox/unit_tests/services_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

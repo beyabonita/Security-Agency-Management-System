@@ -1,0 +1,12 @@
+WB-327 — PASS
+admin-manage-user.registered handler
+Scenario: successful update and rollback safety
+Input: {"options":{"profileError":true},"body":{}}
+Expected: [500,"profile_update_failed",["profileUpdate"]]
+Actual: [500,"profile_update_failed",["profileUpdate"]]
+UTC: 2026-09-05T08:56:20.283Z
+Evidence: logs/deno-final.log:655
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

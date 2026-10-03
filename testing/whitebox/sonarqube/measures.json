@@ -1,0 +1,95 @@
+{
+  "component": {
+    "key": "sentinel-link-whitebox",
+    "name": "Sentinel Link White-Box Assessment",
+    "qualifier": "TRK",
+    "measures": [
+      {
+        "metric": "coverage",
+        "value": "55.4",
+        "bestValue": false
+      },
+      {
+        "metric": "reliability_rating",
+        "value": "5.0",
+        "bestValue": false
+      },
+      {
+        "metric": "code_smells",
+        "value": "210",
+        "bestValue": false
+      },
+      {
+        "metric": "duplicated_lines_density",
+        "value": "3.9",
+        "bestValue": false
+      },
+      {
+        "metric": "duplicated_lines",
+        "value": "556",
+        "bestValue": false
+      },
+      {
+        "metric": "security_rating",
+        "value": "2.0",
+        "bestValue": false
+      },
+      {
+        "metric": "security_hotspots",
+        "value": "0",
+        "bestValue": true
+      },
+      {
+        "metric": "sqale_rating",
+        "value": "1.0",
+        "bestValue": true
+      },
+      {
+        "metric": "alert_status",
+        "value": "OK"
+      },
+      {
+        "metric": "bugs",
+        "value": "18",
+        "bestValue": false
+      },
+      {
+        "metric": "lines_to_cover",
+        "value": "2769"
+      },
+      {
+        "metric": "uncovered_conditions",
+        "value": "81",
+        "bestValue": false
+      },
+      {
+        "metric": "branch_coverage",
+        "value": "87.4",
+        "bestValue": false
+      },
+      {
+        "metric": "uncovered_lines",
+        "value": "1442",
+        "bestValue": false
+      },
+      {
+        "metric": "ncloc",
+        "value": "12412"
+      },
+      {
+        "metric": "vulnerabilities",
+        "value": "35",
+        "bestValue": false
+      },
+      {
+        "metric": "conditions_to_cover",
+        "value": "645"
+      },
+      {
+        "metric": "line_coverage",
+        "value": "47.9",
+        "bestValue": false
+      }
+    ]
+  }
+}

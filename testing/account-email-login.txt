@@ -1,0 +1,64 @@
+
+Running 3 tests using 1 worker
+
+(node:17660) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 web\tests\account_email.spec.js:3:55 › staff email login normalizes Gmail and retains legacy access (1.6s)
+(node:10612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  2 web\tests\account_email.spec.js:3:55 › system-access-7d92a4 email login normalizes Gmail and retains legacy access (1.6s)
+(node:11628) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 3 web\tests\account_email.spec.js:15:1 › older incident aliases resolve to the current real email without changing saved reports (356ms)
+
+
+  1) web\tests\account_email.spec.js:3:55 › staff email login normalizes Gmail and retains legacy access 
+
+    Error: page.evaluate: ReferenceError: Cannot access 'auth' before initialization
+        at login (http://127.0.0.1:4173/staff/login.html:189:610)
+        at eval (eval at evaluate (:311:30), <anonymous>:1:7)
+        at UtilityScript.evaluate (<anonymous>:313:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at login (http://127.0.0.1:4173/staff/login.html:189:610)
+        at eval (eval at evaluate (:311:30), <anonymous>:1:7)
+        at UtilityScript.evaluate (<anonymous>:313:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\account_email.spec.js:10:13
+
+    Error Context: web\tests\test-results-account-email-login\account_email-staff-email--a34aa-l-and-retains-legacy-access\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    web\tests\test-results-account-email-login\account_email-staff-email--a34aa-l-and-retains-legacy-access\trace.zip
+    Usage:
+
+        npx playwright show-trace web\tests\test-results-account-email-login\account_email-staff-email--a34aa-l-and-retains-legacy-access\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) web\tests\account_email.spec.js:3:55 › system-access-7d92a4 email login normalizes Gmail and retains legacy access 
+
+    Error: page.evaluate: ReferenceError: Cannot access 'auth' before initialization
+        at login (http://127.0.0.1:4173/system-access-7d92a4/login.html:88:685)
+        at eval (eval at evaluate (:311:30), <anonymous>:1:7)
+        at UtilityScript.evaluate (<anonymous>:313:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at login (http://127.0.0.1:4173/system-access-7d92a4/login.html:88:685)
+        at eval (eval at evaluate (:311:30), <anonymous>:1:7)
+        at UtilityScript.evaluate (<anonymous>:313:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\account_email.spec.js:10:13
+
+    Error Context: web\tests\test-results-account-email-login\account_email-system-acces-f814d-l-and-retains-legacy-access\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    web\tests\test-results-account-email-login\account_email-system-acces-f814d-l-and-retains-legacy-access\trace.zip
+    Usage:
+
+        npx playwright show-trace web\tests\test-results-account-email-login\account_email-system-acces-f814d-l-and-retains-legacy-access\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    web\tests\account_email.spec.js:3:55 › staff email login normalizes Gmail and retains legacy access 
+    web\tests\account_email.spec.js:3:55 › system-access-7d92a4 email login normalizes Gmail and retains legacy access 
+  1 passed (14.9s)

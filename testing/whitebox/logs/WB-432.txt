@@ -1,0 +1,12 @@
+WB-432 — PASS
+ContractPeriodJS.validate
+Scenario: ordered real dates
+Input: ["2026-02-30","2026-03-01"]
+Expected: false
+Actual: false
+UTC: 2026-09-05T08:53:03.565Z
+Evidence: logs/node.tap:33
+Source: testing/whitebox/unit_tests/web_test.cjs
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

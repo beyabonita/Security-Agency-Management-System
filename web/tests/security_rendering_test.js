@@ -84,19 +84,33 @@ for (const page of ['dashboard.html', 'users.html', 'locations.html', 'incidents
   expectExcludes(source, 'href="attendance.html"', `${page} Inspector attendance navigation`);
   expectExcludes(source, "rpc('record_attendance_event'", `${page} Inspector attendance mutation`);
   expectExcludes(source, 'data-action="clock_', `${page} Inspector Time In/Out control`);
+  expectExcludes(source, 'href="swaps.html"', `${page} Inspector duty-request approval navigation`);
 }
 
 const schedule = read('admin', 'schedule.html');
-expectIncludes(schedule, '>${escapeHtml(fullName)}${d.role === "inspector"', 'escaped personnel option labels');
+expectIncludes(schedule, '>${escapeHtml(guard.name)}${guard.role', 'escaped personnel filter labels');
+const roster = read('admin', 'js', 'shift-roster.js');
+expectIncludes(roster, '${escapeHtml(g.name)}</option>', 'escaped roster Guard names');
+expectIncludes(roster, '${escapeHtml(currentName(ids[i]))}', 'escaped roster preview names');
+assertJavaScriptParses(roster, 'admin/js/shift-roster.js');
 assertInlineScriptsParse(schedule, 'admin/schedule.html');
 
-for (const panel of ['admin', 'inspector']) {
-  const swaps = read(panel, 'swaps.html');
-  expectIncludes(swaps, "from('shift_swap_requests')", `${panel} shift-request query`);
-  expectIncludes(swaps, "from('schedules')", `${panel} schedule-linked shift details`);
-  expectIncludes(swaps, 'Requested:', `${panel} requested-shift detail`);
-  assertInlineScriptsParse(swaps, `${panel}/swaps.html`);
-}
+const adminSwapsPage = read('admin', 'swaps.html');
+const adminDutyRequests = read('admin', 'js', 'duty-requests.js');
+expectIncludes(adminDutyRequests, "from('shift_swap_requests')", 'admin duty-request query');
+expectIncludes(adminDutyRequests, "from('schedules')", 'admin schedule-linked duty details');
+expectIncludes(adminDutyRequests, "from('request-letters').createSignedUrl", 'private request-letter download');
+expectIncludes(adminDutyRequests, "'decide_duty_request':'decide_duty_relief'", 'authorized exchange and relief decisions');
+expectIncludes(adminDutyRequests, 'request_type', 'swap and absence distinction');
+expectExcludes(adminDutyRequests, 'innerHTML = r.reason', 'unescaped request reason');
+assertInlineScriptsParse(adminSwapsPage, 'admin/swaps.html');
+assertJavaScriptParses(adminDutyRequests, 'admin/js/duty-requests.js');
+
+const inspectorSwaps = read('inspector', 'swaps.html');
+expectIncludes(inspectorSwaps, "from('shift_swap_requests')", 'Inspector request-history query');
+expectIncludes(inspectorSwaps, "from('schedules')", 'Inspector schedule-linked request history');
+expectExcludes(inspectorSwaps, "rpc('review_shift_swap_by_inspector'", 'retired Inspector approval action');
+assertInlineScriptsParse(inspectorSwaps, 'inspector/swaps.html');
 
 for (const panel of ['admin', 'inspector']) {
   const locations = read(panel, 'locations.html');
@@ -140,6 +154,10 @@ for (const panel of ['admin', 'inspector']) {
   expectIncludes(incidents, 'appDialog.toast', `${panel} modal/toast incident feedback`);
   assertInlineScriptsParse(incidents, `${panel}/incidents.html`);
 }
+const adminIncidents = read('admin', 'incidents.html');
+expectIncludes(adminIncidents, "functions.invoke('admin-delete-incident'", 'server-authorized incident deletion');
+expectIncludes(adminIncidents, 'Delete report and media', 'irreversible deletion confirmation');
+expectExcludes(read('inspector', 'incidents.html'), 'deleteIncidentBtn', 'Inspector incident deletion action');
 
 const incidentReportView = read('js', 'incident-report-view.js');
 expectIncludes(incidentReportView, 'incident.detailedNarrative || incident.description', 'shared detailed incident narrative');
@@ -157,8 +175,14 @@ expectIncludes(compatibilityBridge, 'client.auth.onAuthStateChange', 'official S
 expectIncludes(compatibilityBridge, "rpc('update_incident_status'", 'server-side incident status update');
 expectIncludes(compatibilityBridge, "status_note: 'statusNote'", 'incident review-note mapping');
 expectIncludes(compatibilityBridge, "captured_at: 'capturedAt'", 'incident capture-time mapping');
+expectIncludes(compatibilityBridge, "'deletion_requested_at'", 'incident deletion retry state');
 expectIncludes(compatibilityBridge, "inspector_id: 'inspectorId'", 'Inspector-assignment mapping');
-expectIncludes(compatibilityBridge, "rpc('current_platform_announcement')", 'portal-wide configuration announcement');
+const platformConfiguration = read('js', 'platform-configuration.js');
+expectIncludes(platformConfiguration, "rpc('current_platform_announcement')", 'portal-wide configuration announcement');
+expectIncludes(platformConfiguration, "rpc('current_platform_support_email')", 'public support contact getter');
+expectExcludes(platformConfiguration, "from('platform_settings')", 'protected platform settings in public renderer');
+expectIncludes(platformConfiguration, 'encodeURIComponent(email)', 'encoded support mail address');
+assertJavaScriptParses(platformConfiguration, 'js/platform-configuration.js');
 expectExcludes(compatibilityBridge, '/rest/v1/', 'hand-written REST transport');
 expectExcludes(compatibilityBridge, 'document.write', 'dynamic SDK injection');
 
@@ -175,7 +199,9 @@ expectIncludes(itControls, 'id="refreshSystemCheck"', 'System Controls refresh a
 expectIncludes(itControls, 'async function runSystemCheck', 'live System Controls check');
 expectIncludes(itControls, "appSupabase.from('profiles').select('role,active')", 'System Controls account-directory check');
 expectIncludes(itControls, 'id="workspaceHealth"', 'System Controls health status');
-expectIncludes(itControls, 'id="platformSettingsForm"', 'Super Admin platform configuration form');
+expectIncludes(itControls, 'id="platformSettingsForm"', 'Super Operations Head platform configuration form');
+expectExcludes(itControls, 'onsubmit="savePlatformSettings(event)"', 'shadowed platform settings inline handler');
+expectIncludes(itControls, "addEventListener('submit', handlePlatformSettingsSubmit)", 'explicit platform settings submit listener');
 expectIncludes(itControls, "rpc('update_platform_settings'", 'secured platform configuration save');
 expectIncludes(itControls, "from('platform_settings_audit')", 'platform configuration audit list');
 assertInlineScriptsParse(itControls, 'it-admin/clients.html');
@@ -206,8 +232,8 @@ expectMatches(notificationCenter, /state\.bell\.setAttribute\(\s*'aria-label'/, 
 assertJavaScriptParses(notificationCenter, 'js/notification-center.js');
 
 const adminShell = read('admin', 'js', 'admin-shell.js');
-expectIncludes(adminShell, 'ax-sidebar-backdrop', 'responsive Admin navigation backdrop');
-expectIncludes(adminShell, "event.key === 'Escape'", 'Admin navigation escape handling');
+expectIncludes(adminShell, 'ax-sidebar-backdrop', 'responsive Operations Head navigation backdrop');
+expectIncludes(adminShell, "event.key === 'Escape'", 'Operations Head navigation escape handling');
 assertJavaScriptParses(adminShell, 'admin/js/admin-shell.js');
 
 const inspectorShell = read('inspector', 'js', 'inspector-shell.js');
@@ -216,8 +242,13 @@ assertJavaScriptParses(inspectorShell, 'inspector/js/inspector-shell.js');
 
 const itUsers = read('it-admin', 'users.html');
 expectIncludes(itUsers, "const platformRoles = ['admin', 'it_admin'];", 'restricted IT account roles');
-expectIncludes(itUsers, 'IT Admin and HR / Operations Head accounts only.', 'restricted IT account scope');
+expectIncludes(itUsers, 'IT Admin and Operations Head accounts only.', 'restricted IT account scope');
 expectExcludes(itUsers, 'id="organizationId"', 'client organization selector');
+expectExcludes(itUsers, 'resetDevice(', 'IT Admin device-reset action');
+expectExcludes(itUsers, 'resetDevice: true', 'IT Admin device-reset request');
+expectExcludes(itUsers, '<th>Device</th>', 'irrelevant IT Admin device column');
+expectExcludes(itUsers, 'device_locked', 'irrelevant IT Admin device-state query');
+expectIncludes(read('admin', 'users.html'), 'resetDevice(', 'Operations Head guard-device reset remains available');
 assertInlineScriptsParse(itUsers, 'it-admin/users.html');
 
 const adminLocations = read('admin', 'locations.html');

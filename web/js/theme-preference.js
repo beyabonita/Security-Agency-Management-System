@@ -28,7 +28,7 @@
       button.setAttribute('aria-pressed', dark ? 'true' : 'false');
       const icon = button.querySelector('.sl-theme-toggle-icon');
       const text = button.querySelector('.sl-theme-toggle-label');
-      if (icon) icon.textContent = dark ? '☀' : '☾';
+      if (icon) icon.textContent = dark ? 'light_mode' : 'dark_mode';
       if (text) text.textContent = label;
     });
   }
@@ -50,12 +50,13 @@
     button.type = 'button';
     button.className = 'sl-theme-toggle';
     button.dataset.themeToggle = '';
-    button.innerHTML = '<span class="sl-theme-toggle-icon" aria-hidden="true"></span><span class="sl-theme-toggle-label"></span>';
+    button.innerHTML = '<span class="sl-theme-toggle-icon material-symbols-rounded" aria-hidden="true"></span><span class="sl-theme-toggle-label"></span>';
     button.addEventListener('click', () => apply(currentTheme() === 'dark' ? 'light' : 'dark', true));
     return button;
   }
 
   function mount() {
+    if (document.body) document.body.dataset.theme = currentTheme();
     const hosts = [...document.querySelectorAll('[data-theme-toggle-host]')];
     if (!hosts.length) {
       const fallback = document.querySelector('.ax-topbar-right, .ix-shell-actions, .download-nav');
@@ -76,6 +77,11 @@
       if (!savedTheme()) apply(event.matches ? 'dark' : 'light', false);
     });
   }
+
+  // Keep the same portal's open tabs in sync without rewriting the preference.
+  window.addEventListener('storage', (event) => {
+    if (event.key === storageKey) apply(savedTheme() || (prefersDark?.matches ? 'dark' : 'light'), false);
+  });
 
   window.sentinelTheme = Object.freeze({
     get: currentTheme,

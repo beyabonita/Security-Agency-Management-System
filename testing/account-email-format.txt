@@ -1,0 +1,5 @@
+C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\supabase\functions\_shared\accounts.ts
+C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\supabase\functions\admin-create-user\index.ts
+C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\testing\account_email_test.ts
+C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\supabase\functions\admin-manage-user\index.ts
+Checked 4 files

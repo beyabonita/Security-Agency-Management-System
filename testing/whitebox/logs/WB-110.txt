@@ -1,0 +1,12 @@
+WB-110 — PASS
+RequestLetter.reservePath
+Scenario: stable retry key
+Input: "same user twice"
+Expected: true
+Actual: true
+UTC: 2026-09-05T08:57:24.000374Z
+Evidence: logs/flutter-verified.jsonl:422
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

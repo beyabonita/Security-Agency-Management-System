@@ -1,0 +1,12 @@
+WB-030 — PASS
+LocationIntegrityService.validationError
+Scenario: coordinate bounds
+Input: "-90.0,-180.0"
+Expected: true
+Actual: true
+UTC: 2026-09-05T08:57:23.573373Z
+Evidence: logs/flutter-verified.jsonl:100
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

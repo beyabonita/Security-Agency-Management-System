@@ -1,0 +1,12 @@
+WB-244 — PASS
+contract-period.contractPeriod
+Scenario: ordered real-date validation
+Input: ["2026-09-05","2026-09-05"]
+Expected: true
+Actual: true
+UTC: 2026-09-05T08:56:18.979Z
+Evidence: logs/deno-final.log:219
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

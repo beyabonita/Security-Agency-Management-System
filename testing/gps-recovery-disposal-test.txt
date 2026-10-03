@@ -1,0 +1,3 @@
+00:00 +0: loading C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart
+00:00 +0: page disposal preserves a late real point without deleting the marker
+00:00 +1: All tests passed!

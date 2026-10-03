@@ -10,7 +10,8 @@ class GeofenceService {
         .from('locations')
         .select()
         .inFilter('id', ids)
-        .eq('active', true);
+        .eq('active', true)
+        .timeout(const Duration(seconds: 15));
     return rows.map((row) {
       return GeofenceSite(
         id: row['id'].toString(),

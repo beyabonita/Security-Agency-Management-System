@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schedule — HR / Operations</title>
+    <title>Schedule — Operations Head</title>
     <link rel="icon" type="image/png" href="../favicon.png">
-    <script src="../js/theme-preference.js" defer></script>
+    <script src="../js/theme-preference.js"></script>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/admin-theme.css" rel="stylesheet">
+    <link href="css/dtr-scheduling.css" rel="stylesheet">
 </head>
 <body class="admin-body" data-ax-page="schedule">
 
@@ -20,139 +21,85 @@
 <div class="ax-app">
     <aside class="ax-sidebar">
         <div class="ax-brand">
-            <div class="ax-brand-badge">Control center</div>
-            <p class="ax-brand-title">HR / Operations</p>
+            <p class="ax-brand-title">Operations Head</p>
             <p class="ax-brand-sub">Security Agency Management System</p>
         </div>
         <nav class="ax-nav">
             <div class="ax-nav-label">Manage</div>
-            <a href="dashboard.html"><span class="ax-nav-icon">📊</span> Dashboard</a>
-            <a href="users.html"><span class="ax-nav-icon">👥</span> Personnel</a>
-            <a href="locations.html"><span class="ax-nav-icon">📍</span> Deployment Sites</a>
-            <a href="schedule.html"><span class="ax-nav-icon">📅</span> Schedule</a>
-            <a href="incidents.html"><span class="ax-nav-icon">🚨</span> Incidents</a>
-            <a href="swaps.html"><span class="ax-nav-icon">🔁</span> Shift approvals</a>
+            <a href="dashboard.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">dashboard</span> Dashboard</a>
+            <a href="users.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">groups</span> Personnel</a>
+            <a href="locations.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">location_on</span> Deployment Sites</a>
+            <a href="schedule.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">calendar_month</span> Schedule</a>
+            <a href="incidents.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">emergency</span> Incidents</a>
+            <a href="swaps.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">swap_horiz</span> Duty requests</a>
         </nav>
         <div class="ax-sidebar-foot">TwentyTwenty Security Agency</div>
     </aside>
     <div class="ax-main">
         <header class="ax-topbar">
             <div class="ax-topbar-left">
-                <button type="button" class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu">☰</button>
+                <button type="button" class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button>
                 <div>
-                    <div class="ax-breadcrumb">HR / Operations Console</div>
-                    <h1 class="ax-page-title">Schedule</h1>
+                    <div class="ax-breadcrumb">Operations Head Console</div>
+                    <h1 class="ax-page-title">Duty Scheduling</h1>
                 </div>
             </div>
             <div class="ax-topbar-right">
-                <span class="ax-role-pill">HR / Operations Head</span>
-                <span class="ax-user-chip" id="axUserName">Admin</span>
+                <span class="ax-user-chip" id="axUserName" hidden aria-live="polite"></span>
                 <button type="button" class="ax-btn-logout" onclick="adminLogout()">Sign out</button>
             </div>
         </header>
         <main class="ax-content">
 
-    <div class="section-title">Add schedule entry</div>
-    <div class="glass-card schedule-form-card mb-4">
-        <div class="schedule-form-section">
-            <div class="schedule-form-heading">
-                <span class="schedule-form-step">1</span>
-                <h2>Personnel</h2>
-            </div>
-            <div class="schedule-form-grid schedule-personnel-grid">
-                <div class="schedule-field">
-                    <label class="form-label" for="guardUser">Duty personnel</label>
-                    <select id="guardUser" class="form-select" onchange="onGuardSelected()">
-                        <option value="">Select personnel</option>
-                    </select>
-                </div>
-                <div class="schedule-field">
-                    <label class="form-label" for="name">Personnel name</label>
-                    <input type="text" id="name" class="form-control" readonly placeholder="Select personnel above">
-                </div>
-                <div class="schedule-field">
-                    <label class="form-label" for="dutyCategory">Duty category</label>
-                    <select id="dutyCategory" class="form-select" disabled>
-                        <option value="na">Not applicable</option>
-                        <option value="regular">Regular</option>
-                        <option value="contract">Contract</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <div class="schedule-form-section">
-            <div class="schedule-form-heading">
-                <span class="schedule-form-step">2</span>
-                <h2>Assignment</h2>
-            </div>
-            <div class="schedule-form-grid schedule-assignment-grid">
-                <div class="schedule-field">
-                    <label class="form-label" for="scheduleLocation">Deployment site</label>
-                    <select id="scheduleLocation" class="form-select">
-                        <option value="">Select location</option>
-                    </select>
-                    <div class="form-hint">Controls the Time In/Out geofence for this shift.</div>
-                </div>
-                <div class="schedule-field schedule-days-field">
-                    <label class="form-label" for="dutyDays">Days of duty</label>
-                    <input type="text" id="dutyDays" class="form-control" value="1" readonly>
-                </div>
-            </div>
-        </div>
-
-        <div class="schedule-form-section">
-            <div class="schedule-form-heading">
-                <span class="schedule-form-step">3</span>
-                <h2>Shift period</h2>
-            </div>
-            <div class="schedule-form-grid schedule-time-grid">
-                <div class="schedule-field">
-                    <label class="form-label" for="startDate">Start date</label>
-                    <input type="date" id="startDate" class="form-control" required>
-                </div>
-                <div class="schedule-field">
-                    <label class="form-label" for="startTime">Start time</label>
-                    <input type="time" id="startTime" class="form-control" value="08:00">
-                </div>
-                <div class="schedule-field">
-                    <label class="form-label" for="endDate">End date</label>
-                    <input type="date" id="endDate" class="form-control" required>
-                </div>
-                <div class="schedule-field">
-                    <label class="form-label" for="endTime">End time</label>
-                    <input type="time" id="endTime" class="form-control" value="17:00">
-                </div>
-            </div>
-        </div>
-
-        <div class="schedule-form-actions">
-            <button type="button" class="btn-add-schedule" onclick="addSchedule(this)">
-                <span aria-hidden="true">＋</span> Create schedule
-            </button>
-        </div>
+    <div class="section-title">Assign a 24-hour guard roster</div>
+    <div class="glass-card schedule-form-card shift-roster-card mb-4">
+      <div class="schedule-form-grid schedule-plan-settings">
+        <div class="schedule-field"><label class="form-label" for="rosterSetup">Shifting setup</label><select id="rosterSetup" class="form-select" disabled><option value="">Loading shifting setups…</option></select></div>
+        <div class="schedule-field"><label class="form-label" for="rosterDate">Schedule date</label><input id="rosterDate" type="date" class="form-control"></div>
+        <div class="schedule-field"><label class="form-label" for="rosterSite">Deployment site</label><select id="rosterSite" class="form-select"><option value="">Select location</option></select></div>
+      </div>
+      <div id="manageRosterSetup" class="roster-setup-actions" hidden><button id="editRosterSetup" type="button" class="btn btn-outline-secondary btn-sm">Edit setup</button><button id="removeRosterSetup" type="button" class="btn btn-outline-danger btn-sm">Remove setup</button><span id="rosterSetupLock" class="form-hint" role="status" hidden></span></div>
+      <div class="roster-setup-loading"><span id="rosterSetupsStatus" role="status"></span><button id="retryRosterSetups" type="button" class="btn btn-outline-secondary btn-sm">Reload saved setups</button></div>
+      <details id="newRosterSetup" class="roster-setup-editor">
+        <summary>Create a new shifting setup</summary>
+        <form id="rosterSetupForm">
+          <div class="schedule-form-grid">
+            <div class="schedule-field"><label for="rosterSetupName" class="form-label">Setup name</label><input id="rosterSetupName" class="form-control" maxlength="80" required placeholder="e.g. Four-shift rotation"></div>
+            <div class="schedule-field"><label for="rosterSetupCount" class="form-label">Number of shifts</label><select id="rosterSetupCount" class="form-select"><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option>12</option></select></div>
+          </div>
+          <div id="rosterSetupTimes" class="roster-setup-times"></div>
+          <p id="rosterSetupValidation" class="form-hint" role="status"></p>
+          <p id="rosterSetupError" role="alert" hidden></p>
+          <div class="roster-setup-actions"><button id="saveRosterSetup" type="submit" class="btn btn-danger">Save shifting setup</button><button id="cancelRosterSetup" type="button" class="btn btn-outline-secondary" hidden>Cancel editing</button></div>
+        </form>
+      </details>
+      <div id="rosterGuards" class="schedule-form-grid" aria-label="Guards for each shift"></div>
+      <div id="rosterPreview" role="status" aria-live="polite"></div>
+      <button id="saveRoster" type="button" class="btn btn-danger">Assign all shifts</button>
+      <div id="assignedRoster" aria-live="polite"></div>
     </div>
-
-    <div class="section-title">All scheduled assignments</div>
+    <div class="section-title">Scheduled guard shifts</div>
     <div class="glass-card">
-        <div class="table-responsive">
-            <table class="schedule-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Guard</th>
-                        <th>Schedule</th>
-                        <th>Deployment Site</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
+        <div class="schedule-list-filters">
+            <div class="schedule-field"><label class="form-label" for="scheduleMonth">Month</label><input type="month" id="scheduleMonth" class="form-control" onchange="renderSchedules()"></div>
+            <div class="schedule-field"><label class="form-label" for="scheduleCutoff">DTR cut-off</label><select id="scheduleCutoff" class="form-select" onchange="renderSchedules()"><option value="first">1st–15th</option><option value="second">16th–end of month</option></select></div>
+            <div class="schedule-field"><label class="form-label" for="schedulePersonnelFilter">Personnel</label><select id="schedulePersonnelFilter" class="form-select" onchange="renderSchedules()"><option value="">All guards</option></select></div>
+        </div>
+        <p class="schedule-list-note">Philippine time (UTC+8)</p>
+        <div class="table-responsive" tabindex="0" aria-label="Scheduled guard shifts">
+            <table class="schedule-table schedule-dtr-table">
+                <thead><tr>
+                    <th scope="col">Personnel</th><th scope="col">Duty date</th>
+                    <th scope="col">Scheduled IN</th><th scope="col">Scheduled OUT</th>
+                    <th scope="col">Planned hours</th><th scope="col">Deployment site</th>
+                    <th scope="col">Actions</th>
+                </tr></thead>
                 <tbody id="scheduleTable">
                     <tr>
-                        <td colspan="6">
+                        <td colspan="7">
                             <div class="empty-state">
-                                <div class="icon">📅</div>
-                                <div>No schedule entries yet.<br>Add one above to get started.</div>
+                                <div class="icon material-symbols-rounded" aria-hidden="true">event_note</div>
+                                <div>No schedule entries yet.<br>Assign a roster above to get started.</div>
                             </div>
                         </td>
                     </tr>
@@ -167,242 +114,131 @@
 
 <script src="../js/auth-username.js"></script>
 <script src="js/admin-shell.js"></script>
+<script src="../js/schedule-period.js"></script>
+<script src="../js/contract-period.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
 <script src="../js/supabase-firebase-bridge.js"></script>
+<script src="../js/platform-configuration.js"></script>
 <script src="../js/notification-center.js"></script>
 
 <script>
-const auth = firebase.auth();
-const db = firebase.firestore();
-
 let schedules = [];
 let guards = [];
 let locations = [];
+let scheduleChannel = null;
+let scheduleLoadVersion = 0;
+let scheduleRefreshTimer = null;
+let schedulesLoadFailed = false;
+
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 auth.onAuthStateChanged(async function(user) {
-    if (!user) { window.location.href = "login.html"; return; }
+    if (!user) { window.location.href = "../staff/login.html"; return; }
     const doc = await db.collection("users").doc(user.uid).get();
     if (!doc.exists || doc.data().role !== "admin") {
-        window.location.href = "login.html";
+        window.location.href = "../staff/login.html";
         return;
     }
     const d = doc.data();
-    const name = [d.firstName, d.middleInitial ? d.middleInitial + "." : "", d.lastName]
-        .filter(Boolean).join(" ") || d.name || displayLoginId(d);
-    setAdminUserName(name);
     applyAdminRoleNavigation(d.role);
     finishPageLoading();
-    setDefaultScheduleDates();
+    setScheduleListPeriod(todayDateString());
     loadGuards();
     loadLocations();
-    loadSchedulesFromFirestore();
+    loadSchedules();
+    window.loadRosterSetups?.();
 });
 
-/** Local calendar date YYYY-MM-DD (not UTC — avoids wrong day in PH timezone). */
+/** The agency DTR always uses Philippine calendar dates. */
 function todayDateString() {
-    const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}-${m}-${day}`;
+    return window.SchedulePeriod.toLocalDateString(new Date());
 }
 
-function applyScheduleDateLimits() {
-    const today = todayDateString();
-    const startEl = document.getElementById("startDate");
-    const endEl = document.getElementById("endDate");
-    startEl.min = today;
-    endEl.min = today;
-    if (startEl.value && startEl.value < today) startEl.value = today;
-    if (endEl.value && endEl.value < today) endEl.value = today;
-    const minEnd = startEl.value && startEl.value >= today ? startEl.value : today;
-    endEl.min = minEnd;
-    if (endEl.value && endEl.value < minEnd) endEl.value = minEnd;
-}
-
-function setDefaultScheduleDates() {
-    const today = todayDateString();
-    const startEl = document.getElementById("startDate");
-    const endEl = document.getElementById("endDate");
-    startEl.value = today;
-    endEl.value = today;
-    applyScheduleDateLimits();
-    if (!startEl.dataset.bound) {
-        startEl.dataset.bound = "1";
-        startEl.addEventListener("change", applyScheduleDateLimits);
-        endEl.addEventListener("change", applyScheduleDateLimits);
-        startEl.addEventListener("change", updateDutyDays);
-        endEl.addEventListener("change", updateDutyDays);
-    }
-    updateDutyDays();
-}
-
-function updateDutyDays() {
-    const start = document.getElementById("startDate").value;
-    const end = document.getElementById("endDate").value;
-    const field = document.getElementById("dutyDays");
-    if (!start || !end || end < start) { field.value = "1"; return; }
-    const startUtc = new Date(`${start}T00:00:00Z`);
-    const endUtc = new Date(`${end}T00:00:00Z`);
-    field.value = String(Math.max(1, Math.round((endUtc - startUtc) / 86400000) + 1));
-}
-
-/** Returns error message or null if dates are valid (today or future). */
-function validateScheduleDates(startDate, endDate) {
-    const today = todayDateString();
-    if (!startDate || startDate < today) {
-        return `Start date cannot be before today (${formatDate(today)}).`;
-    }
-    if (!endDate || endDate < today) {
-        return `End date cannot be before today (${formatDate(today)}).`;
-    }
-    if (endDate < startDate) {
-        return "End date cannot be before start date.";
-    }
-    return null;
+function setScheduleListPeriod(dutyDate) {
+    const cutoff = window.SchedulePeriod.dtrPeriodForDate(dutyDate);
+    if (!cutoff) return;
+    document.getElementById('scheduleMonth').value = dutyDate.slice(0, 7);
+    document.getElementById('scheduleCutoff').value = cutoff.cutoff;
 }
 
 function loadGuards() {
     db.collection("users").get().then(snapshot => {
         guards = [];
-        const sel = document.getElementById("guardUser");
-        sel.innerHTML = '<option value="">Select personnel</option>';
         snapshot.forEach(doc => {
             const d = doc.data();
             if (!["user", "inspector"].includes(d.role)) return;
             const fullName = [d.firstName, d.middleInitial ? d.middleInitial + "." : "", d.lastName]
                 .filter(Boolean).join(" ") || d.name || displayLoginId(d);
-            guards.push({ id: doc.id, name: fullName, loginId: displayLoginId(d), role: d.role, employmentCategory: d.employmentCategory || "regular", assignedLocationId: d.assignedLocationId || "" });
-            sel.innerHTML += `<option value="${doc.id}">${escapeHtml(fullName)}${d.role === "inspector" ? " (Inspector)" : ""}</option>`;
+            guards.push({ id: doc.id, name: fullName, active: d.active !== false, loginId: displayLoginId(d), role: d.role, employmentCategory: d.employmentCategory || "regular", contractStartDate: d.contractStartDate, contractEndDate: d.contractEndDate, assignedLocationId: d.assignedLocationId || "" });
         });
+        document.getElementById('schedulePersonnelFilter').innerHTML = '<option value="">All guards</option>' + guards.filter(guard=>guard.role==='user').map(guard => `<option value="${escapeHtml(guard.id)}">${escapeHtml(guard.name)}</option>`).join('');
+        window.renderShiftRoster?.();
+        if (schedules.length > 0) renderSchedules();
     });
-}
-
-function onGuardSelected() {
-    const id = document.getElementById("guardUser").value;
-    const guard = guards.find(g => g.id === id);
-    document.getElementById("name").value = guard ? guard.name : "";
-    document.getElementById("dutyCategory").value = guard?.role === "inspector" ? "na" : (guard?.employmentCategory || "regular");
-    if (guard?.assignedLocationId && locations.some(location => location.id === guard.assignedLocationId)) {
-        document.getElementById("scheduleLocation").value = guard.assignedLocationId;
-    }
 }
 
 function loadLocations() {
     db.collection("locations").where("active", "==", true).get().then(snapshot => {
         locations = [];
-        const sel = document.getElementById("scheduleLocation");
-        sel.innerHTML = '<option value="">Select location</option>';
         snapshot.forEach(doc => {
             const d = doc.data();
             const label = d.label || doc.id;
             const address = d.address || "";
             locations.push({ id: doc.id, label, address });
-            const hint = address ? ` — ${address.slice(0, 60)}${address.length > 60 ? "…" : ""}` : "";
-            sel.innerHTML += `<option value="${doc.id}">${escapeHtml(label)}${escapeHtml(hint)}</option>`;
         });
-        if (locations.length === 0) {
-            sel.innerHTML += '<option value="" disabled>No active deployment sites — add one in Deployment Sites first</option>';
-        }
-        onGuardSelected();
+        window.renderShiftRoster?.();
     });
 }
 
-function loadSchedulesFromFirestore() {
-    db.collection("schedules").onSnapshot(snapshot => {
-        schedules = [];
-        snapshot.forEach(doc => {
-            schedules.push({ firestoreId: doc.id, ...doc.data() });
+function loadSchedules() {
+    refreshSchedules();
+    if (scheduleChannel) return;
+    scheduleChannel = appSupabase.channel('hr-duty-schedules');
+    // Time In adds a session without updating the parent schedule. Subscribe
+    // to the linked records too, so Delete is removed as soon as duty starts.
+    for (const table of ['schedules', 'attendance_sessions', 'accomplishment_reports', 'shift_swap_requests']) {
+        scheduleChannel.on('postgres_changes', { event: '*', schema: 'public', table }, () => {
+            clearTimeout(scheduleRefreshTimer);
+            scheduleRefreshTimer = setTimeout(refreshSchedules, 150);
         });
-        schedules.sort((a, b) => scheduleSortKey(b).localeCompare(scheduleSortKey(a)));
-        renderSchedules();
-    });
+    }
+    scheduleChannel.subscribe();
 }
 
-
-// =====================================
-// ADD SCHEDULE
-// =====================================
-
-function combineDateTime(dateStr, timeStr) {
-    return new Date(`${dateStr}T${timeStr}:00`);
-}
-
-function scheduleSortKey(s) {
-    if (s.startAt && s.startAt.toDate) return s.startAt.toDate().toISOString();
-    return s.date || "";
-}
-
-async function addSchedule(button) {
-    const userId   = document.getElementById("guardUser").value;
-    const name     = document.getElementById("name").value.trim();
-    const locationId = document.getElementById("scheduleLocation").value;
-    const startDate = document.getElementById("startDate").value;
-    const startTime = document.getElementById("startTime").value;
-    const endDate   = document.getElementById("endDate").value;
-    const endTime   = document.getElementById("endTime").value;
-    const dutyDays = Number(document.getElementById("dutyDays").value) || 1;
-
-    if (!userId || !name || !locationId || !startDate || !startTime || !endDate || !endTime) {
-        appDialog.toast("Select a guard, duty location, and complete start/end date and time.", { tone: "warning" });
-        return;
-    }
-
-    const dateError = validateScheduleDates(startDate, endDate);
-    if (dateError) {
-        appDialog.toast(dateError, { tone: "warning" });
-        return;
-    }
-
-    const startAt = combineDateTime(startDate, startTime);
-    const endAt = combineDateTime(endDate, endTime);
-    const now = new Date();
-    if (endAt <= startAt) {
-        appDialog.toast("End date/time must be after start date/time.", { tone: "warning" });
-        return;
-    }
-    if (endAt < now) {
-        appDialog.toast("This schedule is entirely in the past. Use today or a future end date/time.", { tone: "warning" });
-        return;
-    }
-
-    const guard = guards.find(g => g.id === userId);
-    const loc = locations.find(l => l.id === locationId);
-    if (!loc) {
-        appDialog.toast("Selected location is no longer available. Refresh and try again.", { tone: "danger" });
-        return;
-    }
-
+async function refreshSchedules() {
+    const version = ++scheduleLoadVersion;
     try {
-        await appDialog.runBusy(button, () => db.collection("schedules").add({
-            userId: userId,
-            userEmail: guard ? guard.loginId : "",
-            name: name,
-            date: startDate,
-            startAt: firebase.firestore.Timestamp.fromDate(startAt),
-            endAt: firebase.firestore.Timestamp.fromDate(endAt),
-            locationId: locationId,
-            locationLabel: loc.label,
-            locationAddress: loc.address || "",
-            dutyCategory: guard?.role === "inspector" ? null : (guard?.employmentCategory || "regular"),
-            dutyDays,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }), { label: 'Creating schedule…' });
-        clearForm();
-        flashScheduleButton();
-        appDialog.toast("Schedule entry added.", { tone: "success" });
+        // Swaps refer to both offered and target duties. Name each foreign key
+        // explicitly: an unqualified embed becomes ambiguous (PGRST201).
+        const { data, error } = await appSupabase.from('schedules')
+            .select('*,attendance_sessions(id,status),accomplishment_reports(id),shift_swap_requests:shift_swap_requests!shift_swap_requests_requested_schedule_id_fkey(id),swap_target_requests:shift_swap_requests!shift_swap_requests_target_schedule_id_fkey(id)')
+            .order('start_at', { ascending: false });
+        if (error) throw error;
+        if (version !== scheduleLoadVersion) return;
+        schedules = (data || []).map(row => ({
+            ...row,
+            firestoreId: row.id,
+            userId: row.user_id,
+            guardName: row.guard_name,
+            startAt: row.start_at,
+            endAt: row.end_at,
+            locationLabel: row.location_label,
+            locationAddress: row.location_address,
+            markedDone: row.marked_done,
+            completedAt: row.completed_at,
+            date: row.duty_date || window.SchedulePeriod.toLocalDateString(new Date(row.start_at)),
+        }));
+        schedulesLoadFailed = false;
+        renderSchedules();
+        window.renderShiftRoster?.();
     } catch (error) {
-        appDialog.toast("Could not save schedule: " + (error.message || 'Please try again.'), { tone: "danger" });
+        if (version !== scheduleLoadVersion) return;
+        schedulesLoadFailed = true;
+        renderSchedules();
+        console.error('Schedule list could not be refreshed.', error);
+        appDialog.toast('Could not refresh schedules. Retry before making changes.', { tone: 'danger' });
     }
-}
-
-function flashScheduleButton() {
-    const btn = document.querySelector(".btn-add-schedule");
-    if (!btn) return;
-    btn.classList.remove("schedule-btn-flash");
-    void btn.offsetWidth;
-    btn.classList.add("schedule-btn-flash");
-    setTimeout(() => btn.classList.remove("schedule-btn-flash"), 560);
 }
 
 
@@ -413,78 +249,131 @@ function flashScheduleButton() {
 function renderSchedules() {
     const tbody = document.getElementById("scheduleTable");
 
-    if (schedules.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6">
-                    <div class="empty-state">
-                        <div class="icon">📅</div>
-                        <div>No schedule entries yet.<br>Add one above to get started.</div>
-                    </div>
-                </td>
-            </tr>`;
+    if (schedulesLoadFailed) {
+        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Schedule history could not be loaded.</p><button type="button" class="action-btn" onclick="refreshSchedules()">Retry loading schedules</button></div></td></tr>';
         return;
     }
 
-    tbody.innerHTML = schedules.map((s, i) => {
-        const scheduleHtml = formatScheduleDisplay(s);
-        const locationHtml = formatLocationCell(s);
-        const statusHtml = s.markedDone
-            ? '<span class="badge-time" style="color:#4ade80;border-color:rgba(74,222,128,0.35);">✓ Guard marked done</span>'
-            : '<span style="color:#64748b;font-size:0.8rem;">Pending</span>';
-        return `
-        <tr>
-            <td><span class="row-num">${String(i + 1).padStart(2, '0')}</span></td>
-            <td><strong>${escapeHtml(s.name || s.guardName || "—")}</strong></td>
-            <td>${scheduleHtml}</td>
-            <td>${locationHtml}</td>
-            <td>${statusHtml}</td>
-            <td>
-                <button type="button" class="action-btn btn-schedule-del" onclick="deleteSchedule('${s.firestoreId}', this)">
-                    Delete
-                </button>
-            </td>
+    const month = document.getElementById('scheduleMonth').value;
+    const cutoff = document.getElementById('scheduleCutoff').value;
+    const personnelId = document.getElementById('schedulePersonnelFilter').value;
+    const filtered = schedules.filter(schedule => {
+        if (guards.find(person=>person.id===schedule.userId)?.role === 'inspector') return false;
+        const date = schedule.date || window.SchedulePeriod.toLocalDateString(toDate(schedule.startAt));
+        return date && date.slice(0, 7) === month
+            && (Number(date.slice(8, 10)) <= 15 ? 'first' : 'second') === cutoff
+            && (!personnelId || schedule.userId === personnelId);
+    });
+    if (!filtered.length) {
+        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon material-symbols-rounded" aria-hidden="true">event_note</div><div>No scheduled duty for this cut-off.<br>Choose another period or assign a guard roster above.</div></div></td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = [...filtered].sort((left,right) =>
+        left.date.localeCompare(right.date) || toDate(left.startAt)-toDate(right.startAt)
+    ).map(schedule => {
+        const person=guards.find(guard=>guard.id===schedule.userId);
+        const start=toDate(schedule.startAt),end=toDate(schedule.endAt);
+        const punch=time=>{
+            if(!time)return '—';
+            const dayOffset=Math.round((Date.parse(SchedulePeriod.toLocalDateString(time)+'T00:00:00Z')-Date.parse(schedule.date+'T00:00:00Z'))/86400000);
+            return formatTime(time)+(dayOffset===1?' (next day)':dayOffset>1?' ('+dayOffset+' days later)':'');
+        };
+        const cancelled=schedule.approval_status==='cancelled';
+        return `<tr>
+            <td><strong>${escapeHtml(person?.name||schedule.guardName||'Personnel unavailable')}</strong></td>
+            <td>${escapeHtml(formatDate(schedule.date))}</td>
+            <td class="schedule-dtr-time">${escapeHtml(punch(start))}</td>
+            <td class="schedule-dtr-time">${escapeHtml(punch(end))}</td>
+            <td>${cancelled?'—':escapeHtml(formatDurationBetween(start,end))}</td>
+            <td>${formatLocationCell(schedule)}</td>
+            <td class="schedule-period-actions">${renderPeriodAction(schedule)}</td>
         </tr>`;
     }).join('');
 }
+
+function renderPeriodAction(schedule) {
+    const history = scheduleHistoryState(schedule);
+    const label = window.SchedulePeriod.periodLabels[schedule.dtr_period || 'auto'] || 'Shift';
+    return history.reason
+        ? `<button type="button" class="action-btn btn-schedule-del" disabled title="${escapeHtml(history.reason)}" aria-label="Delete unavailable: ${escapeHtml(history.reason)}">Delete</button>`
+        : `<button type="button" class="action-btn btn-schedule-del" data-delete-schedule="${escapeHtml(schedule.firestoreId)}" aria-label="Delete ${escapeHtml(label)} period">Delete</button>`;
+
+}
+
+document.getElementById('scheduleTable').addEventListener('click', event => {
+    const button = event.target.closest('[data-delete-schedule]');
+    if (button) deleteSchedule(button.dataset.deleteSchedule, button);
+});
 
 
 // =====================================
 // DELETE SCHEDULE
 // =====================================
 
+function scheduleHistoryState(schedule) {
+    // PostgREST returns unique child relationships as objects, and other
+    // relationships as arrays. Accept both shapes when evaluating history.
+    const records = value => Array.isArray(value) ? value : value ? [value] : [];
+    const attendance = records(schedule.attendance_sessions);
+    if (attendance.length) return {
+        attendance: true,
+        open: attendance.some(session => session.status === 'open'),
+        label: 'DTR protected',
+        reason: 'Recorded attendance — kept for DTR.',
+    };
+    if (schedule.markedDone || schedule.completedAt) return {
+        label: 'History protected', reason: 'Completed duty — kept for records.',
+    };
+    if (records(schedule.accomplishment_reports).length) return {
+        label: 'Report protected', reason: 'An accomplishment report is linked.',
+    };
+    if (records(schedule.shift_swap_requests).length || records(schedule.swap_target_requests).length) return {
+        label: 'Approval history', reason: 'A duty request is linked.',
+    };
+    return {};
+}
+
 async function deleteSchedule(firestoreId, button) {
-    const approved = await appDialog.confirm("Remove this schedule entry? This action cannot be undone.", { title: "Delete schedule", confirmText: "Delete schedule", danger: true, icon: "!" });
+    const schedule = schedules.find(item => item.firestoreId === firestoreId);
+    if (!schedule || schedulesLoadFailed) {
+        appDialog.toast('Refresh the schedule list before deleting.', { tone: 'warning' });
+        return;
+    }
+    const history = scheduleHistoryState(schedule);
+    if (history.reason) {
+        appDialog.toast(history.reason, { tone: 'warning' });
+        return;
+    }
+    const periodLabel = window.SchedulePeriod.periodLabels[schedule.dtr_period || 'auto'] || 'Shift';
+    const approved = await appDialog.confirm(`Delete ${periodLabel} on ${formatDate(schedule.date)}? Only this unused period will be removed; other periods and recorded attendance are kept.`, { title: "Delete duty period", confirmText: "Delete period", danger: true, icon: "delete" });
     if (!approved) return;
     try {
-        await appDialog.runBusy(button, () => db.collection("schedules").doc(firestoreId).delete(), { label: 'Deleting…' });
+        await appDialog.runBusy(button, async () => {
+            const { error } = await appSupabase.rpc('delete_unused_schedule', { p_schedule_id: firestoreId });
+            if (error) throw error;
+        }, { label: 'Deleting…' });
+        schedules = schedules.filter(item => item.firestoreId !== firestoreId);
+        renderSchedules();
+        window.renderShiftRoster?.();
         appDialog.toast("Schedule removed.", { tone: "success" });
     } catch (error) {
-        appDialog.toast("Could not remove schedule: " + error.message, { tone: "danger" });
+        const protectedHistory = /^SCHEDULE_.*_HISTORY$/.test(error.details || '') || error.code === '23503';
+        const message = error.code === '23503'
+            ? 'This schedule has linked duty records and must be kept for historical records.'
+            : error.message || 'Could not remove schedule. Please try again.';
+        appDialog.toast(message, { tone: protectedHistory ? 'warning' : 'danger' });
+        await refreshSchedules();
     }
 }
 
-
-// =====================================
-// CLEAR FORM
-// =====================================
-
-function clearForm() {
-    document.getElementById("guardUser").value = "";
-    document.getElementById("name").value = "";
-    document.getElementById("scheduleLocation").value = "";
-    setDefaultScheduleDates();
-    document.getElementById("startTime").value = "08:00";
-    document.getElementById("endTime").value = "17:00";
-    updateDutyDays();
-}
 
 function formatLocationCell(s) {
     if (s.locationLabel) {
         const addr = s.locationAddress
             ? `<div class="loc-cell-address">${escapeHtml(s.locationAddress)}</div>`
             : "";
-        return `<div class="loc-cell-name">📍 ${escapeHtml(s.locationLabel)}</div>${addr}`;
+        return `<div class="loc-cell-name"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">location_on</span>${escapeHtml(s.locationLabel)}</div>${addr}`;
     }
     if (s.area || s.company) {
         const parts = [s.company, s.area].filter(Boolean).join(" · ");
@@ -498,17 +387,18 @@ function escapeHtml(text) {
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, '&#039;');
 }
 
 function toDate(value) {
     if (!value) return null;
-    if (value.toDate) return value.toDate();
-    return new Date(value);
+    const date = value.toDate ? value.toDate() : new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
 }
 
 function formatTime(d) {
-    return d.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" });
+    return d.toLocaleTimeString("en-PH", { timeZone: 'Asia/Manila', hour: "numeric", minute: "2-digit" });
 }
 
 function formatDate(dateStr) {
@@ -534,10 +424,12 @@ function formatScheduleDisplay(s) {
     const start = toDate(s.startAt);
     const end = toDate(s.endAt);
     if (start && end) {
-        const sameDay = start.toDateString() === end.toDateString();
+        const sameDay = window.SchedulePeriod.toLocalDateString(start) === window.SchedulePeriod.toLocalDateString(end);
+        const startDate = window.SchedulePeriod?.toLocalDateString(start) || s.date;
+        const endDate = window.SchedulePeriod?.toLocalDateString(end) || startDate;
         const dateLine = sameDay
-            ? formatDate(start.toISOString().slice(0, 10))
-            : `${formatDate(start.toISOString().slice(0, 10))} → ${formatDate(end.toISOString().slice(0, 10))}`;
+            ? formatDate(startDate)
+            : `${formatDate(startDate)} → ${formatDate(endDate)}`;
         const timeLine = `${formatTime(start)} – ${formatTime(end)}`;
         const durationLabel = formatDurationBetween(start, end);
         return `
@@ -552,8 +444,9 @@ function formatScheduleDisplay(s) {
     return `<div class="schedule-time-range">${escapeHtml(formatDate(s.date))}</div>`;
 }
 
-
 </script>
 
+<script src="../js/roster-setup.js"></script>
+<script src="js/shift-roster.js"></script>
 </body>
 </html>

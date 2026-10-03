@@ -1,0 +1,6 @@
+projectKey=sentinel-link-whitebox
+serverUrl=http://127.0.0.1:9000
+serverVersion=26.9.0.129388
+dashboardUrl=http://127.0.0.1:9000/dashboard?id=sentinel-link-whitebox
+ceTaskId=9d214320-71b4-4767-b761-d1147bbb78a3
+ceTaskUrl=http://127.0.0.1:9000/api/ce/task?id=9d214320-71b4-4767-b761-d1147bbb78a3

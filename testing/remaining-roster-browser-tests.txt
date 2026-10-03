@@ -1,0 +1,30 @@
+
+Running 23 tests using 1 worker
+
+(node:15264) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 schedule_lifecycle.spec.js:80:1 › roster is the only editor and the explanation panel is removed (1.8s)
+  ok  2 schedule_lifecycle.spec.js:90:1 › personnel and site loading work without custom-editor controls (1.5s)
+  ok  3 schedule_lifecycle.spec.js:103:1 › an overnight roster remains on the starting date and first DTR cutoff (2.0s)
+  ok  4 schedule_lifecycle.spec.js:119:3 › missing contract dates prevents a roster request (1.9s)
+  ok  5 schedule_lifecycle.spec.js:119:3 › outside contract dates prevents a roster request (2.3s)
+  ok  6 schedule_lifecycle.spec.js:119:3 › overnight contract end prevents a roster request (2.0s)
+  ok  7 schedule_lifecycle.spec.js:119:3 › inactive guard prevents a roster request (1.8s)
+  ok  8 schedule_lifecycle.spec.js:119:3 › past date prevents a roster request (1.8s)
+  ok  9 schedule_lifecycle.spec.js:137:1 › a failed save prevents duplicate submission and preserves selected guards (2.0s)
+  ok 10 schedule_lifecycle.spec.js:151:1 › an incomplete RPC response cannot report a saved roster (1.8s)
+  ok 11 schedule_lifecycle.spec.js:158:1 › after the first shift ends today remains available for the night shift (2.2s)
+  ok 12 schedule_lifecycle.spec.js:166:1 › today at 7 PM assigns only the ongoing night shift, preserving its actual overnight hours (1.7s)
+  ok 13 schedule_lifecycle.spec.js:178:1 › three-shift setup at exactly 2 PM skips the completed morning and requires both remaining guards (1.8s)
+  ok 14 schedule_lifecycle.spec.js:194:1 › attendance reports completion and requests protect period history (1.8s)
+  ok 15 schedule_lifecycle.spec.js:209:1 › schedule loading explicitly selects both swap relationships in one query (2.7s)
+  ok 16 schedule_lifecycle.spec.js:222:1 › schedule names prefer the current profile and safely preserve historical names (1.5s)
+  ok 17 schedule_lifecycle.spec.js:231:1 › cancelled deletion leaves the period and confirmed deletion has a busy state (3.5s)
+  ok 18 schedule_lifecycle.spec.js:242:1 › concurrent Time In protects the schedule with readable error feedback (2.9s)
+  ok 19 schedule_lifecycle.spec.js:253:1 › legacy foreign-key errors do not expose SQL details (3.0s)
+  ok 20 schedule_lifecycle.spec.js:261:1 › failed history load offers retry and older responses cannot erase newer protection (2.6s)
+  ok 21 schedule_lifecycle.spec.js:276:1 › linked-record realtime refreshes protection without duplicate subscriptions (1.7s)
+  ok 22 schedule_lifecycle.spec.js:284:1 › 2- and 3-shift rosters show named Guards and save one atomic request (2.3s)
+  ok 23 schedule_lifecycle.spec.js:311:1 › roster prevents duplicate guards and preserves selection on save failure (1.6s)
+
+  23 passed (50.3s)

@@ -1,0 +1,12 @@
+WB-309 — PASS
+admin-create-user.registered handler
+Scenario: validation, duplicate and rollback
+Input: {"options":{"profileError":true},"body":{}}
+Expected: [500,"profile_create_failed"]
+Actual: [500,"profile_create_failed"]
+UTC: 2026-09-05T08:56:20.105Z
+Evidence: logs/deno-final.log:557
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

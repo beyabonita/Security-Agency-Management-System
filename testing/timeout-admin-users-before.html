@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personnel Records — Admin</title>
+<link rel="icon" type="image/png" href="../favicon.png">
+<script src="../js/theme-preference.js"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<link href="css/admin-theme.css" rel="stylesheet">
+<link href="../css/dtr-report.css" rel="stylesheet">
+
+<style>
+.section-title {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--sl-danger); margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+}
+.section-title::after { content:''; flex:1; height:1px; background: #e7d5d5; }
+
+.glass-card { background: var(--sl-surface); border: 1px solid var(--sl-line); border-radius: 14px; overflow: hidden; }
+.personnel-table-section + .personnel-table-section { margin-top: 26px; }
+.personnel-table-heading {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin: 0 0 10px; padding: 0 2px;
+}
+.personnel-table-heading h2 { margin: 0; color: var(--sl-ink); font-size: 1rem; font-weight: 750; }
+.personnel-table-count {
+    display: inline-flex; align-items: center; min-width: 24px; justify-content: center;
+    padding: 3px 8px; border-radius: 999px; background: var(--sl-red-soft); color: var(--sl-danger);
+    font-size: .72rem; font-weight: 700;
+}
+
+.user-table { width: 100%; border-collapse: collapse; }
+.user-table thead tr { background: var(--sl-red-soft); border-bottom: 1px solid var(--sl-line); }
+.user-table thead th {
+    padding: 14px 20px; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--sl-muted);
+}
+.user-table tbody tr {
+    position: relative; z-index: 0;
+    border-bottom: 1px solid var(--sl-line); transition: background 0.15s;
+}
+.user-table tbody tr:has(.personnel-actions:hover),
+.user-table tbody tr:has(.personnel-actions:focus-within),
+.user-table tbody tr.has-open-personnel-actions { z-index: 40; }
+.user-table tbody tr:last-child { border-bottom: none; }
+.user-table tbody tr:hover { background: var(--sl-surface-muted); }
+.user-table tbody td { padding: 16px 20px; font-size: 0.875rem; color: var(--sl-ink); vertical-align: middle; }
+.user-name { font-weight: 600; color: var(--sl-ink); }
+.user-email { font-size: 0.78rem; color: var(--sl-muted); margin-top: 2px; }
+
+.role-badge {
+    display: inline-block; border-radius: 20px;
+    padding: 3px 10px; font-size: 0.72rem; font-weight: 600;
+}
+.role-admin     { background: var(--sl-red-soft); border: 1px solid var(--sl-line); color: var(--sl-danger); }
+.role-inspector { background: var(--sl-red-soft); border: 1px solid var(--sl-line); color: var(--sl-danger); }
+.role-user      { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: var(--sl-success); }
+
+.badge-active {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.3);
+    color: var(--sl-success); border-radius: 20px; padding: 3px 10px;
+    font-size: 0.72rem; font-weight: 600;
+}
+.badge-active::before { content:''; width:6px; height:6px; background: #4ade80; border-radius:50%; }
+.badge-disabled {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3);
+    color: var(--sl-danger); border-radius: 20px; padding: 3px 10px;
+    font-size: 0.72rem; font-weight: 600;
+}
+.badge-disabled::before { content:''; width:6px; height:6px; background: #f87171; border-radius:50%; }
+
+.action-btn {
+    border-radius: 8px; padding: 6px 12px;
+    font-size: 0.78rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; border: 1px solid;
+    white-space: nowrap;
+}
+.personnel-table-section { position: relative; z-index: 0; }
+.personnel-table-section:has(.personnel-actions:hover),
+.personnel-table-section:has(.personnel-actions.is-open) { z-index: 20; }
+.user-table td:has(.personnel-actions) { position: relative; z-index: 2; }
+.user-table td:has(.personnel-actions:hover),
+.user-table td:has(.personnel-actions:focus-within),
+.user-table td:has(.personnel-actions.is-open) { z-index: 50; }
+.personnel-actions { position: relative; z-index: 10; display: inline-block; }
+.personnel-actions:hover,
+.personnel-actions:focus-within,
+.personnel-actions.is-open { z-index: 60; }
+.personnel-actions-trigger {
+    display: inline-flex; align-items: center; gap: 7px;
+    min-height: 34px; border: 1px solid var(--sl-line); border-radius: 9px;
+    padding: 6px 11px; background: var(--sl-surface); color: var(--sl-danger);
+    font-size: .78rem; font-weight: 700; cursor: pointer;
+}
+.personnel-actions-trigger:hover, .personnel-actions.is-open .personnel-actions-trigger {
+    background: var(--sl-red-soft); border-color: #f87171; color: var(--sl-danger);
+}
+.personnel-actions-caret { font-size: .9rem; line-height: 1; transition: transform .18s ease; }
+.personnel-actions:hover .personnel-actions-caret,
+.personnel-actions:focus-within .personnel-actions-caret,
+.personnel-actions.is-open .personnel-actions-caret { transform: rotate(180deg); }
+.personnel-actions-menu {
+    position: absolute; right: 0; top: calc(100% - 1px); z-index: 70;
+    display: none; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px;
+    width: 286px; padding: 6px;
+    background: var(--sl-surface); border: 1px solid var(--sl-line); border-radius: 12px;
+    box-shadow: 0 14px 32px rgba(28,25,23,.16);
+}
+@media (hover: hover) {
+    .personnel-actions:hover .personnel-actions-menu { display: grid; }
+}
+.personnel-actions:focus-within .personnel-actions-menu,
+.personnel-actions.is-open .personnel-actions-menu { display: grid; }
+.personnel-actions-menu .action-btn {
+    width: 100%; display: flex; justify-content: flex-start; align-items: center;
+    border-color: transparent; background: transparent; color: var(--sl-ink); text-align: left;
+}
+.personnel-actions-menu .action-btn:hover { background: var(--sl-red-soft); color: var(--sl-danger); border-color: var(--sl-line); }
+.personnel-actions-menu .btn-disable { color: var(--sl-warning); }
+.personnel-actions-menu .btn-enable { color: var(--sl-success); }
+.personnel-actions-menu .btn-reports { color: var(--sl-success); }
+.glass-card { overflow: visible; }
+@media (max-width: 520px) {
+    .personnel-actions-menu { width: 250px; }
+}
+.btn-locations {
+    background: var(--sl-red-soft); border-color: var(--sl-line); color: var(--sl-danger);
+}
+.btn-locations:hover { background: var(--sl-red-soft); border-color: #dc2626; color: var(--sl-danger); }
+.btn-dtr {
+    background: var(--sl-red-soft); border-color: var(--sl-line); color: var(--sl-danger);
+}
+.btn-dtr:hover { background: var(--sl-red-soft); border-color: #dc2626; color: var(--sl-danger); }
+.btn-reports {
+    background: var(--sl-success-soft); border-color: var(--sl-line); color: var(--sl-success);
+}
+.btn-reports:hover { background: var(--sl-success-soft); border-color: #22c55e; color: var(--sl-success); }
+.btn-inspector {
+    background: var(--sl-info-soft); border-color: var(--sl-line); color: var(--sl-info);
+}
+.btn-inspector:hover { background: #dbeafe; border-color: #3b82f6; color: #1e40af; }
+.btn-history {
+    background: var(--sl-surface-muted); border-color: #cbd5e1; color: var(--sl-ink);
+}
+.btn-history:hover { background: #f1f5f9; border-color: #94a3b8; color: #334155; }
+.btn-disable {
+    background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: #fbbf24;
+}
+.btn-disable:hover { background: rgba(245,158,11,0.2); color: #fde68a; }
+.btn-enable {
+    background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.3); color: var(--sl-success);
+}
+.btn-enable:hover { background: rgba(74,222,128,0.2); color: #86efac; }
+.btn-reset {
+    background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: var(--sl-danger);
+}
+.btn-reset:hover { background: rgba(248,113,113,0.2); color: #fca5a5; }
+
+.page-title { font-size: 1.35rem; font-weight: 700; color: var(--sl-ink); }
+.page-sub { font-size: 0.875rem; color: var(--sl-muted); margin-top: 4px; }
+
+.form-label { color: var(--sl-muted); font-size: 0.8rem; font-weight: 600; }
+.form-control, .form-select {
+    background: var(--sl-surface-muted); border: 1px solid var(--sl-line); color: var(--sl-ink);
+    border-radius: 10px; padding: 10px 14px; font-size: 0.875rem;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.12);
+}
+.btn-cancel {
+    background: var(--sl-surface); border: 1px solid var(--sl-line); color: var(--sl-muted);
+    border-radius: 10px; padding: 10px 20px; cursor: pointer;
+}
+.btn-add-guard {
+    background: #dc2626; border: none; color: #fff; font-weight: 600;
+    border-radius: 10px; padding: 10px 20px; cursor: pointer; font-size: 0.875rem;
+}
+.btn-add-guard:hover { background: #ef4444; }
+.btn-add-guard:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
+#createGuardError { color: var(--sl-danger); font-size: 0.85rem; min-height: 20px; margin-top: 12px; }
+
+.location-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--sl-red-soft); border: 1px solid var(--sl-line);
+    color: var(--sl-danger); border-radius: 20px; padding: 4px 12px;
+    font-size: 0.78rem; font-weight: 500; margin: 3px;
+}
+.location-chip .remove-btn { cursor: pointer; opacity: 0.7; }
+.location-chip .remove-btn:hover { opacity: 1; color: var(--sl-danger); }
+
+/* DTR Table */
+.dtr-table { width: 100%; border-collapse: collapse; }
+.dtr-table thead tr { background: var(--sl-red-soft); border-bottom: 1px solid var(--sl-line); }
+.dtr-table thead th {
+    padding: 12px 14px; font-size: 0.72rem; font-weight: 600;
+    text-transform: uppercase; color: var(--sl-muted);
+}
+.dtr-table tbody tr { border-bottom: 1px solid var(--sl-line); }
+.dtr-table tbody td { padding: 12px 14px; font-size: 0.875rem; color: var(--sl-ink); }
+.dtr-table tbody tr:hover { background: var(--sl-surface-muted); }
+.punch-in  { color: var(--sl-success); font-weight: 600; }
+.punch-out { color: #fbbf24; font-weight: 600; }
+.punch-nil { color: var(--sl-ink); }
+.hours-badge {
+    border-radius: 20px; padding: 2px 10px;
+    font-size: 0.78rem; font-weight: 700;
+}
+.table-wrapper { border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; overflow: hidden; margin-bottom: 20px; }
+.modal-guard-meta { font-size: 0.8rem; color: var(--sl-muted); margin-bottom: 16px; }
+.modal-guard-meta strong { color: var(--sl-danger); }
+
+.dtr-records-list { display: flex; flex-direction: column; gap: 16px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
+.dtr-period-panel {
+    display: grid; grid-template-columns: minmax(180px, .7fr) minmax(210px, .8fr) minmax(260px, 1.5fr);
+    align-items: end; gap: 12px; padding: 14px; margin-bottom: 16px;
+    background: var(--ax-surface); border: 1px solid var(--ax-border); border-radius: 12px;
+}
+.dtr-period-field label {
+    display: block; margin-bottom: 6px; color: var(--ax-muted);
+    font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+}
+.dtr-period-summary {
+    display: flex; align-items: center; min-height: 44px; padding: 10px 12px;
+    background: color-mix(in srgb, var(--ax-surface) 88%, var(--sl-red-soft));
+    border: 1px solid var(--ax-border); border-radius: 9px;
+    color: var(--ax-text); font-size: .8rem; font-weight: 600;
+}
+.dtr-period-note { grid-column: 1 / -1; margin: -2px 0 0; color: var(--ax-muted); font-size: .74rem; }
+.dtr-modal-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.dtr-day-card { background: var(--sl-surface-muted); border: 1px solid var(--sl-line); border-radius: 12px; padding: 16px; }
+.dtr-day-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--sl-line);
+}
+.dtr-day-date { font-weight: 700; color: var(--sl-ink); font-size: 0.95rem; }
+.dtr-punch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+.dtr-punch-block {
+    background: var(--sl-surface); border-radius: 12px; padding: 12px; border: 1px solid var(--sl-line);
+}
+.dtr-punch-label {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;
+    text-transform: uppercase; margin-bottom: 8px;
+}
+.dtr-punch-block.dtr-punch-am-in .dtr-punch-label { color: var(--sl-success); }
+.dtr-punch-block.dtr-punch-am-out .dtr-punch-label { color: #fbbf24; }
+.dtr-punch-block.dtr-punch-pm-in .dtr-punch-label { color: #38bdf8; }
+.dtr-punch-block.dtr-punch-pm-out .dtr-punch-label { color: #fb923c; }
+.dtr-punch-time { color: var(--sl-ink); font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; }
+.dtr-punch-meta { font-size: 0.75rem; color: var(--sl-muted); line-height: 1.4; margin-top: 4px; }
+.dtr-punch-meta.dtr-geo-ok { color: var(--sl-success); }
+.dtr-punch-meta.dtr-geo-bad { color: var(--sl-danger); }
+.dtr-punch-empty { color: var(--sl-ink); font-size: 0.8rem; font-style: italic; }
+.report-copy { white-space: pre-wrap; line-height: 1.5; color: var(--sl-ink); font-size: .86rem; }
+.report-status { display: inline-flex; border-radius: 999px; padding: 3px 9px; font-size: .72rem; font-weight: 700; }
+.report-status-submitted { background: var(--sl-warning-soft); color: var(--sl-warning); }
+.report-status-reviewed { background: var(--sl-success-soft); color: var(--sl-success); }
+.report-status-needs_follow_up { background: var(--sl-red-soft); color: var(--sl-danger); }
+@media (max-width: 760px) {
+    .dtr-period-panel { grid-template-columns: 1fr; }
+    .dtr-period-note { grid-column: auto; }
+    .dtr-modal-actions .btn-pdf { flex: 1 1 150px; }
+}
+</style>
+</head>
+
+<body class="admin-body" data-ax-page="users">
+
+<div id="loadingScreen">
+    <div class="spinner-border text-danger"></div>
+    <p>Loading personnel…</p>
+</div>
+
+<div class="ax-app">
+    <aside class="ax-sidebar">
+        <div class="ax-brand">
+            <div class="ax-brand-badge">Control center</div>
+            <p class="ax-brand-title">Admin Portal</p>
+            <p class="ax-brand-sub">Security Agency Management System</p>
+        </div>
+        <nav class="ax-nav">
+            <div class="ax-nav-label">Manage</div>
+            <a href="dashboard.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">dashboard</span> Dashboard</a>
+            <a href="users.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">groups</span> Personnel</a>
+            <a href="locations.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">location_on</span> Deployment Sites</a>
+            <a href="schedule.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">calendar_month</span> Schedule</a>
+            <a href="incidents.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">emergency</span> Incidents</a>
+            <a href="swaps.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">swap_horiz</span> Duty requests</a>
+        </nav>
+        <div class="ax-sidebar-foot">TwentyTwenty Security Agency</div>
+    </aside>
+    <div class="ax-main">
+        <header class="ax-topbar">
+            <div class="ax-topbar-left">
+                <button type="button" class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button>
+                <div>
+                    <div class="ax-breadcrumb">Admin Console</div>
+                    <h1 class="ax-page-title">Personnel</h1>
+                </div>
+            </div>
+            <div class="ax-topbar-right">
+                <span class="ax-role-pill">Admin</span>
+                <span class="ax-user-chip" id="axUserName">Admin</span>
+                <button type="button" class="ax-btn-logout" onclick="adminLogout()">Sign out</button>
+            </div>
+        </header>
+        <main class="ax-content">
+            <div id="assignmentStatus" class="sl-inline-feedback" role="status" aria-live="polite" hidden></div>
+            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                <div class="ax-section-label" style="margin:0;">Personnel records</div>
+                <button type="button" class="btn-add-guard" onclick="openPersonnelCreate()">Add Guard / Inspector</button>
+            </div>
+            <section class="personnel-table-section" aria-labelledby="guardPersonnelHeading">
+                <div class="personnel-table-heading">
+                    <h2 id="guardPersonnelHeading">Guard Personnel</h2>
+                    <span class="personnel-table-count" id="guardPersonnelCount">0</span>
+                </div>
+                <div class="glass-card">
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>Personnel</th>
+                    <th>Duty Category</th>
+                    <th>Days of Duty</th>
+                    <th>Status</th>
+                    <th>Home Post</th>
+                    <th>Inspector</th>
+                    <th>Actions</th>
+                    <th class="text-center">DTR</th>
+                    <th class="text-center">Device</th>
+                </tr>
+            </thead>
+            <tbody id="guardTableBody">
+                <tr><td colspan="9" class="empty-state">Loading guards…</td></tr>
+            </tbody>
+        </table>
+                </div>
+            </section>
+            <section class="personnel-table-section" aria-labelledby="inspectorPersonnelHeading">
+                <div class="personnel-table-heading">
+                    <h2 id="inspectorPersonnelHeading">Inspector Personnel</h2>
+                    <span class="personnel-table-count" id="inspectorPersonnelCount">0</span>
+                </div>
+                <div class="glass-card">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Personnel</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                                <th class="text-center">Device</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inspectorTableBody">
+                            <tr><td colspan="4" class="empty-state">Loading inspectors…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<div class="modal fade ax-modal" id="createGuardModal" tabindex="-1">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-header">
+    <h5 class="modal-title">Create Guard or Inspector</h5>
+    <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+</div>
+<div class="modal-body">
+    <p class="modal-guard-meta" id="createUserRoleHint">Creates login credentials. Guards use the mobile app; inspectors and admins use the web panel.</p>
+    <div class="row g-3">
+        <div class="col-12">
+            <label class="form-label">ACCOUNT ROLE</label>
+            <select id="newGuardRole" class="form-select" onchange="updateCreateUserHint()">
+                <option value="user">Guard — mobile attendance app</option>
+                <option value="inspector">Inspector — field review and approvals</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">DUTY CATEGORY</label>
+            <select id="newGuardEmploymentCategory" class="form-select" onchange="updateCreateUserHint()">
+                <option value="regular">Regular</option>
+                <option value="contract">Contract</option>
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">FIRST NAME</label>
+            <input type="text" id="newGuardFirstName" class="form-control" placeholder="Juan">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">M.I.</label>
+            <input type="text" id="newGuardMiddleInitial" class="form-control" placeholder="D" maxlength="3">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">LAST NAME</label>
+            <input type="text" id="newGuardLastName" class="form-control" placeholder="Dela Cruz">
+        </div>
+        <div class="col-12">
+            <label class="form-label">USERNAME</label>
+            <input type="text" id="newGuardUsername" class="form-control" placeholder="juan.delacruz" autocomplete="off">
+            <div class="form-text" style="color:var(--sl-muted);font-size:0.75rem;">Letters, numbers, dots, underscores (3–32 chars).</div>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">PASSWORD</label>
+            <input type="password" id="newGuardPassword" class="form-control" placeholder="At least 6 characters">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">CONFIRM PASSWORD</label>
+            <input type="password" id="newGuardPasswordConfirm" class="form-control" placeholder="Repeat password">
+        </div>
+    </div>
+    <div id="newGuardContractPeriod" class="row g-3 mt-1" hidden>
+        <div class="col-sm-6"><label class="form-label" for="newGuardContractStart">Contract start</label><input id="newGuardContractStart" type="date" class="form-control"></div>
+        <div class="col-sm-6"><label class="form-label" for="newGuardContractEnd">Contract end</label><input id="newGuardContractEnd" type="date" class="form-control"></div>
+        <div class="col-12 form-text">Both dates are included. All duty periods must fit inside this contract.</div>
+    </div>
+    <div id="createGuardError" role="alert"></div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
+    <button type="button" class="btn-save" id="createGuardBtn" onclick="createGuardAccount()">Create Guard</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ====== ASSIGN POST MODAL ====== -->
+<div class="modal fade ax-modal" id="deploymentModal" tabindex="-1">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-header">
+    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">add_location_alt</span>Set Home Post</h5>
+    <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+</div>
+<div class="modal-body">
+    <p class="modal-guard-meta">Guard: <strong id="deploymentGuardName"></strong></p>
+    <div class="mb-3">
+        <label class="form-label" for="deploymentLocation">HOME LOCATION</label>
+        <select id="deploymentLocation" class="form-select"></select>
+    </div>
+    <div>
+        <label class="form-label" for="deploymentRemarks">REASSIGNMENT REMARKS <span style="font-weight:400;">(optional)</span></label>
+        <textarea id="deploymentRemarks" class="form-control" rows="3" maxlength="1500" placeholder="Example: Reassigned for additional coverage."></textarea>
+    </div>
+    <div id="deploymentError"></div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
+    <button type="button" class="btn-save" id="saveDeploymentBtn" onclick="saveDeployment()">Save Home Post</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ====== ASSIGNMENT HISTORY MODAL ====== -->
+<div class="modal fade ax-modal" id="assignmentHistoryModal" tabindex="-1">
+<div class="modal-dialog modal-lg modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-header">
+    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">history</span>Home Post Assignment History</h5>
+    <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+</div>
+<div class="modal-body">
+    <p class="modal-guard-meta">Guard: <strong id="assignmentHistoryGuardName"></strong></p>
+    <div id="assignmentHistoryList" class="dtr-records-list">
+        <div style="text-align:center;padding:32px;color:var(--sl-muted);">Loading assignment history…</div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ====== DTR MODAL ====== -->
+<div class="modal fade ax-modal" id="dtrModal" tabindex="-1">
+<div class="modal-dialog modal-xl modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-header">
+    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">table_view</span>Daily Time Record</h5>
+    <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+</div>
+<div class="modal-body">
+    <div class="dtr-period-panel">
+        <div class="dtr-period-field">
+            <label for="dtrPeriodMonth">Month</label>
+            <input type="month" id="dtrPeriodMonth" class="form-control" onchange="refreshDtrPeriod()">
+        </div>
+        <div class="dtr-period-field">
+            <label for="dtrPeriodCutoff">DTR cut-off</label>
+            <select id="dtrPeriodCutoff" class="form-select" onchange="refreshDtrPeriod()">
+                <option value="first">1st–15th</option>
+                <option value="second">16th–end of month</option>
+            </select>
+        </div>
+        <div class="dtr-period-summary" id="dtrPeriodSummary" aria-live="polite">Select a reporting period.</div>
+        <p class="dtr-period-note">The report follows the agency's twice-monthly DTR format.</p>
+    </div>
+    <div id="dtrRecordsList" class="dtr-sheet-stage">
+        <div style="text-align:center;padding:32px;color:var(--sl-muted);">Loading records…</div>
+    </div>
+    <div class="dtr-modal-actions">
+        <button class="btn-pdf" onclick="evaluateDTR(this)">Evaluate Time</button>
+        <button class="btn-pdf" onclick="generateDTR(this)">Download Agency DTR</button>
+    </div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ====== ACCOMPLISHMENT REPORTS MODAL ====== -->
+<div class="modal fade ax-modal" id="accomplishmentModal" tabindex="-1">
+<div class="modal-dialog modal-xl modal-dialog-centered">
+<div class="modal-content">
+<div class="modal-header">
+    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">assignment_turned_in</span>Accomplishment Reports</h5>
+    <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+</div>
+<div class="modal-body">
+    <p class="modal-guard-meta">Guard: <strong id="accomplishmentGuardName"></strong></p>
+    <div id="accomplishmentRecordsList" class="dtr-records-list">
+        <div style="text-align:center;padding:32px;color:var(--sl-muted);">Loading reports…</div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Supabase compatibility facade -->
+<script src="../js/auth-username.js"></script>
+<script src="../js/contract-period.js"></script>
+<script src="js/admin-shell.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
+<script src="../js/supabase-firebase-bridge.js"></script>
+<script src="../js/platform-configuration.js"></script>
+<script src="../js/notification-center.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="../js/dtr-report.js"></script>
+
+<script>
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+let currentDTRData       = [];
+let currentDTRUid        = null;
+let personnelAccounts    = {};
+let personnelLocationsById = {};
+
+function personnelDisplayName(account) {
+    if (!account) return "Guard";
+    return [(account.firstName || ""),
+        (account.middleInitial ? account.middleInitial + ". " : ""),
+        (account.lastName || "")].join(" ").trim()
+        || account.name || displayLoginId(account) || "Guard";
+}
+
+auth.onAuthStateChanged(user => {
+    if (!user) { window.location.href = "../staff/login.html"; return; }
+    db.collection("users").doc(user.uid).get().then(doc => {
+        if (!doc.exists || doc.data().role !== "admin") {
+            window.location.href = "../staff/login.html";
+        } else {
+            const d = doc.data();
+            const name = [d.firstName, d.middleInitial ? d.middleInitial + "." : "", d.lastName]
+                .filter(Boolean).join(" ") || d.name || displayLoginId(d);
+            setAdminUserName(name);
+            applyAdminRoleNavigation(d.role);
+            loadUsers();
+        }
+    });
+});
+
+async function loadUsers() {
+    try {
+        const [snapshot, locationResult] = await Promise.all([
+            db.collection("users").get(),
+            appSupabase.from("locations").select("id,label")
+        ]);
+        if (locationResult.error) throw locationResult.error;
+        const locationsById = Object.fromEntries((locationResult.data || []).map(location => [location.id, location.label]));
+        let html = "";
+        personnelAccounts = {};
+        personnelLocationsById = locationsById;
+        const accounts = [];
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            personnelAccounts[doc.id] = data;
+            accounts.push({ id: doc.id, data });
+        });
+        const guards = accounts.filter(account => account.data.role === "user");
+        const inspectors = accounts.filter(account => account.data.role === "inspector");
+        document.getElementById("guardPersonnelCount").textContent = guards.length;
+        document.getElementById("inspectorPersonnelCount").textContent = inspectors.length;
+
+        const guardRows = guards.map(({ id, data }) => renderGuardRow(id, data, locationsById)).join("");
+        const inspectorRows = inspectors.map(({ id, data }) => renderInspectorRow(id, data)).join("");
+        document.getElementById("guardTableBody").innerHTML = guardRows ||
+            `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--sl-muted);">No guard personnel found.</td></tr>`;
+        document.getElementById("inspectorTableBody").innerHTML = inspectorRows ||
+            `<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--sl-muted);">No inspector personnel found.</td></tr>`;
+        finishPageLoading();
+    } catch (err) {
+        const message = escapeHtml(err?.message || "Could not load personnel.");
+        document.getElementById("guardTableBody").innerHTML =
+            `<tr><td colspan="9" style="text-align:center;color:var(--sl-danger);padding:32px;">Error: ${message}</td></tr>`;
+        document.getElementById("inspectorTableBody").innerHTML =
+            `<tr><td colspan="4" style="text-align:center;color:var(--sl-danger);padding:32px;">Error: ${message}</td></tr>`;
+        finishPageLoading();
+    }
+}
+
+function renderPersonnelIdentity(data) {
+    const fullName = personnelDisplayName(data);
+    return `<div class="user-name">${escapeHtml(fullName)}</div>
+        <div class="user-email">@${escapeHtml(displayLoginId(data))}</div>`;
+}
+
+function renderPersonnelStatus(data) {
+    return data.active !== false
+        ? '<span class="badge-active">Active</span>'
+        : '<span class="badge-disabled">Disabled</span>';
+}
+
+function renderPersonnelActions(id, actions) {
+    const menu = actions.filter(Boolean).join('');
+    if (!menu) return '<span style="color:var(--sl-muted)">—</span>';
+    return `<div class="personnel-actions">
+        <button type="button" class="personnel-actions-trigger" aria-expanded="false" aria-controls="personnel-actions-${id}" onclick="togglePersonnelActions(event, 'personnel-actions-${id}')">
+            Actions <span class="personnel-actions-caret material-symbols-rounded" aria-hidden="true">expand_more</span>
+        </button>
+        <div class="personnel-actions-menu" id="personnel-actions-${id}" role="menu">${menu}</div>
+    </div>`;
+}
+
+function renderGuardRow(id, data, locationsById) {
+    const category = data.employmentCategory === "contract" ? "Contract" : "Regular";
+    const inspector = data.inspectorId ? personnelAccounts[data.inspectorId] : null;
+    const assignedPost = data.assignedLocationId
+        ? (locationsById[data.assignedLocationId] || "Assigned post unavailable")
+        : "Not assigned";
+    const toggle = `<button type="button" class="action-btn ${data.active !== false ? 'btn-disable' : 'btn-enable'}" onclick="toggleUser('${id}', ${data.active !== false}, this)">${data.active !== false ? 'Disable' : 'Enable'}</button>`;
+    const actions = renderPersonnelActions(id, [
+        `<button type="button" class="action-btn btn-locations" onclick="editPersonnel('${id}', this)">Edit</button>`,
+        toggle,
+        `<button type="button" class="action-btn btn-schedule-del" onclick="assignDeployment('${id}')">Set Home Post</button>`,
+        `<button type="button" class="action-btn btn-history" onclick="viewAssignmentHistory('${id}')">History</button>`,
+        `<button type="button" class="action-btn btn-inspector" onclick="assignInspector('${id}', this)">Set Inspector</button>`,
+        `<button type="button" class="action-btn btn-reports" onclick="viewAccomplishments('${id}')">Reports</button>`,
+    ]);
+    return `<tr>
+        <td>${renderPersonnelIdentity(data)}</td>
+        <td>${category}<div class="small text-muted">${escapeHtml(ContractPeriod.label(data))}</div></td>
+        <td>${escapeHtml(String(data.dutyDaysTotal || 0))}</td>
+        <td>${renderPersonnelStatus(data)}</td>
+        <td>${escapeHtml(assignedPost)}</td>
+        <td>${escapeHtml(inspector ? personnelDisplayName(inspector) : "Unassigned")}</td>
+        <td>${actions}</td>
+        <td class="text-center"><button type="button" class="action-btn btn-dtr" onclick="viewDTR('${id}')">View DTR</button></td>
+        <td class="text-center"><button type="button" class="action-btn btn-reset" onclick="resetDevice('${id}', this)">Reset</button></td>
+    </tr>`;
+}
+
+function renderInspectorRow(id, data) {
+    const toggle = `<button type="button" class="action-btn ${data.active !== false ? 'btn-disable' : 'btn-enable'}" onclick="toggleUser('${id}', ${data.active !== false}, this)">${data.active !== false ? 'Disable' : 'Enable'}</button>`;
+    const actions = renderPersonnelActions(id, [
+        `<button type="button" class="action-btn btn-locations" onclick="editPersonnel('${id}', this)">Edit</button>`,
+        toggle,
+    ]);
+    return `<tr>
+        <td>${renderPersonnelIdentity(data)}</td>
+        <td>${renderPersonnelStatus(data)}</td>
+        <td>${actions}</td>
+        <td class="text-center"><button type="button" class="action-btn btn-reset" onclick="resetDevice('${id}', this)">Reset</button></td>
+    </tr>`;
+}
+
+function togglePersonnelActions(event, menuId) {
+    event.stopPropagation();
+    const owner = document.getElementById(menuId)?.closest('.personnel-actions');
+    if (!owner) return;
+    const willOpen = !owner.classList.contains('is-open');
+    closePersonnelActions();
+    if (willOpen) {
+        owner.classList.add('is-open');
+        owner.closest('tr')?.classList.add('has-open-personnel-actions');
+        owner.querySelector('.personnel-actions-trigger')?.setAttribute('aria-expanded', 'true');
+    }
+}
+
+function closePersonnelActions() {
+    document.querySelectorAll('.personnel-actions.is-open').forEach(owner => {
+        owner.classList.remove('is-open');
+        owner.closest('tr')?.classList.remove('has-open-personnel-actions');
+        owner.querySelector('.personnel-actions-trigger')?.setAttribute('aria-expanded', 'false');
+    });
+}
+
+document.addEventListener('click', closePersonnelActions);
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closePersonnelActions();
+});
+
+let pendingDeployment = null;
+let deploymentModal = null;
+
+async function assignDeployment(guardId) {
+    const guardName = personnelDisplayName(personnelAccounts[guardId]);
+    const select = document.getElementById("deploymentLocation");
+    const errorEl = document.getElementById("deploymentError");
+    errorEl.innerText = "";
+    select.innerHTML = '<option value="">Loading active duty locations…</option>';
+    pendingDeployment = { guardId, guardName, locations: [] };
+    deploymentModal ||= new bootstrap.Modal(document.getElementById("deploymentModal"));
+    document.getElementById("deploymentGuardName").innerText = guardName;
+    document.getElementById("deploymentRemarks").value = "";
+    deploymentModal.show();
+    const { data: locations, error } = await appSupabase.from("locations").select().order("label");
+    if (error) {
+        errorEl.innerText = "Could not load duty locations: " + (error.message || "please try again.");
+        select.innerHTML = '<option value="">No locations available</option>';
+        return;
+    }
+    const active = (locations || []).filter(location => location.active !== false);
+    pendingDeployment.locations = active;
+    if (!active.length) {
+        errorEl.innerText = "No active duty locations exist. Create a location first, then return here.";
+        select.innerHTML = '<option value="">No active locations</option>';
+        return;
+    }
+    select.innerHTML = '<option value="">Select a duty location</option>' + active.map(location =>
+        `<option value="${location.id}">${escapeHtml(location.label)}${location.address ? ' — ' + escapeHtml(location.address) : ''}</option>`
+    ).join("");
+}
+
+async function saveDeployment() {
+    const errorEl = document.getElementById("deploymentError");
+    const button = document.getElementById("saveDeploymentBtn");
+    const locationId = document.getElementById("deploymentLocation").value;
+    const remarks = document.getElementById("deploymentRemarks").value.trim();
+    errorEl.innerText = "";
+    if (!pendingDeployment || !locationId) { errorEl.innerText = "Select a duty location."; return; }
+    const location = pendingDeployment.locations.find(item => item.id === locationId);
+    if (!location) { errorEl.innerText = "Choose an active duty location."; return; }
+    await appDialog.runBusy(button, async () => {
+        const { error } = await appSupabase.rpc("assign_guard_location", {
+            p_guard_id: pendingDeployment.guardId, p_location_id: locationId, p_remarks: remarks
+        });
+        if (error) throw error;
+        deploymentModal.hide();
+        appDialog.toast(`${pendingDeployment.guardName}'s Home Post is now ${location.label}.`, { tone: 'success' });
+        await loadUsers();
+    }, { label: 'Saving post…' }).catch(error => {
+        errorEl.innerText = "Assignment failed: " + (error.message || "please try again.");
+        appDialog.toast(errorEl.innerText, { tone: 'danger' });
+    });
+}
+
+async function assignInspector(guardId, button) {
+    const guard = personnelAccounts[guardId];
+    if (!guard) return;
+    const inspectors = Object.entries(personnelAccounts)
+        .filter(([, account]) => account.role === 'inspector' && account.active !== false)
+        .map(([id, account]) => ({ value: id, label: personnelDisplayName(account) }));
+    if (!inspectors.length) {
+        appDialog.toast('Create and activate an Inspector account before assigning one to a Guard.', { tone: 'warning' });
+        return;
+    }
+    const values = await appDialog.form({
+        title: 'Assign Inspector',
+        message: `Choose the Inspector responsible for monitoring this Guard’s field duties.`,
+        confirmText: 'Save Inspector',
+        fields: [{
+            name: 'inspectorId', label: 'Inspector', type: 'select', value: guard.inspectorId || '',
+            options: [{ value: '', label: 'Unassigned' }, ...inspectors],
+        }],
+    });
+    if (!values) return;
+    try {
+        await appDialog.runBusy(button, async () => {
+            const { error } = await appSupabase.rpc('assign_guard_inspector', {
+                p_guard_id: guardId,
+                p_inspector_id: values.inspectorId || null,
+            });
+            if (error) throw error;
+            await loadUsers();
+        }, { label: 'Saving…' });
+        appDialog.toast(
+            values.inspectorId ? 'Inspector assigned to Guard.' : 'Inspector assignment cleared.',
+            { tone: 'success' },
+        );
+    } catch (error) {
+        appDialog.toast(error.message || 'Could not assign the Inspector.', { tone: 'danger' });
+    }
+}
+
+let assignmentHistoryModal = null;
+
+function renderAssignmentHistory(record) {
+    const location = personnelLocationsById[record.location_id] || 'Unavailable or deleted post';
+    const assignedByAccount = personnelAccounts[record.assigned_by];
+    const assignedBy = assignedByAccount ? personnelDisplayName(assignedByAccount) : 'Former or unavailable staff';
+    const current = !record.ended_at;
+    return `<article class="dtr-day-card">
+        <div class="dtr-day-header">
+            <div><span class="dtr-day-date">${escapeHtml(location)}</span><div class="dtr-punch-meta">Assigned ${formatReportTimestamp(record.assigned_at)}</div></div>
+            <span class="report-status ${current ? 'report-status-reviewed' : 'report-status-submitted'}">${current ? 'Current Home Post' : 'Previous assignment'}</span>
+        </div>
+        <p class="report-copy"><strong>Assigned by:</strong> ${escapeHtml(assignedBy)}</p>
+        <p class="report-copy"><strong>Assignment ended:</strong> ${escapeHtml(record.ended_at ? formatReportTimestamp(record.ended_at) : 'Still active')}</p>
+        ${record.remarks ? `<p class="report-copy"><strong>Reassignment remarks:</strong> ${escapeHtml(record.remarks)}</p>` : ''}
+    </article>`;
+}
+
+async function viewAssignmentHistory(guardId) {
+    document.getElementById('assignmentHistoryGuardName').textContent = personnelDisplayName(personnelAccounts[guardId]);
+    const listEl = document.getElementById('assignmentHistoryList');
+    listEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted)"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading assignment history…</div>';
+    assignmentHistoryModal ||= new bootstrap.Modal(document.getElementById('assignmentHistoryModal'));
+    assignmentHistoryModal.show();
+    const { data, error } = await appSupabase.from('guard_assignment_history').select()
+        .eq('guard_id', guardId).order('assigned_at', { ascending: false });
+    if (error) {
+        listEl.innerHTML = `<div style="text-align:center;color:var(--sl-danger);padding:24px">Error: ${escapeHtml(error.message || 'Could not load assignment history.')}</div>`;
+        return;
+    }
+    const records = data || [];
+    listEl.innerHTML = records.length
+        ? records.map(renderAssignmentHistory).join('')
+        : '<div style="text-align:center;padding:32px;color:var(--sl-muted)">No Home Post assignments have been recorded yet.</div>';
+}
+
+function escapeHtml(text) {
+    return String(text ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function showDtrModal() {
+    const modal = document.getElementById("dtrModal");
+    if (window.bootstrap?.Modal) {
+        new window.bootstrap.Modal(modal).show();
+        return;
+    }
+
+    // Fallback for browsers that block the Bootstrap CDN.
+    modal.style.display = "block";
+    modal.classList.add("show");
+    modal.removeAttribute("aria-hidden");
+    document.body.classList.add("modal-open");
+}
+
+function closeDtrModal() {
+    const modal = document.getElementById("dtrModal");
+    if (window.bootstrap?.Modal) {
+        window.bootstrap.Modal.getOrCreateInstance(modal).hide();
+        return;
+    }
+    modal.style.display = "none";
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+}
+
+document.addEventListener("click", (event) => {
+    if (event.target.closest('#dtrModal [data-bs-dismiss="modal"]')) {
+        closeDtrModal();
+    }
+});
+
+function formatDate(dateStr) {
+    if (!dateStr) return "—";
+    const d = new Date(dateStr + "T00:00:00");
+    return d.toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "numeric" });
+}
+
+function formatDtrMinutes(minutes) {
+    const safeMinutes = Math.max(0, Number(minutes) || 0);
+    const hours = Math.floor(safeMinutes / 60);
+    const remainder = safeMinutes % 60;
+    if (!hours) return `${remainder} min`;
+    if (!remainder) return hours === 1 ? '1 hr' : `${hours} hrs`;
+    return `${hours}h ${remainder}m`;
+}
+
+function selectedDtrPeriod() {
+    return window.DtrReport?.periodFromSelection(
+        document.getElementById('dtrPeriodMonth').value,
+        document.getElementById('dtrPeriodCutoff').value,
+    ) || null;
+}
+
+function setDtrPeriodDefaults(sessions) {
+    const selection = window.DtrReport.defaultSelection(sessions);
+    document.getElementById('dtrPeriodMonth').value = selection.month;
+    document.getElementById('dtrPeriodCutoff').value = selection.cutoff;
+}
+
+function refreshDtrPeriod() {
+    const period = selectedDtrPeriod();
+    const listEl = document.getElementById('dtrRecordsList');
+    const summaryEl = document.getElementById('dtrPeriodSummary');
+    if (!period) {
+        summaryEl.textContent = 'Choose a valid month and cut-off.';
+        listEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted)">Choose a valid DTR period.</div>';
+        return;
+    }
+    const sessions = window.DtrReport.filterSessions(currentDTRData, period);
+    const account = personnelAccounts[currentDTRUid] || {};
+    const detachment = account.assignedLocationId
+        ? (personnelLocationsById[account.assignedLocationId] || '')
+        : '';
+    summaryEl.textContent = `${period.label} · ${sessions.length} duty session${sessions.length === 1 ? '' : 's'}`;
+    listEl.innerHTML = window.DtrReport.renderPreview({
+        sessions: currentDTRData,
+        period,
+        account,
+        detachment,
+        logoUrl: '../icons/sentinel-link-mark.png',
+    });
+}
+
+async function viewDTR(uid) {
+    currentDTRUid = uid;
+    currentDTRData = [];
+    setDtrPeriodDefaults([]);
+    document.getElementById('dtrPeriodSummary').textContent = 'Loading selected cut-off…';
+    const listEl = document.getElementById('dtrRecordsList');
+    listEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted)"><div class="spinner-border spinner-border-sm text-primary"></div> Loading duty sessions…</div>';
+    showDtrModal();
+
+    const { data, error } = await appSupabase.from('attendance_sessions').select()
+        .eq('user_id', uid).order('scheduled_start_at', { ascending: false });
+    if (error) {
+        listEl.innerHTML = `<div style="text-align:center;color:var(--sl-danger);padding:24px">Error: ${escapeHtml(error.message || 'Could not load duty sessions.')}</div>`;
+        return;
+    }
+    currentDTRData = data || [];
+    setDtrPeriodDefaults(currentDTRData);
+    refreshDtrPeriod();
+}
+
+async function evaluateDTR(button) {
+    const period = selectedDtrPeriod();
+    if (!currentDTRUid || !period) {
+        appDialog.toast('Choose a valid DTR period to evaluate.', { tone: 'warning' });
+        return;
+    }
+    const evaluatedUid = currentDTRUid;
+    let data;
+    try {
+        data = await appDialog.runBusy(button, async () => {
+            const result = await appSupabase.rpc('evaluate_time_record', {
+                p_user_id: evaluatedUid,
+                p_start_date: period.startDate,
+                p_end_date: period.endDate,
+            });
+            if (result.error) throw result.error;
+            const attendance = await appSupabase.from('attendance_sessions').select()
+                .eq('user_id', evaluatedUid).order('scheduled_start_at', { ascending: false });
+            if (attendance.error) throw attendance.error;
+            if (currentDTRUid === evaluatedUid) {
+                currentDTRData = attendance.data || [];
+                refreshDtrPeriod();
+            }
+            return result.data;
+        }, { label: 'Evaluating…' });
+    } catch (error) {
+        appDialog.toast(`Evaluation failed: ${error.message || error}`, { tone: 'danger' });
+        return;
+    }
+    const visiblePeriod = selectedDtrPeriod();
+    if (currentDTRUid !== evaluatedUid || visiblePeriod?.startDate !== period.startDate || visiblePeriod?.endDate !== period.endDate) return;
+    const result = Array.isArray(data) ? data[0] : data;
+    await appDialog.alert(`Days with attendance: ${result?.duty_days ?? 0}\nFully completed days: ${result?.completed_days ?? 0}\nRecorded hours: ${formatDtrMinutes(result?.total_minutes)}\nLate: ${result?.late_minutes ?? 0} min\nUndertime: ${result?.undertime_minutes ?? 0} min\n\nHours include completed Time In/Out pairs. Open periods are not yet included in hours or undertime.`, { title: 'Time evaluation', tone: 'success', icon: 'check_circle', confirmText: 'Done' });
+}
+
+async function generateDTR(button) {
+    const period = selectedDtrPeriod();
+    if (!currentDTRUid || !period) {
+        appDialog.toast('Choose a valid DTR period to export.', { tone: 'warning' });
+        return;
+    }
+    const account = personnelAccounts[currentDTRUid] || {};
+    const detachment = account.assignedLocationId
+        ? (personnelLocationsById[account.assignedLocationId] || '')
+        : '';
+    try {
+        await appDialog.runBusy(button, () => window.DtrReport.generatePdf({
+            jsPDF: window.jspdf?.jsPDF,
+            sessions: currentDTRData,
+            period,
+            account,
+            detachment,
+            logoUrl: '../icons/sentinel-link-mark.png',
+        }), { label: 'Preparing agency DTR…' });
+        appDialog.toast('Agency DTR PDF downloaded.', { tone: 'success' });
+    } catch (error) {
+        appDialog.toast(`Could not create the DTR PDF: ${error.message || error}`, { tone: 'danger' });
+    }
+}
+
+let currentAccomplishmentData = [];
+let currentAccomplishmentGuardId = null;
+let accomplishmentModal = null;
+
+function formatReportTimestamp(value) {
+    if (!value) return '—';
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? '—' : date.toLocaleString('en-PH', {
+        year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true,
+    });
+}
+
+function accomplishmentStatusMeta(status) {
+    if (status === 'reviewed') return { label: 'Reviewed', className: 'report-status-reviewed' };
+    if (status === 'needs_follow_up') return { label: 'Needs follow-up', className: 'report-status-needs_follow_up' };
+    return { label: 'Submitted', className: 'report-status-submitted' };
+}
+
+function renderAccomplishmentReport(report) {
+    const status = accomplishmentStatusMeta(report.review_status);
+    const issues = report.issues_encountered
+        ? `<p class="report-copy" style="margin:10px 0 0"><strong>Issues encountered:</strong> ${escapeHtml(report.issues_encountered)}</p>`
+        : '';
+    const review = report.reviewed_at
+        ? `<p class="report-copy" style="margin:10px 0 0"><strong>Review:</strong> ${escapeHtml(report.review_note || 'No note added.')}<br><span class="dtr-punch-meta">${formatReportTimestamp(report.reviewed_at)}</span></p>`
+        : '';
+    return `<article class="dtr-day-card">
+        <div class="dtr-day-header">
+            <div><span class="dtr-day-date">${escapeHtml(report.summary)}</span><div class="dtr-punch-meta">Submitted ${formatReportTimestamp(report.submitted_at)}</div></div>
+            <span class="report-status ${status.className}">${escapeHtml(status.label)}</span>
+        </div>
+        <p class="report-copy"><strong>Detailed narrative:</strong> ${escapeHtml(report.detailed_narrative)}</p>
+        ${issues}${review}
+        <div style="margin-top:14px"><button class="action-btn btn-reports" onclick="reviewAccomplishment('${report.id}', this)">${report.reviewed_at ? 'Update review' : 'Review report'}</button></div>
+    </article>`;
+}
+
+async function viewAccomplishments(uid) {
+    currentAccomplishmentGuardId = uid;
+    currentAccomplishmentData = [];
+    document.getElementById('accomplishmentGuardName').textContent = personnelDisplayName(personnelAccounts[uid]);
+    const listEl = document.getElementById('accomplishmentRecordsList');
+    listEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted)"><div class="spinner-border spinner-border-sm text-success"></div> Loading accomplishment reports…</div>';
+    accomplishmentModal ||= new bootstrap.Modal(document.getElementById('accomplishmentModal'));
+    accomplishmentModal.show();
+
+    const { data, error } = await appSupabase.from('accomplishment_reports').select()
+        .eq('guard_id', uid).order('submitted_at', { ascending: false });
+    if (error) {
+        listEl.innerHTML = `<div style="text-align:center;color:var(--sl-danger);padding:24px">Error: ${escapeHtml(error.message || 'Could not load accomplishment reports.')}</div>`;
+        return;
+    }
+    currentAccomplishmentData = data || [];
+    listEl.innerHTML = currentAccomplishmentData.length
+        ? currentAccomplishmentData.map(renderAccomplishmentReport).join('')
+        : '<div style="text-align:center;padding:32px;color:var(--sl-muted)">No accomplishment reports submitted yet.</div>';
+}
+
+async function reviewAccomplishment(reportId, button) {
+    const report = currentAccomplishmentData.find(item => item.id === reportId);
+    if (!report) return;
+    const values = await appDialog.form({
+        title: 'Review accomplishment report',
+        message: 'Record the Admin decision and any follow-up guidance.',
+        confirmText: 'Save review',
+        fields: [
+            {
+                name: 'reviewStatus', label: 'Review status', type: 'select',
+                value: report.review_status === 'needs_follow_up' ? 'needs_follow_up' : 'reviewed',
+                options: [
+                    { value: 'reviewed', label: 'Reviewed' },
+                    { value: 'needs_follow_up', label: 'Needs follow-up' },
+                ],
+            },
+            { name: 'reviewNote', label: 'Review note', type: 'textarea', value: report.review_note || '', placeholder: 'Optional for Reviewed; required for Needs follow-up.' },
+        ],
+        validate: values => values.reviewStatus === 'needs_follow_up' && values.reviewNote.trim().length < 5
+            ? 'Add a follow-up note of at least 5 characters.'
+            : values.reviewNote.trim().length > 1500
+                ? 'Review note cannot exceed 1,500 characters.'
+                : '',
+    });
+    if (!values) return;
+    try {
+        await appDialog.runBusy(button, async () => {
+            const { error } = await appSupabase.rpc('review_accomplishment_report', {
+                p_report_id: reportId,
+                p_review_status: values.reviewStatus,
+                p_review_note: values.reviewNote.trim(),
+            });
+            if (error) throw error;
+            await viewAccomplishments(currentAccomplishmentGuardId);
+        }, { label: 'Saving review…' });
+        appDialog.toast('Accomplishment report review saved.', { tone: 'success' });
+    } catch (error) {
+        appDialog.toast(error.message || 'Could not save the report review.', { tone: 'danger' });
+    }
+}
+
+async function toggleUser(uid, currentlyActive, button) {
+    const account = personnelAccounts[uid];
+    const name = account ? personnelDisplayName(account) : 'this account';
+    const action = currentlyActive ? 'Disable' : 'Enable';
+    const approved = await appDialog.confirm(`${action} ${name}?`, {
+        title: `${action} personnel account`, confirmText: action, danger: currentlyActive
+    });
+    if (!approved) return;
+    try {
+        await appDialog.runBusy(button, async () => {
+            const { error } = await appSupabase.rpc("set_personnel_active", { p_profile_id: uid, p_active: !currentlyActive });
+            if (error) throw error;
+            await loadUsers();
+        }, { label: `${action.slice(0, -1)}ing…` });
+        appDialog.toast(`Account ${currentlyActive ? 'disabled' : 'enabled'}.`, { tone: 'success' });
+    } catch (error) {
+        appDialog.toast("Could not update account: " + (error.message || 'Please try again.'), { tone: "danger" });
+    }
+}
+
+async function resetDevice(uid, button) {
+    const account = personnelAccounts[uid];
+    const name = account ? ([account.firstName, account.lastName].filter(Boolean).join(" ") || displayLoginId(account)) : "this user";
+    const approved = await appDialog.confirm(`Clear the registered device for ${name}? They will be able to sign in from a new device.`, { title: "Reset device access", confirmText: "Reset device" });
+    if (!approved) return;
+    try {
+        await appDialog.runBusy(button, async () => {
+            await managePersonnelAccount({ action: "update", userId: uid, resetDevice: true });
+            await loadUsers();
+        }, { label: 'Resetting…' });
+        appDialog.toast("Device reset successful.", { tone: "success" });
+    } catch (error) {
+        appDialog.toast("Device reset failed: " + (error.message || 'Please try again.'), { tone: "danger" });
+    }
+}
+
+async function managePersonnelAccount(body) {
+    const { data, error } = await appSupabase.functions.invoke("admin-manage-user", { body });
+    if (error) throw error;
+    if (data?.error) throw new Error(data.error);
+}
+
+async function editPersonnel(uid, button) {
+    const account = personnelAccounts[uid];
+    if (!account) return;
+    const fields = [
+        { name: "firstName", label: "First name", value: account.firstName || "", required: true },
+        { name: "lastName", label: "Last name", value: account.lastName || "", required: true },
+        { name: "username", label: "Username", value: displayLoginId(account), required: true }
+    ];
+    if (account.role === "user") fields.push(
+        { name: "employmentCategory", label: "Duty category", type: "select", value: account.employmentCategory || "regular", options: [{ value: "regular", label: "Regular" }, { value: "contract", label: "Contract" }] },
+        { name: "contractStartDate", label: "Contract start (Contract only)", type: "date", value: account.contractStartDate || "" },
+        { name: "contractEndDate", label: "Contract end (Contract only, inclusive)", type: "date", value: account.contractEndDate || "" }
+    );
+    fields.push({ name: "password", label: "New password", type: "password", placeholder: "Leave blank to keep the current password", autocomplete: "new-password" });
+    const values = await appDialog.form({ title: "Edit personnel account", message: "Regular Guards have no contract date limit. Changing contract dates does not delete past records.", confirmText: "Save changes", fields, validate: value => validateUsername(value.username) || ContractPeriod.validate(value.employmentCategory, value.contractStartDate, value.contractEndDate) || (value.password && value.password.length < 6 ? "Password must have at least 6 characters." : "") });
+    if (!values) return;
+    try {
+        await appDialog.runBusy(button, () => managePersonnelAccount({ action: "update", userId: uid, firstName: values.firstName.trim(), lastName: values.lastName.trim(), username: normalizeUsername(values.username), employmentCategory: values.employmentCategory || account.employmentCategory || "regular", contractStartDate: values.contractStartDate || null, contractEndDate: values.contractEndDate || null, password: values.password }), { label: 'Saving…' });
+        appDialog.toast("Personnel account updated.", { tone: "success" });
+        await loadUsers();
+    } catch (error) { appDialog.toast(error.message || "Could not update personnel account.", { tone: "danger" }); }
+}
+
+function updateCreateUserHint() {
+    const role = document.getElementById("newGuardRole").value;
+    const hint = document.getElementById("createUserRoleHint");
+    const category = document.getElementById("newGuardEmploymentCategory");
+    category.disabled = role !== "user";
+    if (role !== "user") category.value = "regular";
+    const isContract = role === 'user' && category.value === 'contract';
+    document.getElementById('newGuardContractPeriod').hidden = !isContract;
+    ['newGuardContractStart', 'newGuardContractEnd'].forEach(id => {
+        document.getElementById(id).disabled = !isContract;
+        document.getElementById(id).required = isContract;
+    });
+    hint.innerText = role === "user"
+        ? "Creates a Guard account for your organization. Guards use the mobile attendance app."
+        : "Creates an Inspector account for your organization. Inspectors review Guard DTR, sites, alerts, and field activity.";
+    const button = document.getElementById("createGuardBtn");
+    if (button.getAttribute('aria-busy') !== 'true') button.textContent = role === 'user' ? 'Create Guard' : 'Create Inspector';
+}
+
+function openPersonnelCreate() {
+    document.getElementById("newGuardRole").disabled = false;
+    document.getElementById("newGuardRole").value = "user";
+    updateCreateUserHint();
+    new bootstrap.Modal(document.getElementById("createGuardModal")).show();
+}
+
+async function createGuardAccount() {
+    const role      = document.getElementById("newGuardRole").value;
+    const employmentCategory = document.getElementById("newGuardEmploymentCategory").value;
+    const firstName = document.getElementById("newGuardFirstName").value.trim();
+    const lastName  = document.getElementById("newGuardLastName").value.trim();
+    const middle    = document.getElementById("newGuardMiddleInitial").value.trim();
+    const username  = document.getElementById("newGuardUsername").value.trim();
+    const password  = document.getElementById("newGuardPassword").value;
+    const confirm   = document.getElementById("newGuardPasswordConfirm").value;
+    const errEl     = document.getElementById("createGuardError");
+    const btn       = document.getElementById("createGuardBtn");
+
+    errEl.innerText = "";
+
+    const contractStartDate = document.getElementById('newGuardContractStart').value;
+    const contractEndDate = document.getElementById('newGuardContractEnd').value;
+    const contractError = ContractPeriod.validate(role === 'user' ? employmentCategory : 'regular', contractStartDate, contractEndDate);
+    if (contractError) { errEl.innerText = contractError; return; }
+
+    if (!firstName || !lastName || !username || !password) {
+        errEl.innerText = "Please complete all required fields.";
+        return;
+    }
+    const usernameErr = validateUsername(username);
+    if (usernameErr) {
+        errEl.innerText = usernameErr;
+        return;
+    }
+    const normalizedUsername = normalizeUsername(username);
+    if (password.length < 6) {
+        errEl.innerText = "Password must be at least 6 characters.";
+        return;
+    }
+    if (password !== confirm) {
+        errEl.innerText = "Passwords do not match.";
+        return;
+    }
+
+    try {
+        await appDialog.runBusy(btn, async () => {
+            const dup = await db.collection("users")
+                .where("username", "==", normalizedUsername).limit(1).get();
+            if (!dup.empty) throw new Error("That username is already taken.");
+            const authEmail = usernameToAuthEmail(normalizedUsername);
+            const { data, error } = await appSupabase.functions.invoke("admin-create-user", {
+                body: {
+                    email: authEmail,
+                    password,
+                    role,
+                    username: normalizedUsername,
+                    firstName,
+                    middleInitial: middle ? middle.charAt(0).toUpperCase() : "",
+                    lastName,
+                    employmentCategory,
+                    contractStartDate: contractStartDate || null,
+                    contractEndDate: contractEndDate || null
+                }
+            });
+            if (error) throw error;
+            if (data?.error) throw new Error(data.error);
+            await loadUsers();
+        }, { label: `Creating ${role === 'user' ? 'Guard' : 'Inspector'}…` });
+        const roleLabel = role === "user" ? "Guard" : role === "inspector" ? "Inspector" : "Admin";
+        document.getElementById("newGuardFirstName").value = "";
+        document.getElementById("newGuardLastName").value = "";
+        document.getElementById("newGuardMiddleInitial").value = "";
+        document.getElementById("newGuardUsername").value = "";
+        document.getElementById("newGuardPassword").value = "";
+        document.getElementById("newGuardPasswordConfirm").value = "";
+        document.getElementById('newGuardContractStart').value = '';
+        document.getElementById('newGuardContractEnd').value = '';
+        bootstrap.Modal.getOrCreateInstance(document.getElementById("createGuardModal")).hide();
+        appDialog.toast(`${roleLabel} account created. Username: ${normalizedUsername}`, { tone: 'success', duration: 6000 });
+    } catch (error) {
+        errEl.innerText = error?.message || error?.msg || "Unable to create the account. Please try again.";
+        appDialog.toast(errEl.innerText, { tone: 'danger' });
+    }
+}
+
+</script>
+</body>
+</html>

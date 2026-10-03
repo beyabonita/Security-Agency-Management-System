@@ -1,0 +1,12 @@
+WB-006 — PASS
+auth_username.validateUsername
+Scenario: length and character validation
+Input: "  GUARD_01  "
+Expected: true
+Actual: true
+UTC: 2026-09-05T08:57:23.455376Z
+Evidence: logs/flutter-verified.jsonl:28
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

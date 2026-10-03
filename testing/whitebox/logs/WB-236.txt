@@ -1,0 +1,12 @@
+WB-236 — PASS
+accounts.optionalBoolean
+Scenario: strict boolean types
+Input: "null"
+Expected: "invalid_input"
+Actual: "invalid_input"
+UTC: 2026-09-05T08:56:18.734Z
+Evidence: logs/deno-final.log:179
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

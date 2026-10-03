@@ -3,34 +3,39 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Shift Approvals — HR / Operations</title>
+  <title>Duty requests — Operations Head</title>
     <link rel="icon" type="image/png" href="../favicon.png">
-    <script src="../js/theme-preference.js" defer></script>
+    <script src="../js/theme-preference.js"></script>
   <link href="css/admin-theme.css" rel="stylesheet">
+  <link href="../css/duty-requests.css" rel="stylesheet">
 </head>
 <body class="admin-body" data-ax-page="swaps">
-<div id="loadingScreen"><p>Loading shift requests…</p></div>
+<div id="loadingScreen"><p>Loading Duty requests…</p></div>
 <div class="ax-app">
   <aside class="ax-sidebar">
-    <div class="ax-brand"><div class="ax-brand-badge">Control center</div><p class="ax-brand-title">HR / Operations</p><p class="ax-brand-sub">Security Agency Management System</p></div>
+    <div class="ax-brand"><p class="ax-brand-title">Operations Head</p><p class="ax-brand-sub">Security Agency Management System</p></div>
     <nav class="ax-nav">
       <div class="ax-nav-label">Manage</div>
-      <a href="dashboard.html"><span class="ax-nav-icon">📊</span> Dashboard</a>
-      <a href="users.html"><span class="ax-nav-icon">👥</span> Personnel</a>
-      <a href="locations.html"><span class="ax-nav-icon">📍</span> Deployment Sites</a>
-      <a href="schedule.html"><span class="ax-nav-icon">📅</span> Schedule</a>
-      <a href="incidents.html"><span class="ax-nav-icon">🚨</span> Incidents</a>
-      <a href="swaps.html"><span class="ax-nav-icon">🔁</span> Shift approvals</a>
+      <a href="dashboard.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">dashboard</span> Dashboard</a>
+      <a href="users.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">groups</span> Personnel</a>
+      <a href="locations.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">location_on</span> Deployment Sites</a>
+      <a href="schedule.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">calendar_month</span> Schedule</a>
+      <a href="incidents.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">emergency</span> Incidents</a>
+      <a href="swaps.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">swap_horiz</span> Duty requests</a>
     </nav>
     <div class="ax-sidebar-foot">TwentyTwenty Security Agency</div>
   </aside>
   <div class="ax-main">
     <header class="ax-topbar">
-      <div class="ax-topbar-left"><button class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu">☰</button><div><div class="ax-breadcrumb">HR / Operations Console</div><h1 class="ax-page-title">Shift Approvals</h1></div></div>
-      <div class="ax-topbar-right"><span class="ax-role-pill">HR / Operations Head</span><span class="ax-user-chip" id="axUserName">Admin</span><button class="ax-btn-logout" onclick="adminLogout()">Sign out</button></div>
+      <div class="ax-topbar-left"><button class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button><div><div class="ax-breadcrumb">Operations Head Console</div><h1 class="ax-page-title">Duty requests</h1></div></div>
+      <div class="ax-topbar-right"><span class="ax-user-chip" id="axUserName" hidden aria-live="polite"></span><button class="ax-btn-logout" onclick="adminLogout()">Sign out</button></div>
     </header>
     <main class="ax-content">
-      <div class="ax-section-label">Awaiting final decision</div>
+      <div class="duty-request-toolbar">
+        <label for="requestSearch">Search requests<input id="requestSearch" type="search" placeholder="Guard, request type or reason"></label>
+        <label for="requestStatus">Status<select id="requestStatus"><option value="pending_admin">Awaiting Operations Head approval</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="all">All requests</option></select></label>
+        <button type="button" class="ax-btn" id="refreshRequests">Refresh</button>
+      </div>
       <section class="ax-panel"><div id="requests" class="ax-link-list"><div class="empty-state">Loading requests…</div></div></section>
     </main>
   </div>
@@ -39,58 +44,8 @@
 <script src="js/admin-shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
 <script src="../js/supabase-firebase-bridge.js"></script>
+<script src="../js/platform-configuration.js"></script>
 <script src="../js/notification-center.js"></script>
-<script>
-const auth=firebase.auth(),db=firebase.firestore();
-auth.onAuthStateChanged(async user=>{if(!user){location.href='login.html';return}const profile=await db.collection('users').doc(user.uid).get();if(!profile.exists||profile.data().role!=='admin'){location.href='login.html';return}setAdminUserName([profile.data().firstName,profile.data().lastName].filter(Boolean).join(' ')||'Admin');finishPageLoading();load();});
-function profileName(profile, fallback) {
-  if (!profile) return fallback || 'Unassigned';
-  return [profile.first_name, profile.middle_initial ? `${profile.middle_initial}.` : '', profile.last_name]
-    .filter(Boolean).join(' ') || profile.username || fallback || 'Personnel';
-}
-function formatDutyRange(startAt, endAt) {
-  if (!startAt || !endAt) return 'No change requested';
-  const start = new Date(startAt), end = new Date(endAt);
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return 'Invalid duty time';
-  return `${start.toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} – ${end.toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
-}
-async function load(){
-  const el=document.getElementById('requests');
-  const [requestResult, profileResult, scheduleResult] = await Promise.all([
-    appSupabase.from('shift_swap_requests').select().eq('status','pending_admin').order('created_at',{ascending:false}),
-    appSupabase.from('profiles').select('id,first_name,middle_initial,last_name,username'),
-    appSupabase.from('schedules').select('id,start_at,end_at,location_label'),
-  ]);
-  const error = requestResult.error || profileResult.error || scheduleResult.error;
-  if(error){el.innerHTML='<div class="empty-state">Could not load requests.</div>';appDialog.toast(error.message,{tone:'danger'});return}
-  const requests=requestResult.data||[];
-  if(!requests.length){el.innerHTML='<div class="empty-state"><div class="icon">✓</div>No Inspector-reviewed requests are waiting.</div>';return}
-  const profiles=Object.fromEntries((profileResult.data||[]).map(profile=>[profile.id,profile]));
-  const schedules=Object.fromEntries((scheduleResult.data||[]).map(schedule=>[schedule.id,schedule]));
-  el.innerHTML=requests.map(item=>{
-    const schedule=schedules[item.requested_schedule_id]||{};
-    const guard=profileName(profiles[item.requester_id],'Guard');
-    const target=item.target_guard_id ? profileName(profiles[item.target_guard_id],'Proposed guard') : guard;
-    const currentDuty=formatDutyRange(schedule.start_at,schedule.end_at);
-    const requestedDuty=item.requested_start_at||item.requested_end_at ? formatDutyRange(item.requested_start_at,item.requested_end_at) : currentDuty;
-    return `<article class="ax-link-row"><div class="ax-link-row-left"><div class="ax-link-row-icon">🔁</div><div><div class="ax-link-row-title">${escapeText(guard)} — shift change request</div><div class="ax-link-row-desc">${escapeText(item.reason||'No reason provided')}</div><div class="ax-cell-secondary">Current: ${escapeText(currentDuty)}${schedule.location_label ? ` · ${escapeText(schedule.location_label)}` : ''}</div><div class="ax-cell-secondary">Requested: ${escapeText(requestedDuty)} · Coverage: ${escapeText(target)}</div><div class="ax-cell-secondary">Inspector note: ${escapeText(item.inspector_note||'—')}</div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="action-btn btn-enable" onclick="decide('${item.id}',true,this)">Approve</button><button class="action-btn btn-disable" onclick="decide('${item.id}',false,this)">Reject</button></div></article>`;
-  }).join('');
-}
-function escapeText(value){return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[char]));}
-async function decide(id, ok, button) {
-  const values = await appDialog.form({title:ok?'Approve shift change':'Reject shift change',message:ok?'Confirm the final schedule-change approval.':'Record the reason for rejecting this request.',confirmText:ok?'Final approve':'Reject request',danger:!ok,fields:[{name:'note',label:'Decision note',type:'textarea',placeholder:'Optional note for the guard and Inspector'}]});
-  if (!values) return;
-  try {
-    await appDialog.runBusy(button, async () => {
-      const result = await appSupabase.rpc('decide_shift_swap_by_admin',{p_request_id:id,p_approve:ok,p_note:values.note.trim()});
-      if (result.error) throw result.error;
-      await load();
-    }, { label: ok ? 'Approving…' : 'Rejecting…' });
-    appDialog.toast(ok?'Shift change approved.':'Shift change rejected.',{tone:'success'});
-  } catch (error) {
-    appDialog.toast(error.message || 'Could not update the shift request.', {tone:'danger'});
-  }
-}
-</script>
+<script src="js/duty-requests.js"></script>
 </body>
 </html>

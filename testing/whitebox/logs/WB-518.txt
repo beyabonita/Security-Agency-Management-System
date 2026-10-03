@@ -1,0 +1,12 @@
+WB-518 — PASS
+AttendanceService.recordEvent
+Scenario: RPC sends exact validated coordinates
+Input: "clock_in;0;0"
+Expected: {"p_action":"clock_in","p_latitude":0,"p_longitude":0}
+Actual: {"p_action":"clock_in","p_latitude":0,"p_longitude":0}
+UTC: 2026-09-05T08:57:23.846375Z
+Evidence: logs/flutter-verified.jsonl:317
+Source: testing/whitebox/unit_tests/services_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

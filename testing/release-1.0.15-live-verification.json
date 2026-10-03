@@ -1,0 +1,36 @@
+[
+  {
+    "file": "/js/live-tracking.js",
+    "verified": true
+  },
+  {
+    "file": "/js/live-tracking-model.js",
+    "verified": true
+  },
+  {
+    "file": "/js/live-marker-motion.js",
+    "verified": true
+  },
+  {
+    "file": "/staff/login.html",
+    "verified": true
+  },
+  {
+    "file": "/staff/guard-app-qr.png",
+    "verified": true
+  },
+  {
+    "alias": "https://security-agency-management-system-admin.vercel.app",
+    "verified": true
+  },
+  {
+    "alias": "https://security-agency-management-system-download.vercel.app",
+    "verified": true
+  },
+  {
+    "apk": "https://security-agency-management-system-download.vercel.app/downloads/security-agency-management-system-guard.apk?v=1.0.15",
+    "bytes": 63776202,
+    "sha256": "ea4f9dfa888ce992fbd72b45ab8ab8bb9392bc1beeabb802f870af3dbe234c96",
+    "verified": true
+  }
+]

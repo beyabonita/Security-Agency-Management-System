@@ -1,0 +1,12 @@
+WB-417 — PASS
+SchedulePeriod.buildDutyPlan
+Scenario: empty, overlap and duplicate periods
+Input: [{"period":"morning","start_time":"08:00","end_time":"12:00"},{"period":"afternoon","start_time":"12:00","end_time":"17:00"}]
+Expected: true
+Actual: true
+UTC: 2026-09-05T08:53:03.557Z
+Evidence: logs/node.tap:18
+Source: testing/whitebox/unit_tests/web_test.cjs
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

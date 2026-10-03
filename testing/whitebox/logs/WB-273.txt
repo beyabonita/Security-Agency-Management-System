@@ -1,0 +1,12 @@
+WB-273 — PASS
+api.authenticatedUserId
+Scenario: auth provider verifies token
+Input: {"authFailed":true}
+Expected: "unauthorized"
+Actual: "unauthorized"
+UTC: 2026-09-05T08:56:19.587Z
+Evidence: logs/deno-final.log:366
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

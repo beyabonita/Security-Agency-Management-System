@@ -1,0 +1,34 @@
+00:00 +0: loading C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/overtime_timeout_test.dart
+00:00 +0: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/overtime_timeout_test.dart: 2-hour overtime waits for approval before Time Out and hours appear
+00:00 +1: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/overtime_timeout_test.dart: no overtime uses 6 PM and 12 hours without review, preserving 6:03 PM submission
+00:00 +2: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/overtime_timeout_test.dart: overtime dialog: Yes, request approval
+00:00 +3: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/overtime_timeout_test.dart: overtime dialog: Yes, request approval
+00:00 +4: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/overtime_timeout_test.dart: overtime dialog: Yes, request approval
+00:00 +5: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/overtime_timeout_test.dart: overtime dialog: Yes, request approval
+00:00 +6: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/overtime_timeout_test.dart: overtime dialog: Yes, request approval
+00:00 +7: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/overtime_timeout_test.dart: overtime dialog: Yes, request approval
+00:00 +8: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/overtime_timeout_test.dart: overtime dialog: Yes, request approval
+00:01 +9: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/overtime_timeout_test.dart: overtime dialog: No, use scheduled end
+00:01 +10: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/overtime_timeout_test.dart: overtime dialog: Cancel
+00:01 +11: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/overtime_timeout_test.dart: guard sees actual submission separately from scheduled DTR end
+00:02 +12: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_actual_times_test.dart: shows actual overnight dates and empty Time Out without DTR mapping
+00:03 +13: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: (setUpAll)
+00:03 +14: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: (setUpAll)
+00:03 +15: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: (setUpAll)
+00:03 +16: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: (setUpAll)
+00:04 +16: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: attendance becomes ready from REST without a realtime connection
+00:04 +17: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: repeated attendance refreshes each get confirmed data
+00:04 +18: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: failed attendance fetch exposes a retryable error instead of waiting
+00:04 +19: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: latest attendance restores both recorded punches after screen reopening
+00:04 +20: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/attendance_loading_test.dart: (tearDownAll)
+00:05 +20: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: matches web DTR: verified overtime
+00:05 +21: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: matches web DTR: unverified three minutes
+00:05 +22: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: matches web DTR: missing timeout
+00:05 +23: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: matches web DTR: overnight cutoff and multiple sessions
+00:05 +24: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: matches web DTR: empty cutoff
+00:05 +25: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: leap month and overnight hours stay in the starting cutoff
+00:05 +26: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: generates printable PDF for empty, populated and multi-page periods
+00:07 +27: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: phone DTR can select cutoff and save that exact report
+00:10 +28: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: old responses cannot overwrite a newly selected month
+00:10 +29: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/guard_dtr_test.dart: failed loading disables download and retry recovers
+00:11 +30: All tests passed!

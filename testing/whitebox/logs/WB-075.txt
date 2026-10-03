@@ -1,0 +1,12 @@
+WB-075 — PASS
+DtrAlignment.cellLabel
+Scenario: noon and day-offset decisions
+Input: ["2026-09-06T00:00:00Z",true]
+Expected: "Morning IN (+1)"
+Actual: "Morning IN (+1)"
+UTC: 2026-09-05T08:57:23.796373Z
+Evidence: logs/flutter-verified.jsonl:278
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

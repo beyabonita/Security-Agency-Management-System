@@ -1,0 +1,12 @@
+WB-223 — PASS
+accounts.uuidValid
+Scenario: UUID structure and version
+Input: "11111111-1111-0111-8111-111111111111"
+Expected: false
+Actual: false
+UTC: 2026-09-05T08:56:18.472Z
+Evidence: logs/deno-final.log:114
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

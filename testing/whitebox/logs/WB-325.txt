@@ -1,0 +1,12 @@
+WB-325 — PASS
+admin-manage-user.registered handler
+Scenario: successful update and rollback safety
+Input: {"options":{"caller":{"role":"it_admin"},"target":{"role":"it_admin"},"itCount":2},"body":{"active":false}}
+Expected: [200,null,["profileUpdate","authUpdate"]]
+Actual: [200,null,["profileUpdate","authUpdate"]]
+UTC: 2026-09-05T08:56:20.278Z
+Evidence: logs/deno-final.log:644
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

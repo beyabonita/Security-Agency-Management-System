@@ -1,0 +1,30 @@
+00:00 +0: loading C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/live_location_controller_test.dart
+00:00 +0: off by default and rejects hosted tracking endpoints
+00:00 +1: permission denied does not subscribe
+00:00 +2: no duty does not capture; time in starts capture
+00:00 +3: automatic card has no toggle and follows Time In and Time Out
+00:03 +4: opening the app while clocked in resumes sharing automatically
+00:03 +5: Time In arriving during a duty check is processed immediately afterwards
+00:03 +6: mock, stale and inaccurate fixes are rejected
+00:03 +7: rejected fixes explain the actual reason
+00:03 +8: first fresh fix uploads even when the position stream is silent
+00:03 +9: poor initial accuracy recovers through a fresh request
+00:03 +10: fresh request is single flight and discarded after stopping
+00:03 +11: a pending fix from the previous duty cannot publish on the next duty
+00:03 +12: server rejection is distinguished from GPS acquisition failure
+00:03 +13: fresh publications limited to one per 30 seconds
+00:03 +14: a cached fix is not published twice with a newer delivery time
+00:03 +15: 114 m fix publishes as approximate without inventing better accuracy
+00:03 +16: time out cancels GPS and removes latest position
+00:03 +17: scheduled end stops capture without a new fix
+00:03 +18: known shift deadline stops GPS while duty refresh is stalled
+00:06 +19: permission granted after scheduled end never starts GPS
+00:06 +20: previous duty deadline cannot stop a new active duty
+00:08 +21: cannot verify duty offline, pause and retry after reconnect
+00:08 +22: GPS interruption retains last point, but confirmed Time Out removes it
+00:08 +23: moving guard publishes every five seconds; stationary jitter waits
+00:08 +24: page disposal stops capture without deleting last known position
+00:08 +25: stop during permission request prevents late GPS start
+00:08 +26: stop waits for in-flight publish before removal
+00:08 +27: stalled upload releases subsequent fixes and late completion is cleaned after stop
+00:08 +28: All tests passed!

@@ -1,0 +1,12 @@
+PASS missing choice cannot submit
+PASS missing GPS cannot submit
+PASS outside original post cannot submit
+PASS NaN GPS cannot submit
+PASS overtime records actual submission and queues only own active Operations Head
+PASS retry preserves first Time Out and creates no duplicate alert
+PASS only Operations Head approval finalizes overtime and notifies guard
+PASS no overtime uses scheduled end without approval and preserves actual submission
+PASS early ordinary Time Out uses actual time, with no overtime question required
+PASS other guard and Inspector cannot submit this guard Time Out
+PASS rolled over missing duty requires review rather than a new punch
+11 overtime-choice database checks passed.

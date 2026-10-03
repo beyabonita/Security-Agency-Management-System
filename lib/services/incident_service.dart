@@ -4,7 +4,7 @@ import 'package:flutter_application_1/services/incident_image_codec.dart';
 import 'package:flutter_application_1/services/incident_video_format.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Emergency incident alerts — photo required.
+/// Emergency incident alerts require a photo or video and a narrative.
 class IncidentService {
   static const categories = <String, String>{
     'crime': 'Crime / theft',
@@ -16,8 +16,8 @@ class IncidentService {
 
   static Future<void> submitReport({
     required String category,
-    required Uint8List photoBytes,
-    required String remarks,
+    Uint8List? photoBytes,
+    String remarks = '',
     required DateTime capturedAt,
     Uint8List? videoBytes,
     int? videoDurationSeconds,
@@ -34,11 +34,18 @@ class IncidentService {
     if (!categories.containsKey(category)) {
       throw Exception('Invalid incident type.');
     }
-    if (photoBytes.isEmpty) {
-      throw Exception('Take a photo before sending the alert.');
+    final hasPhoto = photoBytes != null && photoBytes.isNotEmpty;
+    final hasVideo = videoBytes != null && videoBytes.isNotEmpty;
+    if (!hasPhoto && !hasVideo) {
+      throw Exception(
+        'Capture a photo or record a video before sending the alert.',
+      );
     }
-    if (remarks.trim().length < 10) {
-      throw Exception('Enter at least 10 characters describing the incident.');
+    if (remarks.trim().isEmpty) {
+      throw Exception('Enter an incident narrative before sending the alert.');
+    }
+    if (remarks.trim().length > 2000) {
+      throw Exception('Incident narrative cannot exceed 2,000 characters.');
     }
     if (capturedAt.isBefore(
           DateTime.now().toUtc().subtract(const Duration(minutes: 10)),
@@ -47,7 +54,7 @@ class IncidentService {
           DateTime.now().toUtc().add(const Duration(minutes: 1)),
         )) {
       throw Exception(
-        'Capture a current incident photo before filing the alert.',
+        'Capture a current photo or video before filing the alert.',
       );
     }
     String? resolvedVideoContentType;
@@ -67,7 +74,9 @@ class IncidentService {
       );
     }
 
-    final photoData = await IncidentImageCodec.bytesToBase64Jpeg(photoBytes);
+    final photoData = hasPhoto
+        ? await IncidentImageCodec.bytesToBase64Jpeg(photoBytes)
+        : null;
     String? videoPath;
     try {
       if (videoBytes != null && videoBytes.isNotEmpty) {

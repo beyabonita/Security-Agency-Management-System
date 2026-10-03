@@ -11,7 +11,7 @@ The system is designed around a single beneficiary model:
 - TwentyTwenty Security Agency is the active organization.
 - Client sites such as Jollibee branches are deployment locations managed under that agency.
 - Guards can only operate and clock in at approved scheduled sites.
-- HR/Operations, Inspectors, and IT Admin each have separate responsibilities and tools.
+- Admins, Inspectors, and IT Admins each have separate responsibilities and tools.
 
 ## Core platform
 
@@ -22,7 +22,7 @@ The Flutter application in `lib/` is the primary guard-facing experience. It inc
 - Attendance and time-in/time-out workflows
 - Geofence-aware duty validation and location integrity checks
 - Notifications and acknowledgement flows
-- Duty requests and shift-change workflows
+- Guard Swap / Absence requests with private letter attachments and direct Admin approval
 - Incident reporting with media capture
 - Time logs and attendance summaries
 
@@ -50,7 +50,7 @@ Uses the mobile app for:
 - incident reports and evidence capture
 - viewing time logs and notifications
 
-### HR / Operations Head
+### Admin
 Manages:
 
 - guard and inspector accounts
@@ -62,10 +62,9 @@ Manages:
 ### Inspector
 Reviews:
 
-- shift-change requests
 - guard attendance records
 - site activity and compliance concerns
-- inspector attendance and monitoring tasks
+- field monitoring tasks
 
 ### IT Admin
 Maintains the platform, including:
@@ -74,6 +73,14 @@ Maintains the platform, including:
 - platform support and recovery workflows
 - configuration and deployment governance
 - upgrade and release coordination
+
+### Duty shift and DTR rules
+
+- One schedule entry represents one duty shift and credits one duty day.
+- Admin chooses a duty date, expected Time In, and expected Time Out. If Time Out is the same as or earlier than Time In, the shift automatically ends on the following day.
+- DTRs use the agency's semi-monthly cutoffs: days 1-15 and days 16 through the last day of the month.
+- The approved schedule owns the DTR row and Morning/Afternoon columns; actual geofenced mobile punches supply the displayed times, so a late punch never jumps into another scheduled column.
+- Overnight Time Out remains on the original duty-date row and is labeled `(+1)`. Missing break and overtime punches are never invented.
 
 ## System architecture
 
@@ -176,6 +183,7 @@ After modifying protected functions, deploy them explicitly:
 npx --yes supabase functions deploy admin-create-user
 npx --yes supabase functions deploy admin-manage-user
 npx --yes supabase functions deploy it-provision-client
+npx --yes supabase functions deploy admin-delete-incident --no-verify-jwt
 ```
 
 Important:
@@ -209,6 +217,8 @@ Run the project checks before pushing changes:
 flutter analyze --no-fatal-infos
 flutter test
 node web/tests/security_rendering_test.js
+node web/tests/schedule_period_test.js
+node web/tests/dtr_report_test.js
 node web/tests/session_refresh_test.js
 node supabase/tests/admin_create_user_security_test.js
 node supabase/tests/edge_function_authorization_test.js

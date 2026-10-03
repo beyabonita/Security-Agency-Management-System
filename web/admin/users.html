@@ -3,76 +3,77 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Personnel Records — HR / Operations</title>
+<title>Personnel Records — Operations Head</title>
 <link rel="icon" type="image/png" href="../favicon.png">
-<script src="../js/theme-preference.js" defer></script>
+<script src="../js/theme-preference.js"></script>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <link href="css/admin-theme.css" rel="stylesheet">
+<link href="../css/dtr-report.css" rel="stylesheet">
 
 <style>
 .section-title {
     font-size: 0.7rem; font-weight: 600; letter-spacing: 2px;
-    text-transform: uppercase; color: #dc2626; margin-bottom: 20px;
+    text-transform: uppercase; color: var(--sl-danger); margin-bottom: 20px;
     display: flex; align-items: center; gap: 10px;
 }
-.section-title::after { content:''; flex:1; height:1px; background:#e7d5d5; }
+.section-title::after { content:''; flex:1; height:1px; background: #e7d5d5; }
 
-.glass-card { background: #fff; border: 1px solid #e7d5d5; border-radius: 14px; overflow: hidden; }
+.glass-card { background: var(--sl-surface); border: 1px solid var(--sl-line); border-radius: 14px; overflow: hidden; }
 .personnel-table-section + .personnel-table-section { margin-top: 26px; }
 .personnel-table-heading {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
     margin: 0 0 10px; padding: 0 2px;
 }
-.personnel-table-heading h2 { margin: 0; color: #1c1917; font-size: 1rem; font-weight: 750; }
+.personnel-table-heading h2 { margin: 0; color: var(--sl-ink); font-size: 1rem; font-weight: 750; }
 .personnel-table-count {
     display: inline-flex; align-items: center; min-width: 24px; justify-content: center;
-    padding: 3px 8px; border-radius: 999px; background: #fef2f2; color: #b91c1c;
+    padding: 3px 8px; border-radius: 999px; background: var(--sl-red-soft); color: var(--sl-danger);
     font-size: .72rem; font-weight: 700;
 }
 
 .user-table { width: 100%; border-collapse: collapse; }
-.user-table thead tr { background: #fef2f2; border-bottom: 1px solid #e7d5d5; }
+.user-table thead tr { background: var(--sl-red-soft); border-bottom: 1px solid var(--sl-line); }
 .user-table thead th {
     padding: 14px 20px; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px;
-    text-transform: uppercase; color: #78716c;
+    text-transform: uppercase; color: var(--sl-muted);
 }
 .user-table tbody tr {
     position: relative; z-index: 0;
-    border-bottom: 1px solid #e7d5d5; transition: background 0.15s;
+    border-bottom: 1px solid var(--sl-line); transition: background 0.15s;
 }
 .user-table tbody tr:has(.personnel-actions:hover),
 .user-table tbody tr:has(.personnel-actions:focus-within),
 .user-table tbody tr.has-open-personnel-actions { z-index: 40; }
 .user-table tbody tr:last-child { border-bottom: none; }
-.user-table tbody tr:hover { background: #fefaf9; }
-.user-table tbody td { padding: 16px 20px; font-size: 0.875rem; color: #1c1917; vertical-align: middle; }
-.user-name { font-weight: 600; color: #1c1917; }
-.user-email { font-size: 0.78rem; color: #78716c; margin-top: 2px; }
+.user-table tbody tr:hover { background: var(--sl-surface-muted); }
+.user-table tbody td { padding: 16px 20px; font-size: 0.875rem; color: var(--sl-ink); vertical-align: middle; }
+.user-name { font-weight: 600; color: var(--sl-ink); }
+.user-email { font-size: 0.78rem; color: var(--sl-muted); margin-top: 2px; }
 
 .role-badge {
     display: inline-block; border-radius: 20px;
     padding: 3px 10px; font-size: 0.72rem; font-weight: 600;
 }
-.role-admin     { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
-.role-inspector { background: #fff1f2; border: 1px solid #fecdd3; color: #be123c; }
-.role-user      { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: #34d399; }
+.role-admin     { background: var(--sl-red-soft); border: 1px solid var(--sl-line); color: var(--sl-danger); }
+.role-inspector { background: var(--sl-red-soft); border: 1px solid var(--sl-line); color: var(--sl-danger); }
+.role-user      { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); color: var(--sl-success); }
 
 .badge-active {
     display: inline-flex; align-items: center; gap: 5px;
     background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.3);
-    color: #4ade80; border-radius: 20px; padding: 3px 10px;
+    color: var(--sl-success); border-radius: 20px; padding: 3px 10px;
     font-size: 0.72rem; font-weight: 600;
 }
-.badge-active::before { content:''; width:6px; height:6px; background:#4ade80; border-radius:50%; }
+.badge-active::before { content:''; width:6px; height:6px; background: #4ade80; border-radius:50%; }
 .badge-disabled {
     display: inline-flex; align-items: center; gap: 5px;
     background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3);
-    color: #f87171; border-radius: 20px; padding: 3px 10px;
+    color: var(--sl-danger); border-radius: 20px; padding: 3px 10px;
     font-size: 0.72rem; font-weight: 600;
 }
-.badge-disabled::before { content:''; width:6px; height:6px; background:#f87171; border-radius:50%; }
+.badge-disabled::before { content:''; width:6px; height:6px; background: #f87171; border-radius:50%; }
 
 .action-btn {
     border-radius: 8px; padding: 6px 12px;
@@ -93,12 +94,12 @@
 .personnel-actions.is-open { z-index: 60; }
 .personnel-actions-trigger {
     display: inline-flex; align-items: center; gap: 7px;
-    min-height: 34px; border: 1px solid #fecaca; border-radius: 9px;
-    padding: 6px 11px; background: #fff; color: #b91c1c;
+    min-height: 34px; border: 1px solid var(--sl-line); border-radius: 9px;
+    padding: 6px 11px; background: var(--sl-surface); color: var(--sl-danger);
     font-size: .78rem; font-weight: 700; cursor: pointer;
 }
 .personnel-actions-trigger:hover, .personnel-actions.is-open .personnel-actions-trigger {
-    background: #fef2f2; border-color: #f87171; color: #991b1b;
+    background: var(--sl-red-soft); border-color: #f87171; color: var(--sl-danger);
 }
 .personnel-actions-caret { font-size: .9rem; line-height: 1; transition: transform .18s ease; }
 .personnel-actions:hover .personnel-actions-caret,
@@ -108,7 +109,7 @@
     position: absolute; right: 0; top: calc(100% - 1px); z-index: 70;
     display: none; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px;
     width: 286px; padding: 6px;
-    background: #fff; border: 1px solid #e7d5d5; border-radius: 12px;
+    background: var(--sl-surface); border: 1px solid var(--sl-line); border-radius: 12px;
     box-shadow: 0 14px 32px rgba(28,25,23,.16);
 }
 @media (hover: hover) {
@@ -118,34 +119,34 @@
 .personnel-actions.is-open .personnel-actions-menu { display: grid; }
 .personnel-actions-menu .action-btn {
     width: 100%; display: flex; justify-content: flex-start; align-items: center;
-    border-color: transparent; background: transparent; color: #44403c; text-align: left;
+    border-color: transparent; background: transparent; color: var(--sl-ink); text-align: left;
 }
-.personnel-actions-menu .action-btn:hover { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
-.personnel-actions-menu .btn-disable { color: #b45309; }
-.personnel-actions-menu .btn-enable { color: #047857; }
-.personnel-actions-menu .btn-reports { color: #15803d; }
+.personnel-actions-menu .action-btn:hover { background: var(--sl-red-soft); color: var(--sl-danger); border-color: var(--sl-line); }
+.personnel-actions-menu .btn-disable { color: var(--sl-warning); }
+.personnel-actions-menu .btn-enable { color: var(--sl-success); }
+.personnel-actions-menu .btn-reports { color: var(--sl-success); }
 .glass-card { overflow: visible; }
 @media (max-width: 520px) {
     .personnel-actions-menu { width: 250px; }
 }
 .btn-locations {
-    background: #fef2f2; border-color: #fecaca; color: #b91c1c;
+    background: var(--sl-red-soft); border-color: var(--sl-line); color: var(--sl-danger);
 }
-.btn-locations:hover { background: #fee2e2; border-color: #dc2626; color: #991b1b; }
+.btn-locations:hover { background: var(--sl-red-soft); border-color: #dc2626; color: var(--sl-danger); }
 .btn-dtr {
-    background: #fef2f2; border-color: #fecaca; color: #dc2626;
+    background: var(--sl-red-soft); border-color: var(--sl-line); color: var(--sl-danger);
 }
-.btn-dtr:hover { background: #fee2e2; border-color: #dc2626; color: #b91c1c; }
+.btn-dtr:hover { background: var(--sl-red-soft); border-color: #dc2626; color: var(--sl-danger); }
 .btn-reports {
-    background: #f0fdf4; border-color: #bbf7d0; color: #15803d;
+    background: var(--sl-success-soft); border-color: var(--sl-line); color: var(--sl-success);
 }
-.btn-reports:hover { background: #dcfce7; border-color: #22c55e; color: #166534; }
+.btn-reports:hover { background: var(--sl-success-soft); border-color: #22c55e; color: var(--sl-success); }
 .btn-inspector {
-    background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8;
+    background: var(--sl-info-soft); border-color: var(--sl-line); color: var(--sl-info);
 }
 .btn-inspector:hover { background: #dbeafe; border-color: #3b82f6; color: #1e40af; }
 .btn-history {
-    background: #f8fafc; border-color: #cbd5e1; color: #475569;
+    background: var(--sl-surface-muted); border-color: #cbd5e1; color: var(--sl-ink);
 }
 .btn-history:hover { background: #f1f5f9; border-color: #94a3b8; color: #334155; }
 .btn-disable {
@@ -153,27 +154,27 @@
 }
 .btn-disable:hover { background: rgba(245,158,11,0.2); color: #fde68a; }
 .btn-enable {
-    background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.3); color: #4ade80;
+    background: rgba(74,222,128,0.1); border-color: rgba(74,222,128,0.3); color: var(--sl-success);
 }
 .btn-enable:hover { background: rgba(74,222,128,0.2); color: #86efac; }
 .btn-reset {
-    background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: #f87171;
+    background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: var(--sl-danger);
 }
 .btn-reset:hover { background: rgba(248,113,113,0.2); color: #fca5a5; }
 
-.page-title { font-size: 1.35rem; font-weight: 700; color: #1c1917; }
-.page-sub { font-size: 0.875rem; color: #78716c; margin-top: 4px; }
+.page-title { font-size: 1.35rem; font-weight: 700; color: var(--sl-ink); }
+.page-sub { font-size: 0.875rem; color: var(--sl-muted); margin-top: 4px; }
 
-.form-label { color: #78716c; font-size: 0.8rem; font-weight: 600; }
+.form-label { color: var(--sl-muted); font-size: 0.8rem; font-weight: 600; }
 .form-control, .form-select {
-    background: #faf5f5; border: 1px solid #e7d5d5; color: #1c1917;
+    background: var(--sl-surface-muted); border: 1px solid var(--sl-line); color: var(--sl-ink);
     border-radius: 10px; padding: 10px 14px; font-size: 0.875rem;
 }
 .form-control:focus, .form-select:focus {
     border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.12);
 }
 .btn-cancel {
-    background: #fff; border: 1px solid #e7d5d5; color: #78716c;
+    background: var(--sl-surface); border: 1px solid var(--sl-line); color: var(--sl-muted);
     border-radius: 10px; padding: 10px 20px; cursor: pointer;
 }
 .btn-add-guard {
@@ -182,71 +183,95 @@
 }
 .btn-add-guard:hover { background: #ef4444; }
 .btn-add-guard:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
-#createGuardError { color: #f87171; font-size: 0.85rem; min-height: 20px; margin-top: 12px; }
+#createGuardError { color: var(--sl-danger); font-size: 0.85rem; min-height: 20px; margin-top: 12px; }
 
 .location-chip {
     display: inline-flex; align-items: center; gap: 6px;
-    background: #fef2f2; border: 1px solid #fecaca;
-    color: #b91c1c; border-radius: 20px; padding: 4px 12px;
+    background: var(--sl-red-soft); border: 1px solid var(--sl-line);
+    color: var(--sl-danger); border-radius: 20px; padding: 4px 12px;
     font-size: 0.78rem; font-weight: 500; margin: 3px;
 }
 .location-chip .remove-btn { cursor: pointer; opacity: 0.7; }
-.location-chip .remove-btn:hover { opacity: 1; color: #f87171; }
+.location-chip .remove-btn:hover { opacity: 1; color: var(--sl-danger); }
 
 /* DTR Table */
 .dtr-table { width: 100%; border-collapse: collapse; }
-.dtr-table thead tr { background: #fef2f2; border-bottom: 1px solid #e7d5d5; }
+.dtr-table thead tr { background: var(--sl-red-soft); border-bottom: 1px solid var(--sl-line); }
 .dtr-table thead th {
     padding: 12px 14px; font-size: 0.72rem; font-weight: 600;
-    text-transform: uppercase; color: #78716c;
+    text-transform: uppercase; color: var(--sl-muted);
 }
-.dtr-table tbody tr { border-bottom: 1px solid #e7d5d5; }
-.dtr-table tbody td { padding: 12px 14px; font-size: 0.875rem; color: #1c1917; }
-.dtr-table tbody tr:hover { background: #fefaf9; }
-.punch-in  { color: #4ade80; font-weight: 600; }
+.dtr-table tbody tr { border-bottom: 1px solid var(--sl-line); }
+.dtr-table tbody td { padding: 12px 14px; font-size: 0.875rem; color: var(--sl-ink); }
+.dtr-table tbody tr:hover { background: var(--sl-surface-muted); }
+.punch-in  { color: var(--sl-success); font-weight: 600; }
 .punch-out { color: #fbbf24; font-weight: 600; }
-.punch-nil { color: #475569; }
+.punch-nil { color: var(--sl-ink); }
 .hours-badge {
     border-radius: 20px; padding: 2px 10px;
     font-size: 0.78rem; font-weight: 700;
 }
 .table-wrapper { border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; overflow: hidden; margin-bottom: 20px; }
-.modal-guard-meta { font-size: 0.8rem; color: #64748b; margin-bottom: 16px; }
-.modal-guard-meta strong { color: #dc2626; }
+.modal-guard-meta { font-size: 0.8rem; color: var(--sl-muted); margin-bottom: 16px; }
+.modal-guard-meta strong { color: var(--sl-danger); }
 
 .dtr-records-list { display: flex; flex-direction: column; gap: 16px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
-.dtr-day-card { background: #f8fafc; border: 1px solid #e7d5d5; border-radius: 12px; padding: 16px; }
+.dtr-period-panel {
+    display: grid; grid-template-columns: minmax(180px, .7fr) minmax(210px, .8fr) minmax(260px, 1.5fr);
+    align-items: end; gap: 12px; padding: 14px; margin-bottom: 16px;
+    background: var(--ax-surface); border: 1px solid var(--ax-border); border-radius: 12px;
+}
+.dtr-period-field label {
+    display: block; margin-bottom: 6px; color: var(--ax-muted);
+    font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+}
+.dtr-period-summary {
+    display: flex; align-items: center; min-height: 44px; padding: 10px 12px;
+    background: color-mix(in srgb, var(--ax-surface) 88%, var(--sl-red-soft));
+    border: 1px solid var(--ax-border); border-radius: 9px;
+    color: var(--ax-text); font-size: .8rem; font-weight: 600;
+}
+.dtr-period-note { grid-column: 1 / -1; margin: -2px 0 0; color: var(--ax-muted); font-size: .74rem; }
+.dtr-period-panel.dtr-timeout-review { display: flex; flex-wrap: wrap; align-items: center; }
+.dtr-timeout-review p { flex: 0 0 100%; margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+.dtr-modal-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.dtr-day-card { background: var(--sl-surface-muted); border: 1px solid var(--sl-line); border-radius: 12px; padding: 16px; }
 .dtr-day-header {
     display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #e7d5d5;
+    margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--sl-line);
 }
-.dtr-day-date { font-weight: 700; color: #1c1917; font-size: 0.95rem; }
+.dtr-day-date { font-weight: 700; color: var(--sl-ink); font-size: 0.95rem; }
 .dtr-punch-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 12px;
 }
 .dtr-punch-block {
-    background: #fff; border-radius: 12px; padding: 12px; border: 1px solid #e7d5d5;
+    background: var(--sl-surface); border-radius: 12px; padding: 12px; border: 1px solid var(--sl-line);
 }
 .dtr-punch-label {
     font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px;
     text-transform: uppercase; margin-bottom: 8px;
 }
-.dtr-punch-block.dtr-punch-am-in .dtr-punch-label { color: #4ade80; }
+.dtr-punch-block.dtr-punch-am-in .dtr-punch-label { color: var(--sl-success); }
 .dtr-punch-block.dtr-punch-am-out .dtr-punch-label { color: #fbbf24; }
 .dtr-punch-block.dtr-punch-pm-in .dtr-punch-label { color: #38bdf8; }
 .dtr-punch-block.dtr-punch-pm-out .dtr-punch-label { color: #fb923c; }
-.dtr-punch-time { color: #1c1917; font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; }
-.dtr-punch-meta { font-size: 0.75rem; color: #78716c; line-height: 1.4; margin-top: 4px; }
-.dtr-punch-meta.dtr-geo-ok { color: #4ade80; }
-.dtr-punch-meta.dtr-geo-bad { color: #f87171; }
-.dtr-punch-empty { color: #475569; font-size: 0.8rem; font-style: italic; }
-.report-copy { white-space: pre-wrap; line-height: 1.5; color: #475569; font-size: .86rem; }
+.dtr-punch-time { color: var(--sl-ink); font-weight: 700; font-size: 0.9rem; margin-bottom: 6px; }
+.dtr-punch-meta { font-size: 0.75rem; color: var(--sl-muted); line-height: 1.4; margin-top: 4px; }
+.dtr-punch-meta.dtr-geo-ok { color: var(--sl-success); }
+.dtr-punch-meta.dtr-geo-bad { color: var(--sl-danger); }
+.dtr-punch-empty { color: var(--sl-ink); font-size: 0.8rem; font-style: italic; }
+.report-copy { white-space: pre-wrap; line-height: 1.5; color: var(--sl-ink); font-size: .86rem; }
 .report-status { display: inline-flex; border-radius: 999px; padding: 3px 9px; font-size: .72rem; font-weight: 700; }
-.report-status-submitted { background: #fff7ed; color: #b45309; }
-.report-status-reviewed { background: #ecfdf5; color: #047857; }
-.report-status-needs_follow_up { background: #fef2f2; color: #b91c1c; }
+.report-status-submitted { background: var(--sl-warning-soft); color: var(--sl-warning); }
+.report-status-reviewed { background: var(--sl-success-soft); color: var(--sl-success); }
+.report-status-needs_follow_up { background: var(--sl-red-soft); color: var(--sl-danger); }
+@media (max-width: 760px) {
+    .dtr-period-panel { grid-template-columns: 1fr; }
+    .dtr-period-note { grid-column: auto; }
+    .dtr-modal-actions .btn-pdf { flex: 1 1 150px; }
+}
 </style>
 </head>
 
@@ -260,33 +285,32 @@
 <div class="ax-app">
     <aside class="ax-sidebar">
         <div class="ax-brand">
-            <div class="ax-brand-badge">Control center</div>
-            <p class="ax-brand-title">HR / Operations</p>
+
+            <p class="ax-brand-title">Operations Head</p>
             <p class="ax-brand-sub">Security Agency Management System</p>
         </div>
         <nav class="ax-nav">
             <div class="ax-nav-label">Manage</div>
-            <a href="dashboard.html"><span class="ax-nav-icon">📊</span> Dashboard</a>
-            <a href="users.html"><span class="ax-nav-icon">👥</span> Personnel</a>
-            <a href="locations.html"><span class="ax-nav-icon">📍</span> Deployment Sites</a>
-            <a href="schedule.html"><span class="ax-nav-icon">📅</span> Schedule</a>
-            <a href="incidents.html"><span class="ax-nav-icon">🚨</span> Incidents</a>
-            <a href="swaps.html"><span class="ax-nav-icon">🔁</span> Shift approvals</a>
+            <a href="dashboard.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">dashboard</span> Dashboard</a>
+            <a href="users.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">groups</span> Personnel</a>
+            <a href="locations.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">location_on</span> Deployment Sites</a>
+            <a href="schedule.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">calendar_month</span> Schedule</a>
+            <a href="incidents.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">emergency</span> Incidents</a>
+            <a href="swaps.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">swap_horiz</span> Duty requests</a>
         </nav>
         <div class="ax-sidebar-foot">TwentyTwenty Security Agency</div>
     </aside>
     <div class="ax-main">
         <header class="ax-topbar">
             <div class="ax-topbar-left">
-                <button type="button" class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu">☰</button>
+                <button type="button" class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button>
                 <div>
-                    <div class="ax-breadcrumb">HR / Operations Console</div>
+                    <div class="ax-breadcrumb">Operations Head Console</div>
                     <h1 class="ax-page-title">Personnel</h1>
                 </div>
             </div>
             <div class="ax-topbar-right">
-                <span class="ax-role-pill">HR / Operations Head</span>
-                <span class="ax-user-chip" id="axUserName">Admin</span>
+                <span class="ax-user-chip" id="axUserName" hidden aria-live="polite"></span>
                 <button type="button" class="ax-btn-logout" onclick="adminLogout()">Sign out</button>
             </div>
         </header>
@@ -352,7 +376,7 @@
 <div class="modal-content">
 <div class="modal-header">
     <h5 class="modal-title">Create Guard or Inspector</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
 </div>
 <div class="modal-body">
     <p class="modal-guard-meta" id="createUserRoleHint">Creates login credentials. Guards use the mobile app; inspectors and admins use the web panel.</p>
@@ -366,7 +390,7 @@
         </div>
         <div class="col-md-6">
             <label class="form-label">DUTY CATEGORY</label>
-            <select id="newGuardEmploymentCategory" class="form-select">
+            <select id="newGuardEmploymentCategory" class="form-select" onchange="updateCreateUserHint()">
                 <option value="regular">Regular</option>
                 <option value="contract">Contract</option>
             </select>
@@ -384,20 +408,26 @@
             <input type="text" id="newGuardLastName" class="form-control" placeholder="Dela Cruz">
         </div>
         <div class="col-12">
-            <label class="form-label">USERNAME</label>
-            <input type="text" id="newGuardUsername" class="form-control" placeholder="juan.delacruz" autocomplete="off">
-            <div class="form-text" style="color:#64748b;font-size:0.75rem;">Letters, numbers, dots, underscores (3–32 chars).</div>
+            <label class="form-label">EMAIL</label>
+            <input type="email" id="newGuardUsername" class="form-control" placeholder="name@gmail.com" autocomplete="off">
+            <div class="form-text" style="color:var(--sl-muted);font-size:0.75rem;">Use the person’s own email address.</div>
         </div>
         <div class="col-md-6">
             <label class="form-label">PASSWORD</label>
-            <input type="password" id="newGuardPassword" class="form-control" placeholder="At least 6 characters">
+            <input type="password" id="newGuardPassword" class="form-control" autocomplete="new-password" minlength="8" placeholder="8+ characters: uppercase, lowercase, number, symbol" aria-describedby="newGuardPasswordHelp">
+            <small id="newGuardPasswordHelp">Use at least 8 characters, including uppercase and lowercase letters, a number, and a symbol.</small>
         </div>
         <div class="col-md-6">
             <label class="form-label">CONFIRM PASSWORD</label>
             <input type="password" id="newGuardPasswordConfirm" class="form-control" placeholder="Repeat password">
         </div>
     </div>
-    <div id="createGuardError"></div>
+    <div id="newGuardContractPeriod" class="row g-3 mt-1" hidden>
+        <div class="col-sm-6"><label class="form-label" for="newGuardContractStart">Contract start</label><input id="newGuardContractStart" type="date" class="form-control"></div>
+        <div class="col-sm-6"><label class="form-label" for="newGuardContractEnd">Contract end</label><input id="newGuardContractEnd" type="date" class="form-control"></div>
+        <div class="col-12 form-text">Both dates are included. All duty periods must fit inside this contract.</div>
+    </div>
+    <div id="createGuardError" role="alert"></div>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
@@ -412,8 +442,8 @@
 <div class="modal-dialog modal-dialog-centered">
 <div class="modal-content">
 <div class="modal-header">
-    <h5 class="modal-title">📍 Set Home Post</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">add_location_alt</span>Set Home Post</h5>
+    <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
 </div>
 <div class="modal-body">
     <p class="modal-guard-meta">Guard: <strong id="deploymentGuardName"></strong></p>
@@ -440,13 +470,13 @@
 <div class="modal-dialog modal-lg modal-dialog-centered">
 <div class="modal-content">
 <div class="modal-header">
-    <h5 class="modal-title">📍 Home Post Assignment History</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">history</span>Home Post Assignment History</h5>
+    <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
 </div>
 <div class="modal-body">
     <p class="modal-guard-meta">Guard: <strong id="assignmentHistoryGuardName"></strong></p>
     <div id="assignmentHistoryList" class="dtr-records-list">
-        <div style="text-align:center;padding:32px;color:#64748b;">Loading assignment history…</div>
+        <div style="text-align:center;padding:32px;color:var(--sl-muted);">Loading assignment history…</div>
     </div>
 </div>
 </div>
@@ -458,16 +488,32 @@
 <div class="modal-dialog modal-xl modal-dialog-centered">
 <div class="modal-content">
 <div class="modal-header">
-    <h5 class="modal-title">📋 Daily Time Record</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">table_view</span>Daily Time Record</h5>
+    <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
 </div>
 <div class="modal-body">
-    <p class="modal-guard-meta">Guard: <strong id="dtrGuardName"></strong></p>
-    <div id="dtrRecordsList" class="dtr-records-list">
-        <div style="text-align:center;padding:32px;color:#64748b;">Loading records…</div>
+    <div class="dtr-period-panel">
+        <div class="dtr-period-field">
+            <label for="dtrPeriodMonth">Month</label>
+            <input type="month" id="dtrPeriodMonth" class="form-control" onchange="refreshDtrPeriod()">
+        </div>
+        <div class="dtr-period-field">
+            <label for="dtrPeriodCutoff">DTR cut-off</label>
+            <select id="dtrPeriodCutoff" class="form-select" onchange="refreshDtrPeriod()">
+                <option value="first">1st–15th</option>
+                <option value="second">16th–end of month</option>
+            </select>
+        </div>
+        <div class="dtr-period-summary" id="dtrPeriodSummary" aria-live="polite">Select a reporting period.</div>
     </div>
-    <button class="btn-pdf mt-3" onclick="evaluateDTR(this)">Evaluate Time</button>
-    <button class="btn-pdf mt-3" onclick="generateDTR(this)">Generate PDF</button>
+    <div id="dtrTimeoutReviews" aria-live="polite"></div>
+    <div id="dtrRecordsList" class="dtr-sheet-stage">
+        <div style="text-align:center;padding:32px;color:var(--sl-muted);">Loading records…</div>
+    </div>
+    <div class="dtr-modal-actions">
+        <button class="btn-pdf" onclick="evaluateDTR(this)">Evaluate Time</button>
+        <button class="btn-pdf" onclick="generateDTR(this)">Download Agency DTR</button>
+    </div>
 </div>
 </div>
 </div>
@@ -478,13 +524,13 @@
 <div class="modal-dialog modal-xl modal-dialog-centered">
 <div class="modal-content">
 <div class="modal-header">
-    <h5 class="modal-title">✓ Accomplishment Reports</h5>
-    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">assignment_turned_in</span>Accomplishment Reports</h5>
+    <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
 </div>
 <div class="modal-body">
     <p class="modal-guard-meta">Guard: <strong id="accomplishmentGuardName"></strong></p>
     <div id="accomplishmentRecordsList" class="dtr-records-list">
-        <div style="text-align:center;padding:32px;color:#64748b;">Loading reports…</div>
+        <div style="text-align:center;padding:32px;color:var(--sl-muted);">Loading reports…</div>
     </div>
 </div>
 </div>
@@ -493,12 +539,17 @@
 
 <!-- Supabase compatibility facade -->
 <script src="../js/auth-username.js"></script>
+<script src="../js/edge-function-errors.js"></script>
+<script src="../js/contract-period.js"></script>
+<script src="../js/password-policy.js"></script>
 <script src="js/admin-shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
 <script src="../js/supabase-firebase-bridge.js"></script>
+<script src="../js/platform-configuration.js"></script>
 <script src="../js/notification-center.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="../js/dtr-report.js"></script>
 
 <script>
 const auth = firebase.auth();
@@ -518,15 +569,12 @@ function personnelDisplayName(account) {
 }
 
 auth.onAuthStateChanged(user => {
-    if (!user) { window.location.href = "login.html"; return; }
+    if (!user) { window.location.href = "../staff/login.html"; return; }
     db.collection("users").doc(user.uid).get().then(doc => {
         if (!doc.exists || doc.data().role !== "admin") {
-            window.location.href = "login.html";
+            window.location.href = "../staff/login.html";
         } else {
             const d = doc.data();
-            const name = [d.firstName, d.middleInitial ? d.middleInitial + "." : "", d.lastName]
-                .filter(Boolean).join(" ") || d.name || displayLoginId(d);
-            setAdminUserName(name);
             applyAdminRoleNavigation(d.role);
             loadUsers();
         }
@@ -558,16 +606,16 @@ async function loadUsers() {
         const guardRows = guards.map(({ id, data }) => renderGuardRow(id, data, locationsById)).join("");
         const inspectorRows = inspectors.map(({ id, data }) => renderInspectorRow(id, data)).join("");
         document.getElementById("guardTableBody").innerHTML = guardRows ||
-            `<tr><td colspan="9" style="text-align:center;padding:40px;color:#78716c;">No guard personnel found.</td></tr>`;
+            `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--sl-muted);">No guard personnel found.</td></tr>`;
         document.getElementById("inspectorTableBody").innerHTML = inspectorRows ||
-            `<tr><td colspan="4" style="text-align:center;padding:40px;color:#78716c;">No inspector personnel found.</td></tr>`;
+            `<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--sl-muted);">No inspector personnel found.</td></tr>`;
         finishPageLoading();
     } catch (err) {
         const message = escapeHtml(err?.message || "Could not load personnel.");
         document.getElementById("guardTableBody").innerHTML =
-            `<tr><td colspan="9" style="text-align:center;color:#f87171;padding:32px;">Error: ${message}</td></tr>`;
+            `<tr><td colspan="9" style="text-align:center;color:var(--sl-danger);padding:32px;">Error: ${message}</td></tr>`;
         document.getElementById("inspectorTableBody").innerHTML =
-            `<tr><td colspan="4" style="text-align:center;color:#f87171;padding:32px;">Error: ${message}</td></tr>`;
+            `<tr><td colspan="4" style="text-align:center;color:var(--sl-danger);padding:32px;">Error: ${message}</td></tr>`;
         finishPageLoading();
     }
 }
@@ -586,10 +634,10 @@ function renderPersonnelStatus(data) {
 
 function renderPersonnelActions(id, actions) {
     const menu = actions.filter(Boolean).join('');
-    if (!menu) return '<span style="color:#a8a29e">—</span>';
+    if (!menu) return '<span style="color:var(--sl-muted)">—</span>';
     return `<div class="personnel-actions">
         <button type="button" class="personnel-actions-trigger" aria-expanded="false" aria-controls="personnel-actions-${id}" onclick="togglePersonnelActions(event, 'personnel-actions-${id}')">
-            Actions <span class="personnel-actions-caret" aria-hidden="true">⌄</span>
+            Actions <span class="personnel-actions-caret material-symbols-rounded" aria-hidden="true">expand_more</span>
         </button>
         <div class="personnel-actions-menu" id="personnel-actions-${id}" role="menu">${menu}</div>
     </div>`;
@@ -612,7 +660,7 @@ function renderGuardRow(id, data, locationsById) {
     ]);
     return `<tr>
         <td>${renderPersonnelIdentity(data)}</td>
-        <td>${category}</td>
+        <td>${category}<div class="small text-muted">${escapeHtml(ContractPeriod.label(data))}</div></td>
         <td>${escapeHtml(String(data.dutyDaysTotal || 0))}</td>
         <td>${renderPersonnelStatus(data)}</td>
         <td>${escapeHtml(assignedPost)}</td>
@@ -730,7 +778,7 @@ async function assignInspector(guardId, button) {
     }
     const values = await appDialog.form({
         title: 'Assign Inspector',
-        message: `Choose the Inspector who receives this Guard’s shift-change requests.`,
+        message: `Choose the Inspector responsible for monitoring this Guard’s field duties.`,
         confirmText: 'Save Inspector',
         fields: [{
             name: 'inspectorId', label: 'Inspector', type: 'select', value: guard.inspectorId || '',
@@ -777,19 +825,19 @@ function renderAssignmentHistory(record) {
 async function viewAssignmentHistory(guardId) {
     document.getElementById('assignmentHistoryGuardName').textContent = personnelDisplayName(personnelAccounts[guardId]);
     const listEl = document.getElementById('assignmentHistoryList');
-    listEl.innerHTML = '<div style="text-align:center;padding:32px;color:#64748b"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading assignment history…</div>';
+    listEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted)"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading assignment history…</div>';
     assignmentHistoryModal ||= new bootstrap.Modal(document.getElementById('assignmentHistoryModal'));
     assignmentHistoryModal.show();
     const { data, error } = await appSupabase.from('guard_assignment_history').select()
         .eq('guard_id', guardId).order('assigned_at', { ascending: false });
     if (error) {
-        listEl.innerHTML = `<div style="text-align:center;color:#f87171;padding:24px">Error: ${escapeHtml(error.message || 'Could not load assignment history.')}</div>`;
+        listEl.innerHTML = `<div style="text-align:center;color:var(--sl-danger);padding:24px">Error: ${escapeHtml(error.message || 'Could not load assignment history.')}</div>`;
         return;
     }
     const records = data || [];
     listEl.innerHTML = records.length
         ? records.map(renderAssignmentHistory).join('')
-        : '<div style="text-align:center;padding:32px;color:#475569">No Home Post assignments have been recorded yet.</div>';
+        : '<div style="text-align:center;padding:32px;color:var(--sl-muted)">No Home Post assignments have been recorded yet.</div>';
 }
 
 function escapeHtml(text) {
@@ -839,146 +887,263 @@ function formatDate(dateStr) {
     return d.toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "numeric" });
 }
 
-// The session table is the DTR source of truth. It keeps an overnight duty
-// together instead of splitting it into date-bound AM/PM records.
-function dtrSessionMinutes(session) {
-    if (!session?.clock_in_at || !session?.clock_out_at) return 0;
-    const milliseconds = new Date(session.clock_out_at) - new Date(session.clock_in_at);
-    return milliseconds > 0 ? Math.floor(milliseconds / 60000) : 0;
-}
-
-function formatDtrTime(value) {
-    if (!value) return '—';
-    const date = new Date(value);
-    return Number.isNaN(date.getTime()) ? '—' : date.toLocaleTimeString('en-PH', {
-        hour: 'numeric', minute: '2-digit', hour12: true
-    });
-}
-
 function formatDtrMinutes(minutes) {
-    const safeMinutes = Math.max(0, Number(minutes) || 0);
+    const value = Number(minutes);
+    const safeMinutes = Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
     const hours = Math.floor(safeMinutes / 60);
     const remainder = safeMinutes % 60;
     if (!hours) return `${remainder} min`;
     if (!remainder) return hours === 1 ? '1 hr' : `${hours} hrs`;
-    return `${hours}h ${remainder}m`;
+    return `${hours} ${hours === 1 ? 'hr' : 'hrs'} and ${remainder} min`;
 }
 
-function sessionDetailHtml(label, time, latitude, longitude, locationLabel) {
-    if (!time) return `<div class="dtr-punch-block"><div class="dtr-punch-label">${label}</div><div class="dtr-punch-empty">Not recorded</div></div>`;
-    const hasCoordinates = Number.isFinite(Number(latitude)) && Number.isFinite(Number(longitude));
-    return `<div class="dtr-punch-block"><div class="dtr-punch-label">${label}</div><div class="dtr-punch-time">${formatDtrTime(time)}</div>${locationLabel ? `<div class="dtr-punch-meta">📍 ${escapeHtml(locationLabel)}</div>` : ''}${hasCoordinates ? `<div class="dtr-punch-meta">GPS: ${Number(latitude).toFixed(5)}, ${Number(longitude).toFixed(5)}</div>` : ''}</div>`;
+function selectedDtrPeriod() {
+    return window.DtrReport?.periodFromSelection(
+        document.getElementById('dtrPeriodMonth').value,
+        document.getElementById('dtrPeriodCutoff').value,
+    ) || null;
 }
 
-function renderDtrSessionCard(session) {
-    const workedMinutes = dtrSessionMinutes(session);
-    const status = session.clock_out_at ? 'Completed' : 'Open — Time Out required';
-    const statusColor = session.clock_out_at ? '#16a34a' : '#d97706';
-    const scheduled = `${formatDtrTime(session.scheduled_start_at)} – ${formatDtrTime(session.scheduled_end_at)}`;
-    return `<div class="dtr-day-card">
-        <div class="dtr-day-header">
-            <span class="dtr-day-date">${escapeHtml(formatDate(session.duty_date))}</span>
-            <div style="text-align:right"><span class="hours-badge" style="color:${statusColor};border:1px solid ${statusColor}40;background:${statusColor}20">${escapeHtml(status)}</span><div style="font-size:.75rem;color:#64748b;margin-top:4px">Worked: ${formatDtrMinutes(workedMinutes)}</div></div>
-        </div>
-        <div class="dtr-punch-meta" style="margin:8px 0">Scheduled: ${scheduled}</div>
-        <div class="dtr-punch-grid">
-            ${sessionDetailHtml('Time In', session.clock_in_at, session.clock_in_latitude, session.clock_in_longitude, session.location_label)}
-            ${sessionDetailHtml('Time Out', session.clock_out_at, session.clock_out_latitude, session.clock_out_longitude, session.location_label)}
-        </div>
-    </div>`;
+function setDtrPeriodDefaults(sessions) {
+    const selection = window.DtrReport.defaultSelection(sessions);
+    document.getElementById('dtrPeriodMonth').value = selection.month;
+    document.getElementById('dtrPeriodCutoff').value = selection.cutoff;
 }
 
+function refreshDtrPeriod() {
+    const period = selectedDtrPeriod();
+    const listEl = document.getElementById('dtrRecordsList');
+    const summaryEl = document.getElementById('dtrPeriodSummary');
+    document.getElementById('dtrTimeoutReviews').replaceChildren();
+    if (!period) {
+        summaryEl.textContent = 'Choose a valid month and cut-off.';
+        listEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted)">Choose a valid DTR period.</div>';
+        return;
+    }
+    const sessions = window.DtrReport.filterSessions(currentDTRData, period);
+    renderTimeoutReviews(sessions);
+    const account = personnelAccounts[currentDTRUid] || {};
+    const detachment = account.assignedLocationId
+        ? (personnelLocationsById[account.assignedLocationId] || '')
+        : '';
+    summaryEl.textContent = `${period.label} · ${sessions.length} duty session${sessions.length === 1 ? '' : 's'}`;
+    listEl.innerHTML = window.DtrReport.renderPreview({
+        sessions: currentDTRData,
+        period,
+        account,
+        detachment,
+        logoUrl: '../icons/sentinel-link-mark.png',
+    });
+}
+
+let dtrLoadGeneration = 0;
 async function viewDTR(uid) {
-    const name = personnelDisplayName(personnelAccounts[uid]);
+    const generation = ++dtrLoadGeneration;
     currentDTRUid = uid;
     currentDTRData = [];
-    document.getElementById('dtrGuardName').textContent = name;
+    document.getElementById('dtrTimeoutReviews').replaceChildren();
+    setDtrPeriodDefaults([]);
+    document.getElementById('dtrPeriodSummary').textContent = 'Loading selected cut-off…';
     const listEl = document.getElementById('dtrRecordsList');
-    listEl.innerHTML = '<div style="text-align:center;padding:32px;color:#64748b"><div class="spinner-border spinner-border-sm text-primary"></div> Loading duty sessions…</div>';
+    listEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted)"><div class="spinner-border spinner-border-sm text-primary"></div> Loading duty sessions…</div>';
     showDtrModal();
 
     const { data, error } = await appSupabase.from('attendance_sessions').select()
         .eq('user_id', uid).order('scheduled_start_at', { ascending: false });
+    if (generation !== dtrLoadGeneration || currentDTRUid !== uid) return;
     if (error) {
-        listEl.innerHTML = `<div style="text-align:center;color:#f87171;padding:24px">Error: ${escapeHtml(error.message || 'Could not load duty sessions.')}</div>`;
+        listEl.innerHTML = `<div style="text-align:center;color:var(--sl-danger);padding:24px">Error: ${escapeHtml(error.message || 'Could not load duty sessions.')}</div>`;
         return;
     }
     currentDTRData = data || [];
-    listEl.innerHTML = currentDTRData.length
-        ? currentDTRData.map(renderDtrSessionCard).join('')
-        : '<div style="text-align:center;padding:32px;color:#475569">No duty sessions recorded yet.</div>';
+    setDtrPeriodDefaults(currentDTRData);
+    refreshDtrPeriod();
 }
 
-function buildDtrPdfSummary(sessions) {
-    const dates = sessions.map(session => session.duty_date).filter(Boolean).sort();
-    const totalMinutes = sessions.reduce((total, session) => total + dtrSessionMinutes(session), 0);
-    const completedDays = sessions.filter(session => session.clock_out_at).length;
-    return {
-        totalMinutes,
-        completedDays,
-        totalDays: sessions.length,
-        periodLabel: dates.length === 0 ? '—' : dates.length === 1 ? formatDate(dates[0]) : `${formatDate(dates[0])} – ${formatDate(dates[dates.length - 1])}`,
-    };
+function attendanceDateTime(value) {
+    return value ? new Date(value).toLocaleString('en-PH', { timeZone: 'Asia/Manila',
+        year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'Missing';
+}
+
+function timeoutReviewDialog(method, ...args) {
+    const result = appDialog[method](...args);
+    // Keep the nested dialog inside Bootstrap's active focus boundary so an
+    // Operations Head can type normally, including when using the keyboard alone.
+    const layer = document.querySelector('.sl-dialog-layer');
+    const modal = document.getElementById('dtrModal');
+    if (layer && modal.classList.contains('show')) {
+        modal.append(layer);
+        layer.querySelector('input, textarea, [data-dialog-confirm]')?.focus();
+    }
+    return result;
+}
+
+function renderTimeoutReviews(sessions) {
+    const panel = document.getElementById('dtrTimeoutReviews');
+    for (const session of sessions) {
+        const pending = window.DtrReport.needsTimeoutReview(session);
+        if (!pending && !session.timeout_verified_at) continue;
+        const card = document.createElement('div');
+        card.className = 'dtr-period-panel dtr-timeout-review';
+        const description = document.createElement('p');
+        description.textContent = `${formatDate(session.duty_date)} · ${session.location_label || 'Duty post'} · ${pending ? 'Awaiting Time Out verification' : 'Operations Head verified'}\nTime In: ${attendanceDateTime(session.clock_in_at)} · Scheduled end: ${attendanceDateTime(session.scheduled_end_at)} · Recorded Time Out: ${attendanceDateTime(session.clock_out_at)}`;
+        card.append(description);
+        if (session.overtime_requested === true && pending) {
+            const overtime = document.createElement('p');
+            const start = Math.max(new Date(session.scheduled_end_at).getTime(), new Date(session.clock_in_at).getTime());
+            const minutes = Math.max(0, Math.floor((new Date(session.clock_out_at).getTime() - start) / 60000));
+            overtime.textContent = `Overtime requested: ${window.DtrReport.formatDuration(minutes)}. Time Out and hours will appear on the DTR after approval.`;
+            card.append(overtime);
+        }
+        if (pending) {
+            const button = document.createElement('button');
+            button.className = 'btn-pdf';
+            button.textContent = session.overtime_requested === true ? 'Review overtime Time Out' : 'Verify Time Out';
+            button.addEventListener('click', () => verifyTimeout(session.id, button));
+            card.append(button);
+        } else {
+            const note = document.createElement('p');
+            note.textContent = `Verified ${attendanceDateTime(session.timeout_verified_at)} · ${session.timeout_verification_reason || ''}`;
+            card.append(note);
+        }
+        const audit = document.createElement('button');
+        audit.className = 'btn-pdf';
+        audit.textContent = 'Review history';
+        audit.addEventListener('click', () => viewTimeoutHistory(session.id, audit));
+        card.append(audit);
+        panel.append(card);
+    }
+}
+
+async function viewTimeoutHistory(sessionId, button) {
+    try {
+        const rows = await appDialog.runBusy(button, async () => {
+            const result = await appSupabase.from('attendance_timeout_reviews').select('*,reviewer:profiles!attendance_timeout_reviews_reviewed_by_fkey(first_name,last_name,username)')
+                .eq('session_id', sessionId).order('reviewed_at', { ascending: false });
+            if (result.error) throw result.error;
+            return result.data || [];
+        }, { label: 'Loading history…' });
+        await timeoutReviewDialog('alert', rows.length ? rows.map(row =>
+            `Reviewed: ${attendanceDateTime(row.reviewed_at)}\nOperations Head: ${[row.reviewer?.first_name,row.reviewer?.last_name].filter(Boolean).join(' ') || row.reviewer?.username || 'Agency Operations Head'}\nOriginal Time Out: ${attendanceDateTime(row.before_record?.clock_out_at)}\nVerified Time Out: ${attendanceDateTime(row.verified_clock_out_at)}\nReason: ${row.reason}`
+        ).join('\n\n') : 'No Operations Head verification has been recorded yet.', { title: 'Time Out review history' });
+    } catch (error) {
+        appDialog.toast(error.message || 'Could not load review history.', { tone: 'danger' });
+    }
+}
+
+const pendingTimeoutReviewRequests = new Map();
+async function verifyTimeout(sessionId, button) {
+    const uid = currentDTRUid;
+    const session = currentDTRData.find(row => row.id === sessionId);
+    if (!session || !window.DtrReport.needsTimeoutReview(session)) return;
+    // Keep Manila time explicit, regardless of the Operations Head computer's timezone.
+    const parseInput = value => /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value || '')
+        ? new Date(value + ':00+08:00') : new Date(NaN);
+    const submittedInput = session.overtime_requested === true && session.clock_out_at
+        ? new Date(new Date(session.clock_out_at).getTime() + 8 * 3600000).toISOString().slice(0, 16) : '';
+    const values = await timeoutReviewDialog('form', {
+        title: session.overtime_requested === true ? 'Review overtime Time Out' : 'Verify actual Time Out', confirmText: session.overtime_requested === true ? 'Approve verified Time Out' : 'Save verified Time Out',
+        message: `Duty: ${formatDate(session.duty_date)} at ${session.location_label || 'the scheduled post'}. Time In: ${attendanceDateTime(session.clock_in_at)}. Scheduled end: ${attendanceDateTime(session.scheduled_end_at)}. Recorded Time Out: ${attendanceDateTime(session.clock_out_at)}. Enter the actual end time you verified with the guard. Hours remain excluded until this review is saved.`,
+        fields: [
+            { name: 'actualEnd', label: 'Verified actual Time Out (Philippine time)', type: 'datetime-local', required: true, value: submittedInput },
+            { name: 'reason', label: 'Verification reason / evidence', type: 'textarea', required: true, placeholder: 'Explain how you confirmed when the guard finished duty.' },
+        ],
+        validate: values => {
+            const end = parseInput(values.actualEnd);
+            if (!Number.isFinite(end.getTime()) || end < new Date(session.clock_in_at) || end > new Date()) return 'Enter an actual Time Out between Time In and now, in Philippine time.';
+            if (values.reason.trim().length < 5 || values.reason.trim().length > 1500) return 'Enter a verification reason between 5 and 1,500 characters.';
+            return '';
+        },
+    });
+    if (!values || currentDTRUid !== uid) return;
+    const clockOut = submittedInput && values.actualEnd === submittedInput
+        ? session.clock_out_at : parseInput(values.actualEnd).toISOString();
+    const reason = values.reason.trim();
+    const signature = JSON.stringify([sessionId, session.updated_at, clockOut, reason]);
+    const requestId = pendingTimeoutReviewRequests.get(signature) || crypto.randomUUID();
+    pendingTimeoutReviewRequests.set(signature, requestId);
+    try {
+        await appDialog.runBusy(button, async () => {
+            const result = await appSupabase.rpc('verify_attendance_timeout', {
+                p_session_id: sessionId, p_clock_out_at: clockOut, p_reason: reason,
+                p_expected_updated_at: session.updated_at, p_request_id: requestId,
+            });
+            if (result.error) throw result.error;
+            pendingTimeoutReviewRequests.delete(signature);
+            if (currentDTRUid !== uid) return;
+            ++dtrLoadGeneration;
+            const updated = Array.isArray(result.data) ? result.data[0] : result.data;
+            if (updated?.id === sessionId) {
+                currentDTRData = currentDTRData.map(row => row.id === sessionId ? updated : row);
+                refreshDtrPeriod();
+            } else {
+                await viewDTR(uid);
+            }
+        }, { label: 'Saving verification…' });
+        appDialog.toast('Verified Time Out saved. DTR hours now use the verified actual end time.', { tone: 'success' });
+    } catch (error) {
+        appDialog.toast(error.message || 'Could not save verification. Reload the record before retrying.', { tone: 'danger' });
+    }
 }
 
 async function evaluateDTR(button) {
-    if (!currentDTRUid || currentDTRData.length === 0) {
-        appDialog.toast('No duty sessions available to evaluate.', { tone: 'warning' });
+    const period = selectedDtrPeriod();
+    if (!currentDTRUid || !period) {
+        appDialog.toast('Choose a valid DTR period to evaluate.', { tone: 'warning' });
         return;
     }
-    const dates = currentDTRData.map(session => session.duty_date).filter(Boolean).sort();
+    const evaluatedUid = currentDTRUid;
     let data;
     try {
         data = await appDialog.runBusy(button, async () => {
             const result = await appSupabase.rpc('evaluate_time_record', {
-                p_user_id: currentDTRUid,
-                p_start_date: dates[0],
-                p_end_date: dates[dates.length - 1],
+                p_user_id: evaluatedUid,
+                p_start_date: period.startDate,
+                p_end_date: period.endDate,
             });
             if (result.error) throw result.error;
+            const attendance = await appSupabase.from('attendance_sessions').select()
+                .eq('user_id', evaluatedUid).order('scheduled_start_at', { ascending: false });
+            if (attendance.error) throw attendance.error;
+            if (currentDTRUid === evaluatedUid) {
+                currentDTRData = attendance.data || [];
+                refreshDtrPeriod();
+            }
             return result.data;
         }, { label: 'Evaluating…' });
     } catch (error) {
         appDialog.toast(`Evaluation failed: ${error.message || error}`, { tone: 'danger' });
         return;
     }
+    const visiblePeriod = selectedDtrPeriod();
+    if (currentDTRUid !== evaluatedUid || visiblePeriod?.startDate !== period.startDate || visiblePeriod?.endDate !== period.endDate) return;
     const result = Array.isArray(data) ? data[0] : data;
-    await appDialog.alert(`Duty days: ${result?.duty_days ?? 0}\nCompleted days: ${result?.completed_days ?? 0}\nTotal: ${formatDtrMinutes(result?.total_minutes)}\nLate: ${result?.late_minutes ?? 0} min\nUndertime: ${result?.undertime_minutes ?? 0} min`, { title: 'Time evaluation', tone: 'success', icon: '✓', confirmText: 'Done' });
+    await appDialog.alert(`Days with attendance: ${result?.duty_days ?? 0}\nFully completed days: ${result?.completed_days ?? 0}\nRecorded hours: ${formatDtrMinutes(result?.total_minutes)}\nLate: ${formatDtrMinutes(result?.late_minutes)}\nUndertime: ${formatDtrMinutes(result?.undertime_minutes)}`, { title: 'Time evaluation', tone: 'success', icon: 'check_circle', confirmText: 'Done' });
 }
 
 async function generateDTR(button) {
-    if (currentDTRData.length === 0) {
-        appDialog.toast('No duty sessions available to export.', { tone: 'warning' });
+    const period = selectedDtrPeriod();
+    if (!currentDTRUid || !period) {
+        appDialog.toast('Choose a valid DTR period to export.', { tone: 'warning' });
         return;
     }
-    await appDialog.runBusy(button, async () => {
-        await new Promise(resolve => requestAnimationFrame(resolve));
-        const account = personnelAccounts[currentDTRUid] || {};
-        const firstName = account.firstName || '';
-        const middleInitial = account.middleInitial || '';
-        const lastName = account.lastName || '';
-        const summary = buildDtrPdfSummary(currentDTRData);
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const tableData = currentDTRData.map(session => [
-            session.duty_date || '',
-            `${formatDtrTime(session.scheduled_start_at)} – ${formatDtrTime(session.scheduled_end_at)}`,
-            formatDtrTime(session.clock_in_at),
-            formatDtrTime(session.clock_out_at),
-            formatDtrMinutes(dtrSessionMinutes(session)),
-        ]);
-        doc.setFontSize(16);
-        doc.text('Daily Time Record', 14, 20);
-        doc.setFontSize(12);
-        doc.text(`Name: ${firstName} ${middleInitial ? `${middleInitial}.` : ''} ${lastName}`.trim(), 14, 30);
-        doc.text(`Generated on: ${new Date().toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' })}`, 14, 38);
-        doc.text(`Report period: ${summary.periodLabel}`, 14, 46);
-        doc.text(`Completed duty sessions: ${summary.completedDays}/${summary.totalDays}`, 14, 54);
-        doc.text(`Total hours worked: ${formatDtrMinutes(summary.totalMinutes)}`, 14, 62);
-        doc.autoTable({ startY: 72, head: [['Duty date', 'Scheduled shift', 'Time In', 'Time Out', 'Hours worked']], body: tableData });
-        doc.save(`DTR_${`${firstName}_${lastName}`.replace(/[^a-z0-9_-]/gi, '_') || 'personnel'}.pdf`);
-    }, { label: 'Preparing PDF…' });
-    appDialog.toast('DTR PDF downloaded.', { tone: 'success' });
+    const account = personnelAccounts[currentDTRUid] || {};
+    const detachment = account.assignedLocationId
+        ? (personnelLocationsById[account.assignedLocationId] || '')
+        : '';
+    try {
+        await appDialog.runBusy(button, () => window.DtrReport.generatePdf({
+            jsPDF: window.jspdf?.jsPDF,
+            sessions: currentDTRData,
+            period,
+            account,
+            detachment,
+            logoUrl: '../icons/sentinel-link-mark.png',
+        }), { label: 'Preparing agency DTR…' });
+        appDialog.toast('Agency DTR PDF downloaded.', { tone: 'success' });
+    } catch (error) {
+        appDialog.toast(`Could not create the DTR PDF: ${error.message || error}`, { tone: 'danger' });
+    }
 }
 
 let currentAccomplishmentData = [];
@@ -1023,20 +1188,20 @@ async function viewAccomplishments(uid) {
     currentAccomplishmentData = [];
     document.getElementById('accomplishmentGuardName').textContent = personnelDisplayName(personnelAccounts[uid]);
     const listEl = document.getElementById('accomplishmentRecordsList');
-    listEl.innerHTML = '<div style="text-align:center;padding:32px;color:#64748b"><div class="spinner-border spinner-border-sm text-success"></div> Loading accomplishment reports…</div>';
+    listEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted)"><div class="spinner-border spinner-border-sm text-success"></div> Loading accomplishment reports…</div>';
     accomplishmentModal ||= new bootstrap.Modal(document.getElementById('accomplishmentModal'));
     accomplishmentModal.show();
 
     const { data, error } = await appSupabase.from('accomplishment_reports').select()
         .eq('guard_id', uid).order('submitted_at', { ascending: false });
     if (error) {
-        listEl.innerHTML = `<div style="text-align:center;color:#f87171;padding:24px">Error: ${escapeHtml(error.message || 'Could not load accomplishment reports.')}</div>`;
+        listEl.innerHTML = `<div style="text-align:center;color:var(--sl-danger);padding:24px">Error: ${escapeHtml(error.message || 'Could not load accomplishment reports.')}</div>`;
         return;
     }
     currentAccomplishmentData = data || [];
     listEl.innerHTML = currentAccomplishmentData.length
         ? currentAccomplishmentData.map(renderAccomplishmentReport).join('')
-        : '<div style="text-align:center;padding:32px;color:#475569">No accomplishment reports submitted yet.</div>';
+        : '<div style="text-align:center;padding:32px;color:var(--sl-muted)">No accomplishment reports submitted yet.</div>';
 }
 
 async function reviewAccomplishment(reportId, button) {
@@ -1044,7 +1209,7 @@ async function reviewAccomplishment(reportId, button) {
     if (!report) return;
     const values = await appDialog.form({
         title: 'Review accomplishment report',
-        message: 'Record the HR / Operations decision and any follow-up guidance.',
+        message: 'Record the Operations Head decision and any follow-up guidance.',
         confirmText: 'Save review',
         fields: [
             {
@@ -1118,8 +1283,7 @@ async function resetDevice(uid, button) {
 
 async function managePersonnelAccount(body) {
     const { data, error } = await appSupabase.functions.invoke("admin-manage-user", { body });
-    if (error) throw error;
-    if (data?.error) throw new Error(data.error);
+    await edgeFunctionErrors.unwrap({ data, error }, 'Could not update the account.');
 }
 
 async function editPersonnel(uid, button) {
@@ -1128,14 +1292,18 @@ async function editPersonnel(uid, button) {
     const fields = [
         { name: "firstName", label: "First name", value: account.firstName || "", required: true },
         { name: "lastName", label: "Last name", value: account.lastName || "", required: true },
-        { name: "username", label: "Username", value: displayLoginId(account), required: true }
+        { name: "email", label: "Email", type: "email", value: editableEmail(account), required: true }
     ];
-    if (account.role === "user") fields.push({ name: "employmentCategory", label: "Duty category", type: "select", value: account.employmentCategory || "regular", options: [{ value: "regular", label: "Regular" }, { value: "contract", label: "Contract" }] });
+    if (account.role === "user") fields.push(
+        { name: "employmentCategory", label: "Duty category", type: "select", value: account.employmentCategory || "regular", options: [{ value: "regular", label: "Regular" }, { value: "contract", label: "Contract" }] },
+        { name: "contractStartDate", label: "Contract start (Contract only)", type: "date", value: account.contractStartDate || "" },
+        { name: "contractEndDate", label: "Contract end (Contract only, inclusive)", type: "date", value: account.contractEndDate || "" }
+    );
     fields.push({ name: "password", label: "New password", type: "password", placeholder: "Leave blank to keep the current password", autocomplete: "new-password" });
-    const values = await appDialog.form({ title: "Edit personnel account", message: "Update account details without leaving Personnel Records.", confirmText: "Save changes", fields, validate: value => validateUsername(value.username) || (value.password && value.password.length < 6 ? "Password must have at least 6 characters." : "") });
+    const values = await appDialog.form({ title: "Edit personnel account", message: "Regular Guards have no contract date limit. Changing contract dates does not delete past records. New passwords need at least 8 characters, uppercase and lowercase letters, a number, and a symbol.", confirmText: "Save changes", fields, validate: value => validateEmail(value.email) || ContractPeriod.validate(value.employmentCategory, value.contractStartDate, value.contractEndDate) || (value.password ? PasswordPolicy.error(value.password) : "") });
     if (!values) return;
     try {
-        await appDialog.runBusy(button, () => managePersonnelAccount({ action: "update", userId: uid, firstName: values.firstName.trim(), lastName: values.lastName.trim(), username: normalizeUsername(values.username), employmentCategory: values.employmentCategory || account.employmentCategory || "regular", password: values.password }), { label: 'Saving…' });
+        await appDialog.runBusy(button, () => managePersonnelAccount({ action: "update", userId: uid, firstName: values.firstName.trim(), lastName: values.lastName.trim(), email: normalizeUsername(values.email), employmentCategory: values.employmentCategory || account.employmentCategory || "regular", contractStartDate: values.contractStartDate || null, contractEndDate: values.contractEndDate || null, password: values.password }), { label: 'Saving…' });
         appDialog.toast("Personnel account updated.", { tone: "success" });
         await loadUsers();
     } catch (error) { appDialog.toast(error.message || "Could not update personnel account.", { tone: "danger" }); }
@@ -1147,9 +1315,15 @@ function updateCreateUserHint() {
     const category = document.getElementById("newGuardEmploymentCategory");
     category.disabled = role !== "user";
     if (role !== "user") category.value = "regular";
+    const isContract = role === 'user' && category.value === 'contract';
+    document.getElementById('newGuardContractPeriod').hidden = !isContract;
+    ['newGuardContractStart', 'newGuardContractEnd'].forEach(id => {
+        document.getElementById(id).disabled = !isContract;
+        document.getElementById(id).required = isContract;
+    });
     hint.innerText = role === "user"
         ? "Creates a Guard account for your organization. Guards use the mobile attendance app."
-        : "Creates an Inspector account for your organization. Inspectors review Guard DTR, sites, alerts, and shift requests.";
+        : "Creates an Inspector account for your organization. Inspectors review Guard DTR, sites, alerts, and field activity.";
     const button = document.getElementById("createGuardBtn");
     if (button.getAttribute('aria-busy') !== 'true') button.textContent = role === 'user' ? 'Create Guard' : 'Create Inspector';
 }
@@ -1175,18 +1349,23 @@ async function createGuardAccount() {
 
     errEl.innerText = "";
 
+    const contractStartDate = document.getElementById('newGuardContractStart').value;
+    const contractEndDate = document.getElementById('newGuardContractEnd').value;
+    const contractError = ContractPeriod.validate(role === 'user' ? employmentCategory : 'regular', contractStartDate, contractEndDate);
+    if (contractError) { errEl.innerText = contractError; return; }
+
     if (!firstName || !lastName || !username || !password) {
         errEl.innerText = "Please complete all required fields.";
         return;
     }
-    const usernameErr = validateUsername(username);
+    const usernameErr = validateEmail(username);
     if (usernameErr) {
         errEl.innerText = usernameErr;
         return;
     }
     const normalizedUsername = normalizeUsername(username);
-    if (password.length < 6) {
-        errEl.innerText = "Password must be at least 6 characters.";
+    if (PasswordPolicy.error(password)) {
+        errEl.innerText = PasswordPolicy.error(password);
         return;
     }
     if (password !== confirm) {
@@ -1197,34 +1376,36 @@ async function createGuardAccount() {
     try {
         await appDialog.runBusy(btn, async () => {
             const dup = await db.collection("users")
-                .where("username", "==", normalizedUsername).limit(1).get();
-            if (!dup.empty) throw new Error("That username is already taken.");
-            const authEmail = usernameToAuthEmail(normalizedUsername);
+                .where("email", "==", normalizedUsername).limit(1).get();
+            if (!dup.empty) throw new Error("That email address is already in use.");
+            const authEmail = normalizedUsername;
             const { data, error } = await appSupabase.functions.invoke("admin-create-user", {
                 body: {
                     email: authEmail,
                     password,
                     role,
-                    username: normalizedUsername,
                     firstName,
                     middleInitial: middle ? middle.charAt(0).toUpperCase() : "",
                     lastName,
-                    employmentCategory
+                    employmentCategory,
+                    contractStartDate: contractStartDate || null,
+                    contractEndDate: contractEndDate || null
                 }
             });
-            if (error) throw error;
-            if (data?.error) throw new Error(data.error);
+            await edgeFunctionErrors.unwrap({ data, error }, 'Could not create the account.');
             await loadUsers();
         }, { label: `Creating ${role === 'user' ? 'Guard' : 'Inspector'}…` });
-        const roleLabel = role === "user" ? "Guard" : role === "inspector" ? "Inspector" : "Admin";
+        const roleLabel = role === "user" ? "Guard" : role === "inspector" ? "Inspector" : "Operations Head";
         document.getElementById("newGuardFirstName").value = "";
         document.getElementById("newGuardLastName").value = "";
         document.getElementById("newGuardMiddleInitial").value = "";
         document.getElementById("newGuardUsername").value = "";
         document.getElementById("newGuardPassword").value = "";
         document.getElementById("newGuardPasswordConfirm").value = "";
+        document.getElementById('newGuardContractStart').value = '';
+        document.getElementById('newGuardContractEnd').value = '';
         bootstrap.Modal.getOrCreateInstance(document.getElementById("createGuardModal")).hide();
-        appDialog.toast(`${roleLabel} account created. Username: ${normalizedUsername}`, { tone: 'success', duration: 6000 });
+        appDialog.toast(`${roleLabel} account created. Email: ${normalizedUsername}`, { tone: 'success', duration: 6000 });
     } catch (error) {
         errEl.innerText = error?.message || error?.msg || "Unable to create the account. Please try again.";
         appDialog.toast(errEl.innerText, { tone: 'danger' });

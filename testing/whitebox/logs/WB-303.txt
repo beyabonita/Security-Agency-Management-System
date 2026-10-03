@@ -1,0 +1,12 @@
+WB-303 — PASS
+admin-create-user.registered handler
+Scenario: validation, duplicate and rollback
+Input: {"options":{"duplicate":true},"body":{}}
+Expected: [409,"username_in_use"]
+Actual: [409,"username_in_use"]
+UTC: 2026-09-05T08:56:20.033Z
+Evidence: logs/deno-final.log:526
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

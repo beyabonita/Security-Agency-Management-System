@@ -1,0 +1,145 @@
+
+Running 60 tests using 2 workers
+
+(node:14056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 admin_identity.spec.js:23:1 › every Operations Head header has only an initially hidden name chip and the shared loader (70ms)
+  ok  3 admin_identity.spec.js:32:1 › shared loader displays the account name including on pages without their own loader (1.1s)
+  ok  4 admin_identity.spec.js:40:1 › brief profile failure retries and token refresh keeps the same account name (2.3s)
+  ok  5 admin_identity.spec.js:49:1 › late responses cannot restore an old account name after switching or signing out (2.0s)
+  ok  6 admin_identity.spec.js:57:1 › stalled profile request times out and retries without displaying a role placeholder (1.4s)
+  ok  7 admin_identity.spec.js:65:1 › missing names and failed loads never display Operations Head as the person name (650ms)
+  ok  2 responsive_shells.spec.js:31:1 › all protected pages stay contained on a phone viewport (7.8s)
+  ok  8 admin_identity.spec.js:75:1 › inactive accounts clear names and profile text is rendered safely (588ms)
+  ok 10 schedule_lifecycle.spec.js:114:1 › roster is the only editor and the explanation panel is removed (2.1s)
+  ok  9 responsive_shells.spec.js:43:1 › HR navigation opens and closes as a mobile drawer (2.5s)
+  ok 12 responsive_shells.spec.js:54:1 › Inspector navigation exposes a compact mobile menu (910ms)
+  ok 13 responsive_shells.spec.js:63:1 › Inspector portal has no personal attendance controls (808ms)
+  ok 14 responsive_shells.spec.js:72:1 › HR Personnel keeps DTR available for Guards only (1.5s)
+  ok 15 responsive_shells.spec.js:82:1 › roster DTR preview fits phone and desktop in light and dark themes (3.2s)
+  ok 11 schedule_lifecycle.spec.js:124:1 › personnel and site loading work without custom-editor controls (6.9s)
+  ok 17 schedule_lifecycle.spec.js:137:1 › an overnight roster remains on the starting date and first DTR cutoff (2.4s)
+  ok 18 schedule_lifecycle.spec.js:153:3 › missing contract dates prevents a roster request (2.5s)
+  ok 19 schedule_lifecycle.spec.js:153:3 › outside contract dates prevents a roster request (1.8s)
+  ok 20 schedule_lifecycle.spec.js:153:3 › overnight contract end prevents a roster request (1.8s)
+  ok 21 schedule_lifecycle.spec.js:153:3 › inactive guard prevents a roster request (1.9s)
+  ok 22 schedule_lifecycle.spec.js:153:3 › past date prevents a roster request (1.7s)
+  ok 23 schedule_lifecycle.spec.js:171:1 › a failed save prevents duplicate submission and preserves selected guards (1.8s)
+  ok 24 schedule_lifecycle.spec.js:185:1 › an incomplete RPC response cannot report a saved roster (1.6s)
+  ok 25 schedule_lifecycle.spec.js:192:1 › after the first shift ends today remains available for the night shift (2.0s)
+  ok 26 schedule_lifecycle.spec.js:201:1 › today at 7 PM assigns only the ongoing night shift, preserving its actual overnight hours (1.7s)
+  ok 27 schedule_lifecycle.spec.js:213:1 › three-shift setup at exactly 2 PM skips the completed morning and requires both remaining guards (2.0s)
+  ok 28 schedule_lifecycle.spec.js:229:1 › attendance reports completion and requests protect period history (1.8s)
+  ok 29 schedule_lifecycle.spec.js:244:1 › schedule loading explicitly selects both swap relationships in one query (1.9s)
+  ok 30 schedule_lifecycle.spec.js:257:1 › schedule names prefer the current profile and safely preserve historical names (1.5s)
+  ok 31 schedule_lifecycle.spec.js:266:1 › cancelled deletion leaves the period and confirmed deletion has a busy state (3.1s)
+  ok 32 schedule_lifecycle.spec.js:277:1 › concurrent Time In protects the schedule with readable error feedback (3.0s)
+  ok 33 schedule_lifecycle.spec.js:288:1 › legacy foreign-key errors do not expose SQL details (2.1s)
+  ok 34 schedule_lifecycle.spec.js:296:1 › failed history load offers retry and older responses cannot erase newer protection (1.9s)
+  ok 35 schedule_lifecycle.spec.js:311:1 › linked-record realtime refreshes protection without duplicate subscriptions (1.7s)
+  ok 36 schedule_lifecycle.spec.js:319:1 › 2- and 3-shift rosters show named Guards and save one atomic request (2.1s)
+  ok 37 schedule_lifecycle.spec.js:346:1 › roster prevents duplicate guards and preserves selection on save failure (1.7s)
+  x  16 responsive_shells.spec.js:106:1 › Guard DTR modals show the agency PDF layout for both cut-off periods (11.5s)
+  ok 38 schedule_lifecycle.spec.js:355:1 › saved custom setup survives reload and assigns exact midnight and overnight times (4.7s)
+  ok 39 schedule_lifecycle.spec.js:382:1 › custom shift setup supports changed times and skips ended shifts today (2.2s)
+(node:11392) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 40 schedule_lifecycle.spec.js:398:1 › setup editor rejects gaps and preserves entered values after save errors (2.5s)
+  ok 41 responsive_shells.spec.js:155:1 › IT Admin navigation opens as a mobile drawer (3.4s)
+  ok 42 schedule_lifecycle.spec.js:415:1 › setup saving blocks duplicate submission and safely displays names (2.4s)
+  ok 44 schedule_lifecycle.spec.js:429:1 › saved setups have a retry when loading fails without blocking standard rosters (3.0s)
+  ok 43 responsive_shells.spec.js:164:1 › every staff role shell uses the shared agency mark (4.2s)
+  ok 46 responsive_shells.spec.js:179:1 › HR create-personnel modal keeps its actions visible on a phone (2.4s)
+  ok 45 schedule_lifecycle.spec.js:439:1 › custom setup editor fits desktop and phone in both themes (4.2s)
+  ok 48 schedule_lifecycle.spec.js:451:1 › duplicate built-in and saved shift times are blocked even with a different name (2.9s)
+  ok 49 schedule_lifecycle.spec.js:464:1 › edit opens saved values and updates future assignment preview, cancel preserves setup (2.8s)
+  ok 50 schedule_lifecycle.spec.js:482:1 › remove can be cancelled, then persists after reload without removing scheduled duty (3.6s)
+  ok 51 schedule_lifecycle.spec.js:496:1 › setup mutations wait until the usage check finishes (2.4s)
+  ok 52 schedule_lifecycle.spec.js:506:1 › reload reflects edits and removals from another session, and stale edits are rejected (2.6s)
+  ok 53 schedule_lifecycle.spec.js:517:1 › setup edit and removal controls fit on a phone and failed removal keeps the selection (5.5s)
+  ok 54 schedule_lifecycle.spec.js:529:1 › both initial setups expose edit and remove and edited times drive assignments (3.4s)
+  x  47 responsive_shells.spec.js:199:1 › an open personnel action menu stays above action triggers in later rows (8.6s)
+  ok 55 schedule_lifecycle.spec.js:546:1 › remove both initial setups, reload an empty list, and recreate a removed setup (4.9s)
+(node:5896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 56 schedule_lifecycle.spec.js:564:1 › initial loading failure never falls back to fixed or removed setups (2.7s)
+  ok 57 responsive_shells.spec.js:238:1 › deployment-site search, location permission, and cached edit stay reliable (5.1s)
+  ok 58 schedule_lifecycle.spec.js:574:1 › assignment immediately locks edit and remove but allows further assignments (4.5s)
+  ok 59 schedule_lifecycle.spec.js:582:1 › usage refresh locks an open editor and later unlocks finished duties (2.8s)
+  ok 60 schedule_lifecycle.spec.js:594:1 › failed usage check disables mutations until a successful retry (1.3s)
+
+
+  1) responsive_shells.spec.js:106:1 › Guard DTR modals show the agency PDF layout for both cut-off periods 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('button', { name: 'Download Agency DTR' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('button', { name: 'Download Agency DTR' })
+
+
+      140 |     await expect(page.locator('.dtr-sheet-table thead')).toContainText('Worked');
+      141 |     await expect(page.locator('.dtr-day-card')).toHaveCount(0);
+    > 142 |     await expect(page.getByRole('button', { name: 'Download Agency DTR' })).toBeVisible();
+          |                                                                             ^
+      143 |
+      144 |     const dimensions = await page.evaluate(() => ({
+      145 |       viewport: document.documentElement.clientWidth,
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\responsive_shells.spec.js:142:77
+
+    Error Context: test-results-roster-lock\responsive_shells-Guard-DT-caea6-ut-for-both-cut-off-periods\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-roster-lock\responsive_shells-Guard-DT-caea6-ut-for-both-cut-off-periods\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-roster-lock\responsive_shells-Guard-DT-caea6-ut-for-both-cut-off-periods\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) responsive_shells.spec.js:199:1 › an open personnel action menu stays above action triggers in later rows 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#personnel-actions-first')
+    Expected: visible
+    Received: hidden
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('#personnel-actions-first')
+        13 × locator resolved to <div id="personnel-actions-first" class="personnel-actions-menu">…</div>
+           - unexpected value "hidden"
+
+
+      223 |   const secondTrigger = page.locator('.personnel-actions-trigger').nth(1);
+      224 |   await firstActions.hover();
+    > 225 |   await expect(firstMenu).toBeVisible();
+          |                           ^
+      226 |
+      227 |   const secondTriggerBounds = await secondTrigger.boundingBox();
+      228 |   expect(secondTriggerBounds).not.toBeNull();
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\responsive_shells.spec.js:225:27
+
+    Error Context: test-results-roster-lock\responsive_shells-an-open--63630-tion-triggers-in-later-rows\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-roster-lock\responsive_shells-an-open--63630-tion-triggers-in-later-rows\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-roster-lock\responsive_shells-an-open--63630-tion-triggers-in-later-rows\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    responsive_shells.spec.js:106:1 › Guard DTR modals show the agency PDF layout for both cut-off periods 
+    responsive_shells.spec.js:199:1 › an open personnel action menu stays above action triggers in later rows 
+  58 passed (2.1m)

@@ -1,0 +1,12 @@
+WB-320 — PASS
+admin-manage-user.registered handler
+Scenario: management permission and retention rules
+Input: {"options":{},"body":{"active":"true"}}
+Expected: [400,"invalid_input",[]]
+Actual: [400,"invalid_input",[]]
+UTC: 2026-09-05T08:56:20.242Z
+Evidence: logs/deno-final.log:615
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

@@ -1,0 +1,12 @@
+WB-241 — PASS
+accounts.authProviderMessage
+Scenario: sanitized auth failure
+Input: "secret db details"
+Expected: "The authentication account could not be processed. Check the details and try again."
+Actual: "The authentication account could not be processed. Check the details and try again."
+UTC: 2026-09-05T08:56:18.826Z
+Evidence: logs/deno-final.log:204
+Source: testing/whitebox/unit_tests/backend_test.ts
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

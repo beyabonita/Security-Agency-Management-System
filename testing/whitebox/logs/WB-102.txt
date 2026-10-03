@@ -1,0 +1,12 @@
+WB-102 — PASS
+RequestLetter.constructor
+Scenario: filename, content signature and empty bytes
+Input: {"name":"ok.png","bytes":[137,80,78,71,13,10,26,10]}
+Expected: true
+Actual: true
+UTC: 2026-09-05T08:57:23.963374Z
+Evidence: logs/flutter-verified.jsonl:398
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.

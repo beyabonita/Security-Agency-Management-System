@@ -27,8 +27,8 @@ class AppRoleGate extends StatelessWidget {
       future: UserProfileService.getProfile(user.id),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            backgroundColor: AppColors.scaffold,
+          return Scaffold(
+            backgroundColor: AppColors.of(context).scaffold,
             body: GuardLoadingView(label: 'Opening your duty workspace…'),
           );
         }
@@ -84,7 +84,7 @@ class _NoticeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.scaffold,
+      backgroundColor: AppColors.of(context).scaffold,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -92,7 +92,7 @@ class _NoticeScreen extends StatelessWidget {
             child: Container(
               constraints: const BoxConstraints(maxWidth: 400),
               padding: const EdgeInsets.all(28),
-              decoration: AppColors.card(radius: 20),
+              decoration: AppColors.card(context: context, radius: 20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -106,14 +106,18 @@ class _NoticeScreen extends StatelessWidget {
                         color: iconColor.withValues(alpha: 0.25),
                       ),
                     ),
-                    child: Icon(icon, color: iconColor, size: 36),
+                    child: Icon(
+                      icon,
+                      color: AppColors.resolve(context, iconColor),
+                      size: 36,
+                    ),
                   ),
                   const SizedBox(height: 24),
                   Text(
                     title,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: AppColors.text,
+                    style: TextStyle(
+                      color: AppColors.of(context).text,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -122,8 +126,8 @@ class _NoticeScreen extends StatelessWidget {
                   Text(
                     message,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: AppColors.textMuted,
+                    style: TextStyle(
+                      color: AppColors.of(context).textMuted,
                       fontSize: 14,
                       height: 1.5,
                     ),
@@ -182,7 +186,7 @@ class ItAdminWebNoticeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.scaffold,
+      backgroundColor: AppColors.of(context).scaffold,
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -190,9 +194,9 @@ class ItAdminWebNoticeScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   Icons.admin_panel_settings_outlined,
-                  color: AppColors.primary,
+                  color: AppColors.of(context).accent,
                   size: 72,
                 ),
                 const SizedBox(height: 24),

@@ -1,0 +1,12 @@
+WB-066 — PASS
+DtrAlignment.cutoffForDutyDate
+Scenario: cutoff boundary
+Input: "2026-09-16"
+Expected: "2026-09-30"
+Actual: "2026-09-30"
+UTC: 2026-09-05T08:57:23.743376Z
+Evidence: logs/flutter-verified.jsonl:237
+Source: testing/whitebox/unit_tests/core_test.dart
+
+
+This is an extracted test record. The original runner output is retained at the Evidence path.
