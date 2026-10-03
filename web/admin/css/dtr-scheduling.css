@@ -92,3 +92,55 @@
 }
 .roster-site-clear-btn:hover { color: var(--ax-text); }
 
+/* Selected guard shifts edit header & modal */
+.roster-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.roster-preview-header strong {
+  font-size: 0.95rem;
+  color: var(--ax-text);
+}
+.roster-preset-btn {
+  font-size: 0.75rem;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--ax-border);
+  background: var(--sl-surface);
+  color: var(--ax-text);
+  transition: all 0.15s ease;
+}
+.roster-preset-btn:hover {
+  background: var(--ax-accent, #dc2626);
+  border-color: var(--ax-accent, #dc2626);
+  color: #fff;
+}
+.schedule-edit-modal-content {
+  background: var(--sl-surface, #ffffff);
+  border: 1px solid var(--ax-border, #e5e7eb);
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  color: var(--ax-text);
+}
+.schedule-edit-modal-content .modal-header {
+  border-bottom: 1px solid var(--ax-border);
+  padding: 16px 20px;
+}
+.schedule-edit-modal-content .modal-body {
+  padding: 20px;
+}
+.schedule-edit-modal-content .modal-footer {
+  border-top: 1px solid var(--ax-border);
+  padding: 12px 20px;
+}
+.roster-modal-shift-box {
+  background: var(--sl-surface-muted, rgba(0, 0, 0, 0.02));
+  border: 1px solid var(--ax-border);
+  border-radius: 10px;
+}
+
+

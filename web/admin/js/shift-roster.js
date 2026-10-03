@@ -32,13 +32,19 @@
     }
     const ids=selected();
     const cutoff=SchedulePeriod.dtrPeriodForDate(date.value);
-    preview.innerHTML='<p><strong>Selected guard shifts</strong></p>'+
-      `<p>${cutoff ? `Duty date: ${escapeHtml(formatDate(date.value))} · DTR cut-off: ${escapeHtml(cutoff.label)}` : 'Choose a valid schedule date.'}</p>`+
-      '<div class="roster-dtr-scroll" tabindex="0" aria-label="Planned guard shifts"><table class="roster-dtr-preview"><thead><tr><th scope="col">Shift and Guard</th><th scope="col">Scheduled IN</th><th scope="col">Scheduled OUT</th><th scope="col">Planned hours</th></tr></thead><tbody>'+
+    preview.innerHTML='<div class="roster-preview-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">'+
+      '<p class="mb-0"><strong>Selected guard shifts</strong></p>'+
+      '<button type="button" id="editRosterTimesBtn" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 py-1 px-2" aria-label="Edit shift times">'+
+        '<span class="material-symbols-rounded" style="font-size: 16px;" aria-hidden="true">edit</span>'+
+        '<span>Edit shift times</span>'+
+      '</button>'+
+      '</div>'+
+      `<p class="mb-2 text-muted small">${cutoff ? `Duty date: ${escapeHtml(formatDate(date.value))} · DTR cut-off: ${escapeHtml(cutoff.label)}` : 'Choose a valid schedule date.'}</p>`+
+      '<div class="roster-dtr-scroll" tabindex="0" aria-label="Planned guard shifts"><table class="roster-dtr-preview"><thead><tr><th scope="col">Shift and Guard</th><th scope="col">Scheduled IN</th><th scope="col">Scheduled OUT</th><th scope="col">Planned hours</th><th scope="col" class="text-end">Action</th></tr></thead><tbody>'+
       periods().map((p,i)=>{
         const shift=SchedulePeriod.calculate(date.value,p[0],p[1]);
         const cell=(time,nextDay=false)=>time ? `<strong>${escapeHtml(formatTime(time))}${nextDay?' (next day)':''}</strong>` : '—';
-        return `<tr><td>${p[2]} — ${available(date.value,p)?escapeHtml(currentName(ids[i])):'Shift ended (not assigned)'}</td><td>${cell(shift?.startAt)}</td><td>${cell(shift?.endAt,shift?.overnight)}</td><td>${shift ? escapeHtml(SchedulePeriod.formatDuration(shift.durationMinutes)) : '—'}</td></tr>`;
+        return `<tr><td>${p[2]} — ${available(date.value,p)?escapeHtml(currentName(ids[i])):'Shift ended (not assigned)'}</td><td>${cell(shift?.startAt)}</td><td>${cell(shift?.endAt,shift?.overnight)}</td><td>${shift ? escapeHtml(SchedulePeriod.formatDuration(shift.durationMinutes)) : '—'}</td><td class="text-end"><button type="button" class="btn btn-sm btn-outline-danger edit-shift-row-btn py-0 px-2" data-shift-index="${i}" title="Edit this shift time"><span class="material-symbols-rounded align-middle" style="font-size: 14px;" aria-hidden="true">edit</span> Edit</button></td></tr>`;
       }).join('')+'</tbody></table></div>';
     const rows=schedules.filter(s=>(s.locationId||s.location_id)===site.value && s.date===date.value && s.approval_status!=='cancelled');
     assigned.innerHTML='<h3 class="h6 mt-3">Guards already assigned to this schedule</h3>'+periods().map(p=>{
@@ -253,6 +259,258 @@
     }catch(error){if(setupError){setupError.textContent=error.message||'Could not save the shifting setup. Please try again.';setupError.hidden=false;}}
     finally{setupSaving=false;fields.forEach(field=>field.disabled=false);button.disabled=false;setup.disabled=false;managementControls();if(savedSuccessfully)await window.loadRosterSetups();}
   });
+  // --- Shift Times Editor Modal for Selected Guard Shifts ---
+  const rosterTimesModalEl = document.getElementById('editRosterTimesModal');
+  const rosterTimesForm = document.getElementById('editRosterTimesForm');
+  const rosterTimesInputs = document.getElementById('rosterTimesInputs');
+  const rosterTimesError = document.getElementById('editRosterTimesError');
+  let rosterTimesModal = null;
+
+  function showModal(modalEl) {
+    if (!modalEl) return;
+    if (window.bootstrap?.Modal) {
+      rosterTimesModal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+      rosterTimesModal.show();
+    } else {
+      modalEl.classList.add('show');
+      modalEl.style.display = 'block';
+      let backdrop = document.querySelector('.modal-backdrop');
+      if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        document.body.appendChild(backdrop);
+      }
+    }
+  }
+
+  function hideModal(modalEl) {
+    if (!modalEl) return;
+    if (window.bootstrap?.Modal) {
+      window.bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+    } else {
+      modalEl.classList.remove('show');
+      modalEl.style.display = 'none';
+      const backdrop = document.querySelector('.modal-backdrop');
+      if (backdrop) backdrop.remove();
+    }
+  }
+
+  rosterTimesModalEl?.querySelectorAll('[data-bs-dismiss="modal"]').forEach(btn => {
+    btn.addEventListener('click', () => hideModal(rosterTimesModalEl));
+  });
+
+  function updateModalDurationBadges() {
+    if (!rosterTimesInputs) return;
+    const boxes = rosterTimesInputs.querySelectorAll('.roster-modal-shift-box');
+    boxes.forEach(box => {
+      const startVal = box.querySelector('[data-start]')?.value;
+      const endVal = box.querySelector('[data-end]')?.value;
+      const badge = box.querySelector('.shift-duration-badge');
+      if (!badge) return;
+      if (!startVal || !endVal || startVal === endVal) {
+        badge.textContent = 'Invalid';
+        badge.className = 'badge bg-danger-subtle text-danger small shift-duration-badge';
+        return;
+      }
+      const calc = SchedulePeriod.calculate(date.value || '2026-01-01', startVal, endVal);
+      if (calc) {
+        badge.textContent = `${SchedulePeriod.formatDuration(calc.durationMinutes)}${calc.overnight ? ' (next day)' : ''}`;
+        badge.className = 'badge bg-secondary-subtle text-secondary small shift-duration-badge';
+      }
+    });
+  }
+
+  function renderRosterTimesInputs(shifts) {
+    if (!rosterTimesInputs) return;
+    rosterTimesInputs.innerHTML = shifts.map((shift, i) => {
+      const shiftTitle = shifts.length === 2
+        ? (i === 0 ? 'Shift 1 (Day Shift)' : 'Shift 2 (Night Shift)')
+        : `Shift ${i + 1}`;
+      return `
+        <div class="p-3 roster-modal-shift-box" data-shift-idx="${i}">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <strong class="small">${escapeHtml(shiftTitle)}</strong>
+            <span class="badge bg-secondary-subtle text-secondary small shift-duration-badge" id="shiftDurationBadge${i}"></span>
+          </div>
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label small fw-semibold" for="modalShiftStart${i}">Scheduled IN</label>
+              <input type="time" id="modalShiftStart${i}" data-start class="form-control form-control-sm" required value="${shift.start_time}">
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-semibold" for="modalShiftEnd${i}">Scheduled OUT</label>
+              <input type="time" id="modalShiftEnd${i}" data-end class="form-control form-control-sm" required value="${shift.end_time}">
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    updateModalDurationBadges();
+  }
+
+  function openRosterTimesModal(focusIndex = 0) {
+    const cur = customSetup();
+    if (!cur || !cur.shifts || !cur.shifts.length) {
+      appDialog.toast('No active shifting setup found to edit.', { tone: 'warning' });
+      return;
+    }
+    if (rosterTimesError) {
+      rosterTimesError.hidden = true;
+      rosterTimesError.textContent = '';
+    }
+
+    renderRosterTimesInputs(cur.shifts);
+    showModal(rosterTimesModalEl);
+
+    setTimeout(() => {
+      const targetInput = document.getElementById(`modalShiftStart${focusIndex}`) || document.getElementById('modalShiftStart0');
+      if (targetInput) targetInput.focus();
+    }, 150);
+  }
+
+  // Delegated click handler on preview container for edit buttons
+  preview.addEventListener('click', e => {
+    const editBtn = e.target.closest('#editRosterTimesBtn, .edit-shift-row-btn');
+    if (editBtn) {
+      e.preventDefault();
+      const focusIndex = editBtn.dataset.shiftIndex !== undefined ? Number(editBtn.dataset.shiftIndex) : 0;
+      openRosterTimesModal(focusIndex);
+    }
+  });
+
+  // Auto-sync continuous 24h coverage for 2-shift rosters
+  if (rosterTimesInputs) {
+    rosterTimesInputs.addEventListener('input', e => {
+      const input = e.target;
+      const isStart = input.hasAttribute('data-start');
+      const box = input.closest('.roster-modal-shift-box');
+      const idx = box ? Number(box.dataset.shiftIdx) : -1;
+      const allStarts = [...rosterTimesInputs.querySelectorAll('[data-start]')];
+      const allEnds = [...rosterTimesInputs.querySelectorAll('[data-end]')];
+
+      if (allStarts.length === 2) {
+        if (idx === 0) {
+          if (!isStart && allStarts[1]) allStarts[1].value = input.value;
+          if (isStart && allEnds[1]) allEnds[1].value = input.value;
+        } else if (idx === 1) {
+          if (isStart && allEnds[0]) allEnds[0].value = input.value;
+          if (!isStart && allStarts[0]) allStarts[0].value = input.value;
+        }
+      }
+
+      updateModalDurationBadges();
+      if (rosterTimesError) rosterTimesError.hidden = true;
+    });
+  }
+
+  // Preset buttons
+  document.querySelectorAll('.roster-preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const preset = btn.dataset.preset;
+      if (!preset || !rosterTimesInputs) return;
+      const [start, end] = preset.split('-');
+      const allStarts = [...rosterTimesInputs.querySelectorAll('[data-start]')];
+      const allEnds = [...rosterTimesInputs.querySelectorAll('[data-end]')];
+      if (allStarts.length >= 2) {
+        allStarts[0].value = start;
+        allEnds[0].value = end;
+        allStarts[1].value = end;
+        allEnds[1].value = start;
+        updateModalDurationBadges();
+        if (rosterTimesError) rosterTimesError.hidden = true;
+      }
+    });
+  });
+
+  function formatTimeShort(val) {
+    if (!val) return '';
+    const [h, m] = val.split(':').map(Number);
+    const suffix = h >= 12 ? 'PM' : 'AM';
+    const hour12 = h % 12 || 12;
+    return m === 0 ? `${hour12} ${suffix}` : `${hour12}:${String(m).padStart(2, '0')} ${suffix}`;
+  }
+
+  if (rosterTimesForm) {
+    rosterTimesForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const cur = customSetup();
+      if (!cur) return;
+
+      const starts = [...rosterTimesInputs.querySelectorAll('[data-start]')];
+      const ends = [...rosterTimesInputs.querySelectorAll('[data-end]')];
+      const newShifts = starts.map((input, i) => ({
+        start_time: input.value,
+        end_time: ends[i].value
+      }));
+
+      const validationError = RosterSetup.validate(newShifts);
+      if (validationError) {
+        if (rosterTimesError) {
+          rosterTimesError.textContent = validationError;
+          rosterTimesError.hidden = false;
+        }
+        return;
+      }
+
+      const saveBtn = document.getElementById('saveRosterTimesBtn');
+      if (saveBtn) saveBtn.disabled = true;
+
+      try {
+        let savedInDb = false;
+        if (cur.id && window.appSupabase) {
+          try {
+            if (cur.in_use === false && cur.version) {
+              const { data, error } = await appSupabase.rpc('update_shift_roster_setup', {
+                p_setup_id: cur.id,
+                p_name: cur.name,
+                p_shifts: newShifts,
+                p_expected_version: cur.version
+              });
+              if (!error && data) {
+                cur.shifts = newShifts;
+                cur.version = data.version;
+                savedInDb = true;
+              }
+            }
+            if (!savedInDb) {
+              const newName = `${newShifts.length} Shifts (${formatTimeShort(newShifts[0].start_time)} – ${formatTimeShort(newShifts[0].end_time)})`;
+              const { data, error } = await appSupabase.rpc('save_shift_roster_setup', {
+                p_name: newName,
+                p_shifts: newShifts
+              });
+              if (!error && data?.id) {
+                setupRevision++;
+                const existingIdx = savedSetups.findIndex(s => s.id === data.id);
+                if (existingIdx >= 0) savedSetups[existingIdx] = data;
+                else savedSetups.push(data);
+                setup.value = data.id;
+                savedInDb = true;
+              }
+            }
+          } catch (dbErr) {
+            console.warn('Database sync for shift times edit:', dbErr);
+          }
+        }
+
+        // Always update active setup shifts in memory
+        cur.shifts = newShifts;
+
+        hideModal(rosterTimesModalEl);
+        window.renderShiftRoster();
+        summary();
+        appDialog.toast('Shift times updated successfully.', { tone: 'success' });
+      } catch (err) {
+        if (rosterTimesError) {
+          rosterTimesError.textContent = err.message || 'Could not update shift times.';
+          rosterTimesError.hidden = false;
+        }
+      } finally {
+        if (saveBtn) saveBtn.disabled = false;
+      }
+    });
+  }
+
   if(editor)renderDraft();
   const clock=setInterval(()=>{if(!saving&&!document.hidden){summary();window.loadRosterSetups({silent:true});}},30000);
   window.addEventListener('focus',window.loadRosterSetups);

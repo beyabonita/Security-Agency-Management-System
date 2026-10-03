@@ -612,3 +612,44 @@ test('scheduled guard shifts exclude Inspector assignments and show only action 
  await expect(page.locator('.schedule-table thead th').last()).toHaveText('Actions');
  await expect(page.locator('#scheduleTable .schedule-period-actions')).toHaveText('Delete');
 });
+
+test('editing existing shift times updates the selected guard shifts preview and assignment labels', async ({ page }) => {
+  await fillRoster(page);
+  await expect(page.locator('#rosterPreview')).toContainText('6:00 AM – 6:00 PM');
+  await expect(page.locator('#rosterPreview')).toContainText('6:00 PM – 6:00 AM (next day)');
+
+  // Click the Edit Shift Times button in Selected Guard Shifts header
+  await page.locator('#editRosterTimesBtn').click();
+  await expect(page.locator('#editRosterTimesModal')).toBeVisible();
+
+  // Test preset: 7 AM - 7 PM
+  await page.locator('.roster-preset-btn[data-preset="07:00-19:00"]').click();
+  await expect(page.locator('#modalShiftStart0')).toHaveValue('07:00');
+  await expect(page.locator('#modalShiftEnd0')).toHaveValue('19:00');
+  await expect(page.locator('#modalShiftStart1')).toHaveValue('19:00');
+  await expect(page.locator('#modalShiftEnd1')).toHaveValue('07:00');
+
+  // Save the modified times
+  await page.locator('#saveRosterTimesBtn').click();
+  await expect(page.locator('#editRosterTimesModal')).not.toBeVisible();
+
+  // Selected guard shifts preview should now display 7:00 AM – 7:00 PM
+  await expect(page.locator('#rosterPreview')).toContainText('7:00 AM – 7:00 PM');
+  await expect(page.locator('#rosterPreview')).toContainText('7:00 PM – 7:00 AM (next day)');
+
+  // Guard slot labels also reflect the updated shift times
+  await expect(page.locator('#rosterGuards label').first()).toContainText('7:00 AM – 7:00 PM');
+  await expect(page.locator('#rosterGuards label').nth(1)).toContainText('7:00 PM – 7:00 AM (next day)');
+
+  // Also test editing via row-level Edit button
+  await page.locator('.edit-shift-row-btn[data-shift-index="0"]').click();
+  await expect(page.locator('#editRosterTimesModal')).toBeVisible();
+  await page.locator('.roster-preset-btn[data-preset="08:00-20:00"]').click();
+  await page.locator('#saveRosterTimesBtn').click();
+  await expect(page.locator('#editRosterTimesModal')).not.toBeVisible();
+
+  await expect(page.locator('#rosterPreview')).toContainText('8:00 AM – 8:00 PM');
+  await expect(page.locator('#rosterPreview')).toContainText('8:00 PM – 8:00 AM (next day)');
+});
+
+
