@@ -160,29 +160,31 @@
             </tbody>
         </table>
       </div>
-    <!-- ====== VIEW DEPLOYED GUARDS MODAL ====== -->
-    <div class="modal fade ax-modal" id="deployedGuardsModal" tabindex="-1" aria-labelledby="deployedGuardsModalTitle">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deployedGuardsModalTitle">
-                        <span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">badge</span>Deployed Guards
-                    </h5>
-                    <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
-                </div>
-                <div class="modal-body">
-                    <p class="modal-guard-meta mb-3">Deployment Site: <strong id="deployedGuardsSiteName" style="color:var(--sl-danger); font-size: 0.95rem;"></strong></p>
-                    <div id="deployedGuardsList">
-                        <div style="text-align:center;padding:32px;color:var(--sl-muted);">Loading deployed guards…</div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-cancel" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
     </div>
         </main>
+    </div>
+</div>
+
+<!-- ====== VIEW DEPLOYED GUARDS MODAL ====== -->
+<div class="modal fade ax-modal" id="deployedGuardsModal" tabindex="-1" aria-labelledby="deployedGuardsModalTitle">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deployedGuardsModalTitle">
+                    <span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">badge</span>Deployed Guards
+                </h5>
+                <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-guard-meta mb-3">Deployment Site: <strong id="deployedGuardsSiteName" style="color:var(--sl-danger); font-size: 0.95rem;"></strong></p>
+                <div id="deployedGuardsList">
+                    <div style="text-align:center;padding:32px;color:var(--sl-muted);">Loading deployed guards…</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 
