@@ -105,19 +105,11 @@ function markAdminNavigation() {
     });
 }
 
-function initAdminPrefetch() {
-    document.querySelectorAll('.ax-nav a[href]').forEach(function(link) {
-        link.addEventListener('mouseenter', function() {
-            var href = link.getAttribute('href');
-            if (href && !href.startsWith('http') && !document.querySelector('link[rel="prefetch"][href="' + href + '"]')) {
-                var prefetch = document.createElement('link');
-                prefetch.rel = 'prefetch';
-                prefetch.href = href;
-                document.head.appendChild(prefetch);
-            }
-        }, { once: true });
-    });
-}
+window.addEventListener('unhandledrejection', function(event) {
+    if (event.reason && (event.reason.name === 'AbortError' || (typeof event.reason.message === 'string' && event.reason.message.includes('Transition was skipped')))) {
+        event.preventDefault();
+    }
+});
 
 function initAdminShell() {
     initAdminIdentity();
@@ -126,7 +118,6 @@ function initAdminShell() {
         link.innerHTML = '<svg class="ax-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z"/><path d="M9 3v15M15 6v15"/><circle cx="15" cy="11" r="2" fill="currentColor"/></svg><span>Live guard map</span>'; document.querySelector('.ax-nav')?.append(link);
     }
     markAdminNavigation();
-    initAdminPrefetch();
     var toggle = document.getElementById('axMenuToggle');
     var sidebar = document.querySelector('.ax-sidebar');
     if (toggle && sidebar) {
