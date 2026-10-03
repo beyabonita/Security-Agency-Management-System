@@ -17,7 +17,14 @@
     slots.querySelectorAll('select').forEach((select,i)=>{
       const ended=!available(date.value,shifts[i],now);
       select.disabled=saving||ended;
-      select.parentElement.querySelector('.roster-slot-status').textContent=ended?'Shift ended':'';
+      const statusEl=select.parentElement.querySelector('.roster-slot-status');
+      if (ended) {
+        statusEl.textContent='Shift ended';
+        statusEl.style.color='';
+      } else if (statusEl && !statusEl.textContent.includes('Double shift')) {
+        statusEl.textContent='';
+        statusEl.style.color='';
+      }
       if(!ended)remaining++;
     });
     button.textContent=remaining===shifts.length?'Assign all shifts':'Assign remaining shifts';
@@ -26,6 +33,7 @@
   function summary(){
     availability();
     managementControls();
+    syncGuardSelections();
     if(!customSetup()){
       preview.textContent=setupsLoaded?'Create a shifting setup to get started.':'Loading shifting setups…';
       assigned.textContent='';return;
@@ -71,11 +79,79 @@
     if (siteFilterClear) siteFilterClear.hidden = !term;
   }
 
+  function syncGuardSelections(){
+    const selects = [...slots.querySelectorAll('select')];
+    const currentValues = selects.map(s => s.value);
+    const dateRows = schedules.filter(s => s.date === date.value && s.approval_status !== 'cancelled');
+    const scheduledGuardMap = new Map();
+    dateRows.forEach(s => {
+      const gId = s.userId;
+      if (gId) scheduledGuardMap.set(gId, s.locationLabel || 'another deployment');
+    });
+    const siteRows = schedules.filter(s => (s.locationId || s.location_id) === site.value && s.date === date.value && s.approval_status !== 'cancelled');
+    const assignedAtSiteGuards = new Set(siteRows.map(s => s.userId));
+
+    selects.forEach((select, slotIdx) => {
+      [...select.options].forEach(opt => {
+        if (!opt.value) return;
+        const origName = guards.find(g => g.id === opt.value)?.name || opt.value;
+        const otherSlotIdx = currentValues.findIndex((val, i) => i !== slotIdx && val === opt.value);
+        if (otherSlotIdx !== -1) {
+          opt.textContent = `${origName} — (Selected in Shift ${otherSlotIdx + 1})`;
+        } else if (site.value && assignedAtSiteGuards.has(opt.value)) {
+          opt.textContent = `${origName} — (Already assigned at this site)`;
+        } else if (scheduledGuardMap.has(opt.value)) {
+          opt.textContent = `${origName} — (Already on duty today)`;
+        } else {
+          opt.textContent = origName;
+        }
+      });
+    });
+  }
+
   window.renderShiftRoster=()=>{
     const ids=selected(),oldSite=site.value;
     updateSiteOptions(oldSite);
     slots.innerHTML=periods().map((p,i)=>`<div class="schedule-field"><label class="form-label" for="rosterGuard${i}">${p[2]}</label><select id="rosterGuard${i}" class="form-select" aria-describedby="rosterStatus${i}"><option value="">Select Guard ${i+1}</option>${guards.filter(g=>g.active&&g.role==='user').map(g=>`<option value="${escapeHtml(g.id)}">${escapeHtml(g.name)}</option>`).join('')}</select><p id="rosterStatus${i}" class="form-hint roster-slot-status"></p></div>`).join('');
-    slots.querySelectorAll('select').forEach((s,i)=>{s.value=ids[i]||'';s.disabled=saving;s.addEventListener('change',summary);});
+    slots.querySelectorAll('select').forEach((s,i)=>{
+      s.value=ids[i]||'';
+      s.disabled=saving;
+      s.addEventListener('change',()=>{
+        const statusEl = s.parentElement?.querySelector('.roster-slot-status');
+        if (s.value) {
+          const allSelects = [...slots.querySelectorAll('select')];
+          const otherSelect = allSelects.find((other, otherIdx) => otherIdx !== i && other.value === s.value);
+          const siteRows = schedules.filter(row => (row.locationId || row.location_id) === site.value && row.date === date.value && row.approval_status !== 'cancelled');
+          const isAssignedAtSite = site.value && siteRows.some(row => row.userId === s.value);
+
+          if (otherSelect) {
+            const otherIdx = allSelects.indexOf(otherSelect);
+            const guardName = currentName(s.value);
+            appDialog.toast(`${guardName} is already assigned to Shift ${otherIdx + 1}. A guard cannot be put on double shifts.`, { tone: 'warning' });
+            s.value = '';
+            if (statusEl) {
+              statusEl.textContent = `Double shift prevented: already in Shift ${otherIdx + 1}`;
+              statusEl.style.color = 'var(--sl-danger, #b02a37)';
+            }
+          } else if (isAssignedAtSite) {
+            const guardName = currentName(s.value);
+            appDialog.toast(`${guardName} is already assigned to duty at this site on this date. Double shifts are not allowed.`, { tone: 'warning' });
+            s.value = '';
+            if (statusEl) {
+              statusEl.textContent = 'Double shift prevented: already assigned at this site';
+              statusEl.style.color = 'var(--sl-danger, #b02a37)';
+            }
+          } else if (statusEl && statusEl.textContent.includes('Double shift')) {
+            statusEl.textContent = '';
+            statusEl.style.color = '';
+          }
+        } else if (statusEl && statusEl.textContent.includes('Double shift')) {
+          statusEl.textContent = '';
+          statusEl.style.color = '';
+        }
+        summary();
+      });
+    });
     summary();
   };
   date.min=todayDateString();

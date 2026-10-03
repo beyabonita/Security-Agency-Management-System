@@ -652,4 +652,21 @@ test('editing existing shift times updates the selected guard shifts preview and
   await expect(page.locator('#rosterPreview')).toContainText('8:00 PM – 8:00 AM (next day)');
 });
 
+test('selecting a guard for a second shift is prevented and resets the slot with warning', async ({ page }) => {
+  await fillRoster(page);
+  await expect(page.locator('#rosterGuard0')).toHaveValue('test-guard');
+  await expect(page.locator('#rosterGuard1')).toHaveValue('peer');
+
+  // Try to put 'test-guard' into Shift 2 as well
+  await page.locator('#rosterGuard1').selectOption('test-guard');
+
+  // Warning toast should be shown
+  await expect(page.getByText('already assigned to Shift 1. A guard cannot be put on double shifts.')).toBeVisible();
+
+  // Shift 2 slot should be reset so double shifts are prevented
+  await expect(page.locator('#rosterGuard1')).toHaveValue('');
+  await expect(page.locator('#rosterStatus1')).toContainText('Double shift prevented: already in Shift 1');
+});
+
+
 
