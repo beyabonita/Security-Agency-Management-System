@@ -30,13 +30,48 @@
 .personnel-table-section + .personnel-table-section { margin-top: 26px; }
 .personnel-table-heading {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    margin: 0 0 10px; padding: 0 2px;
+    margin: 0 0 10px; padding: 0 2px; flex-wrap: wrap;
 }
+.personnel-table-title-wrap { display: flex; align-items: center; gap: 10px; }
 .personnel-table-heading h2 { margin: 0; color: var(--sl-ink); font-size: 1rem; font-weight: 750; }
 .personnel-table-count {
     display: inline-flex; align-items: center; min-width: 24px; justify-content: center;
     padding: 3px 8px; border-radius: 999px; background: var(--sl-red-soft); color: var(--sl-danger);
     font-size: .72rem; font-weight: 700;
+}
+.personnel-filter-select {
+    min-width: 135px;
+    height: 32px;
+    padding: 2px 28px 2px 10px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    border-radius: 8px;
+    background-color: var(--sl-surface);
+    border: 1px solid var(--sl-line);
+    color: var(--sl-ink);
+    cursor: pointer;
+}
+.personnel-filter-select:focus {
+    border-color: var(--sl-danger);
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15);
+}
+.personnel-filter-reset {
+    height: 32px;
+    width: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sl-surface);
+    border: 1px solid var(--sl-line);
+    color: var(--sl-muted);
+    border-radius: 8px;
+    transition: all 0.15s ease;
+}
+.personnel-filter-reset:hover {
+    color: var(--sl-danger);
+    border-color: var(--sl-danger);
+    background: var(--sl-red-soft);
 }
 
 .user-table { width: 100%; border-collapse: separate; border-spacing: 0; }
@@ -403,8 +438,32 @@
             </div>
             <section class="personnel-table-section" aria-labelledby="guardPersonnelHeading">
                 <div class="personnel-table-heading">
-                    <h2 id="guardPersonnelHeading">Guard Personnel</h2>
-                    <span class="personnel-table-count" id="guardPersonnelCount">0</span>
+                    <div class="personnel-table-title-wrap">
+                        <h2 id="guardPersonnelHeading">Guard Personnel</h2>
+                        <span class="personnel-table-count" id="guardPersonnelCount">0</span>
+                    </div>
+                    <div class="personnel-table-filters d-flex align-items-center gap-2 flex-wrap">
+                        <div class="personnel-filter-group">
+                            <label for="guardStatusFilter" class="visually-hidden">Status</label>
+                            <select id="guardStatusFilter" class="form-select form-select-sm personnel-filter-select" onchange="applyGuardFilters()" aria-label="Filter guards by status">
+                                <option value="all">All Statuses</option>
+                                <option value="active">Active Only</option>
+                                <option value="inactive">Inactive / Disabled</option>
+                            </select>
+                        </div>
+                        <div class="personnel-filter-group">
+                            <label for="guardCategoryFilter" class="visually-hidden">Duty Category</label>
+                            <select id="guardCategoryFilter" class="form-select form-select-sm personnel-filter-select" onchange="applyGuardFilters()" aria-label="Filter guards by duty category">
+                                <option value="all">All Categories</option>
+                                <option value="regular">Regular</option>
+                                <option value="contract_active">Under Contract</option>
+                                <option value="contract_expired">Expired Contract</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn btn-sm personnel-filter-reset" id="guardFilterResetBtn" onclick="resetGuardFilters()" title="Reset filters" style="display:none;" aria-label="Reset filters">
+                            <span class="material-symbols-rounded" style="font-size:16px;line-height:1;" aria-hidden="true">restart_alt</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="glass-card">
         <table class="user-table">
@@ -702,6 +761,74 @@ let currentDTRData       = [];
 let currentDTRUid        = null;
 let personnelAccounts    = {};
 let personnelLocationsById = {};
+let allGuards              = [];
+
+function getGuardContractStatus(data, today) {
+    if (data.employmentCategory !== 'contract') return 'regular';
+    const start = data.contractStartDate, end = data.contractEndDate;
+    if (!start || !end) return 'contract_unset';
+    if (today < start) return 'contract_not_started';
+    if (today > end) return 'contract_expired';
+    return 'contract_active';
+}
+
+function applyGuardFilters() {
+    const statusFilter = document.getElementById("guardStatusFilter")?.value || "all";
+    const categoryFilter = document.getElementById("guardCategoryFilter")?.value || "all";
+    const resetBtn = document.getElementById("guardFilterResetBtn");
+    if (resetBtn) {
+        resetBtn.style.display = (statusFilter !== "all" || categoryFilter !== "all") ? "inline-flex" : "none";
+    }
+
+    const today = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+
+    const filtered = allGuards.filter(({ data }) => {
+        const isActive = data.active !== false;
+        if (statusFilter === "active" && !isActive) return false;
+        if (statusFilter === "inactive" && isActive) return false;
+
+        const contractStatus = getGuardContractStatus(data, today);
+        if (categoryFilter === "regular") {
+            if (contractStatus !== 'regular') return false;
+        } else if (categoryFilter === "contract_active") {
+            if (contractStatus !== 'contract_active') return false;
+        } else if (categoryFilter === "contract_expired") {
+            if (contractStatus !== 'contract_expired') return false;
+        }
+
+        return true;
+    });
+
+    // Sort: Active guards first, Inactive/Disabled guards at the bottom
+    filtered.sort((a, b) => {
+        const aActive = a.data.active !== false;
+        const bActive = b.data.active !== false;
+        if (aActive && !bActive) return -1;
+        if (!aActive && bActive) return 1;
+        const aName = (a.data.lastName || a.data.name || "").toLowerCase();
+        const bName = (b.data.lastName || b.data.name || "").toLowerCase();
+        return aName.localeCompare(bName);
+    });
+
+    const countEl = document.getElementById("guardPersonnelCount");
+    if (countEl) {
+        countEl.textContent = (statusFilter === "all" && categoryFilter === "all")
+            ? allGuards.length
+            : `${filtered.length} of ${allGuards.length}`;
+    }
+
+    const guardRows = filtered.map(({ id, data }) => renderGuardRow(id, data, personnelLocationsById)).join("");
+    document.getElementById("guardTableBody").innerHTML = guardRows ||
+        `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--sl-muted);">No guards match the selected filters. <a href="javascript:void(0)" onclick="resetGuardFilters()" style="color:var(--sl-danger);text-decoration:underline;margin-left:6px;">Reset filters</a></td></tr>`;
+}
+
+function resetGuardFilters() {
+    const statusEl = document.getElementById("guardStatusFilter");
+    const catEl = document.getElementById("guardCategoryFilter");
+    if (statusEl) statusEl.value = "all";
+    if (catEl) catEl.value = "all";
+    applyGuardFilters();
+}
 
 function personnelDisplayName(account) {
     if (!account) return "Guard";
@@ -743,10 +870,10 @@ async function loadUsers() {
         });
         const guards = accounts.filter(account => account.data.role === "user");
         const inspectors = accounts.filter(account => account.data.role === "inspector");
-        document.getElementById("guardPersonnelCount").textContent = guards.length;
+        allGuards = guards;
         document.getElementById("inspectorPersonnelCount").textContent = inspectors.length;
 
-        const guardRows = guards.map(({ id, data }) => renderGuardRow(id, data, locationsById)).join("");
+        applyGuardFilters();
         const inspectorRows = inspectors.map(({ id, data }) => renderInspectorRow(id, data)).join("");
         document.getElementById("guardTableBody").innerHTML = guardRows ||
             `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--sl-muted);">No guard personnel found.</td></tr>`;
