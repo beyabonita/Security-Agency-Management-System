@@ -505,7 +505,7 @@
 <div class="modal-body">
     <p class="modal-guard-meta" id="createUserRoleHint">Creates login credentials. Guards use the mobile app; inspectors and admins use the web panel.</p>
     <div class="row g-3">
-        <div class="col-12">
+        <div class="col-md-6">
             <label class="form-label">ACCOUNT ROLE</label>
             <select id="newGuardRole" class="form-select" onchange="updateCreateUserHint()">
                 <option value="user">Guard — mobile attendance app</option>
@@ -519,17 +519,21 @@
                 <option value="contract">Contract</option>
             </select>
         </div>
-        <div class="col-md-5">
-            <label class="form-label">LAST NAME</label>
-            <input type="text" id="newGuardLastName" class="form-control personnel-name-input" placeholder="Dela Cruz" oninput="autoCapitalizeWords(this)">
-        </div>
-        <div class="col-md-5">
-            <label class="form-label">FIRST NAME</label>
-            <input type="text" id="newGuardFirstName" class="form-control personnel-name-input" placeholder="Juan" oninput="autoCapitalizeWords(this)">
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">M.I.</label>
-            <input type="text" id="newGuardMiddleInitial" class="form-control personnel-initial-input" placeholder="D" maxlength="3" oninput="autoCapitalizeInitial(this)">
+        <div class="col-12">
+            <div class="row g-2">
+                <div class="col-5">
+                    <label class="form-label">LAST NAME</label>
+                    <input type="text" id="newGuardLastName" class="form-control personnel-name-input" placeholder="Dela Cruz" oninput="autoCapitalizeWords(this)">
+                </div>
+                <div class="col-5">
+                    <label class="form-label">FIRST NAME</label>
+                    <input type="text" id="newGuardFirstName" class="form-control personnel-name-input" placeholder="Juan" oninput="autoCapitalizeWords(this)">
+                </div>
+                <div class="col-2">
+                    <label class="form-label">M.I.</label>
+                    <input type="text" id="newGuardMiddleInitial" class="form-control personnel-initial-input text-center" placeholder="D" maxlength="3" oninput="autoCapitalizeInitial(this)">
+                </div>
+            </div>
         </div>
         <div class="col-md-6">
             <label class="form-label">EMAIL</label>
