@@ -12,9 +12,10 @@ begin
     from pg_proc p
     join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public'
+      and p.prokind = 'f'
       and (
-        pg_get_functiondef(p.oid) like '%HR / Operations%'
-        or pg_get_functiondef(p.oid) like '%Operations Head%'
+        case when p.prokind = 'f' then pg_get_functiondef(p.oid) end like '%HR / Operations%'
+        or case when p.prokind = 'f' then pg_get_functiondef(p.oid) end like '%Operations Head%'
       )
   loop
     v_definition := pg_get_functiondef(v_function.oid);

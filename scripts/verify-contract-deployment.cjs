@@ -4,7 +4,7 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const root = path.resolve(__dirname,'..');
 const portal = 'https://security-agency-management-system-nu.vercel.app';
-const api = 'https://uqtupmpofjqrnefgrexm.supabase.co';
+const api = 'https://syyofdcynuzgergqlaqj.supabase.co';
 const results = [];
 const hash = value => crypto.createHash('sha256').update(value).digest('hex');
 (async () => {

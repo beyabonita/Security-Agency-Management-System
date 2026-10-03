@@ -149,3 +149,4 @@ flutter_01.png
 flutter_02.png
 pubspec.lock
 .env*
+.vercel

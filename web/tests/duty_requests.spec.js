@@ -18,7 +18,7 @@ async function prepare(page,kind='absence') {
     window.appSupabase={from:makeQuery,rpc:async(name,args)=>{window.calls.push({name,args});await new Promise(r=>setTimeout(r,200));
       if(window.rpcError)return {error:{message:window.rpcError}};
       window.requestRows=window.requestRows.map(r=>({...r,status:args.p_approve?'approved':'rejected',admin_note:args.p_note}));return {data:null,error:null};},
-      storage:{from:bucket=>({createSignedUrl:async(path,ttl,options)=>{window.calls.push({bucket,path,ttl,options});return {data:{signedUrl:'https://uqtupmpofjqrnefgrexm.supabase.co/storage/v1/object/sign/request-letters/'+path+'?token=test'},error:null};}})},
+      storage:{from:bucket=>({createSignedUrl:async(path,ttl,options)=>{window.calls.push({bucket,path,ttl,options});return {data:{signedUrl:'https://syyofdcynuzgergqlaqj.supabase.co/storage/v1/object/sign/request-letters/'+path+'?token=test'},error:null};}})},
       functions:{invoke:async(name,args)=>{window.calls.push({name,args});await new Promise(r=>setTimeout(r,200));return window.deleteError?
         {error:{context:{json:async()=>({error:window.deleteError})}}}:{data:{ok:true},error:null};}}};
     window.firebase={auth:()=>({onAuthStateChanged:cb=>setTimeout(()=>cb({uid:'hr'}),0),signOut:async()=>{}}),

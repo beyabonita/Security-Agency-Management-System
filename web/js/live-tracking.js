@@ -219,7 +219,7 @@
     client={rpc:async()=>({data:{server_now:new Date().toISOString(),locations:rows}})};refreshButton.onclick=update;update();timer=setInterval(update,5000);return;
   }
   client=window.appSupabase;
-  if(!client || !['localhost','127.0.0.1','[::1]','uqtupmpofjqrnefgrexm.supabase.co'].includes(new URL(client.supabaseUrl).hostname)) {
+  if(!client || !['localhost','127.0.0.1','[::1]','syyofdcynuzgergqlaqj.supabase.co'].includes(new URL(client.supabaseUrl).hostname)) {
     clear('Live tracking is unavailable for this connection.');return;
   }
   try {

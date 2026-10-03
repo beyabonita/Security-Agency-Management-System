@@ -16,7 +16,7 @@ const liveTrackingEnabled = bool.fromEnvironment(
 );
 bool isTrackingEndpoint(String url) =>
     isLocalTrackingEndpoint(url) ||
-    url == 'https://uqtupmpofjqrnefgrexm.supabase.co';
+    url == 'https://syyofdcynuzgergqlaqj.supabase.co';
 bool isLocalTrackingEndpoint(String url) {
   final uri = Uri.tryParse(url);
   return uri != null &&

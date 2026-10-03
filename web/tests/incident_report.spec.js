@@ -1,7 +1,7 @@
 const { expect, test } = require('@playwright/test');
 
 const TEST_VIDEO_PATH = '11111111-1111-4111-8111-111111111111/incident.mp4';
-const TEST_SIGNED_URL = `https://uqtupmpofjqrnefgrexm.supabase.co/storage/v1/object/sign/incident-videos/${TEST_VIDEO_PATH}?token=test-token`;
+const TEST_SIGNED_URL = `https://syyofdcynuzgergqlaqj.supabase.co/storage/v1/object/sign/incident-videos/${TEST_VIDEO_PATH}?token=test-token`;
 
 async function installIncidentMocks(page) {
   await page.route('**/supabase-firebase-bridge.js', (route) => route.fulfill({

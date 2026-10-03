@@ -9,7 +9,7 @@ const html=fs.readFileSync(path.join(root,'web/admin/schedule.html'),'utf8');
 const selection=html.match(/\.from\('schedules'\)\s*\.select\('([^']+)'\)/)?.[1];
 if(!selection)throw new Error('Could not find the schedule history query.');
 const publicKey=fs.readFileSync(path.join(root,'web/js/supabase-firebase-bridge.js'),'utf8').match(/const KEY = '([^']+)'/)?.[1];
-const endpoint='https://uqtupmpofjqrnefgrexm.supabase.co/rest/v1/schedules';
+const endpoint='https://syyofdcynuzgergqlaqj.supabase.co/rest/v1/schedules';
 const results=[];
 async function probe(name,select,expectedStatus,expectedCode){
   const response=await fetch(`${endpoint}?select=${encodeURIComponent(select)}&limit=1`,{headers:{apikey:publicKey}});

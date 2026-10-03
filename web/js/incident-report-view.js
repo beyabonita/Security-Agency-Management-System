@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  const SUPABASE_ORIGIN = 'https://uqtupmpofjqrnefgrexm.supabase.co';
+  const SUPABASE_ORIGIN = 'https://syyofdcynuzgergqlaqj.supabase.co';
   const VIDEO_BUCKET = 'incident-videos';
   const VIDEO_PATH_PATTERN = /^[0-9a-f-]{36}\/[A-Za-z0-9._-]+$/i;
   let renderSequence = 0;

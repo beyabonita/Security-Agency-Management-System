@@ -75,7 +75,7 @@ void main() {
     expect(gps.hasListener, false);
     expect(isLocalTrackingEndpoint('https://example.supabase.co'), false);
     expect(
-      isTrackingEndpoint('https://uqtupmpofjqrnefgrexm.supabase.co'),
+      isTrackingEndpoint('https://syyofdcynuzgergqlaqj.supabase.co'),
       true,
     );
     expect(isTrackingEndpoint('https://example.supabase.co'), false);

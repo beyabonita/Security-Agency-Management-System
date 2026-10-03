@@ -13,8 +13,8 @@
   // Only the loopback development server may inject an alternate backend.
   const localConfig = ['localhost','127.0.0.1','[::1]'].includes(location.hostname)
     ? window.SENTINEL_LOCAL_SUPABASE : null;
-  const URL = localConfig?.url || 'https://uqtupmpofjqrnefgrexm.supabase.co';
-  const KEY = localConfig?.key || 'sb_publishable_WhymBQujSZgXctoTe0hwCA_Q4DRCPcw';
+  const URL = localConfig?.url || 'https://syyofdcynuzgergqlaqj.supabase.co';
+  const KEY = localConfig?.key || 'sb_publishable_tbubYYqA3Y-gnAW5IizQMg_KKh4Xw3O';
   const SESSION_KEY = localConfig ? 'sentinel_local_supabase_session' : 'security_time_tracker_supabase_session';
   // Every portal page loads the version-pinned official UMD SDK immediately
   // before this bridge. Keeping loading in markup avoids runtime injection and

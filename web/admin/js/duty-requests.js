@@ -75,7 +75,7 @@ async function downloadLetter(r, button) {
     const {data,error} = await appSupabase.storage.from('request-letters').createSignedUrl(r.letter_path,120,{download:r.letter_name || 'Request letter'});
     if (error) throw error;
     const url = new URL(data?.signedUrl || '');
-    if (url.origin !== 'https://uqtupmpofjqrnefgrexm.supabase.co' || !url.pathname.startsWith('/storage/v1/object/sign/request-letters/')) throw new Error('The attachment link is invalid.');
+    if (url.origin !== 'https://syyofdcynuzgergqlaqj.supabase.co' || !url.pathname.startsWith('/storage/v1/object/sign/request-letters/')) throw new Error('The attachment link is invalid.');
     const a = document.createElement('a'); a.href = url.href; a.target = '_blank'; a.rel = 'noopener noreferrer';
     document.body.appendChild(a); a.click(); a.remove();
   },{label:'Opening letter…'});
