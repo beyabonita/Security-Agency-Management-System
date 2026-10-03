@@ -1,5 +1,18 @@
 # Project Change Log
 
+### [2026-10-04 07:02] - Update Page Header: Rename "Deployment Sites" Header to "Company"
+
+- **Scope & Objective**: Update the page header (`<h1 class="ax-page-title">`) and document `<title>` on the Company management pages (`web/admin/locations.html` and `web/inspector/locations.html`) from "Deployment Sites" / "Duty sites" to "Company" to match the active sidebar navigation tab.
+- **Files Modified / Created**:
+  - [`web/admin/locations.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/locations.html): Updated `<h1 class="ax-page-title">Company</h1>` and `<title>Company — Operations Head</title>`.
+  - [`web/inspector/locations.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/locations.html): Updated `<h1 class="ax-page-title">Company</h1>` and `<title>Company — Security Agency Management System</title>`.
+- **Verification & Testing**:
+  - `node web/tests/google_icons_test.js` -> Passed (43 bundled symbols, 145 markup references).
+  - `npm --prefix web/tests run test:playwright -- --grep "ph_location_search"` -> Passed (4/4).
+- **Pending / Next Steps**:
+  - Ready for user commit.
+
+
 ### [2026-10-04 06:58] - Update Navigation Tab: Rename "Deployment Sites" to "Company"
 
 - **Scope & Objective**: Rename the sidebar navigation tab from "Deployment Sites" to "Company" across all Admin and Inspector portal pages, matching the business entity terminology and pairing with the bundled `business` Google Material symbol.
