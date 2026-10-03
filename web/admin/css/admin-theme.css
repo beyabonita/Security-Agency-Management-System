@@ -259,6 +259,16 @@ body[data-it-page="users"] .ax-nav a[href="users.html"] {
     border-radius: 16px; color: var(--ax-text);
 }
 .ax-modal .modal-header { border-bottom: 1px solid var(--ax-border); }
+.ax-modal .modal-footer { border-top: 1px solid var(--ax-border); }
+.ax-modal .modal-dialog-scrollable .modal-content {
+    max-height: calc(100vh - 3.5rem);
+    display: flex;
+    flex-direction: column;
+}
+.ax-modal .modal-dialog-scrollable .modal-body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
 .ax-modal .form-control, .ax-modal .form-select {
     background: var(--sl-surface); border: 1px solid var(--ax-border); color: var(--ax-text); border-radius: 8px;
 }
