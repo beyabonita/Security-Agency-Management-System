@@ -446,7 +446,7 @@
                         <div class="personnel-filter-group">
                             <label for="guardStatusFilter" class="visually-hidden">Status</label>
                             <select id="guardStatusFilter" class="form-select form-select-sm personnel-filter-select" onchange="applyGuardFilters()" aria-label="Filter guards by status">
-                                <option value="all">All Statuses</option>
+                                <option value="all">All Status</option>
                                 <option value="active">Active Only</option>
                                 <option value="inactive">Inactive / Disabled</option>
                             </select>
@@ -875,8 +875,6 @@ async function loadUsers() {
 
         applyGuardFilters();
         const inspectorRows = inspectors.map(({ id, data }) => renderInspectorRow(id, data)).join("");
-        document.getElementById("guardTableBody").innerHTML = guardRows ||
-            `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--sl-muted);">No guard personnel found.</td></tr>`;
         document.getElementById("inspectorTableBody").innerHTML = inspectorRows ||
             `<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--sl-muted);">No inspector personnel found.</td></tr>`;
         finishPageLoading();
