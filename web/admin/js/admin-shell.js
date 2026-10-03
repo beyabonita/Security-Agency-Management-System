@@ -105,12 +105,6 @@ function markAdminNavigation() {
     });
 }
 
-window.addEventListener('unhandledrejection', function(event) {
-    if (event.reason && (event.reason.name === 'AbortError' || (typeof event.reason.message === 'string' && event.reason.message.includes('Transition was skipped')))) {
-        event.preventDefault();
-    }
-});
-
 function initAdminShell() {
     initAdminIdentity();
     if (window.SENTINEL_LIVE_TRACKING_ENABLED && !document.querySelector('.ax-nav a[href="live-tracking.html"]')) {

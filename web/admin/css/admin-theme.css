@@ -882,25 +882,8 @@ body.ax-menu-open { overflow: hidden; }
 }
 
 /* ==========================================================================
-   Persistent Shell Navigation & Skeleton Loading System
+   Skeleton Loading System
    ========================================================================== */
-@view-transition {
-    navigation: auto;
-}
-
-::view-transition-old(root),
-::view-transition-new(root) {
-    animation-duration: 0.16s;
-    animation-timing-function: ease-in-out;
-}
-
-.ax-sidebar {
-    view-transition-name: ax-sidebar;
-}
-
-.ax-topbar {
-    view-transition-name: ax-topbar;
-}
 
 @keyframes ax-skeleton-shimmer {
     0% {
