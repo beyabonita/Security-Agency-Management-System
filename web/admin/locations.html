@@ -28,7 +28,7 @@
             <div class="ax-nav-label">Manage</div>
             <a href="dashboard.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">dashboard</span> Dashboard</a>
             <a href="users.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">groups</span> Personnel</a>
-            <a href="locations.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">location_on</span> Deployment Sites</a>
+            <a href="locations.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">business</span> Company</a>
             <a href="schedule.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">calendar_month</span> Schedule</a>
             <a href="incidents.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">emergency</span> Incidents</a>
             <a href="swaps.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">swap_horiz</span> Duty requests</a>
@@ -171,7 +171,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deployedGuardsModalTitle">
-                    <span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">badge</span>Deployed Guards
+                    <span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">groups</span>Deployed Guards
                 </h5>
                 <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
             </div>
@@ -916,7 +916,7 @@ async function viewDeployedGuards(siteId, siteLabel) {
         if (!guards.length) {
             listEl.innerHTML = `
                 <div style="text-align:center;padding:36px 20px;color:var(--sl-muted);">
-                    <span class="material-symbols-rounded d-block mb-2" style="font-size:36px;opacity:0.4;">person_off</span>
+                    <span class="material-symbols-rounded d-block mb-2" style="font-size:36px;opacity:0.4;">person</span>
                     <div style="font-weight:600;font-size:0.9rem;color:var(--sl-ink);">No guards currently deployed</div>
                     <div style="font-size:0.78rem;margin-top:6px;opacity:0.8;">No personnel are assigned to this site. Assign guards in the <a href="users.html" style="color:var(--sl-danger);text-decoration:underline;">Personnel</a> tab.</div>
                 </div>`;
@@ -954,8 +954,8 @@ async function viewDeployedGuards(siteId, siteLabel) {
                             ${statusBadge}
                         </div>
                         <div class="deployed-guard-meta">
-                            <span><span class="material-symbols-rounded meta-icon" aria-hidden="true">mail</span>${escapeHtml(email)}</span>
-                            ${phone ? `<span><span class="material-symbols-rounded meta-icon" aria-hidden="true">call</span>${escapeHtml(phone)}</span>` : ''}
+                            <span><span class="material-symbols-rounded meta-icon" aria-hidden="true">person</span>${escapeHtml(email)}</span>
+                            ${phone ? `<span><span class="material-symbols-rounded meta-icon" aria-hidden="true">smartphone</span>${escapeHtml(phone)}</span>` : ''}
                             <span class="badge-cat">${escapeHtml(category)}</span>
                         </div>
                     </div>
