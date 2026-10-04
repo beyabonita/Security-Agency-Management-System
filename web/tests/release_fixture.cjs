@@ -5,7 +5,7 @@ const version=fs.readFileSync(path.resolve(__dirname,'../../pubspec.yaml'),'utf8
 if(!version)throw new Error('The app release version is missing from pubspec.yaml.');
 module.exports={
   version,
-  apkUrl:`https://security-agency-management-system-download.vercel.app/downloads/security-agency-management-system-guard.apk?v=${version}`,
+  apkUrl:`https://www.tts-agency.site/downloads/security-agency-management-system-guard.apk?v=${version}`,
   apkFileName:`Security-Agency-Management-System-Guard-v${version}.apk`,
   qrSource:`./guard-app-qr.png?v=apk-${version}`,
 };

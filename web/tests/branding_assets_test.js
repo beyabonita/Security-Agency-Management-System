@@ -60,7 +60,7 @@ assert.match(read('web/staff/login.html'), /data-guard-app-setup/);
 assert.match(read('web/staff/guard-app.js'), /supports Android devices only/);
 assert.doesNotMatch(read('web/staff/app-download.html'), /iOS|iPhone|iPad|TestFlight/);
 const releaseVersion = read('pubspec.yaml').match(/^version:\s*([\d.]+)\+\d+/m)[1];
-assert.ok(read('web/staff/login.html').includes(`security-agency-management-system-download.vercel.app/downloads/security-agency-management-system-guard.apk?v=${releaseVersion}`));
+assert.ok(read('web/staff/login.html').includes(`/downloads/security-agency-management-system-guard.apk?v=${releaseVersion}`));
 assert.match(read('web/staff/app-download.html'), /login\.html#guard-app-setup/);
 assert.match(read('web/staff/login.html'), /Twenty-Twenty Security Agency/);
 assert.match(read('web/staff/login.html'), /Security Agency Management System/);

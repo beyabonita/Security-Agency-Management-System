@@ -1,5 +1,28 @@
 # Project Change Log
 
+### [2026-10-04 20:20] - Fix: Android APK Native Lib Compression (STORED) & QR Code Endpoint
+
+- **Scope & Objective**: Resolved the `"Invalid when installed"` error on Android and updated the Guard mobile app download links and QR code to point to the live `tts-agency.site` domain.
+- **Root Cause Analysis**:
+  1. **"Invalid when installed"**: In modern Android applications with `android:extractNativeLibs="false"`, all native ELF `.so` libraries (`lib/**/*.so`) must be stored **UNCOMPRESSED** (Zip method 0, `STORED`) and page-aligned to 4096-byte boundaries so the OS dynamic linker can `mmap` them directly. The initial patch had re-compressed `.so` files using Deflate, triggering Android's `INSTALL_FAILED_INVALID_APK` error.
+  2. **QR Code Pointing to Stale Backend**: The QR code on `web/staff/login.html` was hardcoded to encode `https://security-agency-management-system-download.vercel.app/...` (an old static Vercel mirror holding a September build pointing to `uqtupmpofjqrnefgrexm.supabase.co`).
+- **Key Implementation Details**:
+  - Re-packaged the APK using Java (`ZipEntry.STORED`), ensuring true uncompressed storage for all native libraries (`libapp.so`, `libflutter.so`, `libdartjni.so`, etc.).
+  - Executed `zipalign` with 4-byte / 4096-byte page alignment and re-signed using `uber-apk-signer` (verified [v2, v3] signatures).
+  - Updated `web/staff/login.html` and regenerated `web/staff/guard-app-qr.png` to point to `https://www.tts-agency.site/downloads/security-agency-management-system-guard.apk?v=1.0.20`.
+  - Updated `release_fixture.cjs`, `guard_app_qr_test.js`, `branding_assets_test.js`, and `generate_guard_app_qr.cjs` to support `www.tts-agency.site`.
+  - Verified all Playwright smoke tests pass cleanly (7/7 passed).
+- **Files Modified**:
+  - `web/downloads/security-agency-management-system-guard.apk`: Re-packaged, uncompressed native libs, signed APK (63.67 MB).
+  - `web/staff/guard-app-qr.png`: Regenerated QR code.
+  - `web/staff/login.html`: Updated QR link and modal download link.
+  - `web/tests/release_fixture.cjs`: Updated target download URL.
+  - `web/tests/guard_app_qr_test.js`: Updated domain assertions.
+  - `web/tests/branding_assets_test.js`: Updated path assertion.
+  - `web/tests/generate_guard_app_qr.cjs`: Updated allowed QR patterns.
+
+---
+
 ### [2026-10-04 19:40] - Mobile App: Android Release APK Build & Supabase Credentials Sync
 
 - **Scope & Objective**: Rebuilt and patched the Guard Android mobile application (`web/downloads/security-agency-management-system-guard.apk` and `build/app/outputs/flutter-apk/app-release.apk`) to target the active live Supabase database (`syyofdcynuzgergqlaqj.supabase.co`).

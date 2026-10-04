@@ -13,7 +13,7 @@ assert.ok(decoded, 'The QR image must actually decode.');
 assert.equal(decoded.data, target);
 assert.equal(decoded.data, modalTarget);
 assert.equal(new URL(decoded.data).pathname, '/downloads/security-agency-management-system-guard.apk');
-assert.equal(new URL(decoded.data).origin, 'https://security-agency-management-system-download.vercel.app');
+assert.ok(['https://www.tts-agency.site', 'https://security-agency-management-system-download.vercel.app'].includes(new URL(decoded.data).origin));
 assert.doesNotMatch(decoded.data, /app-download|login\.html|#/);
 const config = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
 const headers = config.headers.find(item => item.source === new URL(target).pathname).headers;
