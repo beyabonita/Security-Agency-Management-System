@@ -1,5 +1,27 @@
 # Project Change Log
 
+### [2026-10-05 02:46] - Feature: DTR Inline Tardiness & Undertime Tags with Summary Totals
+
+- **Scope & Objective**: Added Late (Tardiness) and Undertime (Early Departure) tracking to the Daily Time Record (DTR) generator, web preview, and exported PDF. Implemented as clean inline tags under actual punch times accompanied by summary totals at the bottom of the report.
+- **Files Modified / Created**:
+  - `[web/js/dtr-report.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/dtr-report.js)`:
+    - Added `sessionLateMinutes(session)` comparing `clock_in_at` against `scheduled_start_at`.
+    - Added `sessionUndertimeMinutes(session)` comparing `clock_out_at` against `scheduled_end_at`.
+    - In `shiftEntry`, formatted `actualIn` with `\n(Late: X min)` and `actualOut` with `\n(Undertime: X min)`.
+    - In `previewCell`, transformed `(Late: ...)` and `(Undertime: ...)` into styled badges (`.dtr-sheet-tag--late`, `.dtr-sheet-tag--undertime`).
+    - In `buildReport`, aggregated `totalLateMinutes` and `totalUndertimeMinutes`.
+    - In `renderPreview`, displayed `TOTAL TARDINESS` and `TOTAL UNDERTIME` in the summary totals strip.
+    - In `generatePdf`, added `TOTAL TARDINESS` and `TOTAL UNDERTIME` in the PDF totals header line above signatures.
+  - `[web/css/dtr-report.css](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/css/dtr-report.css)`:
+    - Added styling for `.dtr-sheet-tag`, `.dtr-sheet-tag--late` (red), and `.dtr-sheet-tag--undertime` (amber) in both light and dark themes.
+  - `[web/tests/dtr_report_test.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/dtr_report_test.js)`:
+    - Added unit test suite covering on-time, early start, late start, on-time end, overtime end, early departure, missing punches, inline tags, and summary totals.
+- **Verification & Testing**:
+  - `node dtr_report_test.js`: All tests passed.
+  - `npm run test:playwright -- dtr_pdf.spec.js`: Passed (A4 PDF layout intact).
+
+---
+
 ### [2026-10-05 01:42] - Feature: Embedded Incident Location Mini-Map (Replaced External Maps Link)
 
 - **Scope & Objective**: In the incident report review modal (shared by Field Inspector and Operations Head), removed the external link button "Open exact location in Maps" and replaced it with a sleek, embedded interactive mini-map showing the exact incident location marker pin.

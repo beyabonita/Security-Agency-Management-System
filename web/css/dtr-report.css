@@ -152,6 +152,26 @@
 .dtr-sheet-table td:nth-child(2) { text-align: left; padding: 6px; line-height: 1.4; }
 .dtr-sheet-total-cell { font-weight: 700; }
 
+.dtr-sheet-tag {
+    display: block;
+    font-size: 0.61rem;
+    line-height: 1.15;
+    margin-top: 2px;
+    font-weight: 700;
+}
+.dtr-sheet-tag--late {
+    color: #dc2626;
+}
+.dtr-sheet-tag--undertime {
+    color: #d97706;
+}
+html[data-theme="dark"] .dtr-sheet-tag--late {
+    color: #ef4444;
+}
+html[data-theme="dark"] .dtr-sheet-tag--undertime {
+    color: #f59e0b;
+}
+
 .dtr-sheet-certification {
     margin: 15px 0 12px;
     font-size: 0.72rem;

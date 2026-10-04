@@ -164,8 +164,11 @@ assert.equal(noon.afternoonOut, '');
 const noPunches = DtrReport.buildReport([{ duty_date: '2026-09-15', dtr_period: 'overtime', scheduled_start_at: '2026-09-15T17:00:00+08:00', scheduled_end_at: '2026-09-15T19:00:00+08:00' }], firstCutoff).rows[14];
 assert.equal(noPunches.overtimeIn, ''); assert.equal(noPunches.overtimeOut, ''); assert.equal(noPunches.totalMinutes, 0);
 const repeatedPreview = DtrReport.renderPreview({ sessions: [explicitSessions[0], { ...explicitSessions[0], clock_in_at: '2026-09-15T09:00:00+08:00', clock_out_at: null }], period: firstCutoff });
-assert.match(repeatedPreview, /<td>8:05\s*AM<\/td>/);
-assert.match(repeatedPreview, /<td>9:00\s*AM<\/td>/);
+assert.match(repeatedPreview, /<td>8:05\s*AM(?:<br>[\s\S]*?)?<\/td>/);
+assert.match(repeatedPreview, /<td>9:00\s*AM(?:<br>[\s\S]*?)?<\/td>/);
+assert.match(repeatedPreview, /<span class="dtr-sheet-tag dtr-sheet-tag--late">\(Late: 5 min\)<\/span>/);
+assert.match(repeatedPreview, /TOTAL TARDINESS/);
+assert.match(repeatedPreview, /TOTAL UNDERTIME/);
 assert.equal((repeatedPreview.match(/<tbody>[\s\S]*?<\/tbody>/)[0].match(/<tr>/g)||[]).length,16);
 console.log('Explicit-period actual DTR tests passed.');
 
@@ -256,3 +259,33 @@ assert.equal((sixColumnPreview.match(/scope="col"/g)||[]).length,6);
 assert.doesNotMatch(sixColumnPreview,/<th[^>]*>Status<\/th>/);
 assert.equal((sixColumnPreview.match(/<td/g)||[]).length,15*5);
 console.log('DTR preview has six aligned columns without Status.');
+
+// Tardiness and undertime unit tests
+const punctualityBase = {
+  duty_date: '2026-09-08',
+  scheduled_start_at: '2026-09-08T08:00:00+08:00',
+  scheduled_end_at: '2026-09-08T17:00:00+08:00',
+  clock_in_at: '2026-09-08T08:00:00+08:00',
+  clock_out_at: '2026-09-08T17:00:00+08:00',
+};
+assert.equal(DtrReport.sessionLateMinutes(punctualityBase), 0, 'On-time start has 0 late minutes');
+assert.equal(DtrReport.sessionLateMinutes({ ...punctualityBase, clock_in_at: '2026-09-08T07:50:00+08:00' }), 0, 'Early start has 0 late minutes');
+assert.equal(DtrReport.sessionLateMinutes({ ...punctualityBase, clock_in_at: '2026-09-08T08:25:00+08:00' }), 25, 'Late start calculates exact minutes');
+assert.equal(DtrReport.sessionUndertimeMinutes(punctualityBase), 0, 'On-time end has 0 undertime minutes');
+assert.equal(DtrReport.sessionUndertimeMinutes({ ...punctualityBase, clock_out_at: '2026-09-08T17:30:00+08:00' }), 0, 'Overtime end has 0 undertime minutes');
+assert.equal(DtrReport.sessionUndertimeMinutes({ ...punctualityBase, clock_out_at: '2026-09-08T16:40:00+08:00' }), 20, 'Early departure calculates exact undertime minutes');
+assert.equal(DtrReport.sessionUndertimeMinutes({ ...punctualityBase, clock_out_at: null }), 0, 'Missing punch is not undertime');
+
+const tardyReport = DtrReport.buildReport([
+  { ...punctualityBase, clock_in_at: '2026-09-08T08:15:00+08:00', clock_out_at: '2026-09-08T16:30:00+08:00' }
+], firstCutoff);
+assert.equal(tardyReport.totalLateMinutes, 15);
+assert.equal(tardyReport.totalUndertimeMinutes, 30);
+const tardyRow = tardyReport.shiftRows.find(r => r.dutyDate === '2026-09-08');
+assert.match(tardyRow.actualIn, /8:15\s*AM\n\(Late: 15 min\)/);
+assert.match(tardyRow.actualOut, /4:30\s*PM\n\(Undertime: 30 min\)/);
+
+const tardyPreview = DtrReport.renderPreview({ sessions: [{ ...punctualityBase, clock_in_at: '2026-09-08T08:15:00+08:00', clock_out_at: '2026-09-08T16:30:00+08:00' }], period: firstCutoff });
+assert.match(tardyPreview, /<span class="dtr-sheet-tag dtr-sheet-tag--late">\(Late: 15 min\)<\/span>/);
+assert.match(tardyPreview, /<span class="dtr-sheet-tag dtr-sheet-tag--undertime">\(Undertime: 30 min\)<\/span>/);
+console.log('Tardiness and undertime tests passed: inline tags, minute precision, and summary totals.');

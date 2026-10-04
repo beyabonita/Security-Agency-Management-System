@@ -94,6 +94,23 @@
     return Math.max(0,Math.floor((timeOut.getTime()-overtimeStart)/60000));
   }
 
+  function sessionLateMinutes(session) {
+    const timeIn = asDate(session?.clock_in_at);
+    const start = asDate(session?.scheduled_start_at);
+    if (!timeIn || !start) return 0;
+    const diff = Math.floor((timeIn.getTime() - start.getTime()) / 60000);
+    return diff > 0 ? diff : 0;
+  }
+
+  function sessionUndertimeMinutes(session) {
+    const timeIn = asDate(session?.clock_in_at);
+    const timeOut = asDate(session?.clock_out_at);
+    const end = asDate(session?.scheduled_end_at);
+    if (!timeIn || !timeOut || !end) return 0;
+    const diff = Math.floor((end.getTime() - timeOut.getTime()) / 60000);
+    return diff > 0 ? diff : 0;
+  }
+
   function formatDuration(minutes) {
     const safeMinutes = Math.max(0, Number(minutes) || 0);
     const hours = Math.floor(safeMinutes / 60);
@@ -240,12 +257,20 @@
     if (!review && session.clock_out_location_status==='outside_post') status+=' · Outside post';
     const planned=start&&end ? `${formatPunchTime(start,dutyDate)} – ${formatPunchTime(end,dutyDate)}\n${formatDuration(Math.max(0,Math.round((end-start)/60000)))} scheduled` : 'Schedule unavailable';
     const location=String(session.location_label||session.locationLabel||'').trim();
+    const lateMinutes = sessionLateMinutes(session);
+    const lateTag = lateMinutes > 0 ? `\n(Late: ${formatDuration(lateMinutes)})` : '';
+    const undertimeMinutes = sessionUndertimeMinutes(session);
+    const undertimeTag = undertimeMinutes > 0 ? `\n(Undertime: ${formatDuration(undertimeMinutes)})` : '';
     return { ...base,
       assignedShift: planned+(session.dtr_period==='overtime'?'\nOvertime assignment':'')+(location?'\n'+location:''),
-      actualIn: timeIn?formatPunchTime(timeIn,dutyDate):'',
-      actualOut: timeOut && !(session.overtime_requested === true && review)?formatPunchTime(timeOut,dutyDate):'',
+      actualIn: timeIn ? `${formatPunchTime(timeIn, dutyDate)}${lateTag}` : '',
+      actualOut: timeOut && !(session.overtime_requested === true && review)
+        ? `${formatPunchTime(timeOut, dutyDate)}${undertimeTag}`
+        : '',
       overtimeHours: sessionOvertimeMinutes(session)===null?'':formatHours(sessionOvertimeMinutes(session)),
       workedHours: timeIn&&timeOut&&!review?formatHours(sessionMinutes(session)):'',
+      lateMinutes,
+      undertimeMinutes,
       status,
     };
   }
@@ -275,6 +300,8 @@
       completedDays: rows.filter((row) => row.completed).length,
       totalMinutes: rows.reduce((total, row) => total + row.totalMinutes, 0),
       totalOvertimeMinutes: included.reduce((total,session)=>total+(sessionOvertimeMinutes(session)||0),0),
+      totalLateMinutes: included.reduce((total,session)=>total+(sessionLateMinutes(session)||0),0),
+      totalUndertimeMinutes: included.reduce((total,session)=>total+(sessionUndertimeMinutes(session)||0),0),
       reviewNotes: included.flatMap((session) => {
         const status = session.overtime_requested === true && needsTimeoutReview(session)
           ? 'Overtime Time Out awaiting Operations Head approval; hours excluded.'
@@ -312,7 +339,10 @@
   function previewCell(value) {
     const text = String(value ?? '').trim();
     if (!text) return '<span class="dtr-sheet-blank" aria-hidden="true">&nbsp;</span>';
-    return escapeHtml(text).replace(/\n/g, '<br>');
+    let html = escapeHtml(text).replace(/\n/g, '<br>');
+    html = html.replace(/\((Late: [^)]+)\)/g, '<span class="dtr-sheet-tag dtr-sheet-tag--late">($1)</span>');
+    html = html.replace(/\((Undertime: [^)]+)\)/g, '<span class="dtr-sheet-tag dtr-sheet-tag--undertime">($1)</span>');
+    return html;
   }
 
   function renderPreview(options) {
@@ -371,6 +401,8 @@
         <p><strong>NO. OF DAYS</strong><span>${report.completedDays}</span></p>
         <p><strong>TOTAL OVERTIME HOURS</strong><span>${escapeHtml(formatHours(report.totalOvertimeMinutes))}</span></p>
         <p><strong>TOTAL WORKED HOURS</strong><span>${escapeHtml(formatHours(report.totalMinutes))}</span></p>
+        <p><strong>TOTAL TARDINESS</strong><span>${escapeHtml(formatHours(report.totalLateMinutes))}</span></p>
+        <p><strong>TOTAL UNDERTIME</strong><span>${escapeHtml(formatHours(report.totalUndertimeMinutes))}</span></p>
       </div>
       <div class="dtr-sheet-signatures">
         <div><span></span><p>Approved By</p></div>
@@ -379,6 +411,7 @@
       <footer class="dtr-sheet-footnote">
         Entries are recorded or Operations Head-verified Time In/Out values. Overnight times are marked “next day”.<br>
         Overtime is verified time worked after the scheduled end and is already included in Total Worked Hours. Values use H:MM.<br>
+        Late and Undertime reflect punches after scheduled start or before scheduled end. Values use H:MM.<br>
         Blank overtime means attendance or the scheduled end is unavailable. Recorded hours do not calculate overtime pay.
       </footer>
     </article>`;
@@ -482,6 +515,8 @@
     doc.text('I hereby certify that the above record is true and correct.', 14, footerY);
     doc.setFont('helvetica', 'bold');
     doc.text(`NO. OF DAYS: ${report.completedDays}`, 14, footerY + 10);
+    doc.text(`TOTAL TARDINESS: ${formatHours(report.totalLateMinutes)}`, 75, footerY + 10);
+    doc.text(`TOTAL UNDERTIME: ${formatHours(report.totalUndertimeMinutes)}`, 135, footerY + 10);
     doc.text(`TOTAL OVERTIME HOURS: ${formatHours(report.totalOvertimeMinutes)}`, 14, footerY + 16);
     doc.text(`TOTAL WORKED HOURS: ${formatHours(report.totalMinutes)}`, 112, footerY + 16);
     doc.setDrawColor(70, 70, 70);
@@ -494,7 +529,7 @@
     doc.setTextColor(100, 100, 100);
     doc.text('Entries are recorded or Operations Head-verified Time In/Out values; overnight times are marked "next day".', 14, footerY + 42);
     doc.text('Overtime is verified time after the scheduled end, already included in Total Worked Hours. Values use H:MM.', 14, footerY + 46);
-    doc.text('Blank overtime means attendance or scheduled end is unavailable. Recorded hours do not calculate overtime pay.', 14, footerY + 50);
+    doc.text('Late and Undertime reflect punches after scheduled start or before scheduled end. Values use H:MM.', 14, footerY + 50);
     doc.text(`Generated ${new Date().toLocaleString('en-PH')}`, 14, footerY + 55);
 
     const safeName = accountName(options.account).replace(/[^a-z0-9_-]+/gi, '_') || 'Guard';
@@ -518,6 +553,8 @@
     periodFromSelection,
     renderPreview,
     selectionFromDate,
+    sessionLateMinutes,
+    sessionUndertimeMinutes,
     sessionMinutes,
     sessionOvertimeMinutes,
   });
