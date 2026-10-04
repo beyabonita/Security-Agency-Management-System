@@ -1,0 +1,52 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build Android Release APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.1
+          channel: stable
+          cache: true
+
+      - name: Configure Keystore for Release
+        run: |
+          keytool -genkeypair -v -keystore android/app/release.keystore -alias sentinellink -keyalg RSA -keysize 2048 -validity 10000 -storepass sentinellink123 -keypass sentinellink123 -dname "CN=SentinelLink, OU=Security, O=Agency, L=City, S=State, C=PH"
+          cat << 'EOF' > android/signing.properties
+          storePassword=sentinellink123
+          keyPassword=sentinellink123
+          keyAlias=sentinellink
+          storeFile=app/release.keystore
+          EOF
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: guard-mobile-app
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30

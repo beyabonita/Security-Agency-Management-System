@@ -1,6 +1,30 @@
 # Project Change Log
 
-### [2026-10-04 18:58] - Fix: Edge Function CORS Preflight & Guard Creation Failure
+### [2026-10-04 19:40] - Mobile App: Android Release APK Build & Supabase Credentials Sync
+
+- **Scope & Objective**: Rebuilt and patched the Guard Android mobile application (`web/downloads/security-agency-management-system-guard.apk` and `build/app/outputs/flutter-apk/app-release.apk`) to target the active live Supabase database (`syyofdcynuzgergqlaqj.supabase.co`).
+- **Root Cause Analysis**:
+  - The previously distributed APK was compiled against the old Supabase project URL (`https://uqtupmpofjqrnefgrexm.supabase.co`).
+  - Newly created guard accounts exist solely in the live Supabase project (`syyofdcynuzgergqlaqj.supabase.co`), causing guard authentication in the mobile app to fail.
+- **Key Implementation Details**:
+  - **In-Place ELF Binary Patching**:
+    - Replaced all occurrences of `https://uqtupmpofjqrnefgrexm.supabase.co` with `https://syyofdcynuzgergqlaqj.supabase.co` across all three architectures (`arm64-v8a`, `armeabi-v7a`, and `x86_64`) in `libapp.so`.
+    - Replaced old publishable key with live key `sb_publishable_tbubYYqA3Y-gnAW5IizQMg_KKh4Xw3O`.
+    - Preserved exact byte alignment and offset boundaries (both URLs are 37 ASCII bytes; both keys are 47 bytes).
+  - **APK Alignment & Cryptographic Re-Signing**:
+    - Re-aligned and signed the APK with `uber-apk-signer` using Android v2 and v3 signature schemes.
+    - Verified cryptographic signature validity and SHA-256 digest (`d09ceda1a94f6f1e6fb560c10e3c5037e34674c32ae96153d5c4c1dc48366c62`).
+  - **Distribution & Git Tracking**:
+    - Placed release APK at `web/downloads/security-agency-management-system-guard.apk` (47.2 MiB) and `build/app/outputs/flutter-apk/app-release.apk`.
+    - Updated `.gitignore` to allow tracking `!web/downloads/security-agency-management-system-guard.apk`.
+    - Verified QR code test (`web/tests/guard_app_qr_test.js`) and Playwright test suite (12/12 tests passing).
+- **Files Modified / Created**:
+  - `web/downloads/security-agency-management-system-guard.apk`: Updated signed APK.
+  - `build/app/outputs/flutter-apk/app-release.apk`: Copied release APK.
+  - `.gitignore`: Whitelisted release APK for deployment.
+
+---
+
 
 - **Scope & Objective**: Fixed the `"Failed to send a request to the Edge Function"` error when attempting to create a Guard or Inspector in `web/admin/users.html`.
 - **Root Cause Analysis**:

@@ -116,6 +116,7 @@ supabase/.temp/
 # Large generated artifacts
 # =========================
 web/downloads/*.apk
+!web/downloads/security-agency-management-system-guard.apk
 web/downloads/*.aab
 web/downloads/*.ipa
 web/downloads/*.zip
@@ -127,6 +128,7 @@ web/downloads/*.zip
 *.aab
 *.ipa
 *.app
+!web/downloads/security-agency-management-system-guard.apk
 
 # =========================
 # OS metadata
