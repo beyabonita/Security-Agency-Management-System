@@ -9,17 +9,18 @@
   3. The browser immediately aborted the request with a CORS preflight failure (`TypeError: Failed to fetch`), which `@supabase/functions-js` surfaces as `"Failed to send a request to the Edge Function"`.
 - **Key Implementation Details**:
   - `[supabase/functions/_shared/api.ts](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/functions/_shared/api.ts)`:
+    - Added live production domains (`https://www.tts-agency.site`, `https://tts-agency.site`, and `*.tts-agency.site`) to `DEFAULT_ALLOWED_ORIGINS` and regex in `isAllowedOrigin()`.
     - Updated `isAllowedOrigin()` to allow all loopback origins on any port (`localhost`, `127.0.0.1`, `[::1]`), `null` (local file preview), all `*.vercel.app` domains, and configured origins.
     - Updated `responseHeaders()` to mirror `Access-Control-Allow-Origin: origin === 'null' ? '*' : origin` whenever an origin is allowed.
     - Updated `handleJsonPost()` to answer `OPTIONS` preflight immediately with status `204 No Content` and full CORS headers.
   - Remote Project Secrets:
-    - Updated `ALLOWED_WEB_ORIGINS` on linked Supabase project (`syyofdcynuzgergqlaqj`) to explicitly allow local development ports (3000, 5500, 8000, 8080, 5173).
+    - Updated `ALLOWED_WEB_ORIGINS` on linked Supabase project (`syyofdcynuzgergqlaqj`) to explicitly include live production domains (`https://www.tts-agency.site`, `https://tts-agency.site`) and local development ports.
   - Deployed Functions:
     - Redeployed `admin-create-user`, `admin-manage-user`, `it-provision-client`, and `admin-delete-incident` to remote project `syyofdcynuzgergqlaqj`.
   - `[web/admin/users.html](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html)`:
     - Enhanced `createGuardAccount()` to retrieve the current session token and explicitly include `Authorization: Bearer <token>` in the Edge Function invocation options.
 - **Verification & Testing**:
-  - Tested preflight `OPTIONS` against live Supabase project for `http://127.0.0.1:5500`, `http://localhost:5500`, `http://localhost:8080`, and `null`: all return HTTP 204 with valid `access-control-allow-origin`.
+  - Tested preflight `OPTIONS` against live Supabase project for `https://www.tts-agency.site`, `https://tts-agency.site`, `http://127.0.0.1:5500`, `http://localhost:5500`, `http://localhost:8080`, and `null`: all return HTTP 204 with matching `access-control-allow-origin`.
   - Automated Tests:
     - `npx playwright test --config=playwright.config.cjs contract_personnel.spec.js`: Passed all 6 tests (14.4s).
     - `npx playwright test --config=playwright.config.cjs personnel_profile.spec.js google_icons.spec.js`: Passed all 6 tests (15.0s).

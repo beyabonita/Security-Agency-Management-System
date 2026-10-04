@@ -18,6 +18,8 @@ export interface ApiResult {
 
 const MAX_JSON_BODY_BYTES = 32 * 1024;
 const DEFAULT_ALLOWED_ORIGINS = new Set([
+  "https://www.tts-agency.site",
+  "https://tts-agency.site",
   "https://security-agency-ms.vercel.app",
   "https://sams-it-portal.vercel.app",
   "https://sentinel-link-portal.vercel.app",
@@ -69,6 +71,7 @@ function isAllowedOrigin(origin: string | null): boolean {
   if (!origin || origin === "null") return true;
   if (/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:[0-9]+)?$/.test(origin)) return true;
   if (/^https:\/\/[a-z0-9-]+(\.vercel\.app)$/i.test(origin)) return true;
+  if (/^https?:\/\/(www\.)?tts-agency\.site$/i.test(origin) || /\.tts-agency\.site$/i.test(origin)) return true;
   return configuredOrigins().has(origin);
 }
 
