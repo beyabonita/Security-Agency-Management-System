@@ -1,0 +1,17 @@
+00:00 +0: loading C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart
+00:00 +0: Incoming swap can be approved by the selected Guard
+00:02 +1: Incoming swap can be declined by the selected Guard
+00:02 +2: attendance relation accepts current and legacy Supabase shapes
+00:02 +3: load failures never use the submission error message
+00:02 +4: Letter form fits a narrow phone after selecting a duty
+00:03 +5: Absence form remains visible without schedules, with safe disabled submission
+00:03 +6: Guard can attach an absence letter and send selected period to Operational Head
+00:04 +7: Swap selection preserves its request type and attachment
+00:05 +8: Timed-in Guard can request replacement without an exchange target
+00:06 +9: Swap requires a peer duty and remains usable when none are available
+00:06 +10: Swap picker retry retains the attachment and absence does not need a peer
+00:07 +11: Missing letter is rejected without calling submission
+00:07 +12: Upload denial shows actionable error and retains attachment for retry
+00:08 +13: Cancelling replacement keeps previously attached file
+00:08 +14: Picker validation is shown without erasing the request reason
+00:08 +15: All tests passed!

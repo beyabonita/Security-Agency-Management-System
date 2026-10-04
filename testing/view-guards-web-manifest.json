@@ -1,0 +1,346 @@
+[
+  {
+    "path": "admin/css/admin-theme.css",
+    "sha256": "f9df08fc53e3a8451adcc5afaebf17e28a08954d1e3423a4fe0facd6f96b4a45"
+  },
+  {
+    "path": "admin/css/dtr-scheduling.css",
+    "sha256": "a32a0b1e5384c85694b5d6ccc79c408a52f67b1658f5f4299bf829c2273c4896"
+  },
+  {
+    "path": "admin/dashboard.html",
+    "sha256": "3f4d030972f3f05ba8177fccef0d8b6c2ee858d9404a8ff391c08d03dec2b832"
+  },
+  {
+    "path": "admin/incidents.html",
+    "sha256": "641701d90704cbea7cb61d836c13c02afd21d3943cef38f894f1cd5e0bd323d9"
+  },
+  {
+    "path": "admin/js/admin-shell.js",
+    "sha256": "a3caacd51da812f10be537e886b630606b812126e28d19089012a36b9b7a7b12"
+  },
+  {
+    "path": "admin/js/duty-requests.js",
+    "sha256": "09be0f504e6723f44ad4d8e89ec1f111ca000c6ffd5afc2e85f7ef58f8caa5c1"
+  },
+  {
+    "path": "admin/js/shift-roster.js",
+    "sha256": "979caa0f625de3d45f515668633b502b310d3b467864489c8f76ade349a3d873"
+  },
+  {
+    "path": "admin/live-tracking.html",
+    "sha256": "c0a27b924ccb6e8ad85bd3100315ea521e2537690b2f27c23860a804a90bfbc1"
+  },
+  {
+    "path": "admin/locations.html",
+    "sha256": "10c6fdf09bb1288e8da840926de2f02c00606b29964f418c8018f9fa26e7f696"
+  },
+  {
+    "path": "admin/schedule.html",
+    "sha256": "470df009cf4edd32067ffbc547e7368dd3a8cec69567550d2b1cffb22463d84c"
+  },
+  {
+    "path": "admin/swaps.html",
+    "sha256": "9b0b7eb7f21d1819f9fb27ca24a884d2cea12010f54aaa4f096735c67c2f7efa"
+  },
+  {
+    "path": "admin/users.html",
+    "sha256": "408a6363d68f7ec80522be74a316cdf84d05eda7689421cf3d4aa89523f1934e"
+  },
+  {
+    "path": "assets/fonts/LICENSE.txt",
+    "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd"
+  },
+  {
+    "path": "assets/fonts/material-symbols-rounded.json",
+    "sha256": "6e3a1856467b0fe4f39fcf2fe8a21e8b0aa61bb6286200e3275dcbef039a9a6a"
+  },
+  {
+    "path": "assets/fonts/material-symbols-rounded.woff2",
+    "sha256": "b639174f2101e6735688d3074fba998e5c10a2e3b9dc3f8d0334791f7f65f72e"
+  },
+  {
+    "path": "assets/fonts/README.md",
+    "sha256": "ef12be1405b7fecb4d704556620317e13db96e1aec98b02bd3795b65875bb965"
+  },
+  {
+    "path": "assets/twentytwenty-agency-office.jpg",
+    "sha256": "2b7cbf1f62305c787ff70a3f93f071b67931eb162eb35a30561252557d87f6f6"
+  },
+  {
+    "path": "css/app-experience.css",
+    "sha256": "85b5c773f091e6a7b845c07114ede135a3aeaaa1e55f8b8344cd431e0bad9be9"
+  },
+  {
+    "path": "css/brand.css",
+    "sha256": "30af2e34462fdcebc8235c3b7afd6b3d1b8905edaf779c2ecc1588726d9b8424"
+  },
+  {
+    "path": "css/dtr-report.css",
+    "sha256": "1a18190f54ee60869942e55a0d538f42662c85d7c7193f467c58ed9d01d06337"
+  },
+  {
+    "path": "css/duty-requests.css",
+    "sha256": "19804f27e0e75b60e4ff7aa99540aa3d8f45e04c9b3c0ac134e8766fa3eb560b"
+  },
+  {
+    "path": "css/google-icons.css",
+    "sha256": "4cb250ee4e249c0377683ba46391f7321bb686a12cb0d06e8b3e5c6b152aa89d"
+  },
+  {
+    "path": "css/incident-report.css",
+    "sha256": "660e53eeb9ce20f0071e7b7261e3e90050e4010ca484c33684fcea5594dca57a"
+  },
+  {
+    "path": "css/live-tracking.css",
+    "sha256": "e7a06dc473898488be0e817aff70f71120c684fc4c51225ff6fcc3c06564ed6f"
+  },
+  {
+    "path": "css/login-transitions.css",
+    "sha256": "898361298d502e35046a00d38efe45108dd142665e68b3c37aaaa813f02e149b"
+  },
+  {
+    "path": "css/password-visibility.css",
+    "sha256": "033e29b876c70da8958c14840358159e1de5e61013e26649e7d07d2bbb71b0d6"
+  },
+  {
+    "path": "css/searchable-select.css",
+    "sha256": "c32998c52271fcc0eec5b159cc2a23f3c9847e6444865730d07487ea4c66c85d"
+  },
+  {
+    "path": "css/theme-preference.css",
+    "sha256": "c8cf7816721fa6dc36253e2017cfb6e23fc017b26fa5cd939440fe7f56064539"
+  },
+  {
+    "path": "icons/Icon-192.png",
+    "sha256": "dbaa6f558aff9b357ff24d913e3fe5ca6c4c84ebc6f5ef5e905e05bfce34eac8"
+  },
+  {
+    "path": "icons/Icon-512.png",
+    "sha256": "fdff2e3b198a057e44082df4d473a7486a274c41b145ff6d06ad28dec47742bb"
+  },
+  {
+    "path": "icons/Icon-maskable-192.png",
+    "sha256": "dbaa6f558aff9b357ff24d913e3fe5ca6c4c84ebc6f5ef5e905e05bfce34eac8"
+  },
+  {
+    "path": "icons/Icon-maskable-512.png",
+    "sha256": "fdff2e3b198a057e44082df4d473a7486a274c41b145ff6d06ad28dec47742bb"
+  },
+  {
+    "path": "icons/sentinel-link-mark.png",
+    "sha256": "88023b37feddee52245f605adfdc7a8cf603b013655289f23be75deb34508f93"
+  },
+  {
+    "path": "inspector/css/inspector-theme.css",
+    "sha256": "83ce2e729a90ee756517366df809a23086c2c5e85280cee23663b6980226f97b"
+  },
+  {
+    "path": "inspector/dashboard.html",
+    "sha256": "86973c454697be83a3d39896447c36e904486a06702ecef53a06b3a56eb77982"
+  },
+  {
+    "path": "inspector/incidents.html",
+    "sha256": "119e8dea79efc1856a178fc34ed32d9e603728ecb4c7cd09f7148cac2be5df11"
+  },
+  {
+    "path": "inspector/js/inspector-shell.js",
+    "sha256": "83f8bd7d6ae97cc3b945c2c2583ca5c793a5d3de9f09dd312dc29370c09b5d0c"
+  },
+  {
+    "path": "inspector/live-tracking.html",
+    "sha256": "aefe05ff93dc5d17e19216a9a5d5be65892a924fdb9f26e61c3150d4553cc8a5"
+  },
+  {
+    "path": "inspector/locations.html",
+    "sha256": "f827c584fb6c8179fe93a78f4afc78615c3d5bbbeaa3a7b502460d1d165528fc"
+  },
+  {
+    "path": "inspector/swaps.html",
+    "sha256": "7b07a4f711f4b7044e51144ee20f106ffa4f08490d2837bd6706b30386d6b765"
+  },
+  {
+    "path": "inspector/users.html",
+    "sha256": "e628c44855b41b23432a7fcf12fe873a88cfeff11d1b1632deecadb4053a14fe"
+  },
+  {
+    "path": "it-admin/account-activity.js",
+    "sha256": "868926b1b0705cbe20ac779b992244463f2cad943a29cae5872f17461a38c007"
+  },
+  {
+    "path": "it-admin/clients.html",
+    "sha256": "9d8bf30cc999ca1d2d0be1e5ec7dd492fcd6eb279eb825bbdc195ba4395011cd"
+  },
+  {
+    "path": "it-admin/dashboard.html",
+    "sha256": "0956d6f5bced26bb6515354e39fc20f4d378c57abd9fa0a229e832720ee58bce"
+  },
+  {
+    "path": "it-admin/it-admin-ui.js",
+    "sha256": "e741c876aabc271e33f6a459096823729c28c01b453ad0bbbaf0cb09608c55c4"
+  },
+  {
+    "path": "it-admin/system-controls.css",
+    "sha256": "a0c59f638fb5f054b1aeea2becca27adf6fa3fad84f49c946898b62adebddbfc"
+  },
+  {
+    "path": "it-admin/system-controls.js",
+    "sha256": "864e4b31c7f7368dbfc1f9069c61f5817259e2cec2bb66fb12854a1531580e8f"
+  },
+  {
+    "path": "it-admin/users.html",
+    "sha256": "bce3ac3a27bceb394d20a8ffc25174749a9a882d64968d86eddd1a40a26005f2"
+  },
+  {
+    "path": "js/accomplishment-photos.js",
+    "sha256": "4af1a904b82b45014fc060c0f4e85bf4a1b35aa22259741e2abdb5fcbf0862d0"
+  },
+  {
+    "path": "js/account-presence.js",
+    "sha256": "c19d30a8f570ff402173876d974ce861804d6ccc23fdddce83a02a0288bd34d4"
+  },
+  {
+    "path": "js/app-dialogs.js",
+    "sha256": "1955c3caae9271fcf320052acbfc57f3dc25914ed1ed251aa1f8bf27a989a13e"
+  },
+  {
+    "path": "js/auth-username.js",
+    "sha256": "52bf3405a35ef359f2ef8552ec36f2caed7bba49df052a7a0b1910b29e0616ed"
+  },
+  {
+    "path": "js/contract-period.js",
+    "sha256": "839c201df4cb00b61462fdcf51b9ff3080b5dcb81c12a591e5eb33ecf661bda2"
+  },
+  {
+    "path": "js/dashboard-shifts.js",
+    "sha256": "1dd7fa4ee428d64bd32d2d348974da7febc7980eb955a5f78162c9ba7c81a978"
+  },
+  {
+    "path": "js/dtr-report.js",
+    "sha256": "1c486ef3a3216bb41c1790aaacda75508ce0fc8d21e541d8ea59d81902384790"
+  },
+  {
+    "path": "js/edge-function-errors.js",
+    "sha256": "5d7f64a3bc3c2bcf2505221e2f8b6ca97884254d26eba241343cbc4da3c1b1a6"
+  },
+  {
+    "path": "js/incident-report-view.js",
+    "sha256": "95d30cf2a3876a503420a3a9caf814c07d6cbc7b13489e9819d4d08e519fec1e"
+  },
+  {
+    "path": "js/live-marker-motion.js",
+    "sha256": "4a7038802a68485a553718a17f398792d4c4a580308a176f05c17b19dca90fa0"
+  },
+  {
+    "path": "js/live-tracking-model.js",
+    "sha256": "9ac810ae4d33528dda4f699728708e6d81ba1338cad3b158f099d29e25bb52f5"
+  },
+  {
+    "path": "js/live-tracking.js",
+    "sha256": "3008df97872d5f9ba56fb2a9866429d50917cb304172bbbb720e2ed298fdeb94"
+  },
+  {
+    "path": "js/login-panel-switch.js",
+    "sha256": "e3b19cf20c2de35b0fe4b22c929f390c6208f04956f8b5ed21c6be9c4f129214"
+  },
+  {
+    "path": "js/notification-center.js",
+    "sha256": "af6d426165f91b18378afb5b2a834b9bf3eacf2c3e0d768f4bd9e2411e3663c0"
+  },
+  {
+    "path": "js/password-policy.js",
+    "sha256": "5bb726ead2c0ffa9687afc235020bbac896dd266f9e6882dd11fdfcd612f09fc"
+  },
+  {
+    "path": "js/password-visibility.js",
+    "sha256": "ad4f3715f1d4bae5ef6e033458aca8a1c5ac487c8873b3095de37d466f1166c6"
+  },
+  {
+    "path": "js/personnel-inputs.js",
+    "sha256": "087a93795d2ce05efd2673e0686e64ca8a52b51fc103e8a2fbe6ced45148de97"
+  },
+  {
+    "path": "js/ph-location-search.js",
+    "sha256": "f8dc19d8acb5c4c4dd184e129bf1def8b2ff48ea8bcbed258f3970089aeb39f8"
+  },
+  {
+    "path": "js/platform-configuration.js",
+    "sha256": "ba381dccb257d2652bd456e397ec8f028a49d6bf320af71c1823c7f26e97b603"
+  },
+  {
+    "path": "js/roster-setup.js",
+    "sha256": "7faf7f61f66afe3c8fd7c7bcfd2ec572b84071ef4fadb8266a5fede56a9d89f8"
+  },
+  {
+    "path": "js/schedule-period.js",
+    "sha256": "cf3f81b8eddcee79b5881df934813501e628d9d570cd757b4a8bb58983794274"
+  },
+  {
+    "path": "js/searchable-select.js",
+    "sha256": "b3bb4d9f8873389c0981f2c9992058c39e79d4ea7f4d69b8341b397e2f58d707"
+  },
+  {
+    "path": "js/supabase-firebase-bridge.js",
+    "sha256": "354661c6c426e558cce0128b77c9fb105a3bc7aff551e9f6e620a75a334e6f00"
+  },
+  {
+    "path": "js/theme-preference.js",
+    "sha256": "19f74716fa989bf659ac04cbdcbaf2ee9884d68a97dfe8ff0b99431c53c9147c"
+  },
+  {
+    "path": "staff/app-download.css",
+    "sha256": "68c9a9615744ed7f7a4dc1e1cdd85bacf7adc6918dd4fd10f69d22d1b9b74826"
+  },
+  {
+    "path": "staff/app-download.html",
+    "sha256": "6b5f4a641fe8ae9a7ed60419252eb0600796e3e72e18606571d2b72d17060ff0"
+  },
+  {
+    "path": "staff/app-download.js",
+    "sha256": "aa310cdb55a2da0252b95623d0da3093d433e10cb88dada2df3102e6297cc6da"
+  },
+  {
+    "path": "staff/guard-app-qr.png",
+    "sha256": "572079c63cce1d12b4086aff15f5fca1d766cefff51b18ab88c577004a780295"
+  },
+  {
+    "path": "staff/guard-app.css",
+    "sha256": "cacb3c64dcc29435a5dc26fcb03988d7ea9bd39fe3f77e78171efdbf657b1455"
+  },
+  {
+    "path": "staff/guard-app.js",
+    "sha256": "5d2959070aad9c44f17e32079fc107e0a6146ba970abc7cc26cb09b8f49da50a"
+  },
+  {
+    "path": "staff/login.css",
+    "sha256": "14f8a87ba38a78f72e6bdef932f0478b4bfdcc19ab45d1e1995d816cfcc54fab"
+  },
+  {
+    "path": "staff/login.html",
+    "sha256": "f090268afc8b03cfdace3bfb7e403962c2aba328e51422f1e3d539087ec10555"
+  },
+  {
+    "path": "system-access-7d92a4/login.html",
+    "sha256": "a1e5196f1e261de0e30f0f23b2c32cd4e5c47e43077877b7283ea06041caebf7"
+  },
+  {
+    "path": "downloads/security-agency-management-system-guard.apk",
+    "sha256": "b2a68e4a5c8e021f56cdc98ac47f5fbefd98919ffdf799c7a9b3719bab77fe25"
+  },
+  {
+    "path": "favicon.png",
+    "sha256": "b7f23eec6ddce46b4468470eac2f834866a345f975b93cae2cd470af7754f6cd"
+  },
+  {
+    "path": "index.html",
+    "sha256": "93f8f0647e14cb0abda9502d1c2561687842aae712fec6ffb1c263697fab4326"
+  },
+  {
+    "path": "manifest.json",
+    "sha256": "2e95f833f9b7e889fb700c1148185defc9d0a0848ef527bcd3721d6f0caa2040"
+  },
+  {
+    "path": "vercel.json",
+    "sha256": "b7195e94f3e4f28183d6b1db354fe3531740dbfaaaefa971b917d199d0e03d3f"
+  }
+]

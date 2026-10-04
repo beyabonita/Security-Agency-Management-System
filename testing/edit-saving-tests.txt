@@ -1,0 +1,17 @@
+
+Running 10 tests using 1 worker
+
+(node:4768) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 web\tests\contract_personnel.spec.js:3:1 › editing stays open with a Saving spinner, prevents repeated saves and preserves fields after an error (3.5s)
+  ok  2 web\tests\contract_personnel.spec.js:33:1 › personnel mobile input accepts digits only, validates 09 prefix, and persists edits (3.6s)
+  ok  3 web\tests\contract_personnel.spec.js:72:1 › Contract creation requires dates and sends the inclusive period (4.1s)
+  ok  4 web\tests\contract_personnel.spec.js:92:1 › personnel names reject numbers and account passwords can be shown and hidden (2.9s)
+  ok  5 web\tests\contract_personnel.spec.js:103:1 › personnel removal requires confirmation and sends only the selected account (2.3s)
+  ok  6 web\tests\contract_personnel.spec.js:114:1 › Inspector and Regular creation do not require contract dates (2.6s)
+  ok  7 web\tests\contract_personnel.spec.js:125:1 › Editing loads saved dates, validates and submits renewal (3.1s)
+  ok  8 web\tests\contract_personnel.spec.js:141:1 › Operations Head creation rejects each missing password requirement and accepts an eight-character mix (3.8s)
+  ok  9 web\tests\contract_personnel.spec.js:158:1 › Operations Head reset validates all password requirements before sending a change (3.6s)
+  ok 10 web\tests\contract_personnel.spec.js:173:1 › Legacy missing-date contract is identified, not silently treated as Regular (2.2s)
+
+  10 passed (33.3s)

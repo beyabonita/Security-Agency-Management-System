@@ -1,0 +1,46 @@
+{
+  "removed": [
+    {
+      "removed": 2,
+      "table_name": "accomplishment_reports"
+    },
+    {
+      "removed": 22,
+      "table_name": "account_presence_sessions"
+    },
+    {
+      "removed": 8,
+      "table_name": "attendance_sessions"
+    },
+    {
+      "removed": 1,
+      "table_name": "attendance_timeout_reviews"
+    },
+    {
+      "removed": 2,
+      "table_name": "guard_assignment_history"
+    },
+    {
+      "removed": 3,
+      "table_name": "incidents"
+    },
+    {
+      "removed": 13,
+      "table_name": "profiles"
+    },
+    {
+      "removed": 12,
+      "table_name": "schedules"
+    },
+    {
+      "removed": 4,
+      "table_name": "shift_swap_requests"
+    },
+    {
+      "removed": 117,
+      "table_name": "user_notifications"
+    }
+  ],
+  "uploadedFilesRemoved": 7,
+  "backup": "C:\\Users\\Administrator\\.codex\\backups\\sams-removed-guards-1790047889544"
+}

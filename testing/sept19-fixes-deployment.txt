@@ -1,0 +1,54 @@
+Vercel CLI 59.5.0 (Node.js 24.13.0)
+Deploying security-agency-management-system
+Uploading [--------------------] (0.0B/125.3KB)
+Uploading [=====---------------] (32.1KB/125.3KB)
+Uploading [============--------] (76.4KB/125.3KB)
+Uploading [=================---] (108.4KB/125.3KB)
+Uploading [====================] (125.3KB/125.3KB)
+  Inspect         https://vercel.com/codex-a9d1/security-agency-management-system/4rpbWhnoDE3Jy9Hk1QwDTmBTk4YM
+  Production      https://security-agency-management-system-jnvls0882-codex-a9d1.vercel.app
+Building…
+Building…
+Running build in Washington, D.C., USA (East) – iad1
+Build machine configuration: 2 cores, 8 GB
+Retrieving list of deployment files...
+Previous build caches not available.
+Downloading 83 deployment files...
+Running "vercel build"
+Vercel CLI 59.23.2
+[2K[1A[2K[G  Production      https://security-agency-management-system-jnvls0882-codex-a9d1.vercel.app
+Completing…
+▲ Aliased         https://security-agency-management-system-nu.vercel.app
+{
+  "status": "ok",
+  "deployment": {
+    "id": "dpl_4rpbWhnoDE3Jy9Hk1QwDTmBTk4YM",
+    "url": "https://security-agency-management-system-jnvls0882-codex-a9d1.vercel.app",
+    "inspectorUrl": "https://vercel.com/codex-a9d1/security-agency-management-system/4rpbWhnoDE3Jy9Hk1QwDTmBTk4YM",
+    "readyState": "READY",
+    "target": "production",
+    "deploymentApiUrl": "https://api.vercel.com/v13/deployments/dpl_4rpbWhnoDE3Jy9Hk1QwDTmBTk4YM"
+  },
+  "message": "Deployment security-agency-management-system-jnvls0882-codex-a9d1.vercel.app ready.",
+  "next": [
+    {
+      "command": "vercel curl https://security-agency-management-system-jnvls0882-codex-a9d1.vercel.app",
+      "when": "Verify deployment, including when Deployment Protection is enabled"
+    },
+    {
+      "command": "vercel inspect security-agency-management-system-jnvls0882-codex-a9d1.vercel.app --scope codex-a9d1",
+      "when": "Inspect deployment"
+    },
+    {
+      "command": "vercel deploy --prod --scope codex-a9d1",
+      "when": "Promote to production"
+    }
+  ]
+}
+─────────────────────────────────────────────────────────────────────────
+
+Update available! v59.5.0 ≫ v59.23.2
+Changelog: https://github.com/vercel/vercel/releases/tag/vercel%4059.23.2
+Run `npm i vercel@latest` to update.
+
+─────────────────────────────────────────────────────────────────────────

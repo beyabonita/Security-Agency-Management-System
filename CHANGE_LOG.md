@@ -1,5 +1,35 @@
 # Project Change Log
 
+### [2026-10-04 17:28] - Selective Merge: Integrate Guard App v1.0.20 & Accomplishment Photos While Preserving Portal Customizations
+
+- **Scope & Objective**: Safely integrated the incoming version of the system (`C:\Users\USER\Documents\Security Management System`) into the active workspace without overwriting or losing any custom changes developed today (including Operations Head Top 5 risk metrics, incident intelligence, comboboxes, and Company navigation):
+  1. Created safety backup branch `backup-before-selective-merge`.
+  2. Imported Guard Mobile App v1.0.20 photo accomplishment features, models, services, and tests.
+  3. Integrated Supabase migrations (`011` through `014`), edge functions (`mobile-number.ts`, `personnel-name.ts`), and updated `admin-manage-user`.
+  4. Added Web accomplishment photo report viewer (`web/js/accomplishment-photos.js`), updated `web/admin/users.html` modal with full-size photo rendering and retry capability.
+  5. Strictly protected and retained all custom portal changes: Operations Head dashboard Top 5 analytics & status summary bar (`web/admin/dashboard.html`), unified searchable comboboxes and double-shift prevention (`web/admin/schedule.html`), Company navigation renames, and theme stylesheets (`admin-theme.css`, `dtr-scheduling.css`).
+  6. Per user directive, code is merged and verified locally; neither git commit nor git push has been executed yet.
+- **Files Modified / Created**:
+  - `[lib/models/accomplishment_photo.dart](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/models/accomplishment_photo.dart)`: New model for guard accomplishment photos.
+  - `[lib/services/accomplishment_photo_picker.dart](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/services/accomplishment_photo_picker.dart)`: Image picker service for guard reports.
+  - `[lib/duty_requests.dart](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/duty_requests.dart)`, `[lib/homepage.dart](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/homepage.dart)`, `[lib/letter_request.dart](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/letter_request.dart)`, `[lib/login.dart](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/login.dart)`, `[lib/notifications.dart](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/notifications.dart)`, `[lib/services/duty_request_service.dart](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/services/duty_request_service.dart)`, `[lib/services/schedule_service.dart](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/services/schedule_service.dart)`: Flutter mobile app updates for v1.0.20.
+  - `[web/js/accomplishment-photos.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/accomplishment-photos.js)`: Web photo renderer with signed URL retrieval, full-size zoom, and failure retry.
+  - `[web/admin/users.html](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html)`: Integrated accomplishment photo renderer script and photo preview slot in accomplishmentModal.
+  - `[web/tests/accomplishment_photos.spec.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/accomplishment_photos.spec.js)`: Playwright test suite for accomplishment photo viewing.
+  - `[supabase/migrations/20260920000000_accomplishment_photos.sql](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20260920000000_accomplishment_photos.sql)` to `20260920000002_one_guard_duty_per_site_day.sql`: Database migrations.
+  - `[supabase/functions/_shared/mobile-number.ts](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/functions/_shared/mobile-number.ts)`, `[supabase/functions/_shared/personnel-name.ts](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/functions/_shared/personnel-name.ts)`: Backend edge utilities.
+  - `[docs/RELEASE_1.0.19.md](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/docs/RELEASE_1.0.19.md)`, `[docs/RELEASE_1.0.20.md](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/docs/RELEASE_1.0.20.md)`: Release documentation.
+  - `[CHANGE_LOG.md](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/CHANGE_LOG.md)`: Documented selective merge.
+- **Verification & Testing**:
+  - `npx playwright test accomplishment_photos.spec.js`: Passed (1 passed, 6.6s).
+  - `npx playwright test admin_dashboard.spec.js`: Passed (1 passed, 1.3s).
+  - `npx playwright test ph_location_search.spec.js`: Passed (5 passed, 2.6s).
+  - Core roster lifecycle tests: Verified all atomic saves, named guards, and shift logic pass.
+- **Pending / Next Steps**:
+  - Awaiting user review before performing `git add`, `git commit`, and `git push`.
+
+---
+
 ### [2026-10-04 16:20] - Remove Quick Actions Section from Operations Head Dashboard
 
 - **Scope & Objective**: Cleaned up the Operations Head dashboard (`web/admin/dashboard.html`) layout by removing the redundant "Quick actions" navigation block:

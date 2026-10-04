@@ -724,7 +724,7 @@ class _SchedulesCardState extends State<_SchedulesCard>
       ScheduleService.visibleSchedules(
         await Supabase.instance.client
             .from('schedules')
-            .select()
+            .select('*,attendance_sessions(status,clock_in_at,clock_out_at)')
             .eq('user_id', widget.userId)
             .inFilter('approval_status', ['approved', 'changed'])
             .order('start_at', ascending: false)
@@ -1086,7 +1086,8 @@ class _ScheduleTileState extends State<_ScheduleTile> {
                 fontSize: 11,
               ),
             ),
-          ] else if (markedDone) ...[
+          ],
+          if (ScheduleService.canSubmitAccomplishment(s)) ...[
             const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: () => Navigator.of(context).push(

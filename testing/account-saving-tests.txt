@@ -1,0 +1,52 @@
+
+Running 7 tests using 1 worker
+
+(node:17420) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 web\tests\it_admin_accounts.spec.js:141:1 › IT Admin creation rejects each missing password requirement and accepts an eight-character mix (3.2s)
+  ok 2 web\tests\it_admin_accounts.spec.js:157:1 › IT Admin reset validates each password requirement before sending a change (2.6s)
+  ok 3 web\tests\it_admin_accounts.spec.js:174:1 › IT Admin keeps the password when the optional edit field is blank (2.0s)
+  ok 4 web\tests\it_admin_accounts.spec.js:185:1 › current IT Admin is protected while another Operations Head keeps account actions (549ms)
+  x  5 web\tests\it_admin_accounts.spec.js:201:1 › account editing shows the Edge Function public JSON message (7.1s)
+(node:10300) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 6 web\tests\it_admin_accounts.spec.js:231:1 › IT Admin changes own email with current password and no access fields (2.1s)
+  ok 7 web\tests\it_admin_accounts.spec.js:241:1 › account creation rejects legacy aliases and invalid email (2.3s)
+
+
+  1) web\tests\it_admin_accounts.spec.js:201:1 › account editing shows the Edge Function public JSON message 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('alert')
+    Expected substring: "That email address is already in use. (Request ID: req-account-edit)"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for getByRole('alert')
+
+
+      209 |   await dialog.getByRole('button', { name: 'Save changes', exact: true }).click();
+      210 |
+    > 211 |   await expect(page.getByRole('alert')).toContainText(
+          |                                         ^
+      212 |     'That email address is already in use. (Request ID: req-account-edit)',
+      213 |   );
+      214 |   await expect(page.getByText(/Edge Function returned a non-2xx status code/i)).toHaveCount(0);
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\it_admin_accounts.spec.js:211:41
+
+    Error Context: web\tests\test-results-account-saving\it_admin_accounts-account--23456-unction-public-JSON-message\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    web\tests\test-results-account-saving\it_admin_accounts-account--23456-unction-public-JSON-message\trace.zip
+    Usage:
+
+        npx playwright show-trace web\tests\test-results-account-saving\it_admin_accounts-account--23456-unction-public-JSON-message\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    web\tests\it_admin_accounts.spec.js:201:1 › account editing shows the Edge Function public JSON message 
+  6 passed (22.9s)

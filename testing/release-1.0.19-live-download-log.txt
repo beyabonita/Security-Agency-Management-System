@@ -1,0 +1,5 @@
+Verified download segments 5/16
+Verified download segments 9/16
+Verified download segments 13/16
+Verified download segments 16/16
+{"apk":"https://security-agency-management-system-download.vercel.app/downloads/security-agency-management-system-guard.apk?v=1.0.19","bytes":66870457,"sha256":"9e1a7bac5b14cc8a32190dfa6584bf668d6c73891f8beb3ef2279d37a506467a","verified":true}

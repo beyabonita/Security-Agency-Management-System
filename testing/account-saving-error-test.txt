@@ -1,0 +1,8 @@
+
+Running 1 test using 1 worker
+
+(node:17632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 web\tests\it_admin_accounts.spec.js:201:1 › account editing shows the Edge Function public JSON message (2.2s)
+
+  1 passed (3.7s)

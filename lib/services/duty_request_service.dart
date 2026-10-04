@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_application_1/models/request_letter.dart';
+import 'package:flutter_application_1/models/accomplishment_photo.dart';
 
 class DutyRequestData {
   const DutyRequestData({required this.schedules, required this.requests});
@@ -19,10 +20,20 @@ abstract interface class DutyRequestGateway {
     String? targetScheduleId,
   });
   Future<void> discard(RequestLetter letter);
+  Future<void> respondToSwap(String requestId, bool approve);
 }
 
 class SupabaseDutyRequestGateway implements DutyRequestGateway {
   const SupabaseDutyRequestGateway();
+  @override
+  Future<void> respondToSwap(String requestId, bool approve) async {
+    await Supabase.instance.client
+        .rpc(
+          'respond_to_duty_swap',
+          params: {'p_request_id': requestId, 'p_approve': approve},
+        )
+        .timeout(const Duration(seconds: 30));
+  }
 
   @override
   Future<List<Map<String, dynamic>>> swapOptions(String scheduleId) async {
@@ -221,13 +232,24 @@ class DutyRequestService {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> myRequests(String userId) async =>
-      await _client
-          .from('shift_swap_requests')
-          .select('*, requested_duty:schedules!requested_schedule_id(*)')
-          .eq('requester_id', userId)
-          .order('created_at', ascending: false)
-          .limit(50);
+  static Future<List<Map<String, dynamic>>> myRequests(String userId) async {
+    final rows = await _client
+        .from('shift_swap_requests')
+        .select('*, requested_duty:schedules!requested_schedule_id(*)')
+        .or('requester_id.eq.$userId,target_guard_id.eq.$userId')
+        .order('created_at', ascending: false)
+        .limit(50);
+    return rows
+        .map(
+          (row) => {
+            ...row,
+            'is_incoming':
+                row['target_guard_id'] == userId &&
+                row['requester_id'] != userId,
+          },
+        )
+        .toList();
+  }
 
   static Future<void> discardUnsubmittedLetter(RequestLetter letter) async {
     final path = letter.uploadedPath ?? letter.pendingUploadPath;
@@ -241,13 +263,58 @@ class DutyRequestService {
     required String summary,
     required String narrative,
     required String issues,
-  }) => _client.rpc(
-    'submit_accomplishment_report',
-    params: {
-      'p_schedule_id': scheduleId,
-      'p_summary': summary.trim(),
-      'p_detailed_narrative': narrative.trim(),
-      'p_issues_encountered': issues.trim(),
-    },
-  );
+    required AccomplishmentPhoto photo,
+  }) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw StateError('Your session expired. Sign in again.');
+    final bucket = _client.storage.from('accomplishment-photos');
+    final retry = photo.uploadPath != null;
+    final path = photo.reservePath(user.id);
+    if (!photo.uploaded) {
+      if (retry &&
+          await bucket.exists(path).timeout(const Duration(seconds: 20))) {
+        photo.uploaded = true;
+      } else {
+        await bucket
+            .uploadBinary(
+              path,
+              photo.bytes,
+              fileOptions: FileOptions(
+                contentType: photo.mimeType,
+                upsert: false,
+              ),
+            )
+            .timeout(const Duration(seconds: 60));
+        photo.uploaded = true;
+      }
+    }
+    photo.submissionUncertain = true;
+    try {
+      await _client
+          .rpc(
+            'submit_accomplishment_report',
+            params: {
+              'p_schedule_id': scheduleId,
+              'p_summary': summary.trim(),
+              'p_detailed_narrative': narrative.trim(),
+              'p_issues_encountered': issues.trim(),
+              'p_photo_path': path,
+              'p_photo_name': photo.name,
+            },
+          )
+          .timeout(const Duration(seconds: 30));
+    } on PostgrestException {
+      photo.submissionUncertain = false;
+      rethrow;
+    }
+  }
+
+  static Future<void> discardAccomplishmentPhoto(
+    AccomplishmentPhoto photo,
+  ) async {
+    if (photo.uploadPath == null || photo.submissionUncertain) return;
+    await _client.storage.from('accomplishment-photos').remove([
+      photo.uploadPath!,
+    ]);
+  }
 }

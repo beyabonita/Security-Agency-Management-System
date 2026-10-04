@@ -1,0 +1,17 @@
+Deploying Function: admin-create-user
+Uploading asset (admin-create-user): supabase/functions/admin-create-user/index.ts
+Uploading asset (admin-create-user): supabase/functions/_shared/mobile-number.ts
+Uploading asset (admin-create-user): supabase/functions/_shared/api.ts
+Uploading asset (admin-create-user): supabase/functions/_shared/personnel-name.ts
+Uploading asset (admin-create-user): supabase/functions/_shared/password-policy.ts
+Uploading asset (admin-create-user): supabase/functions/_shared/contract-period.ts
+Uploading asset (admin-create-user): supabase/functions/_shared/accounts.ts
+Deploying Function: admin-manage-user
+Uploading asset (admin-manage-user): supabase/functions/admin-manage-user/index.ts
+Uploading asset (admin-manage-user): supabase/functions/_shared/contract-period.ts
+Uploading asset (admin-manage-user): supabase/functions/_shared/accounts.ts
+Uploading asset (admin-manage-user): supabase/functions/_shared/api.ts
+Uploading asset (admin-manage-user): supabase/functions/_shared/mobile-number.ts
+Uploading asset (admin-manage-user): supabase/functions/_shared/personnel-name.ts
+Uploading asset (admin-manage-user): supabase/functions/_shared/password-policy.ts
+{"project_ref":"uqtupmpofjqrnefgrexm","functions":["admin-create-user","admin-manage-user"],"dashboard_url":"https://supabase.com/dashboard/project/uqtupmpofjqrnefgrexm/functions","message":"Deployed Functions."}

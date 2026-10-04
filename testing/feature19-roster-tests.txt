@@ -1,0 +1,81 @@
+
+Running 43 tests using 1 worker
+
+(node:6932) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 web\tests\schedule_lifecycle.spec.js:121:1 › roster is the only editor and the explanation panel is removed (1.5s)
+  ok  2 web\tests\schedule_lifecycle.spec.js:131:1 › personnel and site loading work without custom-editor controls (1.0s)
+  ok  3 web\tests\schedule_lifecycle.spec.js:145:1 › an overnight roster remains on the starting date and first DTR cutoff (1.7s)
+  ok  4 web\tests\schedule_lifecycle.spec.js:161:3 › missing contract dates prevents a roster request (1.7s)
+  ok  5 web\tests\schedule_lifecycle.spec.js:161:3 › outside contract dates prevents a roster request (1.6s)
+  ok  6 web\tests\schedule_lifecycle.spec.js:161:3 › overnight contract end prevents a roster request (1.5s)
+  ok  7 web\tests\schedule_lifecycle.spec.js:161:3 › inactive guard prevents a roster request (1.5s)
+  ok  8 web\tests\schedule_lifecycle.spec.js:161:3 › past date prevents a roster request (1.5s)
+  ok  9 web\tests\schedule_lifecycle.spec.js:179:1 › a failed save prevents duplicate submission and preserves selected guards (1.8s)
+  ok 10 web\tests\schedule_lifecycle.spec.js:193:1 › an incomplete RPC response cannot report a saved roster (1.5s)
+  ok 11 web\tests\schedule_lifecycle.spec.js:200:1 › after the first shift ends today remains available for the night shift (1.6s)
+  ok 12 web\tests\schedule_lifecycle.spec.js:209:1 › today at 7 PM assigns only the ongoing night shift, preserving its actual overnight hours (1.5s)
+  ok 13 web\tests\schedule_lifecycle.spec.js:221:1 › three-shift setup at exactly 2 PM skips the completed morning and requires both remaining guards (1.8s)
+  ok 14 web\tests\schedule_lifecycle.spec.js:237:1 › attendance reports completion and requests protect period history (1.4s)
+  ok 15 web\tests\schedule_lifecycle.spec.js:252:1 › schedule loading explicitly selects both swap relationships in one query (1.4s)
+  ok 16 web\tests\schedule_lifecycle.spec.js:265:1 › schedule names prefer the current profile and safely preserve historical names (1.2s)
+  ok 17 web\tests\schedule_lifecycle.spec.js:274:1 › cancelled deletion leaves the period and confirmed deletion has a busy state (3.2s)
+  ok 18 web\tests\schedule_lifecycle.spec.js:285:1 › concurrent Time In protects the schedule with readable error feedback (2.6s)
+  ok 19 web\tests\schedule_lifecycle.spec.js:296:1 › legacy foreign-key errors do not expose SQL details (2.5s)
+  ok 20 web\tests\schedule_lifecycle.spec.js:304:1 › failed history load offers retry and older responses cannot erase newer protection (2.2s)
+  ok 21 web\tests\schedule_lifecycle.spec.js:319:1 › linked-record realtime refreshes protection without duplicate subscriptions (1.1s)
+  ok 22 web\tests\schedule_lifecycle.spec.js:327:1 › 2- and 3-shift rosters show named Guards and save one atomic request (2.0s)
+  ok 23 web\tests\schedule_lifecycle.spec.js:354:1 › roster prevents duplicate guards and preserves selection on save failure (1.4s)
+  ok 24 web\tests\schedule_lifecycle.spec.js:366:1 › saved custom setup survives reload and assigns exact midnight and overnight times (5.2s)
+  ok 25 web\tests\schedule_lifecycle.spec.js:393:1 › custom shift setup supports changed times and skips ended shifts today (2.8s)
+  ok 26 web\tests\schedule_lifecycle.spec.js:409:1 › setup editor rejects gaps and preserves entered values after save errors (1.7s)
+  ok 27 web\tests\schedule_lifecycle.spec.js:426:1 › setup saving blocks duplicate submission and safely displays names (1.5s)
+  ok 28 web\tests\schedule_lifecycle.spec.js:440:1 › saved setups have a retry when loading fails without blocking standard rosters (1.6s)
+  ok 29 web\tests\schedule_lifecycle.spec.js:450:1 › custom setup editor fits desktop and phone in both themes (3.2s)
+  ok 30 web\tests\schedule_lifecycle.spec.js:462:1 › duplicate built-in and saved shift times are blocked even with a different name (2.2s)
+  ok 31 web\tests\schedule_lifecycle.spec.js:475:1 › edit opens saved values and updates future assignment preview, cancel preserves setup (3.1s)
+  ok 32 web\tests\schedule_lifecycle.spec.js:493:1 › remove can be cancelled, then persists after reload without removing scheduled duty (3.7s)
+  ok 33 web\tests\schedule_lifecycle.spec.js:507:1 › setup mutations wait until the usage check finishes (3.3s)
+  ok 34 web\tests\schedule_lifecycle.spec.js:517:1 › reload reflects edits and removals from another session, and stale edits are rejected (3.2s)
+  ok 35 web\tests\schedule_lifecycle.spec.js:528:1 › setup edit and removal controls fit on a phone and failed removal keeps the selection (5.4s)
+  ok 36 web\tests\schedule_lifecycle.spec.js:540:1 › both initial setups expose edit and remove and edited times drive assignments (3.5s)
+  ok 37 web\tests\schedule_lifecycle.spec.js:557:1 › remove both initial setups, reload an empty list, and recreate a removed setup (4.0s)
+  ok 38 web\tests\schedule_lifecycle.spec.js:575:1 › initial loading failure never falls back to fixed or removed setups (2.3s)
+  ok 39 web\tests\schedule_lifecycle.spec.js:585:1 › assignment immediately locks edit and remove but allows further assignments (1.9s)
+  ok 40 web\tests\schedule_lifecycle.spec.js:593:1 › usage refresh locks an open editor and later unlocks finished duties (2.5s)
+  ok 41 web\tests\schedule_lifecycle.spec.js:605:1 › failed usage check disables mutations until a successful retry (1.6s)
+  x  42 web\tests\schedule_lifecycle.spec.js:612:1 › usage-only refresh preserves the guard selection and focused control (2.5s)
+(node:11936) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 43 web\tests\schedule_lifecycle.spec.js:618:1 › scheduled guard shifts exclude Inspector assignments and show only action buttons (1.3s)
+
+
+  1) web\tests\schedule_lifecycle.spec.js:612:1 › usage-only refresh preserves the guard selection and focused control 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      613 |  await fillRoster(page);await page.locator('#rosterGuard0').focus();
+      614 |  const same=await page.evaluate(async()=>{const before=document.querySelector('#rosterGuard0');scheduleTest.setups[0].in_use=true;await loadRosterSetups({silent:true});return before===document.querySelector('#rosterGuard0')&&document.activeElement===before;});
+    > 615 |  expect(same).toBe(true);await expect(page.locator('#rosterGuard0')).toHaveValue('test-guard');await expect(page.locator('#editRosterSetup')).toBeDisabled();
+          |               ^
+      616 | });
+      617 |
+      618 | test('scheduled guard shifts exclude Inspector assignments and show only action buttons',async({page})=>{
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\schedule_lifecycle.spec.js:615:15
+
+    Error Context: web\tests\test-results-feature19-roster\schedule_lifecycle-usage-o-e2eee-lection-and-focused-control\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    web\tests\test-results-feature19-roster\schedule_lifecycle-usage-o-e2eee-lection-and-focused-control\trace.zip
+    Usage:
+
+        npx playwright show-trace web\tests\test-results-feature19-roster\schedule_lifecycle-usage-o-e2eee-lection-and-focused-control\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    web\tests\schedule_lifecycle.spec.js:612:1 › usage-only refresh preserves the guard selection and focused control 
+  42 passed (1.7m)

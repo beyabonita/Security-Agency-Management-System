@@ -1,0 +1,45 @@
+
+Running 1 test using 1 worker
+
+(node:9312) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  x  1 web\tests\ph_location_search.spec.js:71:1 › deployment site lists home-post and scheduled guards (7.7s)
+
+
+  1) web\tests\ph_location_search.spec.js:71:1 › deployment site lists home-post and scheduled guards 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('#siteGuards')
+    Expected: visible
+    Received: hidden
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('#siteGuards')
+        13 × locator resolved to <section id="siteGuards" class="form-panel">…</section>
+           - unexpected value "hidden"
+
+
+      79 |   });
+      80 |   await page.getByRole('button',{name:'View guards',exact:true}).click();
+    > 81 |   await expect(page.locator('#siteGuards')).toBeVisible();
+         |                                             ^
+      82 |   await expect(page.locator('#siteGuardsBody')).toContainText('Juan Dela Cruz');
+      83 |   await expect(page.locator('#siteGuardsBody')).toContainText('Maria Santos');
+      84 |   await expect(page.locator('#siteGuardsBody')).toContainText('Upcoming:');
+        at C:\Users\Administrator\Documents\Sir tumbs\Project1\Security Agency Management System\web\tests\ph_location_search.spec.js:81:45
+
+    Error Context: web\tests\test-results-view-guards-before\ph_location_search-deploym-4d29b-e-post-and-scheduled-guards\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    web\tests\test-results-view-guards-before\ph_location_search-deploym-4d29b-e-post-and-scheduled-guards\trace.zip
+    Usage:
+
+        npx playwright show-trace web\tests\test-results-view-guards-before\ph_location_search-deploym-4d29b-e-post-and-scheduled-guards\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    web\tests\ph_location_search.spec.js:71:1 › deployment site lists home-post and scheduled guards 

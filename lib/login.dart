@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           _isLoading = false;
           _errorMessage =
-              'IT Admin accounts use the private system-access web address.';
+              'Super Admin accounts use the private system-access web address.';
         });
         return;
       }

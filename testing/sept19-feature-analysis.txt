@@ -1,0 +1,14 @@
+
+┌─────────────────────────────────────────────────────────┐
+│ A new version of Flutter is available!                  │
+│                                                         │
+│ To update to the latest version, run "flutter upgrade". │
+└─────────────────────────────────────────────────────────┘
+Analyzing Security Agency Management System...                  
+
+   info - Don't invoke 'print' in production code. Try using a logging framework - testing\whitebox\unit_tests\core_test.dart:30:7 - avoid_print
+   info - Don't invoke 'print' in production code. Try using a logging framework - testing\whitebox\unit_tests\core_test.dart:33:7 - avoid_print
+   info - Empty catch block. Try adding statements to the block, adding a comment to the block, or removing the 'catch' clause - testing\whitebox\unit_tests\core_test.dart:127:337 - empty_catches
+   info - Statements in a for should be enclosed in a block. Try wrapping the statement in a block - testing\whitebox\unit_tests\services_test.dart:47:38 - curly_braces_in_flow_control_structures
+
+4 issues found. (ran in 17.4s)

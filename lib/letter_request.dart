@@ -127,7 +127,11 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
         _reason.clear();
         _data = _gateway.load();
       });
-      _message('Request and letter sent directly to Operational Head.');
+      _message(
+        _requiresTarget
+            ? 'Swap request sent to the selected Guard for approval.'
+            : 'Request and letter sent to Operations Head.',
+      );
     } catch (error) {
       _message(dutyRequestErrorMessage(error), error: true);
     } finally {
@@ -149,6 +153,51 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
     'rejected' => 'Rejected',
     _ => 'Cancelled',
   };
+
+  Future<void> _respondToSwap(
+    Map<String, dynamic> request,
+    bool approve,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          approve ? 'Accept this shift swap?' : 'Decline this shift swap?',
+        ),
+        content: Text(
+          approve
+              ? 'Operations Head will review the exchange next. Your schedule changes only after final approval.'
+              : 'Your duties will stay unchanged.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(approve ? 'Accept swap' : 'Decline swap'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    setState(() => _saving = true);
+    try {
+      await _gateway.respondToSwap(request['id'].toString(), approve);
+      if (!mounted) return;
+      _message(
+        approve
+            ? 'Swap sent to Operations Head for final approval.'
+            : 'Swap declined.',
+      );
+      _reload();
+    } catch (error) {
+      _message(dutyRequestErrorMessage(error), error: true);
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
 
   String _dutyLabel(Map<String, dynamic> schedule) {
     final start = DateTime.tryParse(schedule['start_at']?.toString() ?? '');
@@ -296,7 +345,7 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
             children: [
               GuardPageTopBar(
                 title: 'Letter requests',
-                subtitle: 'Absence or swap · Operational Head approval',
+                subtitle: 'Absence, relief and shift swaps',
                 onBack: () {
                   if (!_saving && !_picking) Navigator.pop(context);
                 },
@@ -327,7 +376,12 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
                             'pending_inspector',
                           ].contains(r['status']),
                         )
-                        .map((r) => r['requested_schedule_id'])
+                        .expand(
+                          (r) => [
+                            r['requested_schedule_id'],
+                            r['target_schedule_id'],
+                          ],
+                        )
                         .toSet();
                     final duties = snapshot.data!.schedules
                         .where((s) => !pending.contains(s['id']))
@@ -353,7 +407,7 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 const Text(
-                                  'Send a letter to Operational Head',
+                                  'Submit a duty request',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
@@ -492,7 +546,7 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
                                   _type == 'swap' && _coverage
                                       ? 'Your existing Time In and worked hours stay on your DTR. The Operational Head confirms any missing Time Out and assigns the remaining duty to a replacement.'
                                       : _type == 'swap'
-                                      ? 'You take the selected Guard’s duty; they take yours. Dates, times and posts stay with each duty. Both assignments change only after Operational Head approval.'
+                                      ? 'The selected Guard approves or declines first. If accepted, Operations Head reviews the exchange. Your duties change only after final approval.'
                                       : 'Applies only to the selected duty period. For a whole-day absence, submit a letter request for each assigned period. Only Operational Head can approve it.',
                                   style: TextStyle(
                                     color: colors.textMuted,
@@ -567,7 +621,9 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
                                       : _submit,
                                   child: GuardBusyLabel(
                                     busy: _saving,
-                                    label: 'Send to Operational Head',
+                                    label: _requiresTarget
+                                        ? 'Send to selected Guard'
+                                        : 'Send to Operations Head',
                                     busyLabel: 'Uploading & submitting…',
                                     icon: Icons.send_rounded,
                                   ),
@@ -581,7 +637,7 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
                           children: [
                             const Expanded(
                               child: Text(
-                                'My requests',
+                                'My requests & swap invitations',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w700,
@@ -607,7 +663,15 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '${r['request_type'] == 'absence' ? 'Absence' : 'Swap'} · ${_status(r['status'].toString())}',
+                                    '${r['is_incoming'] == true
+                                        ? 'Swap invitation'
+                                        : r['request_type'] == 'absence'
+                                        ? 'Absence'
+                                        : 'Swap'} · ${r['guard_response'] == 'pending'
+                                        ? 'Awaiting Guard approval'
+                                        : r['guard_response'] == 'declined'
+                                        ? 'Declined by Guard'
+                                        : _status(r['status'].toString())}',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -615,10 +679,10 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
                                   const SizedBox(height: 8),
                                   if (r['exchange_snapshot'] is Map) ...[
                                     Text(
-                                      'Your offered duty: ${_dutyLabel(Map<String, dynamic>.from(r['exchange_snapshot']['offered']))}',
+                                      '${r['exchange_snapshot']['requester_name']} offers: ${_dutyLabel(Map<String, dynamic>.from(r['exchange_snapshot']['offered']))}',
                                     ),
                                     Text(
-                                      'Exchange with ${r['exchange_snapshot']['target_name']}: ${_dutyLabel(Map<String, dynamic>.from(r['exchange_snapshot']['requested']))}',
+                                      '${r['exchange_snapshot']['target_name']} exchanges: ${_dutyLabel(Map<String, dynamic>.from(r['exchange_snapshot']['requested']))}',
                                     ),
                                     const SizedBox(height: 8),
                                   ],
@@ -637,6 +701,26 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
                                     const SizedBox(height: 8),
                                   ],
                                   Text(r['reason'] ?? ''),
+                                  if (r['is_incoming'] == true &&
+                                      r['guard_response'] == 'pending' &&
+                                      r['status'] == 'pending_admin')
+                                    Wrap(
+                                      spacing: 12,
+                                      children: [
+                                        FilledButton(
+                                          onPressed: _saving
+                                              ? null
+                                              : () => _respondToSwap(r, true),
+                                          child: const Text('Approve swap'),
+                                        ),
+                                        OutlinedButton(
+                                          onPressed: _saving
+                                              ? null
+                                              : () => _respondToSwap(r, false),
+                                          child: const Text('Decline swap'),
+                                        ),
+                                      ],
+                                    ),
                                   if (r['letter_name'] != null)
                                     Padding(
                                       padding: const EdgeInsets.only(top: 8),

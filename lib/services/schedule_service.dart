@@ -23,6 +23,24 @@ class AttendanceDutyContext {
 class ScheduleService {
   static final _schedules = Supabase.instance.client.from('schedules');
 
+  static bool canSubmitAccomplishment(Map<String, dynamic> schedule) {
+    if (!const ['approved', 'changed'].contains(schedule['approval_status'])) {
+      return false;
+    }
+    final raw = schedule['attendance_sessions'];
+    final sessions = raw is List
+        ? raw
+        : raw is Map
+        ? [raw]
+        : const [];
+    return sessions.any(
+      (session) =>
+          session is Map &&
+          session['clock_in_at'] != null &&
+          const ['open', 'closed'].contains(session['status']),
+    );
+  }
+
   /// Cancelled duties remain in the audit trail, never in a Guard's duty list.
   static List<Map<String, dynamic>> visibleSchedules(
     Iterable<Map<String, dynamic>> rows,

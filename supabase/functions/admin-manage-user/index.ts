@@ -1,4 +1,6 @@
 import { passwordError } from "../_shared/password-policy.ts";
+import { personnelName } from "../_shared/personnel-name.ts";
+import { philippineMobileNumber } from "../_shared/mobile-number.ts";
 import {
   ApiError,
   authenticatedUserId,
@@ -55,7 +57,7 @@ Deno.serve((request) =>
         "account_deletion_disabled",
       );
     }
-    if (body.action !== "update") {
+    if (body.action !== "update" && body.action !== "remove") {
       reject(400, "Invalid account action.", "invalid_action");
     }
 
@@ -71,7 +73,7 @@ Deno.serve((request) =>
     const { data: targetData, error: targetError } = await service
       .from("profiles")
       .select(
-        "id,username,email,first_name,middle_initial,last_name,role,active,organization_id,employment_category,contract_start_date,contract_end_date,device_id,device_locked",
+        "id,username,email,first_name,middle_initial,last_name,mobile_number,role,active,organization_id,employment_category,contract_start_date,contract_end_date,device_id,device_locked,removed_at",
       )
       .eq("id", targetId)
       .maybeSingle();
@@ -146,6 +148,15 @@ Deno.serve((request) =>
       );
     }
 
+    if (body.action === 'remove') {
+      if (!isHr || !FIELD_ROLES.includes(target.role as 'user' | 'inspector') || targetId === callerId) reject(403,'Only Operations Head can remove field personnel.','forbidden_target');
+      const {error: removeError}=await service.from('profiles').update({active:false,removed_at:new Date().toISOString()}).eq('id',targetId);
+      if(removeError)backendFailure('Could not remove personnel.','personnel_remove_failed',removeError);
+      const {error: banError}=await service.auth.admin.updateUserById(targetId,{ban_duration:'876000h'});
+      if(banError)backendFailure('Personnel access is disabled, but sign-in revocation needs a retry.','personnel_ban_failed',banError);
+      return {data:{ok:true}};
+    }
+    if(targetData.removed_at)reject(409,'This personnel account has been removed.','personnel_removed');
     const requestedRole = body.role === undefined ? target.role : body.role;
     if (!isAppRole(requestedRole)) {
       reject(400, "Choose a valid account role.", "invalid_role");
@@ -252,19 +263,21 @@ Deno.serve((request) =>
     const firstName = optionalString(body, "firstName", "First name", {
       min: 1,
       max: 100,
-      normalize: (value) => value.trim(),
+      normalize: personnelName,
     }) ?? target.first_name;
     const middleInitial =
       optionalString(body, "middleInitial", "Middle initial", {
         max: 10,
-        normalize: (value) => value.trim(),
+        normalize: personnelName,
       }) ?? target.middle_initial;
     const lastName = optionalString(body, "lastName", "Last name", {
       min: 1,
       max: 100,
-      normalize: (value) => value.trim(),
+      normalize: personnelName,
     }) ?? target.last_name;
 
+    const mobileNumber = body.mobileNumber === undefined ? target.mobile_number ?? null
+      : philippineMobileNumber(body.mobileNumber);
     const employmentValue = body.employmentCategory === undefined
       ? target.employment_category
       : body.employmentCategory;
@@ -307,6 +320,7 @@ Deno.serve((request) =>
       email: target.email,
       first_name: target.first_name,
       middle_initial: target.middle_initial,
+      mobile_number: target.mobile_number ?? null,
       last_name: target.last_name,
       role: target.role,
       active: target.active,
@@ -322,6 +336,7 @@ Deno.serve((request) =>
       email: authEmail,
       first_name: firstName,
       middle_initial: middleInitial,
+      mobile_number: mobileNumber,
       last_name: lastName,
       role,
       active,

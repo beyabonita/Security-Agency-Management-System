@@ -1,4 +1,5 @@
 import { emailValid } from "../supabase/functions/_shared/accounts.ts";
+import { personnelName } from "../supabase/functions/_shared/personnel-name.ts";
 const actor = "11111111-1111-4111-8111-111111111111",
   target = "22222222-2222-4222-8222-222222222222";
 const eq = (a: unknown, b: unknown) => {
@@ -136,7 +137,38 @@ const create = {
   firstName: "Test",
   lastName: "Guard",
   role: "user",
+  mobileNumber: "09123456789",
 };
+Deno.test('Guard and Inspector require an 11-digit 09 mobile number; invalid updates are rejected', async()=>{
+  for(const role of ['user','inspector']) {
+    for(const mobileNumber of [undefined,'','0912345678','091234567890','08123456789','+639123456789','09123abc789',9123456789]) {
+      const r=await run(0,{...create,role,mobileNumber});eq(r.status,400);
+      eq(r.calls.some((c:any)=>c[0]==='createAuth'),false);
+    }
+    const r=await run(0,{...create,role,mobileNumber:'09123456789'});eq(r.status,200);
+    eq(r.calls.find((c:any)=>c[0]==='updateProfile')[1].mobile_number,'09123456789');
+  }
+  eq((await run(1,{action:'update',userId:target,mobileNumber:'0912'})).status,400);
+  const updated=await run(1,{action:'update',userId:target,mobileNumber:'09987654321'});
+  eq(updated.status,200);eq(updated.calls.find((c:any)=>c[0]==='updateProfile')[1].mobile_number,'09987654321');
+});
+Deno.test('personnel names capitalize words and reject digits on the server',()=>{
+  eq(personnelName('  juan dela cruz '),'Juan Dela Cruz');
+  eq(personnelName('maría-josé'), 'María-José');
+  let rejected=false;try{personnelName('Juan123');}catch{rejected=true;}eq(rejected,true);
+});
+Deno.test('Operations Head removes own-agency field personnel and bans sign in without deleting records',async()=>{
+  const result=await run(1,{action:'remove',userId:target});eq(result.status,200);
+  eq(result.calls[0][0],'updateProfile');eq(result.calls[0][1].active,false);
+  eq(typeof result.calls[0][1].removed_at,'string');
+  eq(result.calls[1],['updateAuth',target,{ban_duration:'876000h'}]);
+  eq(result.calls.some(c=>c[0]==='deleteAuth'),false);
+});
+Deno.test('personnel removal rejects unrelated roles and other organizations',async()=>{
+  for(const options of [{caller:{role:'user'}},{caller:{role:'inspector'}},{caller:{role:'it_admin'}},{profile:{organization_id:'other'}},{profile:{role:'admin'}}]){
+    const result=await run(1,{action:'remove',userId:target},options);eq(result.status,403);eq(result.calls,[]);
+  }
+});
 Deno.test("email validation accepts real providers and rejects aliases/malformed addresses", () => {
   for (const v of ["a@gmail.com", "a.b+post@company.com.ph"]) {
     eq(emailValid(v), true);

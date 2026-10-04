@@ -1,0 +1,25 @@
+
+Running 16 tests using 2 workers
+
+(node:8040) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:16636) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 web\tests\account_presence.spec.js:3:1 › browser presence follows auth, stops on logout, and rejects a delayed initial session (868ms)
+  ok  3 web\tests\account_presence.spec.js:29:1 › activity table includes all roles, updates logout in place, filters, and clears unverified status on errors (2.4s)
+  ok  2 web\tests\contract_personnel.spec.js:20:1 › Contract creation requires dates and sends the inclusive period (4.7s)
+  ok  4 web\tests\incident_report.spec.js:73:3 › admin displays video-only evidence without claiming a photo is attached (2.0s)
+  ok  5 web\tests\contract_personnel.spec.js:40:1 › Inspector and Regular creation do not require contract dates (2.3s)
+  ok  6 web\tests\incident_report.spec.js:89:3 › admin shows Emergency and attributes acknowledgement and notes to their reviewers (1.9s)
+  ok  8 web\tests\incident_report.spec.js:112:3 › admin incident report shows detailed private video evidence (2.6s)
+  ok  7 web\tests\contract_personnel.spec.js:51:1 › Editing loads saved dates, validates and submits renewal (2.9s)
+  ok  9 web\tests\incident_report.spec.js:141:3 › admin detailed incident modal is readable in dark mode without altering media (2.4s)
+  ok 10 web\tests\contract_personnel.spec.js:67:1 › Operations Head creation rejects each missing password requirement and accepts an eight-character mix (4.3s)
+  ok 11 web\tests\incident_report.spec.js:73:3 › inspector displays video-only evidence without claiming a photo is attached (2.1s)
+  ok 13 web\tests\incident_report.spec.js:89:3 › inspector shows Emergency and attributes acknowledgement and notes to their reviewers (2.8s)
+  ok 12 web\tests\contract_personnel.spec.js:84:1 › Operations Head reset validates all password requirements before sending a change (4.4s)
+  ok 14 web\tests\incident_report.spec.js:112:3 › inspector incident report shows detailed private video evidence (1.9s)
+  ok 15 web\tests\contract_personnel.spec.js:99:1 › Legacy missing-date contract is identified, not silently treated as Regular (2.2s)
+  ok 16 web\tests\incident_report.spec.js:141:3 › inspector detailed incident modal is readable in dark mode without altering media (2.2s)
+
+  16 passed (23.8s)

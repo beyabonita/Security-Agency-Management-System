@@ -1,0 +1,38 @@
+
+Running 29 tests using 2 workers
+
+(node:13764) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6432) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 web\tests\live_tracking_updates.spec.js:4:1 › live guard card shows the mobile number and updates without replacing the card (1.2s)
+  ok  3 web\tests\live_tracking_updates.spec.js:88:1 › age updates preserve guard focus, marker, popup and user map view (837ms)
+  ok  2 web\tests\contract_personnel.spec.js:3:1 › personnel mobile input accepts digits only, validates 09 prefix, and persists edits (4.2s)
+  ok  4 web\tests\live_tracking_updates.spec.js:108:1 › a real GPS update glides marker and accuracy circle without replacing either (2.6s)
+  ok  6 web\tests\live_tracking_updates.spec.js:132:1 › removing a moving guard cancels animation without resurrecting the marker (1.0s)
+  ok  7 web\tests\live_tracking_updates.spec.js:148:1 › realtime bursts are batched and update coordinates and accuracy in place (794ms)
+  ok  8 web\tests\live_tracking_updates.spec.js:171:1 › silent reconciliation still checks access every 30 seconds and reconnecting continues (746ms)
+  ok  5 web\tests\contract_personnel.spec.js:42:1 › Contract creation requires dates and sends the inclusive period (3.6s)
+  ok  9 web\tests\live_tracking_updates.spec.js:183:1 › expiry and server removals clear only affected guards (975ms)
+  ok 11 web\tests\live_tracking_updates.spec.js:202:1 › search keeps matching guards mounted and fetching failure clears protected data (409ms)
+  ok 12 web\tests\live_tracking_updates.spec.js:214:1 › one transient failure retries without removing the marker, list item or open popup (1.1s)
+  ok 10 web\tests\contract_personnel.spec.js:62:1 › personnel names reject numbers and account passwords can be shown and hidden (2.6s)
+  ok 13 web\tests\live_tracking_updates.spec.js:234:1 › repeated transient failures retain last known marker and recover without flicker (740ms)
+  ok 15 web\tests\live_tracking_updates.spec.js:249:1 › an outage never preserves protected coordinates beyond the access cache deadline (698ms)
+  ok 16 web\tests\live_tracking_updates.spec.js:259:1 › guard waiting for GPS gets a list entry and only gains a marker with real coordinates (917ms)
+  ok 17 web\tests\live_tracking_updates.spec.js:283:1 › server errors retry, but explicit access errors clear immediately without retry (591ms)
+  ok 14 web\tests\contract_personnel.spec.js:73:1 › personnel removal requires confirmation and sends only the selected account (2.6s)
+  ok 18 web\tests\live_tracking_updates.spec.js:297:1 › sign out during the retry delay cancels the request without restoring locations (528ms)
+  ok 20 web\tests\live_tracking_updates.spec.js:309:1 › hiding during retry cancels it and resuming still refreshes (705ms)
+  ok 21 web\tests\live_tracking_updates.spec.js:328:1 › a stalled request is aborted at its deadline and retried once (849ms)
+  ok 19 web\tests\contract_personnel.spec.js:84:1 › Inspector and Regular creation do not require contract dates (2.2s)
+  ok 22 web\tests\live_tracking_updates.spec.js:346:1 › sign out clears locations and cancels realtime, scheduled and in-flight refreshes (730ms)
+  ok 23 web\tests\contract_personnel.spec.js:95:1 › Editing loads saved dates, validates and submits renewal (2.3s)
+  ok 25 web\tests\contract_personnel.spec.js:111:1 › Operations Head creation rejects each missing password requirement and accepts an eight-character mix (3.2s)
+  ok 24 web\tests\live_tracking_updates.spec.js:360:45 › server clock keeps GPS visible with viewer clock offset 120000 (6.8s)
+  ok 26 web\tests\contract_personnel.spec.js:128:1 › Operations Head reset validates all password requirements before sending a change (4.1s)
+  ok 28 web\tests\contract_personnel.spec.js:143:1 › Legacy missing-date contract is identified, not silently treated as Regular (2.5s)
+  ok 27 web\tests\live_tracking_updates.spec.js:360:45 › server clock keeps GPS visible with viewer clock offset -7200000 (8.1s)
+  ok 29 web\tests\live_tracking_updates.spec.js:375:1 › computer clock jumps cannot hide an authorized marker between refreshes (273ms)
+
+  29 passed (33.5s)

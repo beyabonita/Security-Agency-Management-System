@@ -16,6 +16,21 @@ final duty = <String, dynamic>{
 };
 
 class FakeGateway implements DutyRequestGateway {
+  @override
+  Future<void> respondToSwap(String requestId, bool approve) async {
+    responses.add({'id': requestId, 'approve': approve});
+    requests = requests
+        .map(
+          (r) => {
+            ...r,
+            'guard_response': approve ? 'approved' : 'declined',
+            'status': approve ? 'pending_admin' : 'rejected',
+          },
+        )
+        .toList();
+  }
+
+  final responses = <Map<String, dynamic>>[];
   List<Map<String, dynamic>> schedules = [duty];
   List<Map<String, dynamic>> requests = [];
   final submissions = <Map<String, dynamic>>[];
@@ -117,6 +132,46 @@ Future<void> chooseDuty(WidgetTester tester) async {
 }
 
 void main() {
+  for (final approve in [true, false]) {
+    testWidgets(
+      'Incoming swap can be ${approve ? 'approved' : 'declined'} by the selected Guard',
+      (tester) async {
+        final gateway = FakeGateway()
+          ..schedules = []
+          ..requests = [
+            {
+              'id': 'invitation',
+              'is_incoming': true,
+              'request_type': 'swap',
+              'status': 'pending_admin',
+              'guard_response': 'pending',
+              'reason': 'Exchange duties',
+              'exchange_snapshot': {
+                'requester_name': 'Juan',
+                'target_name': 'Maria',
+                'offered': duty,
+                'requested': {...duty, 'location_label': 'Other post'},
+              },
+            },
+          ];
+        await render(tester, gateway);
+        await tapText(tester, approve ? 'Approve swap' : 'Decline swap');
+        await tapText(tester, approve ? 'Accept swap' : 'Decline swap');
+        expect(gateway.responses, [
+          {'id': 'invitation', 'approve': approve},
+        ]);
+        expect(
+          find.textContaining(
+            approve
+                ? 'Awaiting Operational Head approval'
+                : 'Declined by Guard',
+          ),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
   test('attendance relation accepts current and legacy Supabase shapes', () {
     expect(scheduleHasAttendance(null), isFalse);
     expect(scheduleHasAttendance(<String, dynamic>{}), isFalse);
@@ -180,12 +235,12 @@ void main() {
       );
       await tapText(tester, 'Attach request letter');
       expect(find.text('absence.pdf'), findsOneWidget);
-      await tapText(tester, 'Send to Operational Head');
+      await tapText(tester, 'Send to Operations Head');
       expect(gateway.submissions.single['type'], 'absence');
       expect(gateway.submissions.single['schedule'], 'schedule-1');
       expect(gateway.requests.single['status'], 'pending_admin');
       expect(
-        find.text('Request and letter sent directly to Operational Head.'),
+        find.text('Request and letter sent to Operations Head.'),
         findsOneWidget,
       );
       expect(
@@ -216,7 +271,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Other Guard').last);
     await tester.pumpAndSettle();
-    await tapText(tester, 'Send to Operational Head');
+    await tapText(tester, 'Send to selected Guard');
     expect(gateway.submissions.single['type'], 'swap');
     expect(gateway.submissions.single['target'], 'schedule-2');
     expect(gateway.submissions.single['letter'], isA<RequestLetter>());
@@ -241,7 +296,7 @@ void main() {
         'Feeling unwell and need someone to relieve me.',
       );
       await tapText(tester, 'Attach request letter');
-      await tapText(tester, 'Send to Operational Head');
+      await tapText(tester, 'Send to Operations Head');
       expect(gateway.submissions.single['type'], 'swap');
       expect(gateway.submissions.single['target'], isNull);
     },
@@ -282,7 +337,7 @@ void main() {
       expect(find.byType(DropdownButtonFormField<String>), findsNWidgets(2));
       await tapText(tester, 'Absent');
       await tester.enterText(find.byType(TextField), 'Family appointment.');
-      await tapText(tester, 'Send to Operational Head');
+      await tapText(tester, 'Send to Operations Head');
       expect(gateway.submissions.single['type'], 'absence');
       expect(gateway.submissions.single['target'], isNull);
     },
@@ -294,7 +349,7 @@ void main() {
     await render(tester, gateway);
     await chooseDuty(tester);
     await tester.enterText(find.byType(TextField), 'Medical appointment.');
-    await tapText(tester, 'Send to Operational Head');
+    await tapText(tester, 'Send to Operations Head');
     expect(gateway.submissions, isEmpty);
     expect(
       find.text('Choose a duty, enter a reason, and attach your letter.'),
@@ -310,7 +365,7 @@ void main() {
       await chooseDuty(tester);
       await tester.enterText(find.byType(TextField), 'Medical appointment.');
       await tapText(tester, 'Attach request letter');
-      await tapText(tester, 'Send to Operational Head');
+      await tapText(tester, 'Send to Operations Head');
       expect(
         find.textContaining('The letter upload was denied'),
         findsOneWidget,
@@ -318,7 +373,7 @@ void main() {
       expect(find.text('absence.pdf'), findsOneWidget);
       final first = gateway.submissions.single['letter'];
       gateway.submitError = null;
-      await tapText(tester, 'Send to Operational Head');
+      await tapText(tester, 'Send to Operations Head');
       expect(gateway.submissions.last['letter'], same(first));
       expect(gateway.requests.single['status'], 'pending_admin');
     },

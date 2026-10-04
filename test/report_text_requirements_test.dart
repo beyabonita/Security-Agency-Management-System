@@ -8,6 +8,7 @@ import 'package:image/image.dart' as img;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_application_1/duty_requests.dart';
+import 'package:flutter_application_1/models/accomplishment_photo.dart';
 import 'package:flutter_application_1/incident_report.dart';
 import 'package:flutter_application_1/widgets/incident_in_app_camera.dart';
 import 'package:flutter_application_1/services/incident_service.dart';
@@ -45,7 +46,12 @@ void main() {
             },
           };
         } else if (request.url.path.startsWith('/storage/v1/object/')) {
-          calls.add({'path': request.url.path, 'payload': request.body});
+          calls.add({
+            'path': request.url.path,
+            'payload': request.url.path.contains('/accomplishment-photos/')
+                ? base64Encode(request.bodyBytes)
+                : request.body,
+          });
           body = {'Key': 'incident-videos/guard/incident.mp4'};
         } else {
           calls.add({
@@ -76,8 +82,20 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       await tester.pumpWidget(
-        const MaterialApp(home: AccomplishmentReportScreen(scheduleId: 'duty')),
+        MaterialApp(
+          home: AccomplishmentReportScreen(
+            scheduleId: 'duty',
+            pickPhoto: () async => AccomplishmentPhoto(
+              name: 'report.jpg',
+              bytes: Uint8List.fromList(
+                img.encodeJpg(img.Image(width: 8, height: 8)),
+              ),
+            ),
+          ),
+        ),
       );
+      await tester.tap(find.text('Upload photo report'));
+      await tester.pumpAndSettle();
       expect(find.textContaining('characters'), findsNothing);
       await tester.enterText(find.byType(TextField).at(0), 'OK');
       await tester.enterText(find.byType(TextField).at(1), 'Done');
@@ -85,14 +103,31 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Submit report'));
       await tester.pumpAndSettle();
-      expect(calls.single['p_summary'], 'OK');
-      expect(calls.single['p_detailed_narrative'], 'Done');
+      final reportCall = calls.singleWhere(
+        (call) => call['path'] == '/rest/v1/rpc/submit_accomplishment_report',
+      );
+      expect(reportCall['p_summary'], 'OK');
+      expect(reportCall['p_detailed_narrative'], 'Done');
+      expect(reportCall['p_photo_path'], startsWith('guard/'));
+      expect(reportCall['p_photo_name'], 'report.jpg');
     },
   );
   testWidgets('empty accomplishment text is still required', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(home: AccomplishmentReportScreen(scheduleId: 'duty')),
+      MaterialApp(
+        home: AccomplishmentReportScreen(
+          scheduleId: 'duty',
+          pickPhoto: () async => AccomplishmentPhoto(
+            name: 'report.jpg',
+            bytes: Uint8List.fromList(
+              img.encodeJpg(img.Image(width: 8, height: 8)),
+            ),
+          ),
+        ),
+      ),
     );
+    await tester.tap(find.text('Upload photo report'));
+    await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Submit report'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Submit report'));

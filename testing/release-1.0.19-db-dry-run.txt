@@ -1,0 +1,7 @@
+Initialising login role...
+DRY RUN: migrations will *not* be pushed to the database.
+Connecting to remote database...
+Would push these migrations:
+ • 20260919000000_site_details_and_personnel_removal.sql
+ • 20260919000001_guard_swap_consent.sql
+{"upToDate":false,"dryRun":true,"migrations":["20260919000000_site_details_and_personnel_removal.sql","20260919000001_guard_swap_consent.sql"],"seeds":[],"roles":[],"message":"Finished supabase db push."}

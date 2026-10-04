@@ -1,0 +1,1 @@
+select pg_get_functiondef('storage.protect_delete()'::regprocedure);

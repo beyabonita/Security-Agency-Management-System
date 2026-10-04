@@ -743,6 +743,7 @@
 <script src="../js/auth-username.js"></script>
 <script src="../js/edge-function-errors.js"></script>
 <script src="../js/contract-period.js"></script>
+<script src="../js/accomplishment-photos.js"></script>
 <script src="../js/password-policy.js"></script>
 <script src="js/admin-shell.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
@@ -1445,6 +1446,7 @@ function renderAccomplishmentReport(report) {
             <div><span class="dtr-day-date">${escapeHtml(report.summary)}</span><div class="dtr-punch-meta">Submitted ${formatReportTimestamp(report.submitted_at)}</div></div>
             <span class="report-status ${status.className}">${escapeHtml(status.label)}</span>
         </div>
+        ${report.photo_path ? `<div data-report-photo="${escapeHtml(report.id)}" style="margin:12px 0" aria-live="polite">Loading photo report…</div>` : ''}
         <p class="report-copy"><strong>Detailed narrative:</strong> ${escapeHtml(report.detailed_narrative)}</p>
         ${issues}${review}
         <div style="margin-top:14px"><button class="action-btn btn-reports" onclick="reviewAccomplishment('${report.id}', this)">${report.reviewed_at ? 'Update review' : 'Review report'}</button></div>
@@ -1470,6 +1472,7 @@ async function viewAccomplishments(uid) {
     listEl.innerHTML = currentAccomplishmentData.length
         ? currentAccomplishmentData.map(renderAccomplishmentReport).join('')
         : '<div style="text-align:center;padding:32px;color:var(--sl-muted)">No accomplishment reports submitted yet.</div>';
+    if (window.loadAccomplishmentPhotos) loadAccomplishmentPhotos(listEl, currentAccomplishmentData);
 }
 
 async function reviewAccomplishment(reportId, button) {

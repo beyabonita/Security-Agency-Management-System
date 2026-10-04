@@ -1,0 +1,24 @@
+00:00 +0: loading C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart
+00:00 +0: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/duty_request_upload_test.dart: Uncertain submitted letter is never deleted while an RPC may finish
+00:00 +1: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: attendance relation accepts current and legacy Supabase shapes
+00:00 +2: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/duty_request_upload_test.dart: Upload is only performed once when RPC submission is retried
+00:00 +3: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: load failures never use the submission error message
+00:00 +4: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/duty_request_upload_test.dart: Lost upload response reuses the uploaded object on retry
+00:00 +5: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Letter form fits a narrow phone after selecting a duty
+00:00 +6: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Letter form fits a narrow phone after selecting a duty
+00:00 +7: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Letter form fits a narrow phone after selecting a duty
+00:00 +8: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Letter form fits a narrow phone after selecting a duty
+00:02 +9: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Letter form fits a narrow phone after selecting a duty
+00:02 +10: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Letter form fits a narrow phone after selecting a duty
+00:02 +11: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Letter form fits a narrow phone after selecting a duty
+00:02 +12: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Absence form remains visible without schedules, with safe disabled submission
+00:02 +13: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Guard can attach an absence letter and send selected period to Operational Head
+00:03 +14: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Swap selection preserves its request type and attachment
+00:04 +15: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Timed-in Guard can request replacement without an exchange target
+00:05 +16: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Swap requires a peer duty and remains usable when none are available
+00:06 +17: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Swap picker retry retains the attachment and absence does not need a peer
+00:07 +18: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Missing letter is rejected without calling submission
+00:07 +19: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Upload denial shows actionable error and retains attachment for retry
+00:08 +20: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Cancelling replacement keeps previously attached file
+00:08 +21: C:/Users/Administrator/Documents/Sir tumbs/Project1/Security Agency Management System/test/letter_request_screen_test.dart: Picker validation is shown without erasing the request reason
+00:08 +22: All tests passed!

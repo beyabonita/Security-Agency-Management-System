@@ -1,0 +1,21 @@
+
+Running 14 tests using 1 worker
+
+(node:2028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 web\tests\guard_app_modal.spec.js:16:3 › Open mobile setup opens one modal without leaving or clearing login fields (16.6s)
+  ok  2 web\tests\guard_app_modal.spec.js:16:3 › Get app opens one modal without leaving or clearing login fields (14.3s)
+  ok  3 web\tests\guard_app_modal.spec.js:38:1 › legacy setup link opens the same modal and closing clears only the setup hash (6.4s)
+  ok  4 web\tests\guard_app_modal.spec.js:50:1 › rendered desktop QR decodes to the APK, not a setup page (5.0s)
+  ok  5 web\tests\guard_app_modal.spec.js:60:3 › QR link starts a browser download directly (isolated file fixture) (8.1s)
+  ok  6 web\tests\guard_app_modal.spec.js:60:3 › modal button starts a browser download directly (isolated file fixture) (6.8s)
+  ok  7 web\tests\guard_app_modal.spec.js:85:5 › setup modal is contained and keyboard usable at 1440px in light mode (7.7s)
+  ok  8 web\tests\guard_app_modal.spec.js:85:5 › setup modal is contained and keyboard usable at 740px in light mode (7.2s)
+  ok  9 web\tests\guard_app_modal.spec.js:85:5 › setup modal is contained and keyboard usable at 390px in light mode (7.2s)
+  ok 10 web\tests\guard_app_modal.spec.js:85:5 › setup modal is contained and keyboard usable at 320px in light mode (6.3s)
+  ok 11 web\tests\guard_app_modal.spec.js:85:5 › setup modal is contained and keyboard usable at 1440px in dark mode (9.0s)
+  ok 12 web\tests\guard_app_modal.spec.js:85:5 › setup modal is contained and keyboard usable at 740px in dark mode (6.8s)
+  ok 13 web\tests\guard_app_modal.spec.js:85:5 › setup modal is contained and keyboard usable at 390px in dark mode (5.2s)
+  ok 14 web\tests\guard_app_modal.spec.js:85:5 › setup modal is contained and keyboard usable at 320px in dark mode (4.9s)
+
+  14 passed (2.2m)

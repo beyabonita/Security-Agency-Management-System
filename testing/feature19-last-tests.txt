@@ -1,0 +1,11 @@
+
+Running 2 tests using 2 workers
+
+(node:15488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20344) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 web\tests\schedule_lifecycle.spec.js:354:1 › roster prevents duplicate guards and preserves selection on save failure (7.0s)
+  ok 2 web\tests\contract_personnel.spec.js:51:1 › personnel removal requires confirmation and sends only the selected account (5.9s)
+
+  2 passed (38.8s)

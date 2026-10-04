@@ -1,0 +1,14 @@
+
+Running 7 tests using 1 worker
+
+(node:11632) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 web\tests\ph_location_search.spec.js:53:1 › typing suggests matching Philippine businesses and preserves the full address (2.3s)
+  ok 2 web\tests\ph_location_search.spec.js:71:1 › deployment site lists home-post and scheduled guards (1.4s)
+  ok 3 web\tests\ph_location_search.spec.js:89:1 › View guards visibly shows loading, empty results and retryable errors (1.8s)
+  ok 4 web\tests\ph_location_search.spec.js:112:1 › normalizes Philippine names, removes invalid and duplicate results, and filters saved sites (11ms)
+  ok 5 web\tests\ph_location_search.spec.js:121:1 › searches nationwide with spelling fallback, caches results, and selects the correct pin (3.7s)
+  ok 6 web\tests\ph_location_search.spec.js:144:1 › place type filters results locally and saved site filters preserve records (2.3s)
+  ok 7 web\tests\ph_location_search.spec.js:167:1 › a delayed search cannot reopen suggestions after the query changes or the form closes (2.5s)
+
+  7 passed (19.5s)

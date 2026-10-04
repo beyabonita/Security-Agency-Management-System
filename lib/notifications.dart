@@ -68,7 +68,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       await NotificationService.acknowledge(notification.id);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Critical notification acknowledged.')),
+        const SnackBar(content: Text('Notification acknowledged.')),
       );
     } catch (error) {
       if (!mounted) return;
@@ -256,10 +256,6 @@ class _NotificationCard extends StatelessWidget {
                       runSpacing: 6,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        _PriorityChip(
-                          priority: notification.priority,
-                          color: color,
-                        ),
                         Text(
                           _relativeTime(notification.createdAt),
                           style: TextStyle(
@@ -288,30 +284,6 @@ class _NotificationCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class _PriorityChip extends StatelessWidget {
-  const _PriorityChip({required this.priority, required this.color});
-  final String priority;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: 0.1),
-      borderRadius: BorderRadius.circular(999),
-    ),
-    child: Text(
-      priority.toUpperCase(),
-      style: TextStyle(
-        color: color,
-        fontSize: 9,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 0.6,
-      ),
-    ),
-  );
 }
 
 Color _priorityColor(BuildContext context, String priority) =>
