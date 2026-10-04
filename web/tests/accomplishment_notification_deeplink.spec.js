@@ -52,6 +52,7 @@ async function setupMockBackend(page) {
   await page.route('**/supabase-firebase-bridge.js', (route) => route.fulfill({
     contentType: 'text/javascript',
     body: `
+      window.applyAdminRoleNavigation = () => {};
       window.firebase = {
         auth: () => ({
           onAuthStateChanged: (cb) => {
@@ -66,12 +67,12 @@ async function setupMockBackend(page) {
                 doc: (id) => ({
                   get: async () => ({
                     exists: true,
-                    data: () => id === 'admin-user-id' ? { role: 'admin' } : (id === 'guard-test-456' ? ${JSON.stringify(mockGuardUser)} : null)
+                    data: () => (id === 'admin-user-id' ? { role: 'admin' } : (id === 'guard-test-456' ? Object.assign({}, ${JSON.stringify(mockGuardUser)}) : null))
                   })
                 }),
                 get: async () => ({
                   forEach: (fn) => {
-                    fn({ id: 'guard-test-456', data: () => ${JSON.stringify(mockGuardUser)} });
+                    fn({ id: 'guard-test-456', data: () => Object.assign({}, ${JSON.stringify(mockGuardUser)}) });
                     fn({ id: 'admin-user-id', data: () => ({ role: 'admin' }) });
                   }
                 })
@@ -104,6 +105,7 @@ async function setupMockBackend(page) {
               filterVal = val;
               return createBuilder();
             },
+            order: () => createBuilder(),
             abortSignal: () => createBuilder(),
             limit: async () => {
               if (table === 'user_notifications') return { data: notifications, error: null };
@@ -145,6 +147,7 @@ async function setupMockBackend(page) {
 }
 
 test('clicking open personnel reports from notification navigates and highlights specific report', async ({ page }) => {
+  page.on('pageerror', err => console.log('BROWSER ERROR:', err.message));
   await setupMockBackend(page);
   await page.goto('/admin/dashboard.html');
   await page.addStyleTag({ content: '#loadingScreen{display:none!important}' });
