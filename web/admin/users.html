@@ -388,6 +388,120 @@
     .dtr-period-note { grid-column: auto; }
     .dtr-modal-actions .btn-pdf { flex: 1 1 150px; }
 }
+
+/* Personnel Profile & Extended Info Styles */
+.personnel-name-link {
+    background: none; border: none; padding: 0;
+    color: var(--sl-ink); font-weight: 700; font-size: 0.95rem;
+    cursor: pointer; text-align: left; text-decoration: none;
+    transition: color 0.15s ease;
+}
+.personnel-name-link:hover {
+    color: var(--sl-danger);
+    text-decoration: underline;
+}
+.badge-personnel-id {
+    display: inline-block;
+    background: rgba(220, 38, 38, 0.12);
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    color: var(--sl-danger);
+    font-size: 0.72rem; font-weight: 700;
+    padding: 1px 7px; border-radius: 6px;
+    letter-spacing: 0.5px; margin-right: 6px;
+}
+.profile-modal-banner {
+    display: flex; align-items: center; gap: 16px;
+    padding: 18px; background: var(--sl-surface-muted);
+    border: 1px solid var(--sl-line); border-radius: 14px;
+    margin-bottom: 20px;
+}
+.profile-modal-avatar {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    color: #fff; font-size: 1.5rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
+    flex-shrink: 0;
+}
+.profile-section-card {
+    background: var(--sl-surface);
+    border: 1px solid var(--sl-line);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 18px;
+}
+.profile-section-title {
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--sl-danger);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 6px;
+}
+.profile-data-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px 16px;
+}
+.profile-data-item {
+    display: flex; flex-direction: column; gap: 3px;
+}
+.profile-data-label {
+    font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+    color: var(--sl-muted); letter-spacing: 0.3px;
+}
+.profile-data-value {
+    font-size: 0.88rem; font-weight: 600; color: var(--sl-ink);
+    word-break: break-word;
+}
+.profile-license-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+}
+.profile-license-card {
+    border: 1px dashed var(--sl-line);
+    border-radius: 12px;
+    padding: 14px;
+    background: var(--sl-surface-muted);
+    text-align: center;
+}
+.profile-license-preview {
+    max-height: 180px;
+    width: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    margin: 10px 0;
+    background: rgba(0,0,0,0.03);
+    border: 1px solid var(--sl-line);
+}
+.form-section-divider {
+    border-top: 1px dashed var(--sl-line);
+    margin: 18px 0 14px;
+    padding-top: 4px;
+}
+.form-section-heading {
+    font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.6px; color: var(--sl-danger); margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+}
+.license-upload-box {
+    border: 1px dashed var(--sl-line);
+    border-radius: 10px;
+    padding: 12px;
+    background: var(--sl-surface-muted);
+    text-align: center;
+}
+.license-upload-preview {
+    max-height: 130px;
+    width: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+    margin-top: 8px;
+    border: 1px solid var(--sl-line);
+}
+
 </style>
 </head>
 
@@ -555,67 +669,156 @@
 </div>
 
 <div class="modal fade ax-modal" id="createGuardModal" tabindex="-1">
-<div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
 <div class="modal-content">
 <div class="modal-header">
-    <h5 class="modal-title">Create Guard or Inspector</h5>
+    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">person_add</span>Create Guard or Inspector</h5>
     <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
 </div>
 <div class="modal-body">
-    <p class="modal-guard-meta" id="createUserRoleHint">Creates login credentials. Guards use the mobile app; inspectors and admins use the web panel.</p>
+    <p class="modal-guard-meta" id="createUserRoleHint">Creates login credentials and complete personnel file. Guards use the mobile app; inspectors and admins use the web panel.</p>
+    
+    <!-- Account & Identification -->
+    <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">badge</span>Account & Identification</div>
     <div class="row g-3">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <label class="form-label">ACCOUNT ROLE</label>
             <select id="newGuardRole" class="form-select" onchange="updateCreateUserHint()">
                 <option value="user">Guard — mobile attendance app</option>
-                <option value="inspector">Inspector — field review and approvals</option>
+                <option value="inspector">Inspector — field review & approvals</option>
             </select>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <label class="form-label">DUTY CATEGORY</label>
             <select id="newGuardEmploymentCategory" class="form-select" onchange="updateCreateUserHint()">
                 <option value="regular">Regular</option>
                 <option value="contract">Contract</option>
+                <option value="reliever">Reliever</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">PERSONNEL ID</label>
+            <input type="text" id="newGuardPersonnelId" class="form-control" placeholder="e.g. SEC-2026-001">
+        </div>
+    </div>
+
+    <!-- Personal Information -->
+    <div class="form-section-divider"></div>
+    <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">person</span>Personal Information</div>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">FIRST NAME *</label>
+            <input type="text" id="newGuardFirstName" class="form-control personnel-name-input" placeholder="Angel" oninput="autoCapitalizeWords(this)">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">MIDDLE NAME</label>
+            <input type="text" id="newGuardMiddleName" class="form-control personnel-name-input" placeholder="Pajarillo" oninput="autoCapitalizeWords(this)">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">LAST NAME *</label>
+            <input type="text" id="newGuardLastName" class="form-control personnel-name-input" placeholder="Samanion" oninput="autoCapitalizeWords(this)">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">DATE OF BIRTH</label>
+            <input type="date" id="newGuardDob" class="form-control">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">GENDER</label>
+            <select id="newGuardGender" class="form-select">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">CIVIL STATUS</label>
+            <select id="newGuardCivilStatus" class="form-select">
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Widowed">Widowed</option>
+                <option value="Separated">Separated</option>
             </select>
         </div>
         <div class="col-12">
-            <div class="row g-2">
-                <div class="col-5">
-                    <label class="form-label">LAST NAME</label>
-                    <input type="text" id="newGuardLastName" class="form-control personnel-name-input" placeholder="Dela Cruz" oninput="autoCapitalizeWords(this)">
-                </div>
-                <div class="col-5">
-                    <label class="form-label">FIRST NAME</label>
-                    <input type="text" id="newGuardFirstName" class="form-control personnel-name-input" placeholder="Juan" oninput="autoCapitalizeWords(this)">
-                </div>
-                <div class="col-2">
-                    <label class="form-label">M.I.</label>
-                    <input type="text" id="newGuardMiddleInitial" class="form-control personnel-initial-input text-center" placeholder="D" maxlength="3" oninput="autoCapitalizeInitial(this)">
-                </div>
-            </div>
+            <label class="form-label">COMPLETE ADDRESS</label>
+            <input type="text" id="newGuardAddress" class="form-control" placeholder="House/Lot, Street, Barangay, City/Municipality, Province">
         </div>
         <div class="col-md-6">
-            <label class="form-label">EMAIL</label>
+            <label class="form-label">EMAIL (LOGIN USERNAME) *</label>
             <input type="email" id="newGuardUsername" class="form-control" placeholder="name@gmail.com" autocomplete="off">
             <div class="form-text" style="color:var(--sl-muted);font-size:0.75rem;">Use the person’s own email address.</div>
         </div>
         <div class="col-md-6">
-            <label class="form-label">PHONE NUMBER</label>
-            <input type="tel" id="newGuardMobileNumber" class="form-control" placeholder="09171234567" maxlength="11" autocomplete="tel">
-            <div class="form-text" style="color:var(--sl-muted);font-size:0.75rem;">11-digit mobile starting with 09 (e.g. 09171234567).</div>
+            <label class="form-label">PHONE / CONTACT NUMBER *</label>
+            <input type="tel" id="newGuardMobileNumber" class="form-control" placeholder="09105187319" maxlength="11" autocomplete="tel">
+            <div class="form-text" style="color:var(--sl-muted);font-size:0.75rem;">11-digit mobile starting with 09.</div>
+        </div>
+    </div>
+
+    <!-- Employment Details -->
+    <div class="form-section-divider"></div>
+    <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">work</span>Employment Details</div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">DATE HIRED</label>
+            <input type="date" id="newGuardDateHired" class="form-control">
         </div>
         <div class="col-md-6">
-            <label class="form-label">PASSWORD</label>
+            <label class="form-label">CONTRACT / EMPLOYMENT STATUS</label>
+            <select id="newGuardContractStatus" class="form-select">
+                <option value="Active">Active</option>
+                <option value="Probationary">Probationary</option>
+                <option value="Completed">Completed</option>
+                <option value="Terminated">Terminated</option>
+            </select>
+        </div>
+    </div>
+    <div id="newGuardContractPeriod" class="row g-3 mt-1" hidden>
+        <div class="col-sm-6"><label class="form-label" for="newGuardContractStart">Contract start</label><input id="newGuardContractStart" type="date" class="form-control"></div>
+        <div class="col-sm-6"><label class="form-label" for="newGuardContractEnd">Contract end</label><input id="newGuardContractEnd" type="date" class="form-control"></div>
+        <div class="col-12 form-text">Both dates are included. All duty periods must fit inside this contract.</div>
+    </div>
+
+    <!-- License Uploads -->
+    <div class="form-section-divider"></div>
+    <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">upload_file</span>Upload Credentials & Licenses</div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="license-upload-box">
+                <label class="form-label fw-bold">LICENSE TO EXERCISE SECURITY PROFESSION (LESP)</label>
+                <input type="file" id="newGuardLicenseSecurity" class="form-control form-control-sm" accept="image/*,application/pdf" onchange="previewUploadFile(this, 'newGuardLicenseSecurityPreview')">
+                <div id="newGuardLicenseSecurityPreviewWrap" style="display:none;">
+                    <img id="newGuardLicenseSecurityPreview" class="license-upload-preview" alt="Security License Preview">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="license-upload-box">
+                <label class="form-label fw-bold">LICENSE TO CARRY FIREARMS (LTCF)</label>
+                <input type="file" id="newGuardLicenseFirearms" class="form-control form-control-sm" accept="image/*,application/pdf" onchange="previewUploadFile(this, 'newGuardLicenseFirearmsPreview')">
+                <div id="newGuardLicenseFirearmsPreviewWrap" style="display:none;">
+                    <img id="newGuardLicenseFirearmsPreview" class="license-upload-preview" alt="Firearms License Preview">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security & Password -->
+    <div class="form-section-divider"></div>
+    <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">lock</span>Password Credentials</div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">PASSWORD *</label>
             <div class="password-field-wrap">
                 <input type="password" id="newGuardPassword" class="form-control" autocomplete="new-password" minlength="8" placeholder="8+ characters: uppercase, lowercase, number, symbol" aria-describedby="newGuardPasswordHelp">
                 <button type="button" class="btn-toggle-password" id="newGuardPasswordToggle" onclick="togglePasswordVisibility('newGuardPassword', this)" aria-label="Show password" title="Show password" aria-controls="newGuardPassword" aria-pressed="false">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="m3 3 18 18" style="display:none"/></svg>
                 </button>
             </div>
-            <small id="newGuardPasswordHelp">Use at least 8 characters, including uppercase and lowercase letters, a number, and a symbol.</small>
+            <small id="newGuardPasswordHelp">At least 8 characters with upper, lower, number, and symbol.</small>
         </div>
         <div class="col-md-6">
-            <label class="form-label">CONFIRM PASSWORD</label>
+            <label class="form-label">CONFIRM PASSWORD *</label>
             <div class="password-field-wrap">
                 <input type="password" id="newGuardPasswordConfirm" class="form-control" placeholder="Repeat password">
                 <button type="button" class="btn-toggle-password" id="newGuardPasswordConfirmToggle" onclick="togglePasswordVisibility('newGuardPasswordConfirm', this)" aria-label="Show password" title="Show password" aria-controls="newGuardPasswordConfirm" aria-pressed="false">
@@ -624,16 +827,183 @@
             </div>
         </div>
     </div>
-    <div id="newGuardContractPeriod" class="row g-3 mt-1" hidden>
-        <div class="col-sm-6"><label class="form-label" for="newGuardContractStart">Contract start</label><input id="newGuardContractStart" type="date" class="form-control"></div>
-        <div class="col-sm-6"><label class="form-label" for="newGuardContractEnd">Contract end</label><input id="newGuardContractEnd" type="date" class="form-control"></div>
-        <div class="col-12 form-text">Both dates are included. All duty periods must fit inside this contract.</div>
-    </div>
-    <div id="createGuardError" role="alert"></div>
+    
+    <div id="createGuardError" role="alert" style="color:var(--sl-danger);margin-top:12px;font-size:0.85rem;font-weight:600;"></div>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
-    <button type="button" class="btn-save" id="createGuardBtn" onclick="createGuardAccount()">Create Guard</button>
+    <button type="button" class="btn-save" id="createGuardBtn" onclick="createGuardAccount()">Create Personnel</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ====== PERSONNEL RECORD PROFILE OVERVIEW MODAL ====== -->
+<div class="modal fade ax-modal" id="personnelProfileModal" tabindex="-1">
+<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+<div class="modal-content">
+<div class="modal-header">
+    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">badge</span>Personnel Record Profile</h5>
+    <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+</div>
+<div class="modal-body" id="personnelProfileBody">
+    <div style="text-align:center;padding:32px;color:var(--sl-muted);">Loading profile…</div>
+</div>
+<div class="modal-footer d-flex justify-content-between">
+    <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-danger btn-sm" id="profileModalEditBtn">
+            <span class="material-symbols-rounded align-middle me-1" style="font-size:16px;" aria-hidden="true">edit</span>Edit Profile
+        </button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="profileModalDtrBtn">
+            <span class="material-symbols-rounded align-middle me-1" style="font-size:16px;" aria-hidden="true">table_view</span>View DTR
+        </button>
+    </div>
+    <button type="button" class="btn-cancel" data-bs-dismiss="modal">Close</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ====== EDIT PERSONNEL PROFILE MODAL ====== -->
+<div class="modal fade ax-modal" id="editPersonnelModal" tabindex="-1">
+<div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+<div class="modal-content">
+<div class="modal-header">
+    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">manage_accounts</span>Edit Personnel Profile</h5>
+    <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+</div>
+<div class="modal-body">
+    <!-- Identification & Core -->
+    <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">badge</span>Identification & Duty Category</div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">PERSONNEL ID</label>
+            <input type="text" id="editGuardPersonnelId" class="form-control" placeholder="e.g. SEC-2026-001">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">DUTY CATEGORY</label>
+            <select id="editGuardEmploymentCategory" class="form-select" onchange="toggleEditContractFields()">
+                <option value="regular">Regular</option>
+                <option value="contract">Contract</option>
+                <option value="reliever">Reliever</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Personal Information -->
+    <div class="form-section-divider"></div>
+    <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">person</span>Personal Information</div>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">FIRST NAME *</label>
+            <input type="text" id="editGuardFirstName" class="form-control personnel-name-input" oninput="autoCapitalizeWords(this)">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">MIDDLE NAME</label>
+            <input type="text" id="editGuardMiddleName" class="form-control personnel-name-input" oninput="autoCapitalizeWords(this)">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">LAST NAME *</label>
+            <input type="text" id="editGuardLastName" class="form-control personnel-name-input" oninput="autoCapitalizeWords(this)">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">DATE OF BIRTH</label>
+            <input type="date" id="editGuardDob" class="form-control">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">GENDER</label>
+            <select id="editGuardGender" class="form-select">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label">CIVIL STATUS</label>
+            <select id="editGuardCivilStatus" class="form-select">
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Widowed">Widowed</option>
+                <option value="Separated">Separated</option>
+            </select>
+        </div>
+        <div class="col-12">
+            <label class="form-label">COMPLETE ADDRESS</label>
+            <input type="text" id="editGuardAddress" class="form-control" placeholder="House/Lot, Street, Barangay, City, Province">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">EMAIL (LOGIN USERNAME) *</label>
+            <input type="email" id="editGuardEmail" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">CONTACT / MOBILE NUMBER</label>
+            <input type="tel" id="editGuardMobileNumber" class="form-control" placeholder="09105187319" maxlength="11">
+        </div>
+    </div>
+
+    <!-- Employment Details -->
+    <div class="form-section-divider"></div>
+    <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">work</span>Employment Details</div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">DATE HIRED</label>
+            <input type="date" id="editGuardDateHired" class="form-control">
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">CONTRACT / EMPLOYMENT STATUS</label>
+            <select id="editGuardContractStatus" class="form-select">
+                <option value="Active">Active</option>
+                <option value="Probationary">Probationary</option>
+                <option value="Completed">Completed</option>
+                <option value="Terminated">Terminated</option>
+            </select>
+        </div>
+    </div>
+    <div id="editGuardContractRow" class="row g-3 mt-1" hidden>
+        <div class="col-sm-6"><label class="form-label">Contract start</label><input id="editGuardContractStart" name="contractStartDate" type="date" class="form-control"></div>
+        <div class="col-sm-6"><label class="form-label">Contract end</label><input id="editGuardContractEnd" name="contractEndDate" type="date" class="form-control"></div>
+    </div>
+
+    <!-- License Uploads -->
+    <div class="form-section-divider"></div>
+    <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">upload_file</span>Upload Credentials & Licenses</div>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="license-upload-box">
+                <label class="form-label fw-bold">LICENSE TO EXERCISE SECURITY PROFESSION (LESP)</label>
+                <input type="file" id="editGuardLicenseSecurity" class="form-control form-control-sm" accept="image/*,application/pdf" onchange="previewUploadFile(this, 'editGuardLicenseSecurityPreview')">
+                <div id="editGuardLicenseSecurityPreviewWrap" style="display:none;">
+                    <img id="editGuardLicenseSecurityPreview" class="license-upload-preview" alt="Security License Preview">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="license-upload-box">
+                <label class="form-label fw-bold">LICENSE TO CARRY FIREARMS (LTCF)</label>
+                <input type="file" id="editGuardLicenseFirearms" class="form-control form-control-sm" accept="image/*,application/pdf" onchange="previewUploadFile(this, 'editGuardLicenseFirearmsPreview')">
+                <div id="editGuardLicenseFirearmsPreviewWrap" style="display:none;">
+                    <img id="editGuardLicenseFirearmsPreview" class="license-upload-preview" alt="Firearms License Preview">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Optional Password Reset -->
+    <div class="form-section-divider"></div>
+    <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">lock_reset</span>Reset Password (Optional)</div>
+    <div class="row g-3">
+        <div class="col-12">
+            <label class="form-label">NEW PASSWORD</label>
+            <input type="password" id="editGuardPassword" name="password" class="form-control" placeholder="Leave blank to keep existing password">
+            <small style="color:var(--sl-muted);">Only enter if you wish to change the password.</small>
+        </div>
+    </div>
+
+    <div id="editGuardError" class="sl-dialog-error" role="alert" style="color:var(--sl-danger);margin-top:12px;font-size:0.85rem;font-weight:600;"></div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
+    <button type="button" class="btn-save" id="editGuardSaveBtn" onclick="savePersonnelEdit()">Save changes</button>
 </div>
 </div>
 </div>
@@ -833,9 +1203,10 @@ function resetGuardFilters() {
 
 function personnelDisplayName(account) {
     if (!account) return "Guard";
-    return [(account.firstName || ""),
-        (account.middleInitial ? account.middleInitial + ". " : ""),
-        (account.lastName || "")].join(" ").trim()
+    const middle = account.middleName
+        ? (account.middleName.trim().length === 1 ? account.middleName.trim() + "." : account.middleName.trim())
+        : (account.middleInitial ? account.middleInitial.replace(/\.+$/, "") + "." : "");
+    return [account.firstName || "", middle, account.lastName || ""].filter(Boolean).join(" ").trim()
         || account.name || displayLoginId(account) || "Guard";
 }
 
@@ -889,10 +1260,15 @@ async function loadUsers() {
     }
 }
 
-function renderPersonnelIdentity(data) {
+function renderPersonnelIdentity(id, data) {
     const fullName = personnelDisplayName(data);
-    return `<div class="user-name">${escapeHtml(fullName)}</div>
-        <div class="user-email">@${escapeHtml(displayLoginId(data))}</div>`;
+    const pid = data.personnelId ? `<span class="badge-personnel-id">${escapeHtml(data.personnelId)}</span>` : '';
+    return `<div class="user-name">
+        <button type="button" class="personnel-name-link" onclick="openPersonnelProfile('${id}')" title="Click to view full personnel record">
+            ${escapeHtml(fullName)}
+        </button>
+    </div>
+    <div class="user-email">${pid}@${escapeHtml(displayLoginId(data))}</div>`;
 }
 
 function renderPersonnelStatus(data) {
@@ -928,7 +1304,7 @@ function renderGuardRow(id, data, locationsById) {
         `<button type="button" class="action-btn btn-reports" onclick="viewAccomplishments('${id}')">Reports</button>`,
     ]);
     return `<tr>
-        <td>${renderPersonnelIdentity(data)}</td>
+        <td>${renderPersonnelIdentity(id, data)}</td>
         <td>${category}<div class="small text-muted">${escapeHtml(ContractPeriod.label(data))}</div></td>
         <td>${escapeHtml(String(data.dutyDaysTotal || 0))}</td>
         <td>${renderPersonnelStatus(data)}</td>
@@ -947,7 +1323,7 @@ function renderInspectorRow(id, data) {
         toggle,
     ]);
     return `<tr>
-        <td>${renderPersonnelIdentity(data)}</td>
+        <td>${renderPersonnelIdentity(id, data)}</td>
         <td>${renderPersonnelStatus(data)}</td>
         <td>${actions}</td>
         <td class="text-center"><button type="button" class="action-btn btn-reset" onclick="resetDevice('${id}', this)">Reset</button></td>
@@ -1558,26 +1934,7 @@ async function managePersonnelAccount(body) {
 }
 
 async function editPersonnel(uid, button) {
-    const account = personnelAccounts[uid];
-    if (!account) return;
-    const fields = [
-        { name: "firstName", label: "First name", value: account.firstName || "", required: true },
-        { name: "lastName", label: "Last name", value: account.lastName || "", required: true },
-        { name: "email", label: "Email", type: "email", value: editableEmail(account), required: true }
-    ];
-    if (account.role === "user") fields.push(
-        { name: "employmentCategory", label: "Duty category", type: "select", value: account.employmentCategory || "regular", options: [{ value: "regular", label: "Regular" }, { value: "contract", label: "Contract" }] },
-        { name: "contractStartDate", label: "Contract start (Contract only)", type: "date", value: account.contractStartDate || "" },
-        { name: "contractEndDate", label: "Contract end (Contract only, inclusive)", type: "date", value: account.contractEndDate || "" }
-    );
-    fields.push({ name: "password", label: "New password", type: "password", placeholder: "Leave blank to keep the current password", autocomplete: "new-password" });
-    const values = await appDialog.form({ title: "Edit personnel account", message: "Regular Guards have no contract date limit. Changing contract dates does not delete past records. New passwords need at least 8 characters, uppercase and lowercase letters, a number, and a symbol.", confirmText: "Save changes", fields, validate: value => validateEmail(value.email) || ContractPeriod.validate(value.employmentCategory, value.contractStartDate, value.contractEndDate) || (value.password ? PasswordPolicy.error(value.password) : "") });
-    if (!values) return;
-    try {
-        await appDialog.runBusy(button, () => managePersonnelAccount({ action: "update", userId: uid, firstName: values.firstName.trim(), lastName: values.lastName.trim(), email: normalizeUsername(values.email), employmentCategory: values.employmentCategory || account.employmentCategory || "regular", contractStartDate: values.contractStartDate || null, contractEndDate: values.contractEndDate || null, password: values.password }), { label: 'Saving…' });
-        appDialog.toast("Personnel account updated.", { tone: "success" });
-        await loadUsers();
-    } catch (error) { appDialog.toast(error.message || "Could not update personnel account.", { tone: "danger" }); }
+    openEditPersonnelModal(uid);
 }
 
 function updateCreateUserHint() {
@@ -1666,9 +2023,16 @@ function openPersonnelCreate() {
 async function createGuardAccount() {
     const role      = document.getElementById("newGuardRole").value;
     const employmentCategory = document.getElementById("newGuardEmploymentCategory").value;
+    const personnelId = document.getElementById("newGuardPersonnelId")?.value.trim() || "";
     const firstName = document.getElementById("newGuardFirstName").value.trim();
+    const middleName = document.getElementById("newGuardMiddleName")?.value.trim() || "";
     const lastName  = document.getElementById("newGuardLastName").value.trim();
-    const middle    = document.getElementById("newGuardMiddleInitial").value.trim();
+    const dob       = document.getElementById("newGuardDob")?.value || null;
+    const gender    = document.getElementById("newGuardGender")?.value || "Male";
+    const civilStatus = document.getElementById("newGuardCivilStatus")?.value || "Single";
+    const address   = document.getElementById("newGuardAddress")?.value.trim() || "";
+    const dateHired = document.getElementById("newGuardDateHired")?.value || null;
+    const contractStatus = document.getElementById("newGuardContractStatus")?.value || "Active";
     const username  = document.getElementById("newGuardUsername").value.trim();
     const mobileNumber = document.getElementById("newGuardMobileNumber")?.value.trim() || "";
     const password  = document.getElementById("newGuardPassword").value;
@@ -1707,6 +2071,13 @@ async function createGuardAccount() {
     }
 
     try {
+        let secLicenseData = null;
+        let fireLicenseData = null;
+        const secInput = document.getElementById("newGuardLicenseSecurity");
+        if (secInput?.files?.[0]) secLicenseData = await fileToDataUrl(secInput.files[0]);
+        const fireInput = document.getElementById("newGuardLicenseFirearms");
+        if (fireInput?.files?.[0]) fireLicenseData = await fileToDataUrl(fireInput.files[0]);
+
         await appDialog.runBusy(btn, async () => {
             const dup = await db.collection("users")
                 .where("email", "==", normalizedUsername).limit(1).get();
@@ -1718,7 +2089,7 @@ async function createGuardAccount() {
                     password,
                     role,
                     firstName,
-                    middleInitial: middle ? middle.charAt(0).toUpperCase() : "",
+                    middleInitial: middleName ? middleName.charAt(0).toUpperCase() : "",
                     lastName,
                     mobileNumber: mobileNumber || null,
                     employmentCategory,
@@ -1727,20 +2098,36 @@ async function createGuardAccount() {
                 }
             });
             await edgeFunctionErrors.unwrap({ data, error }, 'Could not create the account.');
-            if (mobileNumber && data?.id) {
+            if (data?.id) {
                 try {
-                    await appSupabase.from('profiles').update({ mobile_number: mobileNumber }).eq('id', data.id);
+                    await appSupabase.from('profiles').update({
+                        mobile_number: mobileNumber || null,
+                        personnel_id: personnelId || null,
+                        middle_name: middleName || null,
+                        date_of_birth: dob,
+                        gender,
+                        civil_status: civilStatus,
+                        complete_address: address || null,
+                        date_hired: dateHired,
+                        contract_status: contractStatus,
+                        license_security_url: secLicenseData,
+                        license_firearms_url: fireLicenseData
+                    }).eq('id', data.id);
                 } catch (_) {}
             }
             await loadUsers();
         }, { label: `Creating ${role === 'user' ? 'Guard' : 'Inspector'}…` });
         const roleLabel = role === "user" ? "Guard" : role === "inspector" ? "Inspector" : "Operations Head";
         document.getElementById("newGuardFirstName").value = "";
+        document.getElementById("newGuardMiddleName").value = "";
         document.getElementById("newGuardLastName").value = "";
-        document.getElementById("newGuardMiddleInitial").value = "";
         document.getElementById("newGuardUsername").value = "";
         const mobileEl = document.getElementById("newGuardMobileNumber");
         if (mobileEl) mobileEl.value = "";
+        document.getElementById("newGuardPersonnelId").value = "";
+        document.getElementById("newGuardDob").value = "";
+        document.getElementById("newGuardAddress").value = "";
+        document.getElementById("newGuardDateHired").value = "";
         document.getElementById("newGuardPassword").value = "";
         document.getElementById("newGuardPasswordConfirm").value = "";
         resetPasswordVisibility('newGuardPassword', document.getElementById('newGuardPasswordToggle'));
@@ -1752,6 +2139,420 @@ async function createGuardAccount() {
     } catch (error) {
         errEl.innerText = error?.message || error?.msg || "Unable to create the account. Please try again.";
         appDialog.toast(errEl.innerText, { tone: 'danger' });
+    }
+}
+
+
+/* ====== PERSONNEL EXTENDED PROFILE LOGIC ====== */
+let currentProfileUid = null;
+let personnelProfileModalInstance = null;
+let editPersonnelModalInstance = null;
+let currentEditUid = null;
+let editSecurityLicenseData = null;
+let editFirearmsLicenseData = null;
+
+function previewUploadFile(input, imgId) {
+    const file = input.files?.[0];
+    const wrap = document.getElementById(imgId + 'Wrap');
+    const img = document.getElementById(imgId);
+    if (!file) {
+        if (wrap) wrap.style.display = 'none';
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+        if (img) img.src = e.target.result;
+        if (wrap) wrap.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+
+function fileToDataUrl(file) {
+    return new Promise((resolve, reject) => {
+        if (!file) return resolve(null);
+        if (file.size > 8 * 1024 * 1024) {
+            return reject(new Error("File size exceeds 8MB. Please select a smaller file."));
+        }
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error("Could not read file."));
+        reader.readAsDataURL(file);
+    });
+}
+
+function calculateServiceDuration(dateHiredStr) {
+    if (!dateHiredStr) return "—";
+    const hired = new Date(dateHiredStr);
+    if (isNaN(hired.getTime())) return "—";
+    const now = new Date();
+    if (hired > now) return "Not yet started";
+    
+    let years = now.getFullYear() - hired.getFullYear();
+    let months = now.getMonth() - hired.getMonth();
+    let days = now.getDate() - hired.getDate();
+    
+    if (days < 0) {
+        months -= 1;
+    }
+    if (months < 0) {
+        years -= 1;
+        months += 12;
+    }
+    
+    const parts = [];
+    if (years > 0) parts.push(`${years} ${years === 1 ? 'yr' : 'yrs'}`);
+    if (months > 0) parts.push(`${months} ${months === 1 ? 'mo' : 'mos'}`);
+    if (parts.length === 0) return "Less than 1 mo";
+    return parts.join(", ");
+}
+
+function toggleEditContractFields() {
+    const cat = document.getElementById("editGuardEmploymentCategory").value;
+    document.getElementById("editGuardContractRow").hidden = cat !== "contract";
+}
+
+function openPersonnelProfile(uid) {
+    const account = personnelAccounts[uid];
+    if (!account) return;
+    currentProfileUid = uid;
+    
+    const fullName = personnelDisplayName(account);
+    const roleLabel = account.role === "inspector" ? "Inspector" : "Guard";
+    const category = account.employmentCategory === "contract" ? "Contract" : (account.employmentCategory === "reliever" ? "Reliever" : "Regular");
+    const statusText = account.active !== false ? "Active" : "Disabled";
+    const statusClass = account.active !== false ? "badge-active" : "badge-disabled";
+    const contractStatus = account.contractStatus || (account.active !== false ? "Active" : "Inactive");
+    const serviceLength = calculateServiceDuration(account.dateHired);
+    const assignedLocation = account.assignedLocationId ? (personnelLocationsById[account.assignedLocationId] || "Assigned post unavailable") : "Not assigned";
+    const inspectorAccount = account.inspectorId ? personnelAccounts[account.inspectorId] : null;
+    const inspectorName = inspectorAccount ? personnelDisplayName(inspectorAccount) : "Unassigned";
+    
+    const initials = (account.firstName?.[0] || "") + (account.lastName?.[0] || "");
+    const dobFormatted = account.dateOfBirth ? new Date(account.dateOfBirth).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : "—";
+    const dateHiredFormatted = account.dateHired ? new Date(account.dateHired).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : "—";
+    
+    let ageText = "";
+    if (account.dateOfBirth) {
+        const birthDate = new Date(account.dateOfBirth);
+        if (!isNaN(birthDate.getTime())) {
+            let age = new Date().getFullYear() - birthDate.getFullYear();
+            const m = new Date().getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && new Date().getDate() < birthDate.getDate())) age--;
+            ageText = ` (${age} yrs old)`;
+        }
+    }
+    
+    const securityLicenseHtml = account.licenseSecurityUrl
+        ? `<div class="profile-license-card">
+             <div class="profile-data-label">License to Exercise Security Profession (LESP)</div>
+             <a href="${account.licenseSecurityUrl}" target="_blank" rel="noopener noreferrer" title="Click to view full size">
+               <img src="${account.licenseSecurityUrl}" alt="Security License" class="profile-license-preview" />
+             </a>
+             <div>
+               <a href="${account.licenseSecurityUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-danger mt-1">
+                 <span class="material-symbols-rounded align-middle" style="font-size:16px;" aria-hidden="true">open_in_new</span> Open Full Size
+               </a>
+             </div>
+           </div>`
+        : `<div class="profile-license-card">
+             <div class="profile-data-label">License to Exercise Security Profession (LESP)</div>
+             <div style="padding:24px 10px; color:var(--sl-muted); font-size:0.85rem;">No license document uploaded yet.</div>
+           </div>`;
+
+    const firearmsLicenseHtml = account.licenseFirearmsUrl
+        ? `<div class="profile-license-card">
+             <div class="profile-data-label">License to Carry Firearms (LTCF)</div>
+             <a href="${account.licenseFirearmsUrl}" target="_blank" rel="noopener noreferrer" title="Click to view full size">
+               <img src="${account.licenseFirearmsUrl}" alt="Firearms License" class="profile-license-preview" />
+             </a>
+             <div>
+               <a href="${account.licenseFirearmsUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-danger mt-1">
+                 <span class="material-symbols-rounded align-middle" style="font-size:16px;" aria-hidden="true">open_in_new</span> Open Full Size
+               </a>
+             </div>
+           </div>`
+        : `<div class="profile-license-card">
+             <div class="profile-data-label">License to Carry Firearms (LTCF)</div>
+             <div style="padding:24px 10px; color:var(--sl-muted); font-size:0.85rem;">No firearm authorization uploaded.</div>
+           </div>`;
+
+    document.getElementById("personnelProfileBody").innerHTML = `
+        <div class="profile-modal-banner">
+            <div class="profile-modal-avatar">${escapeHtml(initials.toUpperCase() || 'P')}</div>
+            <div style="flex:1;">
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;">
+                    <h4 style="margin:0;font-weight:700;color:var(--sl-ink);font-size:1.25rem;">${escapeHtml(fullName)}</h4>
+                    <span class="${statusClass}">${statusText}</span>
+                    <span class="badge bg-secondary" style="font-size:0.75rem;">${roleLabel}</span>
+                </div>
+                <div style="color:var(--sl-muted);font-size:0.85rem;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <span>@${escapeHtml(displayLoginId(account))}</span>
+                    <span>•</span>
+                    <span class="badge-personnel-id">ID: ${escapeHtml(account.personnelId || 'SEC-' + uid.slice(0, 8).toUpperCase())}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section-card">
+            <div class="profile-section-title">
+                <span class="material-symbols-rounded" style="font-size:18px;" aria-hidden="true">person</span>
+                Personal Information
+            </div>
+            <div class="profile-data-grid">
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Complete Name</span>
+                    <span class="profile-data-value">${escapeHtml(fullName)}</span>
+                </div>
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Date of Birth</span>
+                    <span class="profile-data-value">${dobFormatted}${ageText}</span>
+                </div>
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Gender</span>
+                    <span class="profile-data-value">${escapeHtml(account.gender || '—')}</span>
+                </div>
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Civil Status</span>
+                    <span class="profile-data-value">${escapeHtml(account.civilStatus || '—')}</span>
+                </div>
+                <div class="profile-data-item" style="grid-column: 1 / -1;">
+                    <span class="profile-data-label">Complete Address</span>
+                    <span class="profile-data-value">${escapeHtml(account.completeAddress || '—')}</span>
+                </div>
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Contact / Mobile Number</span>
+                    <span class="profile-data-value">${escapeHtml(account.mobileNumber || '—')}</span>
+                </div>
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Email Address</span>
+                    <span class="profile-data-value">${escapeHtml(account.email || '—')}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section-card">
+            <div class="profile-section-title">
+                <span class="material-symbols-rounded" style="font-size:18px;" aria-hidden="true">work</span>
+                Employment Information
+            </div>
+            <div class="profile-data-grid">
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Personnel ID</span>
+                    <span class="profile-data-value" style="color:var(--sl-danger);font-weight:700;">${escapeHtml(account.personnelId || 'SEC-' + uid.slice(0, 8).toUpperCase())}</span>
+                </div>
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Date Hired</span>
+                    <span class="profile-data-value">${dateHiredFormatted}</span>
+                </div>
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Years / Months of Service</span>
+                    <span class="profile-data-value" style="color:var(--sl-success);font-weight:700;">${escapeHtml(serviceLength)}</span>
+                </div>
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Duty Category</span>
+                    <span class="profile-data-value">${category}</span>
+                </div>
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Contract Status</span>
+                    <span class="profile-data-value">${escapeHtml(contractStatus)}</span>
+                </div>
+                ${account.employmentCategory === 'contract' ? `
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Contract Start</span>
+                    <span class="profile-data-value">${account.contractStartDate || '—'}</span>
+                </div>
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Contract End</span>
+                    <span class="profile-data-value">${account.contractEndDate || '—'}</span>
+                </div>` : ''}
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Home Post (Detachment)</span>
+                    <span class="profile-data-value">${escapeHtml(assignedLocation)}</span>
+                </div>
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Assigned Field Inspector</span>
+                    <span class="profile-data-value">${escapeHtml(inspectorName)}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section-card">
+            <div class="profile-section-title">
+                <span class="material-symbols-rounded" style="font-size:18px;" aria-hidden="true">verified</span>
+                Uploaded Licenses & Credentials
+            </div>
+            <div class="profile-license-grid">
+                ${securityLicenseHtml}
+                ${firearmsLicenseHtml}
+            </div>
+        </div>
+    `;
+
+    document.getElementById("profileModalEditBtn").onclick = () => {
+        bootstrap.Modal.getOrCreateInstance(document.getElementById("personnelProfileModal")).hide();
+        openEditPersonnelModal(uid);
+    };
+    document.getElementById("profileModalDtrBtn").onclick = () => {
+        bootstrap.Modal.getOrCreateInstance(document.getElementById("personnelProfileModal")).hide();
+        viewDTR(uid);
+    };
+
+    personnelProfileModalInstance ||= new bootstrap.Modal(document.getElementById("personnelProfileModal"));
+    personnelProfileModalInstance.show();
+}
+
+function openEditPersonnelModal(uid) {
+    const account = personnelAccounts[uid];
+    if (!account) return;
+    currentEditUid = uid;
+    editSecurityLicenseData = account.licenseSecurityUrl || null;
+    editFirearmsLicenseData = account.licenseFirearmsUrl || null;
+    
+    document.getElementById("editGuardPersonnelId").value = account.personnelId || "";
+    document.getElementById("editGuardFirstName").value = account.firstName || "";
+    document.getElementById("editGuardMiddleName").value = account.middleName || account.middleInitial || "";
+    document.getElementById("editGuardLastName").value = account.lastName || "";
+    document.getElementById("editGuardEmail").value = editableEmail(account);
+    document.getElementById("editGuardMobileNumber").value = account.mobileNumber || "";
+    document.getElementById("editGuardDob").value = account.dateOfBirth || "";
+    document.getElementById("editGuardGender").value = account.gender || "Male";
+    document.getElementById("editGuardCivilStatus").value = account.civilStatus || "Single";
+    document.getElementById("editGuardAddress").value = account.completeAddress || "";
+    document.getElementById("editGuardDateHired").value = account.dateHired || "";
+    document.getElementById("editGuardEmploymentCategory").value = account.employmentCategory || "regular";
+    document.getElementById("editGuardContractStatus").value = account.contractStatus || "Active";
+    document.getElementById("editGuardContractStart").value = account.contractStartDate || "";
+    document.getElementById("editGuardContractEnd").value = account.contractEndDate || "";
+    document.getElementById("editGuardPassword").value = "";
+    document.getElementById("editGuardError").innerText = "";
+    
+    const isContract = account.employmentCategory === "contract";
+    document.getElementById("editGuardContractRow").hidden = !isContract;
+    
+    // Reset file inputs and set existing previews
+    document.getElementById("editGuardLicenseSecurity").value = "";
+    document.getElementById("editGuardLicenseFirearms").value = "";
+    
+    const secWrap = document.getElementById("editGuardLicenseSecurityPreviewWrap");
+    const secImg = document.getElementById("editGuardLicenseSecurityPreview");
+    if (editSecurityLicenseData) {
+        secImg.src = editSecurityLicenseData;
+        secWrap.style.display = "block";
+    } else {
+        secWrap.style.display = "none";
+    }
+
+    const fireWrap = document.getElementById("editGuardLicenseFirearmsPreviewWrap");
+    const fireImg = document.getElementById("editGuardLicenseFirearmsPreview");
+    if (editFirearmsLicenseData) {
+        fireImg.src = editFirearmsLicenseData;
+        fireWrap.style.display = "block";
+    } else {
+        fireWrap.style.display = "none";
+    }
+    
+    editPersonnelModalInstance ||= new bootstrap.Modal(document.getElementById("editPersonnelModal"));
+    editPersonnelModalInstance.show();
+}
+
+async function savePersonnelEdit() {
+    if (!currentEditUid) return;
+    const btn = document.getElementById("editGuardSaveBtn");
+    const errEl = document.getElementById("editGuardError");
+    errEl.innerText = "";
+    
+    const firstName = document.getElementById("editGuardFirstName").value.trim();
+    const middleName = document.getElementById("editGuardMiddleName").value.trim();
+    const lastName = document.getElementById("editGuardLastName").value.trim();
+    const email = document.getElementById("editGuardEmail").value.trim();
+    const mobileNumber = document.getElementById("editGuardMobileNumber").value.trim();
+    const personnelId = document.getElementById("editGuardPersonnelId").value.trim();
+    const dateOfBirth = document.getElementById("editGuardDob").value || null;
+    const gender = document.getElementById("editGuardGender").value;
+    const civilStatus = document.getElementById("editGuardCivilStatus").value;
+    const completeAddress = document.getElementById("editGuardAddress").value.trim();
+    const dateHired = document.getElementById("editGuardDateHired").value || null;
+    const employmentCategory = document.getElementById("editGuardEmploymentCategory").value;
+    const contractStatus = document.getElementById("editGuardContractStatus").value;
+    const contractStartDate = document.getElementById("editGuardContractStart").value || null;
+    const contractEndDate = document.getElementById("editGuardContractEnd").value || null;
+    const password = document.getElementById("editGuardPassword").value;
+    
+    if (!firstName || !lastName || !email) {
+        errEl.innerText = "First name, last name, and email are required.";
+        return;
+    }
+    const emailErr = validateEmail(email);
+    if (emailErr) { errEl.innerText = emailErr; return; }
+    
+    if (mobileNumber && !/^09[0-9]{9}$/.test(mobileNumber)) {
+        errEl.innerText = "Please enter an 11-digit mobile number starting with 09.";
+        return;
+    }
+    const contractErr = ContractPeriod.validate(employmentCategory, contractStartDate, contractEndDate);
+    if (contractErr) { errEl.innerText = contractErr; return; }
+    if (password && PasswordPolicy.error(password)) {
+        errEl.innerText = PasswordPolicy.error(password);
+        return;
+    }
+    
+    try {
+        const secFileInput = document.getElementById("editGuardLicenseSecurity");
+        if (secFileInput.files?.[0]) {
+            editSecurityLicenseData = await fileToDataUrl(secFileInput.files[0]);
+        }
+        const fireFileInput = document.getElementById("editGuardLicenseFirearms");
+        if (fireFileInput.files?.[0]) {
+            editFirearmsLicenseData = await fileToDataUrl(fireFileInput.files[0]);
+        }
+
+        await appDialog.runBusy(btn, async () => {
+            // Update auth/core via edge function
+            await managePersonnelAccount({
+                action: "update",
+                userId: currentEditUid,
+                firstName,
+                middleInitial: middleName ? middleName.charAt(0).toUpperCase() : "",
+                lastName,
+                email: normalizeUsername(email),
+                employmentCategory,
+                contractStartDate,
+                contractEndDate,
+                password: password || ""
+            });
+            
+            // Update extended profile columns directly in database
+            const updatePayload = {
+                first_name: firstName,
+                middle_name: middleName,
+                middle_initial: middleName ? middleName.charAt(0).toUpperCase() : "",
+                last_name: lastName,
+                mobile_number: mobileNumber || null,
+                personnel_id: personnelId || null,
+                date_of_birth: dateOfBirth,
+                gender,
+                civil_status: civilStatus,
+                complete_address: completeAddress || null,
+                date_hired: dateHired,
+                employment_category: employmentCategory,
+                contract_status: contractStatus,
+                contract_start_date: contractStartDate,
+                contract_end_date: contractEndDate,
+                license_security_url: editSecurityLicenseData,
+                license_firearms_url: editFirearmsLicenseData
+            };
+            
+            try {
+                await appSupabase.from('profiles').update(updatePayload).eq('id', currentEditUid);
+            } catch (_) {}
+            
+            await loadUsers();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById("editPersonnelModal")).hide();
+            appDialog.toast("Personnel profile updated successfully.", { tone: "success" });
+        }, { label: "Saving changes…" });
+    } catch (err) {
+        errEl.innerText = err.message || "Could not update personnel account.";
+        appDialog.toast(errEl.innerText, { tone: "danger" });
     }
 }
 

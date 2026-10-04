@@ -1,6 +1,35 @@
 # Project Change Log
 
-### [2026-10-04 17:42] - Fix Guard Mobile App Version Badges and QR Code to v1.0.20 Build 21
+### [2026-10-04 18:15] - Personnel Record Profile View, Extended Identification & License Uploads
+
+- **Scope & Objective**: Enhanced the Personnel records page (`web/admin/users.html`) to display comprehensive personnel information and file management as requested:
+  1. **Clickable Personnel Names**: Guard and Inspector names in tables are now interactive buttons opening a rich **Personnel Record Profile** modal (`#personnelProfileModal`).
+  2. **Personal Information Section**: Captures and displays complete name (First, Middle, Last), Date of Birth with auto-computed age (e.g. `28 yrs old`), Gender, Civil Status, Complete Address, Mobile / Contact Number, and Email.
+  3. **Employment Information Section**: Displays Personnel ID badge (e.g. `SEC-2026-0042`), Date Hired, dynamic **Years / Months of Service** (auto-computed from hire date to present), Duty Category (Regular, Contract, Reliever), Contract Status (Active, Probationary, Completed, Terminated), Contract Start/End dates, and Assigned Home Post / Inspector.
+  4. **Uploaded Licenses & Credentials ("Maka upload ID")**: Added file upload inputs for:
+     - License to Exercise Security Profession (LESP)
+     - License to Carry Firearms (LTCF)
+     With instant client-side preview and full-size modal/tab viewing links.
+  5. **Create & Edit Modals**:
+     - Expanded **Create Guard / Inspector** (`#createGuardModal`) with all extended personal, employment, and license upload fields.
+     - Implemented full **Edit Personnel Profile** modal (`#editPersonnelModal`) allowing Operations Head to update any personnel attributes or reset passwords.
+  6. **Database Schema & Bridge Integration**:
+     - Added migration `supabase/migrations/20261004000000_personnel_profile_extended_fields.sql` defining `personnel_id`, `middle_name`, `date_of_birth`, `gender`, `civil_status`, `complete_address`, `date_hired`, `contract_status`, `license_security_url`, and `license_firearms_url`.
+     - Updated `web/js/supabase-firebase-bridge.js` to map these fields bidirectionally between database and client models.
+- **Files Modified / Created**:
+  - `[supabase/migrations/20261004000000_personnel_profile_extended_fields.sql](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261004000000_personnel_profile_extended_fields.sql)`: New migration for extended columns on `profiles`.
+  - `[web/js/supabase-firebase-bridge.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/supabase-firebase-bridge.js)`: Mapped extended camelCase and snake_case profile fields.
+  - `[web/admin/users.html](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html)`: Added profile card modal, extended edit modal, expanded create modal, service duration calculator, upload previews, and table links.
+  - `[web/tests/personnel_profile.spec.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/personnel_profile.spec.js)`: Automated test suite verifying profile click, personal/employment info, service length, license cards, and edit form.
+  - `[CHANGE_LOG.md](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/CHANGE_LOG.md)`: Logged updates and test verification.
+- **Verification & Testing**:
+  - `npx playwright test personnel_profile.spec.js`: Passed (1 passed, 1.7s).
+  - `npx playwright test contract_personnel.spec.js`: Passed all 6 tests (6 passed, 11.5s).
+  - `npx playwright test google_icons.spec.js`: Passed all 5 tests (5 passed, 15.2s).
+- **Git Safety & Pending Commands**:
+  - Commit, push, and revert commands prepared for the user.
+
+---
 
 - **Scope & Objective**: The staff portal login card (`web/staff/login.html`) was still displaying the older static badges (`v1.0.18` / `Build 19`) and previous QR code graphic.
   1. Updated the version pills in `web/staff/login.html` and the `#guardAppSetupTemplate` modal from `v1.0.18 · Build 19` to `v1.0.20 · Build 21`.
