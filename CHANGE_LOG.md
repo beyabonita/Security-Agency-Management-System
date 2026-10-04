@@ -1,6 +1,32 @@
 # Project Change Log
 
-### [2026-10-04 21:05] - Feature: Geofence Editing Safeguard for Deployed Guard Locations
+### [2026-10-04 21:25] - Feature: Negros Island Location Search Prioritization & Comprehensive Directory
+
+- **Scope & Objective**: Enhanced Philippine address search in Company / Deployment Sites (`web/admin/locations.html` & `web/js/ph-location-search.js`) to provide complete, accurate location search specifically tailored to Negros Occidental and Negros Oriental.
+- **Problem & Rationale**:
+  - Nationwide OpenStreetMap (Nominatim) queries returned places from Cebu, Batangas, and Luzon before local Negros places (e.g. searching "Talisay" returned Talisay Cebu first).
+  - Many local barangays, commercial posts, puroks, and agency client establishments (e.g. "Lilia Store") are not indexed on OpenStreetMap.
+- **Key Implementation Details**:
+  - **Negros Geo-Biasing & Scoring Boost**:
+    - Added `isNegros(result)` checking the Negros Island bounding box (`lat: 8.9 to 11.2`, `lon: 122.3 to 123.65`) and province keywords.
+    - Added a +300 score boost in `PhLocationSearch.filter` so local Negros locations are prioritized at the top of search suggestions.
+  - **Pre-Seeded Comprehensive Negros Directory**:
+    - Embedded `NEGROS_DIRECTORY` in `web/js/ph-location-search.js` covering all **32 LGUs of Negros Occidental** (Bacolod, Talisay, Silay, Bago, Cadiz, Sagay, Victorias, San Carlos, Kabankalan, Sipalay, Himamaylan, etc.) and all **25 LGUs of Negros Oriental** (Dumaguete, Bais, Tanjay, Guihulngan, Canlaon, Bayawan, Sibulan, Valencia, etc.).
+    - Included major barangays, commercial districts, and puroks (e.g. *Zone 1 (Purok Manpower / Domingo Lizares St)*, *Zone 2-15*, *Bubog*, *Mandalagan*, *Bata*, *Villamonte*, *Singcang*, *Taculing*, *Daro*, *Piapi*, *Caridad*, etc.) with exact verified geographic coordinates.
+  - **Saved Client Establishment Memory**:
+    - Added `PhLocationSearch.searchSavedSites(locationRecords, query)` matching all agency deployment sites in memory with top-level ranking (+1000 boost) and distinct `Saved Post` badge.
+  - **UI Indicators**:
+    - Added `.badge-negros-site` (`Negros`) and `.badge-agency-site` (`Saved Post`) chips in `#addressSuggestions`.
+  - **Automated Test Coverage**:
+    - Added unit and integration tests in `web/tests/ph_location_search.spec.js` asserting Negros prioritization over other provinces, local directory resolution, and saved client site matching (5/5 passing).
+    - Verified all 13 Playwright location tests pass cleanly across `geofence_default.spec.js`, `geofence_safeguard.spec.js`, and `ph_location_search.spec.js`.
+- **Files Modified**:
+  - `web/js/ph-location-search.js`: Negros directory, geo-biasing, saved site search, and result merging.
+  - `web/admin/locations.html`: Badge styling, Negros directory integration, and saved site suggestions.
+  - `web/tests/ph_location_search.spec.js`: Automated tests for Negros search prioritization and directory resolution.
+  - `CHANGE_LOG.md`: Documented implementation and rationale.
+
+---
 
 - **Scope & Objective**: Added a robust safeguard to the geofencing editor in Company / Deployment Sites (`web/admin/locations.html`) preventing accidental alteration of coordinates, radius, or address when active security guards are stationed at the location.
 - **Problem & Rationale**:

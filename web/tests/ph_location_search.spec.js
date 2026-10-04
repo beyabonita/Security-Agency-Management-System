@@ -122,3 +122,42 @@ test('a delayed search cannot reopen suggestions after the query changes or the 
   await expect(page.locator('#addressSearchButton')).toBeEnabled();
   await expect(page.locator('#lat')).toHaveValue('');
 });
+
+test('prioritizes Negros Occidental and Oriental locations and resolves local directory barangays', async ({ page }) => {
+  // Unit check: Talisay Negros Occidental must score higher than Talisay Cebu
+  const talisayCebu = { name: 'Talisay', display_name: 'Talisay, Cebu, Central Visayas, Philippines', lat: '10.245', lon: '123.849', address: { country_code: 'ph' } };
+  const talisayNegros = { name: 'Talisay', display_name: 'Talisay, Negros Occidental, Negros Island Region, Philippines', lat: '10.7397', lon: '122.9691', address: { country_code: 'ph', state: 'Negros Occidental' } };
+  const filtered = search.filter([talisayCebu, talisayNegros], 'talisay');
+  expect(filtered[0].display_name).toContain('Negros Occidental');
+
+  // Directory check: Zone 1 Talisay must resolve accurately
+  const zone1Matches = search.searchNegros('Zone 1 Talisay');
+  expect(zone1Matches.length).toBeGreaterThan(0);
+  expect(zone1Matches[0].name).toBe('Zone 1');
+  expect(zone1Matches[0].display_name).toContain('Talisay, Negros Occidental');
+  expect(zone1Matches[0].is_negros).toBe(true);
+
+  // Saved agency site check
+  const savedSites = [{ label: 'Lilia Store', address: 'Domingo Lizares St, Zone 1, Talisay', latitude: 10.738, longitude: 122.966 }];
+  const savedMatches = search.searchSavedSites(savedSites, 'Lilia Store');
+  expect(savedMatches.length).toBe(1);
+  expect(savedMatches[0].is_agency_site).toBe(true);
+  expect(savedMatches[0].name).toBe('Lilia Store');
+
+  // UI verification: Opening form and searching Zone 1 shows Negros badge and selects pin
+  await openLocations(page);
+  await page.route('https://nominatim.openstreetmap.org/search?**', route => route.fulfill({ json: [] }));
+  await page.getByRole('button', { name: 'Add Deployment Site', exact: true }).click();
+  await page.locator('#addressSearch').fill('Zone 1 Talisay');
+  await page.locator('#addressSearchButton').click();
+
+  const suggestion = page.locator('#addressSuggestions button').first();
+  await expect(suggestion).toBeVisible();
+  await expect(suggestion).toContainText('Zone 1');
+  await expect(suggestion).toContainText('Negros');
+
+  await suggestion.click();
+  await expect(page.locator('#lat')).toHaveValue('10.738');
+  await expect(page.locator('#lng')).toHaveValue('122.966');
+});
+

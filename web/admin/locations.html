@@ -123,6 +123,32 @@
         font-size: 0.78rem;
         font-weight: 600;
     }
+    .badge-agency-site {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(185, 28, 28, 0.12);
+        border: 1px solid rgba(185, 28, 28, 0.25);
+        color: var(--sl-danger, #b91c1c);
+        border-radius: 999px;
+        padding: 1px 7px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+    .badge-negros-site {
+        display: inline-flex;
+        align-items: center;
+        background: rgba(16, 185, 129, 0.12);
+        border: 1px solid rgba(16, 185, 129, 0.25);
+        color: #047857;
+        border-radius: 999px;
+        padding: 1px 7px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
     </style>
 </head>
 <body class="admin-body" data-ax-page="locations">
@@ -694,9 +720,22 @@ function renderAddressResults() {
         button.dataset.idx=index;
         const copy=document.createElement('span');copy.className='address-suggestion-copy';
         const name=document.createElement('strong');name.textContent=resultPrimaryLabel(result);
+
+        if (result.is_agency_site) {
+            const badge = document.createElement('span');
+            badge.className = 'badge-agency-site';
+            badge.textContent = 'Saved Post';
+            name.append(badge);
+        } else if (result.is_local_directory) {
+            const badge = document.createElement('span');
+            badge.className = 'badge-negros-site';
+            badge.textContent = 'Negros';
+            name.append(badge);
+        }
+
         const address=document.createElement('small');address.textContent=result.display_name||'Philippines';
         copy.append(name,address);
-        const icon=document.createElement('span');icon.className='material-symbols-rounded';icon.textContent='location_on';icon.setAttribute('aria-hidden','true');
+        const icon=document.createElement('span');icon.className='material-symbols-rounded';icon.textContent=result.is_agency_site?'business':'location_on';icon.setAttribute('aria-hidden','true');
         button.append(icon,copy);button.addEventListener('click',()=>selectAddressResult(index));list.append(button);
     }
     setAddressSearchStatus(lastSearchResults.length+' Philippine results found.','success');
@@ -712,16 +751,27 @@ async function searchAddress(query, button) {
     allSearchResults=[];lastSearchResults=[];addressResultQuery=query;
     list.innerHTML='<div class="address-suggestion-message">Searching Philippine places…</div>';
     showSuggestions();setAddressSearchStatus('Searching nationwide…');setSearchButtonBusy(button,true);
+
+    const savedMatches = PhLocationSearch.searchSavedSites ? PhLocationSearch.searchSavedSites(locationRecords, query) : [];
+    const localMatches = PhLocationSearch.searchNegros ? PhLocationSearch.searchNegros(query, document.getElementById('addressType')?.value || 'all') : [];
+    const localCombined = [...savedMatches, ...localMatches];
+
     try {
+        let osmMatches = [];
         for(const term of PhLocationSearch.variants(query,area)){
             if(!isCurrent())return;
             const results=await fetchNominatim('/search',{
                 q:term,format:'jsonv2',addressdetails:'1',namedetails:'1',limit:'40',dedupe:'1',countrycodes:'ph','accept-language':'en,fil'
             },'search-v2:'+term.toLocaleLowerCase('en-PH'),isCurrent);
             if(!isCurrent())return;
-            allSearchResults=PhLocationSearch.filter(results,query);
-            if(allSearchResults.length)break;
+            osmMatches=PhLocationSearch.filter(results,query);
+            if(osmMatches.length)break;
         }
+
+        allSearchResults = PhLocationSearch.mergeResults
+            ? PhLocationSearch.mergeResults(osmMatches, localCombined)
+            : [...osmMatches, ...localCombined];
+
         if(!allSearchResults.length){
             list.innerHTML='<div class="address-suggestion-message">No mapped place found. Try a nearby landmark or a different spelling, add a city/province, or select the exact point on the map.</div>';
             setAddressSearchStatus('No matching place in the map provider’s data.');return;
@@ -729,9 +779,14 @@ async function searchAddress(query, button) {
         renderAddressResults();
     }catch(error){
         if(!isCurrent())return;
-        const message=error.message||'Address search is temporarily unavailable.';
-        list.innerHTML='<div class="address-suggestion-message error">'+escapeHtml(message)+'</div>';
-        setAddressSearchStatus(message,'error');
+        if(localCombined.length){
+            allSearchResults = localCombined;
+            renderAddressResults();
+        } else {
+            const message=error.message||'Address search is temporarily unavailable.';
+            list.innerHTML='<div class="address-suggestion-message error">'+escapeHtml(message)+'</div>';
+            setAddressSearchStatus(message,'error');
+        }
     }finally{
         if(isCurrent())setSearchButtonBusy(button,false);
     }
