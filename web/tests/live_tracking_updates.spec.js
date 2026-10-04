@@ -367,3 +367,32 @@ test('computer clock jumps cannot hide an authorized marker between refreshes',a
   await expect(page.locator('.tracking-guard')).toHaveCount(1);
   expect(await page.evaluate(()=>!!markers[0].removed)).toBe(false);
 });
+
+test('guard information formats name, client, location, contact number, and status in sidebar and popup',async({page})=>{
+  await openTracking(page);
+  await page.evaluate(()=>{
+    window.locations=[{
+      user_id:'guard-formatted',guard_name:'Nicor Bea',
+      location_label:'Balboa · Eroreco - Queen of Mercy Hospital Turning Point, Camia Street, Bacolod',
+      mobile_number:'09123456789',latitude:14.6,longitude:120.98,accuracy_meters:15,
+      captured_at:new Date().toISOString(),received_at:new Date().toISOString(),duty_end_at:new Date(Date.now()+3600000).toISOString()
+    }];
+    window.broadcast({});
+  });
+  await page.clock.runFor(1000);
+  const card=page.locator('.tracking-guard');
+  await expect(card.locator('strong')).toHaveText('Nicor Bea');
+  await expect(card).toContainText('Client (Name of the Company): Balboa');
+  await expect(card).toContainText('Location: Eroreco - Queen of Mercy Hospital Turning Point, Camia Street, Bacolod');
+  await expect(card).toContainText('Contact Number: 09123456789');
+  await expect(card).toContainText('Status: Live');
+
+  await card.click();
+  const popupText=await page.evaluate(()=>window.markers.find(m=>!m.removed).popup.textContent);
+  expect(popupText).toContain('Nicor Bea');
+  expect(popupText).toContain('Client (Name of the Company): Balboa');
+  expect(popupText).toContain('Location: Eroreco - Queen of Mercy Hospital Turning Point, Camia Street, Bacolod');
+  expect(popupText).toContain('Contact Number: 09123456789');
+  expect(popupText).toContain('Status: Live');
+});
+

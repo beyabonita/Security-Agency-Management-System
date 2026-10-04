@@ -17,7 +17,7 @@
   function visible(rows, search='', now=Date.now()) {
     const query=search.trim().toLowerCase();
     return rows.map(row=>classify(row,now)).filter(Boolean)
-      .filter(row=>`${row.guard_name} ${row.location_label}`.toLowerCase().includes(query));
+      .filter(row=>`${row.guard_name} ${row.location_label} ${row.mobile_number||''} ${row.contact_number||''}`.toLowerCase().includes(query));
   }
   // Advance from the server snapshot with a monotonic clock, independent of
   // device timezone, manual clock changes, or network time corrections.

@@ -12,6 +12,37 @@
   const empty=document.createElement('p'); empty.className='tracking-empty';
   empty.textContent='No matching guards are currently on duty.';
   function setText(element,value) { if(element.textContent!==value)element.textContent=value; }
+  function parseGuardLocation(row) {
+    let client = (row.client_name || '').trim();
+    let address = (row.location_address || '').trim();
+    const rawLabel = (row.location_label || '').trim();
+
+    if (!client && rawLabel) {
+      if (rawLabel.includes(' · ')) {
+        const idx = rawLabel.indexOf(' · ');
+        client = rawLabel.slice(0, idx).trim();
+        address = address || rawLabel.slice(idx + 3).trim();
+      } else {
+        client = rawLabel;
+        address = address || rawLabel;
+      }
+    }
+    return {
+      client: client || rawLabel || '—',
+      location: address || rawLabel || '—'
+    };
+  }
+  function createInfoRow(labelText, extraClass='') {
+    const row = document.createElement('div');
+    row.className = 'tracking-info-item' + (extraClass ? ' ' + extraClass : '');
+    const label = document.createElement('span');
+    label.className = 'tracking-info-label';
+    label.textContent = labelText.endsWith(' ') ? labelText : (labelText + ' ');
+    const val = document.createElement('span');
+    val.className = 'tracking-info-val';
+    row.append(label, val);
+    return { row, label, val };
+  }
   function clear(message) { clearTimeout(accessExpiryTimer);rows=[]; render(); status.textContent=message; }
   function render() {
     const visible=window.LiveTrackingModel.visible(rows,search.value,serverClock.now())
@@ -33,13 +64,27 @@
       let entry=entries.get(row.user_id);
       if(!entry) {
         const item=document.createElement('button'); item.type='button'; item.className='tracking-guard';
-        const name=document.createElement('strong'),site=document.createElement('span');
-        const detail=document.createElement('span'),waitingNote=document.createElement('span');
-        item.append(name,site,detail,waitingNote);
-        const popup=document.createElement('div');
-        const title=document.createElement('strong'),details=document.createElement('p');
-        popup.append(title,details);
-        entry={item,name,site,detail,waitingNote,title,details,popup};
+        const name=document.createElement('strong'); name.className='tracking-guard-name';
+        const clientRow=createInfoRow('Client (Name of the Company):');
+        const locRow=createInfoRow('Location:');
+        const contactRow=createInfoRow('Contact Number:');
+        const statusRow=createInfoRow('Status:', 'tracking-status-row');
+        const detail=statusRow.val;
+        const waitingNote=document.createElement('span'); waitingNote.className='tracking-waiting-note';
+        item.append(name,clientRow.row,locRow.row,contactRow.row,statusRow.row,waitingNote);
+
+        const popup=document.createElement('div'); popup.className='tracking-popup-card';
+        const title=document.createElement('strong'); title.className='tracking-popup-title';
+        const popupClientRow=createInfoRow('Client (Name of the Company):');
+        const popupLocRow=createInfoRow('Location:');
+        const popupContactRow=createInfoRow('Contact Number:');
+        const popupStatusRow=createInfoRow('Status:', 'tracking-status-row');
+        const popupDetail=popupStatusRow.val;
+        const popupWaitingNote=document.createElement('span'); popupWaitingNote.className='tracking-waiting-note';
+        popup.append(title,popupClientRow.row,popupLocRow.row,popupContactRow.row,popupStatusRow.row,popupWaitingNote);
+
+        entry={item,name,clientRow,locRow,contactRow,statusRow,detail,waitingNote,
+               popup,title,popupClientRow,popupLocRow,popupContactRow,popupStatusRow,popupDetail,popupWaitingNote};
         entries.set(row.user_id,entry);
       }
       if(map && row.state!=='waiting' && !entry.marker) {
@@ -70,13 +115,30 @@
         entry.circle?.setStyle({color});
       }
       entry.row=row; entry.color=color;
-      setText(entry.name,row.guard_name||'Guard'); setText(entry.site,row.location_label||'Duty post');
+      const parsedLoc=parseGuardLocation(row);
+      const contactNumber=(row.mobile_number||row.contact_number||'').trim()||'—';
+
+      setText(entry.name,row.guard_name||'Guard');
+      setText(entry.clientRow.val,parsedLoc.client);
+      setText(entry.locRow.val,parsedLoc.location);
+      setText(entry.contactRow.val,contactNumber);
+
       const detailClass=`tracking-${row.state}`;
-      if(entry.detail.className!==detailClass)entry.detail.className=detailClass;
-      setText(entry.detail,row.state==='waiting'?'On duty · Waiting for GPS':`${row.state==='live'?'Live':'Last known location'}${row.approximate?' · Approximate':''} · ${row.ageSeconds}s ago · ±${Math.round(row.accuracy_meters)} m`);
+      const statusText=row.state==='waiting'?'On duty · Waiting for GPS':`${row.state==='live'?'Live':'Last known location'}${row.approximate?' · Approximate':''} · ${row.ageSeconds}s ago · ±${Math.round(row.accuracy_meters)} m`;
+
+      if(entry.detail.className!==`tracking-info-val ${detailClass}`)entry.detail.className=`tracking-info-val ${detailClass}`;
+      setText(entry.detail,statusText);
       entry.waitingNote.hidden=row.state!=='waiting';
       setText(entry.waitingNote,row.state==='waiting'?'No location received from the guard app yet.':'');
-      setText(entry.title,entry.name.textContent); setText(entry.details,`${entry.site.textContent} — ${entry.detail.textContent}`);
+
+      setText(entry.title,entry.name.textContent);
+      setText(entry.popupClientRow.val,parsedLoc.client);
+      setText(entry.popupLocRow.val,parsedLoc.location);
+      setText(entry.popupContactRow.val,contactNumber);
+      if(entry.popupDetail.className!==`tracking-info-val ${detailClass}`)entry.popupDetail.className=`tracking-info-val ${detailClass}`;
+      setText(entry.popupDetail,statusText);
+      entry.popupWaitingNote.hidden=row.state!=='waiting';
+      setText(entry.popupWaitingNote,entry.waitingNote.textContent);
       // Keep the focused list item, map layers and open popup mounted during updates.
       if(list.children[index]!==entry.item)list.insertBefore(entry.item,list.children[index]||null);
     });
@@ -208,8 +270,12 @@
     const update=()=>{
       tick++;
       serverClock.sync(new Date().toISOString());
-      rows=['Demo guard A','Demo guard B','Demo guard C'].map((guard_name,i)=>({
-        user_id:String(i),guard_name,location_label:['Main gate','Warehouse','North post'][i],
+      rows=[
+        {guard_name:'Demo guard A',location_label:'Balboa · Eroreco - Queen of Mercy Hospital Turning Point, Camia Street, Bacolod',mobile_number:'09171234561'},
+        {guard_name:'Demo guard B',location_label:'Jollibee Main · Lacson Street, Bacolod, Negros Occidental',mobile_number:'09181234562'},
+        {guard_name:'Demo guard C',location_label:'SM City Bacolod · Reclamation Area, Bacolod, Negros Occidental',mobile_number:'09191234563'}
+      ].map((demo,i)=>({
+        user_id:String(i),guard_name:demo.guard_name,location_label:demo.location_label,mobile_number:demo.mobile_number,
         latitude:14.5995+i*0.007+Math.sin(tick/4+i)*0.001,longitude:120.9842+i*0.009,
         accuracy_meters:15+i*10,captured_at:new Date(Date.now()-(i===2?180000:0)).toISOString(),
         received_at:new Date(Date.now()-(i===2?180000:0)).toISOString(),duty_end_at:new Date(Date.now()+3600000).toISOString()
