@@ -1,5 +1,24 @@
 # Project Change Log
 
+### [2026-10-04 22:23] - Feature: Display Number of Assigned Guards in Site Status Column
+
+- **Scope & Objective**: Enhance the **STATUS** column in the Deployment Sites table (`web/admin/locations.html`) to display the exact number of active security guards assigned to each establishment.
+- **Key Enhancements**:
+  - **Status Column Guard Indicator**:
+    - Under the `• Active` / `Disabled` badge in the table's Status column, added a dedicated badge showing the assigned guard count:
+      - When guards are stationed (`deployedCount > 0`): displays a blue badge with an icon and the guard count (e.g. `1 Guard assigned` / `2 Guards assigned`), clickable to instantly view deployed guard details.
+      - When no guards are stationed (`deployedCount === 0`): displays a muted badge `0 Guards assigned`.
+  - **Enhanced Visibility & Alignment**:
+    - Wrapped the status badges in `.loc-status-cell` for clean vertical alignment.
+  - **Automated Verification**:
+    - All 15 Playwright tests passing across location search, geofencing, and safeguards.
+    - Verified Google Material icon font compliance.
+- **Files Modified**:
+  - `web/admin/locations.html`: Added assigned guard badge in `renderLocations()` and responsive CSS styles.
+  - `CHANGE_LOG.md`: Documented implementation details.
+
+---
+
 ### [2026-10-04 22:10] - Feature: Automatic Fill of Deployment Site Label from Client / Organization
 
 - **Scope & Objective**: Automatically populate the **DEPLOYMENT SITE LABEL** input (`#label`) in `web/admin/locations.html` based on the selected client, establishment, or organization when choosing from address search suggestions or placing a pin.
