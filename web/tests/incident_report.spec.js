@@ -140,4 +140,21 @@ for (const panel of ['admin', 'inspector']) {
     await expect(page.locator('.incident-report-photo')).toHaveCSS('filter', 'none');
     await page.screenshot({ path: info.outputPath(panel + '-incident-dark.png') });
   });
+
+  test(`${panel} incident report shows embedded mini map and excludes external maps link`, async ({ page }) => {
+    await openTestIncident(page, panel);
+    await expect(page.locator('#detailModal')).toHaveClass(/show/);
+    await expect(page.locator('#modalBody')).not.toContainText('Open exact location in Maps');
+    await expect(page.locator('#incidentMiniMap')).toBeVisible();
+    await expect(page.locator('.incident-mini-map-wrap')).toBeVisible();
+
+    await page.evaluate(() => {
+      incidents[0].latitude = null;
+      incidents[0].longitude = null;
+      openDetail(incidents[0].id);
+    });
+    await expect(page.locator('#incidentMiniMap')).toHaveCount(0);
+    await expect(page.locator('#modalBody')).not.toContainText('Open exact location in Maps');
+    await expect(page.locator('#modalBody')).toContainText('Not recorded');
+  });
 }

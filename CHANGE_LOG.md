@@ -1,5 +1,19 @@
 # Project Change Log
 
+### [2026-10-05 01:42] - Feature: Embedded Incident Location Mini-Map (Replaced External Maps Link)
+
+- **Scope & Objective**: In the incident report review modal (shared by Field Inspector and Operations Head), removed the external link button "Open exact location in Maps" and replaced it with a sleek, embedded interactive mini-map showing the exact incident location marker pin.
+- **Files Modified / Created**:
+  - `[web/js/incident-report-view.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/incident-report-view.js)`: Removed external Google Maps anchor link; added `#incidentMiniMap` container inside `.incident-mini-map-wrap`; added `mountMiniMap`, dynamic `loadLeaflet`, and `destroyMiniMap` lifecycle handlers; configured Leaflet map with zoom 16, custom `.sl-location-marker__pin` pin icon, interactive location popup, and responsive `invalidateSize()` listeners.
+  - `[web/css/incident-report.css](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/css/incident-report.css)`: Replaced `.incident-location-link` with responsive `.incident-mini-map-wrap` (180px height, rounded corners, subtle border, smooth background) and added `.sl-location-marker` pin styles.
+  - `[web/inspector/incidents.html](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/incidents.html)`: Preloaded Leaflet stylesheet and script to optimize map initialization.
+  - `[web/admin/incidents.html](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/incidents.html)`: Preloaded Leaflet stylesheet and script to optimize map initialization.
+  - `[web/tests/incident_report.spec.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/incident_report.spec.js)`: Added automated tests verifying the embedded mini map renders when coordinates exist, verifies the external "Open exact location in Maps" button is absent, and verifies zero broken layout when coordinates are not recorded.
+- **Verification & Testing**:
+  - `npm run test:playwright -- incident_report.spec.js`: All 10 tests passed (both Admin and Inspector suites).
+
+---
+
 ### [2026-10-05 01:28] - Feature: Field Inspector Dashboard Revamp (Phase 2 - Today's Live Guard Shift Roster)
 
 - **Scope & Objective**: Implement Phase 2 of the Field Inspector Dashboard revamp by embedding a real-time "Today's Guard Shift Roster" showing assigned guards currently on duty, their client post, shift hours, GPS fix status, clickable phone link, and direct map focus actions.

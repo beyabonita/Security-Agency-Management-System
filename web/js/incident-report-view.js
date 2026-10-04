@@ -49,6 +49,100 @@
     } catch (_) {}
   }
 
+  let miniMapInstance = null;
+  let leafletLoadingPromise = null;
+
+  function destroyMiniMap() {
+    if (miniMapInstance) {
+      try {
+        miniMapInstance.remove();
+      } catch (_) {}
+      miniMapInstance = null;
+    }
+  }
+
+  function loadLeaflet() {
+    if (window.L) return Promise.resolve(window.L);
+    if (leafletLoadingPromise) return leafletLoadingPromise;
+    leafletLoadingPromise = new Promise((resolve) => {
+      if (!document.querySelector('link[href*="leaflet"]')) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        document.head.appendChild(link);
+      }
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = () => resolve(window.L || null);
+      script.onerror = () => resolve(null);
+      document.head.appendChild(script);
+    });
+    return leafletLoadingPromise;
+  }
+
+  function mountMiniMap(target, latitude, longitude, locationLabel, coordinates, requestId) {
+    loadLeaflet().then((L) => {
+      if (!L || requestId !== renderSequence) return;
+      const container = target.querySelector('#incidentMiniMap');
+      if (!container || !container.isConnected) return;
+
+      destroyMiniMap();
+
+      try {
+        const map = L.map(container, {
+          center: [latitude, longitude],
+          zoom: 16,
+          zoomControl: false,
+          scrollWheelZoom: false,
+          attributionControl: false
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19
+        }).addTo(map);
+
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+        const pinIcon = L.divIcon({
+          className: 'sl-location-marker',
+          html: '<span class="sl-location-marker__pin" aria-hidden="true"></span>',
+          iconSize: [30, 30],
+          iconAnchor: [15, 30],
+          popupAnchor: [0, -28]
+        });
+
+        const marker = L.marker([latitude, longitude], { icon: pinIcon }).addTo(map);
+        if (locationLabel) {
+          marker.bindPopup(`<strong>${escapeHtml(locationLabel)}</strong><br><span style="font-size:0.75rem;color:var(--sl-muted,#64748b);">${escapeHtml(coordinates)}</span>`);
+        }
+
+        miniMapInstance = map;
+
+        const modalEl = target.closest('.modal') || document.getElementById('detailModal');
+        if (modalEl) {
+          modalEl.addEventListener('shown.bs.modal', () => {
+            if (requestId === renderSequence && miniMapInstance) {
+              miniMapInstance.invalidateSize();
+            }
+          }, { once: true });
+        }
+
+        requestAnimationFrame(() => {
+          if (requestId === renderSequence && miniMapInstance) {
+            miniMapInstance.invalidateSize();
+          }
+        });
+        setTimeout(() => {
+          if (requestId === renderSequence && miniMapInstance) {
+            miniMapInstance.invalidateSize();
+          }
+        }, 300);
+      } catch (err) {
+        console.warn('Incident mini map initialization failed:', err);
+      }
+    }).catch(() => {});
+  }
+
   function safeSignedVideoUrl(value) {
     try {
       const url = new URL(String(value || ''), SUPABASE_ORIGIN);
@@ -120,9 +214,6 @@
     const latitude = hasCoordinates ? Number(incident.latitude) : null;
     const longitude = hasCoordinates ? Number(incident.longitude) : null;
     const coordinates = hasCoordinates ? `${latitude.toFixed(5)}, ${longitude.toFixed(5)}` : 'Not recorded';
-    const mapUrl = hasCoordinates
-      ? `https://www.google.com/maps?q=${encodeURIComponent(`${latitude},${longitude}`)}`
-      : null;
     const reference = String(incident.id || '').slice(0, 8).toUpperCase() || 'PENDING';
     const duration = Math.max(1, Math.min(15, Number(incident.videoDurationSeconds) || 15));
     const photoMarkup = photoSrc
@@ -175,7 +266,7 @@
                 <div class="incident-meta-item is-wide"><span class="incident-meta-label">Deployment site</span><span class="incident-meta-value">${escapeHtml(locationLabel)}</span></div>
                 <div class="incident-meta-item is-wide"><span class="incident-meta-label">Coordinates</span><span class="incident-meta-value">${escapeHtml(coordinates)}</span></div>
               </div>
-              ${mapUrl ? `<a class="incident-location-link" href="${escapeHtml(mapUrl)}" target="_blank" rel="noopener"><span>Open exact location in Maps</span><span class="material-symbols-rounded" aria-hidden="true">open_in_new</span></a>` : ''}
+              ${hasCoordinates ? `<div class="incident-mini-map-wrap"><div id="incidentMiniMap" class="incident-mini-map" role="region" aria-label="Incident location map"></div></div>` : ''}
             </div>
           </section>
           <section class="incident-report-card" aria-labelledby="incidentNarrativeHeading">
@@ -192,6 +283,10 @@
           </section>
         </div>
       </div>`;
+    destroyMiniMap();
+    if (hasCoordinates) {
+      mountMiniMap(target, latitude, longitude, locationLabel, coordinates, requestId);
+    }
     if (guardEmail === 'Email not added' && incident.userId && window.appSupabase?.from) {
       Promise.resolve().then(() => window.appSupabase.from('profiles').select('email').eq('id', incident.userId).maybeSingle()).then(result => {
         if (requestId !== renderSequence || result.error) return;
@@ -255,6 +350,7 @@
   function close() {
     renderSequence += 1;
     pauseCurrentVideo();
+    destroyMiniMap();
   }
 
   async function refreshEmails(records) {
