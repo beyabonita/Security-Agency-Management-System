@@ -1,30 +1,27 @@
 # Project Change Log
 
-### [2026-10-04 21:25] - Feature: Negros Island Location Search Prioritization & Comprehensive Directory
+### [2026-10-04 21:38] - Feature: Focus Location Search & Geofencing Strictly on Negros Island
 
-- **Scope & Objective**: Enhanced Philippine address search in Company / Deployment Sites (`web/admin/locations.html` & `web/js/ph-location-search.js`) to provide complete, accurate location search specifically tailored to Negros Occidental and Negros Oriental.
-- **Problem & Rationale**:
-  - Nationwide OpenStreetMap (Nominatim) queries returned places from Cebu, Batangas, and Luzon before local Negros places (e.g. searching "Talisay" returned Talisay Cebu first).
-  - Many local barangays, commercial posts, puroks, and agency client establishments (e.g. "Lilia Store") are not indexed on OpenStreetMap.
-- **Key Implementation Details**:
-  - **Negros Geo-Biasing & Scoring Boost**:
-    - Added `isNegros(result)` checking the Negros Island bounding box (`lat: 8.9 to 11.2`, `lon: 122.3 to 123.65`) and province keywords.
-    - Added a +300 score boost in `PhLocationSearch.filter` so local Negros locations are prioritized at the top of search suggestions.
-  - **Pre-Seeded Comprehensive Negros Directory**:
-    - Embedded `NEGROS_DIRECTORY` in `web/js/ph-location-search.js` covering all **32 LGUs of Negros Occidental** (Bacolod, Talisay, Silay, Bago, Cadiz, Sagay, Victorias, San Carlos, Kabankalan, Sipalay, Himamaylan, etc.) and all **25 LGUs of Negros Oriental** (Dumaguete, Bais, Tanjay, Guihulngan, Canlaon, Bayawan, Sibulan, Valencia, etc.).
-    - Included major barangays, commercial districts, and puroks (e.g. *Zone 1 (Purok Manpower / Domingo Lizares St)*, *Zone 2-15*, *Bubog*, *Mandalagan*, *Bata*, *Villamonte*, *Singcang*, *Taculing*, *Daro*, *Piapi*, *Caridad*, etc.) with exact verified geographic coordinates.
-  - **Saved Client Establishment Memory**:
-    - Added `PhLocationSearch.searchSavedSites(locationRecords, query)` matching all agency deployment sites in memory with top-level ranking (+1000 boost) and distinct `Saved Post` badge.
-  - **UI Indicators**:
-    - Added `.badge-negros-site` (`Negros`) and `.badge-agency-site` (`Saved Post`) chips in `#addressSuggestions`.
-  - **Automated Test Coverage**:
-    - Added unit and integration tests in `web/tests/ph_location_search.spec.js` asserting Negros prioritization over other provinces, local directory resolution, and saved client site matching (5/5 passing).
-    - Verified all 13 Playwright location tests pass cleanly across `geofence_default.spec.js`, `geofence_safeguard.spec.js`, and `ph_location_search.spec.js`.
+- **Scope & Objective**: Focused address searching, suggestions, and map framing in Company / Deployment Sites (`web/admin/locations.html` & `web/js/ph-location-search.js`) strictly on the **Negros Island Region** (Negros Occidental and Negros Oriental).
+- **Key Enhancements**:
+  - **Strict Negros Island Filtering**:
+    - `PhLocationSearch.filter` now filters search results strictly to places located on Negros Island (`isNegros(r)`), completely preventing locations from Cebu, Batangas, or Luzon from appearing in suggestions.
+  - **Negros Island Map Bounds & Toolbar**:
+    - Defined `NEGROS_BOUNDS` (`[lat: 8.9, lon: 122.3] to [lat: 11.15, lon: 123.65]`).
+    - Map now automatically opens framed directly on Negros Island (`showNegrosView(false)`) by default on initialization and when opening "Add Deployment Site".
+    - Added dedicated **"View Negros Island"** button alongside "View Philippines" in map toolbar.
+  - **Tailored UI Copy & Indicators**:
+    - Search label updated to `"SEARCH NEGROS ISLAND ADDRESS"` with `"Negros Island only"` badge.
+    - Placeholder updated to `"Street, building, barangay, or city in Negros"`.
+    - Map hint updated to focus on Negros Occidental & Oriental.
+  - **Automated Verification**:
+    - All 13 Playwright tests passing across `ph_location_search.spec.js`, `geofence_safeguard.spec.js`, and `geofence_default.spec.js`.
+    - Google Material icon compliance verified (`google_icons_test.js`).
 - **Files Modified**:
-  - `web/js/ph-location-search.js`: Negros directory, geo-biasing, saved site search, and result merging.
-  - `web/admin/locations.html`: Badge styling, Negros directory integration, and saved site suggestions.
-  - `web/tests/ph_location_search.spec.js`: Automated tests for Negros search prioritization and directory resolution.
-  - `CHANGE_LOG.md`: Documented implementation and rationale.
+  - `web/admin/locations.html`: Negros Island badge, labels, default map bounds, toolbar buttons, and status copy.
+  - `web/js/ph-location-search.js`: Strict Negros-only filter option and scoring.
+  - `web/tests/ph_location_search.spec.js`: Test assertions for Negros resolution and filtering.
+  - `CHANGE_LOG.md`: Documented implementation details.
 
 ---
 

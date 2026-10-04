@@ -210,8 +210,8 @@
             </div>
             <div class="col-12">
                 <div class="address-search-label-row">
-                    <label class="form-label" for="addressSearch">SEARCH PHILIPPINE ADDRESS</label>
-                    <span class="philippines-only-badge">Philippines only</span>
+                    <label class="form-label" for="addressSearch">SEARCH NEGROS ISLAND ADDRESS</label>
+                    <span class="philippines-only-badge">Negros Island only</span>
                 </div>
                 <div class="row g-2 mb-2">
                     <div class="col-md-4 col-sm-6"><label class="form-label" for="addressType">PLACE TYPE</label><select id="addressType" class="form-control" onchange="renderAddressResults()"><option value="all">All places</option><option value="communities">Cities, barangays & communities</option><option value="places">Buildings & landmarks</option><option value="roads">Streets & roads</option></select></div>
@@ -219,7 +219,7 @@
                 <div class="address-search-wrap">
                     <div class="address-search-row">
                         <input type="search" id="addressSearch" class="form-control"
-                               placeholder="Street, building, barangay, city, or province"
+                               placeholder="Street, building, barangay, or city in Negros"
                                autocomplete="off" enterkeyhint="search" aria-expanded="false"
                                aria-controls="addressSuggestions" aria-describedby="addressSearchHelp">
                         <button type="button" class="btn-address-search" id="addressSearchButton"
@@ -232,7 +232,7 @@
                     <div id="addressSuggestions" class="address-suggestions" role="listbox"
                          aria-label="Philippine address results"></div>
                 </div>
-                <div class="map-hint" id="addressSearchHelp">Enter an address and press Search. Results are restricted to the Philippines. Address data © OpenStreetMap contributors.</div>
+                <div class="map-hint" id="addressSearchHelp">Enter an address or landmark in Negros Occidental or Negros Oriental. Address data © OpenStreetMap contributors.</div>
             </div>
             <div class="col-12">
                 <div id="selectedAddressDisplay" class="selected-address-box empty">
@@ -246,6 +246,7 @@
                         <span>Choose a search result, click the map, or drag the pin to fine-tune.</span>
                     </div>
                     <div class="map-toolbar-actions">
+                        <button type="button" class="btn-map-tool" onclick="showNegrosView()">View Negros Island</button>
                         <button type="button" class="btn-map-tool" onclick="showPhilippinesView()">View Philippines</button>
                     </div>
                 </div>
@@ -421,7 +422,7 @@ function initMap() {
         attribution: "&copy; OpenStreetMap contributors"
     }).addTo(map);
     L.control.scale({ imperial: false, position: "bottomleft" }).addTo(map);
-    showPhilippinesView(false);
+    showNegrosView(false);
 
     map.on("click", e => {
         if (isGeofenceLocked) {
@@ -460,6 +461,17 @@ function initMap() {
 function showPhilippinesView(animate = true) {
     if (!map) return;
     map.fitBounds(PHILIPPINES_BOUNDS, {
+        padding: [24, 24],
+        animate,
+        duration: 0.55
+    });
+}
+
+const NEGROS_BOUNDS = L.latLngBounds([8.9, 122.3], [11.15, 123.65]);
+
+function showNegrosView(animate = true) {
+    if (!map) return;
+    map.fitBounds(NEGROS_BOUNDS, {
         padding: [24, 24],
         animate,
         duration: 0.55
@@ -738,7 +750,7 @@ function renderAddressResults() {
         const icon=document.createElement('span');icon.className='material-symbols-rounded';icon.textContent=result.is_agency_site?'business':'location_on';icon.setAttribute('aria-hidden','true');
         button.append(icon,copy);button.addEventListener('click',()=>selectAddressResult(index));list.append(button);
     }
-    setAddressSearchStatus(lastSearchResults.length+' Philippine results found.','success');
+    setAddressSearchStatus(lastSearchResults.length+' Philippine results found (Negros Island).','success');
 }
 
 async function searchAddress(query, button) {
@@ -749,8 +761,8 @@ async function searchAddress(query, button) {
     const area=document.getElementById('addressArea')?.value?.trim() || "";
     const list=document.getElementById('addressSuggestions');
     allSearchResults=[];lastSearchResults=[];addressResultQuery=query;
-    list.innerHTML='<div class="address-suggestion-message">Searching Philippine places…</div>';
-    showSuggestions();setAddressSearchStatus('Searching nationwide…');setSearchButtonBusy(button,true);
+    list.innerHTML='<div class="address-suggestion-message">Searching Negros places…</div>';
+    showSuggestions();setAddressSearchStatus('Searching Negros places…');setSearchButtonBusy(button,true);
 
     const savedMatches = PhLocationSearch.searchSavedSites ? PhLocationSearch.searchSavedSites(locationRecords, query) : [];
     const localMatches = PhLocationSearch.searchNegros ? PhLocationSearch.searchNegros(query, document.getElementById('addressType')?.value || 'all') : [];
@@ -773,8 +785,8 @@ async function searchAddress(query, button) {
             : [...osmMatches, ...localCombined];
 
         if(!allSearchResults.length){
-            list.innerHTML='<div class="address-suggestion-message">No mapped place found. Try a nearby landmark or a different spelling, add a city/province, or select the exact point on the map.</div>';
-            setAddressSearchStatus('No matching place in the map provider’s data.');return;
+            list.innerHTML='<div class="address-suggestion-message">No matching place in Negros Island found. Try a nearby barangay, city, or landmark, or select the exact point on the map.</div>';
+            setAddressSearchStatus('No matching place found in Negros Island.');return;
         }
         renderAddressResults();
     }catch(error){
@@ -886,7 +898,7 @@ function resetFormFields() {
     lastSearchResults = [];
     setAddressSearchStatus("");
     hideSuggestions();
-    if (map) showPhilippinesView(false);
+    if (map) showNegrosView(false);
 }
 
 async function getDeployedGuardsForLocation(siteId) {
@@ -1103,7 +1115,7 @@ async function showAddForm() {
     const status = document.getElementById("radiusDefaultStatus");
     status.textContent = "Loading the default radius… You can also enter a radius.";
     initMap();
-    showPhilippinesView(false);
+    showNegrosView(false);
     document.getElementById("locationForm").scrollIntoView({ behavior: "smooth" });
     try {
         const radius = await loadDefaultGeofenceRadius();

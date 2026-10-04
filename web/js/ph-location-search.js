@@ -46,30 +46,56 @@
     return inNegrosBounds || text.includes('negros occidental') || text.includes('negros oriental') || text.includes('negros island');
   }
 
-  function filter(results, query, type = 'all') {
+  function filter(results, query, type = 'all', options = {}) {
     const q = normalize(query), compact = q.replaceAll(' ', '');
     const seen = new Set();
+    const negrosOnly = options.negrosOnly ?? true;
+
     const score = r => {
       const name = normalize(r.name || r.display_name?.split(',')[0]);
       const base = (name === q ? 100 : name.replaceAll(' ', '') === compact ? 90 : name.startsWith(q) ? 60 : 0)
         + (normalize(r.display_name).includes(q) ? 20 : 0)
         + (Number(r.importance) || 0);
-      const negrosBoost = isNegros(r) ? 300 : 0;
+      const negrosBoost = isNegros(r) ? 500 : 0;
       const agencyBoost = r.is_agency_site ? 1000 : 0;
       return base + negrosBoost + agencyBoost;
     };
 
-    return (Array.isArray(results) ? results : []).filter(r => {
+    const raw = Array.isArray(results) ? results : [];
+    const valid = raw.filter(r => {
       if (String(r.address?.country_code).toLowerCase() !== 'ph' || r.lat == null || r.lon == null || String(r.lat).trim() === '' || String(r.lon).trim() === '') return false;
       const lat = Number(r.lat), lon = Number(r.lon);
       if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < 4.2 || lat > 21.3 || lon < 116.4 || lon > 127) return false;
       if (type !== 'all' && kind(r) !== type) return false;
+      if (negrosOnly && !isNegros(r)) return false;
       const nameNorm = normalize(r.name || r.display_name?.split(',')[0]);
       const key = r.osm_type && r.osm_id ? `${r.osm_type}:${r.osm_id}` : `${nameNorm}:${lat.toFixed(4)}:${lon.toFixed(4)}`;
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
-    }).sort((a, b) => score(b) - score(a));
+    });
+
+    if (valid.length > 0) {
+      return valid.sort((a, b) => score(b) - score(a));
+    }
+
+    if (negrosOnly && !options.strict) {
+      const fallbackSeen = new Set();
+      const fallback = raw.filter(r => {
+        if (String(r.address?.country_code).toLowerCase() !== 'ph' || r.lat == null || r.lon == null || String(r.lat).trim() === '' || String(r.lon).trim() === '') return false;
+        const lat = Number(r.lat), lon = Number(r.lon);
+        if (!Number.isFinite(lat) || !Number.isFinite(lon) || lat < 4.2 || lat > 21.3 || lon < 116.4 || lon > 127) return false;
+        if (type !== 'all' && kind(r) !== type) return false;
+        const nameNorm = normalize(r.name || r.display_name?.split(',')[0]);
+        const key = r.osm_type && r.osm_id ? `${r.osm_type}:${r.osm_id}` : `${nameNorm}:${lat.toFixed(4)}:${lon.toFixed(4)}`;
+        if (fallbackSeen.has(key)) return false;
+        fallbackSeen.add(key);
+        return true;
+      });
+      return fallback.sort((a, b) => score(b) - score(a));
+    }
+
+    return [];
   }
 
   function matchesSite(site, query, status = 'all') {
