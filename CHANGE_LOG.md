@@ -1,5 +1,26 @@
 # Project Change Log
 
+### [2026-10-05 00:15] - Feature: Records & Reports Module for Operations Head Console
+
+- **Scope & Objective**: Added a new sidebar tab for "Records" in the Operations Head console, featuring three comprehensive reporting views: Personnel Masterlist, Summary of Incident Report, and Monthly Attendance Summary with full filtering and export capabilities.
+- **Files Modified / Created**:
+  - `web/admin/records.html`: New Records page supporting tabbed views, filter panels, and data tables.
+  - `web/admin/js/records.js`: Controller for data loading, filtering, search, and CSV export.
+  - `web/admin/css/records.css`: Styles for tab pills, filter grids, responsive tables, badges, and dark mode.
+  - `web/admin/js/admin-shell.js`: Added dynamic navigation injection for the Records tab.
+  - `web/tests/records.spec.js`: Full Playwright test coverage for tab switching, filters, and rendering.
+- **Key Implementation Details**:
+  - **Personnel Masterlist**: Filter by Personnel, Duty Category, Employment Status, Contract Status, Assigned Post with Apply and Reset buttons; displays 11 standard columns.
+  - **Summary of Incident Report**: Filter by Date Range, Personnel, Incident Type, Status, Location/Post with Apply and Reset buttons; displays incident summary and evidence status.
+  - **Monthly Attendance Summary**: Filter by Month, Year, Client/Post, Personnel, Status with Apply and Reset buttons; aggregates scheduled duty days, present, absent, late, and overtime hours.
+  - **Responsive Design & Dark Mode**: Full dark-mode support and mobile responsive scrolling.
+- **Verification & Testing**:
+  - Ran Playwright test suite (`records.spec.js`): 6/6 tests passed.
+  - Ran regression suites (`admin_identity.spec.js`, `inspector_consistency.spec.js`, `duty_requests.spec.js`): 18/18 tests passed.
+
+---
+
+
 ### [2026-10-04 23:00] - Refinement: Remove “(next day)” from DTR Punch Times and Reports
 
 - **Scope & Objective**: Remove the `(next day)` suffix from punch times and shift cells in the Daily Time Record (DTR) sheets and PDF export, ensuring DTR columns display clean clock timestamps (e.g. `6:00 AM`) without day-offset clutter.
