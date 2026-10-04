@@ -1,5 +1,24 @@
 # Project Change Log
 
+### [2026-10-05 04:00] - Feature: Duty Request Same-Post Replacement Guard Filtering & Clarification
+
+- **Scope & Objective**:
+  - Filtered the "Replacement Guard" selection in Operations Head Duty Request approval (`/admin/swaps.html`) so that it strictly prioritizes and shows guards deployed/assigned to the same post / location as the requested shift.
+  - Clarified why in-progress or started shifts are classified as "Coverage / Relief" requests instead of reciprocal "Duty exchange / swaps".
+  - Clarified the requirement for "Confirmed actual Time Out" when relieving an in-progress duty with an active punch.
+- **Files Modified / Created**:
+  - `[web/admin/js/duty-requests.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/duty-requests.js)`:
+    - Updated query in `loadDutyRequests()` to retrieve `assigned_location_id` from `profiles` and `location_id` from `schedules`.
+    - In `decideRequest()`, resolved `postLocationId` from target schedule `location_id` or requester's `assigned_location_id`.
+    - Filtered `samePostGuards` by `p.assigned_location_id === postLocationId && p.id !== r.requester_id`.
+    - Formatted dropdown options to clearly display `${profileName(p)} (${postName})` for guards assigned to that post, with a fallback notice if no other guards are assigned to that post.
+  - `[web/tests/duty_requests.spec.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/duty_requests.spec.js)`:
+    - Added test `replacement guard dropdown filters guards assigned to the same post / deployment` verifying only same-post guards appear in the replacement select menu.
+- **Verification & Testing**:
+    - `npx playwright test duty_requests.spec.js -c playwright.config.cjs`: All 8 tests passed.
+
+---
+
 ### [2026-10-05 03:15] - Feature: Accomplishment Notification Deep-Linking & Auto-Open Specific Report
 
 - **Scope & Objective**: Resolved an issue where clicking "Open personnel reports" from an accomplishment notification modal only navigated generally to the Personnel page (`/admin/users.html`) without opening the guard's accomplishment modal or showing the specific report.

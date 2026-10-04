@@ -13,7 +13,7 @@ async function prepare(page,kind='absence') {
     const duties=[{id:'duty',start_at:'2026-09-10T00:00:00Z',end_at:'2026-09-10T09:00:00Z',location_label:'Agency post'}];
     const makeQuery=table=>{const filters=[];const q={select:()=>q,order:()=>q,limit:()=>q,in:()=>q,
       eq:(key,value)=>{filters.push([key,value]);return q;},then:(resolve,reject)=>Promise.resolve({data:
-        (table==='shift_swap_requests'?window.requestRows:table==='profiles'?profiles:table==='attendance_sessions'?(window.attendanceRows||[]):duties)
+        (table==='shift_swap_requests'?window.requestRows:table==='profiles'?(window.profileRows||profiles):table==='attendance_sessions'?(window.attendanceRows||[]):(window.dutyRows||duties))
         .filter(row=>filters.every(([key,value])=>row[key]===value)),error:null}).then(resolve,reject)};return q;};
     window.appSupabase={from:makeQuery,rpc:async(name,args)=>{window.calls.push({name,args});await new Promise(r=>setTimeout(r,200));
       if(window.rpcError)return {error:{message:window.rpcError}};
@@ -72,6 +72,27 @@ test('swap approval requires replacement and leaves request pending on server co
   await expect(page.locator('.duty-request-card')).toContainText('Awaiting Operations Head approval');
   expect(await page.evaluate(()=>window.calls.find(call=>call.name==='decide_duty_relief').args.p_replacement_guard_id)).toBe(cover);
   await page.screenshot({path:info.outputPath('swap-conflict-preserved.png'),fullPage:true});
+});
+
+test('replacement guard dropdown filters guards assigned to the same post / deployment', async ({page}) => {
+  await prepare(page, 'swap');
+  await page.addInitScript(({guard, cover}) => {
+    window.profileRows = [
+      { id: guard, first_name: 'Guard', last_name: 'One', role: 'user', active: true, assigned_location_id: 'loc-balboa' },
+      { id: cover, first_name: 'Cover', last_name: 'Guard', role: 'user', active: true, assigned_location_id: 'loc-balboa' },
+      { id: '33333333-3333-4333-8333-333333333334', first_name: 'Other', last_name: 'PostGuard', role: 'user', active: true, assigned_location_id: 'loc-chmsu' }
+    ];
+    window.dutyRows = [
+      { id: 'duty', start_at: '2026-09-10T00:00:00Z', end_at: '2026-09-10T09:00:00Z', location_id: 'loc-balboa', location_label: 'Balboa' }
+    ];
+  }, {guard, cover});
+  await page.goto('/admin/swaps.html');
+  await page.getByRole('button', {name: 'Approve', exact: true}).click();
+  const select = page.getByLabel('Replacement Guard');
+  await expect(select).toBeVisible();
+  const optionTexts = await select.locator('option').allInnerTexts();
+  expect(optionTexts.some(t => t.includes('Cover Guard (Balboa)'))).toBe(true);
+  expect(optionTexts.some(t => t.includes('Other PostGuard'))).toBe(false);
 });
 
 test('reciprocal exchange shows both duties and approves without replacing the selected Guard',async({page},info)=>{

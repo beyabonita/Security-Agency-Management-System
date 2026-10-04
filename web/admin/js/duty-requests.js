@@ -28,10 +28,10 @@ async function loadDutyRequests() {
   try {
     let query = appSupabase.from('shift_swap_requests').select().order('created_at',{ascending:false}).limit(200);
     if (requestStatus.value !== 'all') query = query.eq('status', requestStatus.value);
-    const [requests, profiles] = await Promise.all([query, appSupabase.from('profiles').select('id,first_name,middle_initial,last_name,username,role,active')]);
+    const [requests, profiles] = await Promise.all([query, appSupabase.from('profiles').select('id,first_name,middle_initial,last_name,username,role,active,assigned_location_id')]);
     if (requests.error || profiles.error) throw requests.error || profiles.error;
     const ids = [...new Set((requests.data || []).flatMap(r => [r.requested_schedule_id,r.target_schedule_id]).filter(Boolean))];
-    const schedules = ids.length ? await appSupabase.from('schedules').select('id,start_at,end_at,location_label,duty_date,dtr_period').in('id',ids) : {data:[]};
+    const schedules = ids.length ? await appSupabase.from('schedules').select('id,start_at,end_at,location_id,location_label,duty_date,dtr_period').in('id',ids) : {data:[]};
     if (schedules.error) throw schedules.error;
     if (sequence !== loadSequence) return;
     dutyRequests = requests.data || [];
@@ -137,9 +137,37 @@ async function decideRequest(r, approve, button) {
     openAttendance=(data||[]).find(a=>!a.clock_out_at);
     if(openAttendance)fields.push({name:'actualEnd',label:'Confirmed actual Time Out (Philippine time)',type:'datetime-local',required:true});
   }
-  if (needsReplacement) fields.push({name:'replacement',label:'Replacement Guard',type:'select',required:true,
-    options:[{value:'',label:'Select an active Guard'},...Object.values(dutyProfiles).filter(p => p.role === 'user' && p.active && p.id !== r.requester_id)
-      .map(p => ({value:p.id,label:profileName(p)}))]});
+  if (needsReplacement) {
+    const targetSchedule = dutySchedules[r.requested_schedule_id];
+    const postLocationId = targetSchedule?.location_id || dutyProfiles[r.requester_id]?.assigned_location_id;
+    const postName = targetSchedule?.location_label || 'same deployment';
+
+    const samePostGuards = Object.values(dutyProfiles).filter(p =>
+      p.role === 'user' && p.active && p.id !== r.requester_id && postLocationId && p.assigned_location_id === postLocationId
+    );
+
+    let replacementOptions = [];
+    if (samePostGuards.length > 0) {
+      replacementOptions = [
+        { value: '', label: `Select Guard from ${postName}` },
+        ...samePostGuards.map(p => ({ value: p.id, label: `${profileName(p)} (${postName})` }))
+      ];
+    } else {
+      replacementOptions = [
+        { value: '', label: `No other Guards assigned to ${postName} — Select an active Guard` },
+        ...Object.values(dutyProfiles).filter(p => p.role === 'user' && p.active && p.id !== r.requester_id)
+          .map(p => ({ value: p.id, label: profileName(p) }))
+      ];
+    }
+
+    fields.push({
+      name: 'replacement',
+      label: 'Replacement Guard',
+      type: 'select',
+      required: true,
+      options: replacementOptions
+    });
+  }
   fields.push({name:'note',label:openAttendance ? 'How was the actual Time Out confirmed?' : approve ? 'Decision note (optional)' : 'Reason for rejection',type:'textarea',required:!approve || !!openAttendance});
   const values = await appDialog.form({title:`${approve ? 'Approve' : 'Reject'} ${requestKind(r).toLowerCase()} request`,
     message:openAttendance ? 'Confirm when the Guard actually stopped working. Recorded work remains on their DTR; only the remaining duty is released. Do not use the approval time unless that is the actual Time Out.' : approve ? r.request_type === 'absence' ? 'Approve absence for the remaining duty period. Any recorded work stays on the Guard’s DTR. Other periods remain scheduled.' : isExchange(r)
