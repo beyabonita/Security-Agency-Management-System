@@ -64,20 +64,66 @@ function renderDutyRequests() {
       </section>` : r.target_guard_id ? `<p>Replacement: ${escapeText(profileName(dutyProfiles[r.target_guard_id]))}</p>` : ''}
       ${!isExchange(r) && r.request_type !== 'absence' ? '<p class="ax-cell-secondary">The Operations Head selects a replacement for the remaining duty. Existing attendance stays with the original Guard.</p>' : ''}
       ${r.admin_note ? `<p>Operations Head decision: ${escapeText(r.admin_note)}</p>` : ''}
-      <div class="duty-request-actions">${r.letter_path ? `<button type="button" class="action-btn" data-action="letter">Download letter · ${escapeText(r.letter_name || 'Attachment')}</button>` : '<span class="ax-cell-secondary">Legacy request · no attachment</span>'}
+      <div class="duty-request-actions">${r.letter_path ? `<button type="button" class="action-btn" data-action="letter">View letter · ${escapeText(r.letter_name || 'Attachment')}</button>` : '<span class="ax-cell-secondary">Legacy request · no attachment</span>'}
       ${r.status === 'pending_admin' ? '<button type="button" class="action-btn btn-enable" data-action="approve">Approve</button><button type="button" class="action-btn btn-disable" data-action="reject">Reject</button>' : ''}</div></article>`;
   }).join('');
   if (dutyRequests.length === 200) requestList.insertAdjacentHTML('beforeend','<p class="empty-state">Showing the latest 200 requests. Narrow the status filter for older decisions.</p>');
 }
 
-async function downloadLetter(r, button) {
+async function viewLetter(r, button) {
   await appDialog.runBusy(button, async () => {
-    const {data,error} = await appSupabase.storage.from('request-letters').createSignedUrl(r.letter_path,120,{download:r.letter_name || 'Request letter'});
+    const {data,error} = await appSupabase.storage.from('request-letters').createSignedUrl(r.letter_path,120);
     if (error) throw error;
     const url = new URL(data?.signedUrl || '');
     if (url.origin !== 'https://syyofdcynuzgergqlaqj.supabase.co' || !url.pathname.startsWith('/storage/v1/object/sign/request-letters/')) throw new Error('The attachment link is invalid.');
-    const a = document.createElement('a'); a.href = url.href; a.target = '_blank'; a.rel = 'noopener noreferrer';
-    document.body.appendChild(a); a.click(); a.remove();
+
+    const filename = r.letter_name || 'Attachment';
+    const isImage = /\.(jpe?g|png|webp|gif|bmp|svg)$/i.test(filename) || /\.(jpe?g|png|webp|gif|bmp|svg)$/i.test(r.letter_path || '');
+    const isPdf = /\.pdf$/i.test(filename) || /\.pdf$/i.test(r.letter_path || '');
+
+    const container = document.createElement('div');
+    container.className = 'duty-letter-preview';
+
+    if (isImage) {
+      const img = document.createElement('img');
+      img.src = url.href;
+      img.alt = filename;
+      img.className = 'duty-letter-img';
+      container.appendChild(img);
+    } else if (isPdf) {
+      const frame = document.createElement('iframe');
+      frame.src = url.href;
+      frame.title = filename;
+      frame.className = 'duty-letter-frame';
+      container.appendChild(frame);
+    } else {
+      const fallback = document.createElement('div');
+      fallback.className = 'duty-letter-fallback';
+      fallback.innerHTML = `<span class="material-symbols-rounded" aria-hidden="true" style="font-size:42px;">description</span><p style="margin:8px 0 4px;font-weight:600;">${escapeText(filename)}</p><p class="ax-cell-secondary" style="font-size:13px;margin:0;">Preview is not supported for this file format.</p>`;
+      container.appendChild(fallback);
+    }
+
+    const requesterName = profileName(dutyProfiles[r.requester_id]);
+    const confirmed = await appDialog.open({
+      title: filename,
+      message: requesterName ? `Uploaded by ${requesterName}` : '',
+      icon: isImage ? 'image' : isPdf ? 'picture_as_pdf' : 'description',
+      cancelText: 'Close',
+      confirmText: 'Download',
+      content: container,
+    });
+
+    if (confirmed) {
+      try {
+        const {data: dlData} = await appSupabase.storage.from('request-letters').createSignedUrl(r.letter_path, 120, {download: filename});
+        const dlUrl = new URL(dlData?.signedUrl || url.href);
+        const a = document.createElement('a'); a.href = dlUrl.href; a.target = '_blank'; a.rel = 'noopener noreferrer';
+        document.body.appendChild(a); a.click(); a.remove();
+      } catch (_) {
+        const a = document.createElement('a'); a.href = url.href; a.target = '_blank'; a.rel = 'noopener noreferrer';
+        document.body.appendChild(a); a.click(); a.remove();
+      }
+    }
   },{label:'Opening letter…'});
 }
 
@@ -124,7 +170,7 @@ requestList.addEventListener('click',async event => {
   if (!request || activeRequests.has(id)) return;
   activeRequests.add(id);
   try {
-    if (button.dataset.action === 'letter') await downloadLetter(request,button);
+    if (button.dataset.action === 'letter') await viewLetter(request,button);
     else await decideRequest(request,button.dataset.action === 'approve',button);
   } catch (error) { appDialog.toast(error.message || 'Could not process this request. Try again.',{tone:'danger'}); }
   finally { activeRequests.delete(id); }

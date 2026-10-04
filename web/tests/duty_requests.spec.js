@@ -41,10 +41,12 @@ test('Operations Head downloads private letter, filters requests and approves ab
   await page.getByLabel('Search requests').fill('Guard One');
   await expect(card).toBeVisible();
   await page.route('**/storage/v1/object/sign/request-letters/**',r=>r.fulfill({contentType:'application/pdf',body:'%PDF-1.7'}));
-  await page.getByRole('button',{name:/Download letter/}).click();
+  await page.getByRole('button',{name:/View letter/}).click();
   await expect.poll(()=>page.evaluate(()=>window.calls.filter(call=>call.bucket).length)).toBe(1);
   expect(await page.evaluate(()=>window.calls.find(call=>call.bucket).bucket)).toBe('request-letters');
   expect(await page.evaluate(()=>window.calls.find(call=>call.bucket).ttl)).toBe(120);
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.locator('.sl-dialog-btn', {hasText: 'Close'}).click();
   await page.getByRole('button',{name:'Approve',exact:true}).click();
   await expect(page.getByRole('dialog')).toContainText('Approve absence for the remaining duty period');
   await expect(page.getByRole('dialog')).toContainText('Other periods remain scheduled');
