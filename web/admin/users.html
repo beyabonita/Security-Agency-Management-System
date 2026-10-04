@@ -501,6 +501,108 @@
     margin-top: 8px;
     border: 1px solid var(--sl-line);
 }
+.custom-history-pills {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--sl-line);
+    padding-bottom: 12px;
+}
+.custom-history-pills .nav-link {
+    color: var(--sl-ink);
+    background: var(--sl-surface-muted);
+    border: 1px solid var(--sl-line);
+    font-size: 0.82rem;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 6px 14px;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+.custom-history-pills .nav-link.active {
+    background: var(--sl-danger);
+    color: #fff;
+    border-color: var(--sl-danger);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+}
+.history-hero-card {
+    background: var(--sl-surface);
+    border: 1px solid var(--sl-line);
+    border-left: 4px solid var(--sl-danger);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+}
+.history-hero-card.is-active-contract {
+    border-left-color: #16a34a;
+    background: linear-gradient(to right, rgba(22, 163, 74, 0.04), transparent);
+}
+.history-hero-card.is-expired-contract {
+    border-left-color: #dc2626;
+    background: linear-gradient(to right, rgba(220, 38, 38, 0.04), transparent);
+}
+.history-hero-card.is-regular {
+    border-left-color: #2563eb;
+    background: linear-gradient(to right, rgba(37, 99, 235, 0.04), transparent);
+}
+.history-badge-countdown {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 700;
+}
+.history-timeline {
+    position: relative;
+    padding-left: 22px;
+    margin-top: 14px;
+}
+.history-timeline::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 7px;
+    width: 2px;
+    background: var(--sl-line);
+}
+.history-timeline-node {
+    position: relative;
+    margin-bottom: 16px;
+}
+.history-timeline-node::before {
+    content: '';
+    position: absolute;
+    left: -22px;
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--sl-danger);
+    border: 2px solid var(--sl-surface);
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.2);
+}
+.history-timeline-node.node-active::before {
+    background: #16a34a;
+    box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.25);
+}
+.history-est-card {
+    background: var(--sl-surface);
+    border: 1px solid var(--sl-line);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 14px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.history-est-card:hover {
+    border-color: rgba(220, 38, 38, 0.3);
+}
+.history-est-card.is-current {
+    border-color: rgba(22, 163, 74, 0.4);
+    background: linear-gradient(to right, rgba(22, 163, 74, 0.03), transparent);
+}
 
 </style>
 </head>
@@ -693,7 +795,6 @@
             <select id="newGuardEmploymentCategory" class="form-select" onchange="updateCreateUserHint()">
                 <option value="regular">Regular</option>
                 <option value="contract">Contract</option>
-                <option value="reliever">Reliever</option>
             </select>
         </div>
         <div class="col-md-4">
@@ -854,6 +955,9 @@
         <button type="button" class="btn btn-outline-danger btn-sm" id="profileModalEditBtn">
             <span class="material-symbols-rounded align-middle me-1" style="font-size:16px;" aria-hidden="true">edit</span>Edit Profile
         </button>
+        <button type="button" class="btn btn-outline-danger btn-sm" id="profileModalHistoryBtn">
+            <span class="material-symbols-rounded align-middle me-1" style="font-size:16px;" aria-hidden="true">history</span>History & Contract
+        </button>
         <button type="button" class="btn btn-outline-secondary btn-sm" id="profileModalDtrBtn">
             <span class="material-symbols-rounded align-middle me-1" style="font-size:16px;" aria-hidden="true">table_view</span>View DTR
         </button>
@@ -885,7 +989,6 @@
             <select id="editGuardEmploymentCategory" class="form-select" onchange="toggleEditContractFields()">
                 <option value="regular">Regular</option>
                 <option value="contract">Contract</option>
-                <option value="reliever">Reliever</option>
             </select>
         </div>
     </div>
@@ -1037,19 +1140,67 @@
 </div>
 </div>
 
-<!-- ====== ASSIGNMENT HISTORY MODAL ====== -->
+<!-- ====== ASSIGNMENT & CONTRACT HISTORY MODAL ====== -->
 <div class="modal fade ax-modal" id="assignmentHistoryModal" tabindex="-1">
 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
 <div class="modal-content">
 <div class="modal-header">
-    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">history</span>Home Post Assignment History</h5>
+    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">history</span>Personnel History & Records</h5>
     <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
 </div>
-<div class="modal-body">
-    <p class="modal-guard-meta">Guard: <strong id="assignmentHistoryGuardName"></strong></p>
-    <div id="assignmentHistoryList" class="dtr-records-list">
-        <div style="text-align:center;padding:32px;color:var(--sl-muted);">Loading assignment history…</div>
+<div class="modal-body" style="padding: 20px;">
+    <!-- Personnel Header Card -->
+    <div class="profile-modal-banner" style="margin-bottom: 18px; padding: 14px 18px;">
+        <div class="profile-modal-avatar" id="historyGuardAvatar" style="width:48px;height:48px;font-size:1.15rem;">G</div>
+        <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <h5 style="margin:0;font-weight:700;color:var(--sl-ink);font-size:1.15rem;" id="assignmentHistoryGuardName">Guard Name</h5>
+                <span id="historyGuardCategoryBadge" class="badge bg-secondary" style="font-size:0.75rem;">Contract</span>
+                <span id="historyGuardStatusBadge" class="badge-active" style="font-size:0.75rem;">Active</span>
+            </div>
+            <div style="color:var(--sl-muted);font-size:0.8rem;margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <span id="historyGuardPersonnelId" class="badge-personnel-id">ID: —</span>
+                <span>•</span>
+                <span id="historyGuardCurrentPost">Current Post: Unassigned</span>
+            </div>
+        </div>
     </div>
+
+    <!-- Dual Tab Pills -->
+    <ul class="nav nav-pills custom-history-pills mb-3" id="historyTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="historyContractTabBtn" data-bs-toggle="pill" data-bs-target="#historyContractTabPane" type="button" role="tab" aria-selected="true">
+                <span class="material-symbols-rounded align-middle me-1" style="font-size:16px;" aria-hidden="true">description</span>
+                Contract & Renewal History
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="historyEstablishmentsTabBtn" data-bs-toggle="pill" data-bs-target="#historyEstablishmentsTabPane" type="button" role="tab" aria-selected="false">
+                <span class="material-symbols-rounded align-middle me-1" style="font-size:16px;" aria-hidden="true">domain</span>
+                Past Establishments & Client Companies
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Panes -->
+    <div class="tab-content" id="historyTabsContent">
+        <!-- Contract & Renewal Pane -->
+        <div class="tab-pane fade show active" id="historyContractTabPane" role="tabpanel">
+            <div id="historyContractContent">
+                <div style="text-align:center;padding:32px;color:var(--sl-muted);"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading contract history…</div>
+            </div>
+        </div>
+
+        <!-- Establishments Pane -->
+        <div class="tab-pane fade" id="historyEstablishmentsTabPane" role="tabpanel">
+            <div id="assignmentHistoryList" class="dtr-records-list">
+                <div style="text-align:center;padding:32px;color:var(--sl-muted);"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading establishment history…</div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn-cancel" data-bs-dismiss="modal">Close</button>
 </div>
 </div>
 </div>
@@ -1227,10 +1378,11 @@ async function loadUsers() {
     try {
         const [snapshot, locationResult] = await Promise.all([
             db.collection("users").get(),
-            appSupabase.from("locations").select("id,label")
+            appSupabase.from("locations").select("id,label,address")
         ]);
         if (locationResult.error) throw locationResult.error;
         const locationsById = Object.fromEntries((locationResult.data || []).map(location => [location.id, location.label]));
+        personnelLocationDetailsById = Object.fromEntries((locationResult.data || []).map(location => [location.id, location]));
         let html = "";
         personnelAccounts = {};
         personnelLocationsById = locationsById;
@@ -1451,38 +1603,301 @@ async function assignInspector(guardId, button) {
 
 let assignmentHistoryModal = null;
 
-function renderAssignmentHistory(record) {
-    const location = personnelLocationsById[record.location_id] || 'Unavailable or deleted post';
-    const assignedByAccount = personnelAccounts[record.assigned_by];
-    const assignedBy = assignedByAccount ? personnelDisplayName(assignedByAccount) : 'Former or unavailable staff';
-    const current = !record.ended_at;
-    return `<article class="dtr-day-card">
-        <div class="dtr-day-header">
-            <div><span class="dtr-day-date">${escapeHtml(location)}</span><div class="dtr-punch-meta">Assigned ${formatReportTimestamp(record.assigned_at)}</div></div>
-            <span class="report-status ${current ? 'report-status-reviewed' : 'report-status-submitted'}">${current ? 'Current Home Post' : 'Previous assignment'}</span>
-        </div>
-        <p class="report-copy"><strong>Assigned by:</strong> ${escapeHtml(assignedBy)}</p>
-        <p class="report-copy"><strong>Assignment ended:</strong> ${escapeHtml(record.ended_at ? formatReportTimestamp(record.ended_at) : 'Still active')}</p>
-        ${record.remarks ? `<p class="report-copy"><strong>Reassignment remarks:</strong> ${escapeHtml(record.remarks)}</p>` : ''}
-    </article>`;
+function calculateDurationBetweenDates(startStr, endStr) {
+    if (!startStr) return "";
+    const start = new Date(startStr);
+    const end = endStr ? new Date(endStr) : new Date();
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return "";
+    
+    let years = end.getFullYear() - start.getFullYear();
+    let months = end.getMonth() - start.getMonth();
+    let days = end.getDate() - start.getDate();
+    if (days < 0) {
+        months -= 1;
+        const prevMonth = new Date(end.getFullYear(), end.getMonth(), 0);
+        days += prevMonth.getDate();
+    }
+    if (months < 0) {
+        years -= 1;
+        months += 12;
+    }
+    const parts = [];
+    if (years > 0) parts.push(`${years} yr${years > 1 ? 's' : ''}`);
+    if (months > 0) parts.push(`${months} mo${months > 1 ? 's' : ''}`);
+    if (days > 0 && years === 0) parts.push(`${days} day${days > 1 ? 's' : ''}`);
+    return parts.length ? parts.join(", ") : "1 day";
+}
+
+function calculateContractExpirationCountdown(endDateStr) {
+    if (!endDateStr) return null;
+    const end = new Date(endDateStr + "T23:59:59");
+    const now = new Date();
+    const diffMs = end.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) {
+        const absDays = Math.abs(diffDays);
+        return {
+            isExpired: true,
+            days: absDays,
+            badgeClass: "badge bg-danger text-white",
+            text: `Expired ${absDays === 1 ? 'yesterday' : absDays + ' days ago'}`
+        };
+    } else if (diffDays === 0) {
+        return {
+            isExpired: false,
+            days: 0,
+            badgeClass: "badge bg-warning text-dark",
+            text: "Expires today"
+        };
+    } else {
+        return {
+            isExpired: false,
+            days: diffDays,
+            badgeClass: diffDays <= 15 ? "badge bg-warning text-dark" : "badge bg-success text-white",
+            text: `Expires in ${diffDays} day${diffDays === 1 ? '' : 's'}`
+        };
+    }
 }
 
 async function viewAssignmentHistory(guardId) {
-    document.getElementById('assignmentHistoryGuardName').textContent = personnelDisplayName(personnelAccounts[guardId]);
-    const listEl = document.getElementById('assignmentHistoryList');
-    listEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted)"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading assignment history…</div>';
+    const account = personnelAccounts[guardId] || {};
+    const fullName = personnelDisplayName(account);
+    const category = account.employmentCategory === "contract" ? "Contract" : "Regular";
+    const statusText = account.active !== false ? "Active" : "Disabled";
+    const statusClass = account.active !== false ? "badge-active" : "badge-disabled";
+    const personnelId = account.personnelId || ('SEC-' + guardId.slice(0, 8).toUpperCase());
+    const initials = (account.firstName?.[0] || "") + (account.lastName?.[0] || "") || "G";
+    const currentPostLabel = account.assignedLocationId ? (personnelLocationsById[account.assignedLocationId] || "Assigned post") : "Unassigned";
+
+    // Update Header
+    document.getElementById('assignmentHistoryGuardName').textContent = fullName;
+    document.getElementById('historyGuardAvatar').textContent = initials.toUpperCase();
+    document.getElementById('historyGuardCategoryBadge').textContent = category;
+    document.getElementById('historyGuardStatusBadge').textContent = statusText;
+    document.getElementById('historyGuardStatusBadge').className = statusClass;
+    document.getElementById('historyGuardPersonnelId').textContent = "ID: " + personnelId;
+    document.getElementById('historyGuardCurrentPost').textContent = "Current Post: " + currentPostLabel;
+
+    // Reset panes to loading state
+    const contractContentEl = document.getElementById('historyContractContent');
+    const establishmentsListEl = document.getElementById('assignmentHistoryList');
+    contractContentEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted)"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading contract and renewal history…</div>';
+    establishmentsListEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted)"><div class="spinner-border spinner-border-sm text-secondary"></div> Loading past establishments & companies…</div>';
+
+    // Show Contract tab first
+    const contractTabTrigger = document.getElementById('historyContractTabBtn');
+    if (contractTabTrigger && window.bootstrap?.Tab) {
+        bootstrap.Tab.getOrCreateInstance(contractTabTrigger).show();
+    }
+
     assignmentHistoryModal ||= new bootstrap.Modal(document.getElementById('assignmentHistoryModal'));
     assignmentHistoryModal.show();
-    const { data, error } = await appSupabase.from('guard_assignment_history').select()
-        .eq('guard_id', guardId).order('assigned_at', { ascending: false });
-    if (error) {
-        listEl.innerHTML = `<div style="text-align:center;color:var(--sl-danger);padding:24px">Error: ${escapeHtml(error.message || 'Could not load assignment history.')}</div>`;
-        return;
+
+    // Fetch assignment history, contract history, and schedule history in parallel
+    const [assignmentRes, contractRes, scheduleRes] = await Promise.all([
+        appSupabase.from('guard_assignment_history').select().eq('guard_id', guardId).order('assigned_at', { ascending: false }),
+        appSupabase.from('guard_contract_history').select().eq('guard_id', guardId).order('renewed_at', { ascending: false }),
+        appSupabase.from('schedules').select('location_id,location_label,location_address,start_at,end_at,duty_date').eq('user_id', guardId).order('start_at', { ascending: false }).limit(50)
+    ]);
+
+    // 1. RENDER CONTRACT & EXPIRATION HISTORY
+    try {
+        if (category !== "Contract") {
+            const dateHiredFormatted = account.dateHired ? new Date(account.dateHired).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : "—";
+            const serviceLength = calculateServiceDuration(account.dateHired);
+            contractContentEl.innerHTML = `
+                <div class="history-hero-card is-regular">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+                        <span class="profile-data-label" style="color:var(--sl-ink);font-size:0.8rem;letter-spacing:0.5px;">Permanent / Regular Personnel</span>
+                        <span class="badge bg-primary">Regular Status</span>
+                    </div>
+                    <h5 style="margin:0 0 6px;color:var(--sl-ink);font-weight:700;">No Contract Expiration Date</h5>
+                    <p style="margin:0;color:var(--sl-muted);font-size:0.85rem;">This personnel is on permanent / regular status and is not subject to fixed-term contract expiration.</p>
+                    <div class="row g-3 mt-2 pt-2" style="border-top:1px dashed var(--sl-line);">
+                        <div class="col-sm-6">
+                            <span class="profile-data-label">Date Hired</span>
+                            <span class="profile-data-value">${dateHiredFormatted}</span>
+                        </div>
+                        <div class="col-sm-6">
+                            <span class="profile-data-label">Total Length of Service</span>
+                            <span class="profile-data-value" style="color:var(--sl-success);">${serviceLength}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            const startDate = account.contractStartDate || "—";
+            const endDate = account.contractEndDate || "—";
+            const hasDates = Boolean(account.contractStartDate && account.contractEndDate);
+            const startFormatted = startDate !== "—" ? new Date(startDate + "T00:00:00").toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : "—";
+            const endFormatted = endDate !== "—" ? new Date(endDate + "T00:00:00").toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : "—";
+            const countdown = calculateContractExpirationCountdown(account.contractEndDate);
+            const contractDuration = hasDates ? calculateDurationBetweenDates(startDate, endDate) : "—";
+
+            const isExpired = countdown?.isExpired;
+            const heroCardClass = isExpired ? "is-expired-contract" : "is-active-contract";
+            const statusHeadline = isExpired 
+                ? `Contract Expired on ${endFormatted}` 
+                : `Active Contract (Expires on ${endFormatted})`;
+
+            let renewalRecords = (contractRes.data || []);
+            // If no previous records exist in contractRes, but guard has active contract dates, create active log
+            if (!renewalRecords.length && hasDates) {
+                renewalRecords = [{
+                    contract_start_date: startDate,
+                    contract_end_date: endDate,
+                    contract_status: account.contractStatus || 'Active',
+                    renewed_at: account.dateHired || new Date().toISOString(),
+                    remarks: 'Active guard contract period'
+                }];
+            }
+
+            const renewalsHtml = renewalRecords.length ? `
+                <div class="profile-section-card mt-3">
+                    <div class="profile-section-title">
+                        <span class="material-symbols-rounded" style="font-size:18px;" aria-hidden="true">update</span>
+                        Contract Renewal & Extension History
+                    </div>
+                    <div class="history-timeline">
+                        ${renewalRecords.map((r) => {
+                            const rStart = r.contract_start_date ? new Date(r.contract_start_date + "T00:00:00").toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : "—";
+                            const rEnd = r.contract_end_date ? new Date(r.contract_end_date + "T00:00:00").toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : "—";
+                            const rRenewed = r.renewed_at ? formatReportTimestamp(r.renewed_at) : (r.created_at ? formatReportTimestamp(r.created_at) : 'Date on file');
+                            const isCurrentPeriod = (r.contract_end_date === account.contractEndDate);
+                            return `
+                                <div class="history-timeline-node ${isCurrentPeriod ? 'node-active' : ''}">
+                                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:2px;">
+                                        <strong style="color:var(--sl-ink);font-size:0.9rem;">Period: ${rStart} – ${rEnd}</strong>
+                                        <span class="badge ${isCurrentPeriod ? 'bg-success' : 'bg-secondary'}" style="font-size:0.7rem;">${isCurrentPeriod ? 'Current Active Term' : 'Prior Term'}</span>
+                                    </div>
+                                    <div style="font-size:0.8rem;color:var(--sl-muted);">
+                                        <span>Renewed / Recorded: <strong>${escapeHtml(rRenewed)}</strong></span>
+                                        ${r.remarks ? ` • <span>${escapeHtml(r.remarks)}</span>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            ` : '';
+
+            contractContentEl.innerHTML = `
+                <!-- Expiration Hero Card -->
+                <div class="history-hero-card ${heroCardClass}">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+                        <span class="profile-data-label" style="font-size:0.75rem;">Contract Expiration & Renewal Status</span>
+                        ${countdown ? `<span class="${countdown.badgeClass} history-badge-countdown">${countdown.text}</span>` : ''}
+                    </div>
+                    <h5 style="margin:0 0 10px;color:var(--sl-ink);font-weight:700;font-size:1.1rem;">${escapeHtml(statusHeadline)}</h5>
+                    
+                    <div class="row g-3 pt-2" style="border-top:1px dashed var(--sl-line);">
+                        <div class="col-sm-4">
+                            <span class="profile-data-label">Expiration Date</span>
+                            <span class="profile-data-value" style="color:${isExpired ? 'var(--sl-danger)' : 'var(--sl-ink)'};">${endFormatted}</span>
+                        </div>
+                        <div class="col-sm-4">
+                            <span class="profile-data-label">Latest Renewal / Start Date</span>
+                            <span class="profile-data-value">${startFormatted}</span>
+                        </div>
+                        <div class="col-sm-4">
+                            <span class="profile-data-label">Contract Term Duration</span>
+                            <span class="profile-data-value">${contractDuration}</span>
+                        </div>
+                    </div>
+                </div>
+                ${renewalsHtml}
+            `;
+        }
+    } catch (err) {
+        contractContentEl.innerHTML = `<div style="text-align:center;color:var(--sl-danger);padding:24px;">Could not render contract details: ${escapeHtml(err.message)}</div>`;
     }
-    const records = data || [];
-    listEl.innerHTML = records.length
-        ? records.map(renderAssignmentHistory).join('')
-        : '<div style="text-align:center;padding:32px;color:var(--sl-muted)">No Home Post assignments have been recorded yet.</div>';
+
+    // 2. RENDER PAST ESTABLISHMENTS & CLIENT COMPANIES
+    try {
+        const assignmentRecords = (assignmentRes.data || []);
+        const scheduleRecords = (scheduleRes.data || []);
+
+        // If guard has current assignment and assignmentRecords is empty, synthesize current establishment
+        if (!assignmentRecords.length && account.assignedLocationId) {
+            assignmentRecords.push({
+                location_id: account.assignedLocationId,
+                assigned_at: account.dateHired || new Date().toISOString(),
+                ended_at: null,
+                assigned_by: null,
+                remarks: 'Current assigned home post'
+            });
+        }
+
+        if (!assignmentRecords.length && !scheduleRecords.length) {
+            establishmentsListEl.innerHTML = `
+                <div style="text-align:center;padding:40px 20px;color:var(--sl-muted)">
+                    <span class="material-symbols-rounded" style="font-size:36px;color:var(--sl-muted);display:block;margin-bottom:8px;" aria-hidden="true">domain_disabled</span>
+                    No client establishments or company assignments recorded yet for this guard.
+                </div>
+            `;
+            return;
+        }
+
+        const cardsHtml = assignmentRecords.map(rec => {
+            const locDetails = personnelLocationDetailsById[rec.location_id] || {};
+            const establishmentName = locDetails.label || personnelLocationsById[rec.location_id] || 'Client Establishment';
+            const establishmentAddress = locDetails.address || 'Address on record';
+            const isCurrent = !rec.ended_at;
+            const assignedByAccount = rec.assigned_by ? personnelAccounts[rec.assigned_by] : null;
+            const assignedByName = assignedByAccount ? personnelDisplayName(assignedByAccount) : 'Operations Staff';
+            const assignedAtFormatted = rec.assigned_at ? formatReportTimestamp(rec.assigned_at) : '—';
+            const endedAtFormatted = rec.ended_at ? formatReportTimestamp(rec.ended_at) : 'Still Active';
+            const durationText = calculateDurationBetweenDates(rec.assigned_at, rec.ended_at);
+
+            return `
+                <div class="history-est-card ${isCurrent ? 'is-current' : ''}">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
+                        <div>
+                            <div style="display:flex;align-items:center;gap:6px;">
+                                <span class="material-symbols-rounded" style="font-size:18px;color:var(--sl-danger);" aria-hidden="true">domain</span>
+                                <h6 style="margin:0;font-weight:700;color:var(--sl-ink);font-size:0.95rem;">${escapeHtml(establishmentName)}</h6>
+                            </div>
+                            <div style="color:var(--sl-muted);font-size:0.8rem;margin-top:2px;">
+                                <span class="material-symbols-rounded align-middle" style="font-size:14px;" aria-hidden="true">location_on</span>
+                                ${escapeHtml(establishmentAddress)}
+                            </div>
+                        </div>
+                        <span class="badge ${isCurrent ? 'bg-success text-white' : 'bg-secondary text-white'}" style="font-size:0.75rem;">
+                            ${isCurrent ? 'Current Active Home Post' : 'Previous Assignment'}
+                        </span>
+                    </div>
+
+                    <div class="row g-2 pt-2" style="border-top:1px dashed var(--sl-line);font-size:0.82rem;">
+                        <div class="col-sm-6">
+                            <span style="color:var(--sl-muted);">Assigned Period:</span>
+                            <span style="font-weight:600;color:var(--sl-ink);">${escapeHtml(assignedAtFormatted)} – ${escapeHtml(endedAtFormatted)}</span>
+                            ${durationText ? `<span style="color:var(--sl-muted);font-size:0.76rem;"> (${durationText})</span>` : ''}
+                        </div>
+                        <div class="col-sm-6">
+                            <span style="color:var(--sl-muted);">Assigned By:</span>
+                            <span style="font-weight:600;color:var(--sl-ink);">${escapeHtml(assignedByName)}</span>
+                        </div>
+                    </div>
+                    ${rec.remarks ? `
+                        <div style="margin-top:6px;font-size:0.8rem;color:var(--sl-muted);">
+                            <strong>Remarks:</strong> ${escapeHtml(rec.remarks)}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }).join('');
+
+        establishmentsListEl.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                <span class="profile-data-label" style="font-size:0.78rem;">Client Establishments & Companies Served</span>
+                <span class="badge bg-danger-subtle text-danger" style="font-size:0.78rem;font-weight:700;">${assignmentRecords.length} Post${assignmentRecords.length === 1 ? '' : 's'} on Record</span>
+            </div>
+            ${cardsHtml}
+        `;
+    } catch (err) {
+        establishmentsListEl.innerHTML = `<div style="text-align:center;color:var(--sl-danger);padding:24px;">Could not load past establishments: ${escapeHtml(err.message)}</div>`;
+    }
 }
 
 function escapeHtml(text) {
@@ -2114,6 +2529,19 @@ async function createGuardAccount() {
                         license_firearms_url: fireLicenseData
                     }).eq('id', data.id);
                 } catch (_) {}
+                if (employmentCategory === 'contract' && contractStartDate && contractEndDate) {
+                    try {
+                        await appSupabase.from('guard_contract_history').insert({
+                            guard_id: data.id,
+                            contract_start_date: contractStartDate,
+                            contract_end_date: contractEndDate,
+                            contract_status: contractStatus || 'Active',
+                            renewed_at: new Date().toISOString(),
+                            renewed_by: auth.currentUser?.uid || null,
+                            remarks: 'Initial guard contract'
+                        });
+                    } catch (_) {}
+                }
             }
             await loadUsers();
         }, { label: `Creating ${role === 'user' ? 'Guard' : 'Inspector'}…` });
@@ -2218,7 +2646,7 @@ function openPersonnelProfile(uid) {
     
     const fullName = personnelDisplayName(account);
     const roleLabel = account.role === "inspector" ? "Inspector" : "Guard";
-    const category = account.employmentCategory === "contract" ? "Contract" : (account.employmentCategory === "reliever" ? "Reliever" : "Regular");
+    const category = account.employmentCategory === "contract" ? "Contract" : "Regular";
     const statusText = account.active !== false ? "Active" : "Disabled";
     const statusClass = account.active !== false ? "badge-active" : "badge-disabled";
     const contractStatus = account.contractStatus || (account.active !== false ? "Active" : "Inactive");
@@ -2392,6 +2820,13 @@ function openPersonnelProfile(uid) {
         bootstrap.Modal.getOrCreateInstance(document.getElementById("personnelProfileModal")).hide();
         openEditPersonnelModal(uid);
     };
+    const histBtn = document.getElementById("profileModalHistoryBtn");
+    if (histBtn) {
+        histBtn.onclick = () => {
+            bootstrap.Modal.getOrCreateInstance(document.getElementById("personnelProfileModal")).hide();
+            viewAssignmentHistory(uid);
+        };
+    }
     document.getElementById("profileModalDtrBtn").onclick = () => {
         bootstrap.Modal.getOrCreateInstance(document.getElementById("personnelProfileModal")).hide();
         viewDTR(uid);
@@ -2545,6 +2980,20 @@ async function savePersonnelEdit() {
             try {
                 await appSupabase.from('profiles').update(updatePayload).eq('id', currentEditUid);
             } catch (_) {}
+            
+            if (employmentCategory === 'contract' && contractStartDate && contractEndDate) {
+                try {
+                    await appSupabase.from('guard_contract_history').insert({
+                        guard_id: currentEditUid,
+                        contract_start_date: contractStartDate,
+                        contract_end_date: contractEndDate,
+                        contract_status: contractStatus || 'Active',
+                        renewed_at: new Date().toISOString(),
+                        renewed_by: auth.currentUser?.uid || null,
+                        remarks: 'Contract updated / renewed via personnel profile management'
+                    });
+                } catch (_) {}
+            }
             
             await loadUsers();
             bootstrap.Modal.getOrCreateInstance(document.getElementById("editPersonnelModal")).hide();

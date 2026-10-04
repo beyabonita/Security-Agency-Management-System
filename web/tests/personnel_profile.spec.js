@@ -45,8 +45,15 @@ test('clicking personnel name opens rich profile card modal with personal and em
           mockGuard
         ],
         locations: [
-          { id: 'loc-1', label: 'Robinsons Place Bacolod' }
-        ]
+          { id: 'loc-1', label: 'Robinsons Place Bacolod', address: 'Lacson St, Mandalagan, Bacolod City' }
+        ],
+        guard_assignment_history: [
+          { id: 'assign-1', guard_id: 'guard-1', location_id: 'loc-1', assigned_at: '2026-01-15T00:00:00Z', ended_at: null, remarks: 'Assigned as primary entrance post' }
+        ],
+        guard_contract_history: [
+          { id: 'contract-1', guard_id: 'guard-1', contract_start_date: '2026-09-22', contract_end_date: '2026-12-22', contract_status: 'Active', renewed_at: '2026-09-22T08:00:00Z', remarks: '3-Month renewal agreement' }
+        ],
+        schedules: []
       };
 
       function snapshot(data) {
@@ -79,11 +86,24 @@ test('clicking personnel name opens rich profile card modal with personal and em
         const source = table === 'users' ? 'profiles' : table;
         const api = {
           select() { return api; },
-          order() { return api; },
-          eq(field, value) {
+          order() {
             return {
-              single: async () => ({ data: (rows[source] || []).find(r => r[field] === value) || null, error: null }),
-              get: async () => snapshot((rows[source] || []).filter(r => r[field] === value))
+              limit() { return Promise.resolve({ data: rows[source] || [], error: null }); },
+              then(resolve) { return resolve({ data: rows[source] || [], error: null }); }
+            };
+          },
+          eq(field, value) {
+            const filtered = (rows[source] || []).filter(r => r[field] === value);
+            return {
+              single: async () => ({ data: filtered[0] || null, error: null }),
+              get: async () => snapshot(filtered),
+              order() {
+                return {
+                  limit() { return Promise.resolve({ data: filtered, error: null }); },
+                  then(resolve) { return resolve({ data: filtered, error: null }); }
+                };
+              },
+              then(resolve) { return resolve({ data: filtered, error: null }); }
             };
           },
           async get() { return snapshot(rows[source] || []); },
@@ -118,6 +138,9 @@ test('clicking personnel name opens rich profile card modal with personal and em
           },
           update() {
             return { eq: async () => ({ error: null }) };
+          },
+          insert() {
+            return Promise.resolve({ data: null, error: null });
           },
           then(resolve) {
             return resolve({ data: rows[source] || [], error: null });
@@ -216,4 +239,28 @@ test('clicking personnel name opens rich profile card modal with personal and em
   await expect(editModal.locator('#editGuardPersonnelId')).toHaveValue('SEC-2026-0042');
   await expect(editModal.locator('#editGuardMobileNumber')).toHaveValue('09105187319');
   await expect(editModal.locator('#editGuardAddress')).toHaveValue('Blk 12 Lot 4, Brgy. Mansilingan, Bacolod City');
+
+  // 4. Test opening History Modal
+  await page.evaluate(() => viewAssignmentHistory('guard-1'));
+  const historyModal = page.locator('#assignmentHistoryModal');
+  await expect(historyModal).toBeVisible();
+  await expect(page.locator('#assignmentHistoryGuardName')).toContainText('Angel Pajarillo Samanion');
+
+  // Verify Contract & Renewal History tab
+  const contractPane = page.locator('#historyContractTabPane');
+  await expect(contractPane).toBeVisible();
+  await expect(contractPane).toContainText('Contract Expiration & Renewal Status');
+  await expect(contractPane).toContainText('December 22, 2026');
+  await expect(contractPane).toContainText('September 22, 2026');
+  await expect(contractPane).toContainText('Contract Renewal & Extension History');
+  await expect(contractPane).toContainText('3-Month renewal agreement');
+
+  // Switch to Establishments tab
+  await page.locator('#historyEstablishmentsTabBtn').click();
+  const establishmentsPane = page.locator('#historyEstablishmentsTabPane');
+  await expect(establishmentsPane).toBeVisible();
+  await expect(establishmentsPane).toContainText('Robinsons Place Bacolod');
+  await expect(establishmentsPane).toContainText('Lacson St, Mandalagan, Bacolod City');
+  await expect(establishmentsPane).toContainText('Current Active Home Post');
+  await expect(establishmentsPane).toContainText('Assigned as primary entrance post');
 });

@@ -1,11 +1,39 @@
 # Project Change Log
 
-### [2026-10-04 18:15] - Personnel Record Profile View, Extended Identification & License Uploads
+### [2026-10-04 18:35] - Guard History: Contract Expiration, Renewal Timeline & Past Client Establishments
+
+- **Scope & Objective**: Upgraded the History modal (`#assignmentHistoryModal`) in `web/admin/users.html` from a basic assignment list to a full dual-tab **Personnel History & Records** viewer per user request:
+  1. **Contract Expiration & Status Banner**:
+     - Calculates and prominently highlights when the guard's contract is set to expire (e.g. `December 22, 2026`).
+     - Real-time countdown pill indicator: `⏳ Expires in X days` (green/amber) or `⚠️ Expired X days ago` (red).
+     - Displays latest renewal / contract start date and total contract term duration.
+     - For permanent/regular personnel, displays clean regular status card clarifying no fixed expiration applies.
+  2. **Contract Renewal & Extension History Timeline**:
+     - Visual history timeline detailing each renewal period (`Period: Start Date – End Date`), exact timestamp when the contract got renewed or recorded, status badge, and notes.
+     - Automatically logs each contract extension/renewal upon saving in Edit Personnel or creating an account.
+  3. **Past Establishments & Client Companies**:
+     - Clean cards displaying every client company/establishment the guard served at.
+     - Details include company name, full establishment address, current active vs previous post status badge, assigned period, total duration served (years, months, days), assigned by (supervisor/Operations Head), and reassignment remarks.
+  4. **Database & Schema**:
+     - Added migration `supabase/migrations/20261004000001_guard_contract_history.sql` with table `guard_contract_history` and RLS policies for tracking contract renewals over time.
+  5. **Direct Profile Integration**:
+     - Added `History & Contract` action button inside the rich Personnel Record Profile modal (`#personnelProfileModal`) in addition to the table Actions dropdown.
+- **Files Modified / Created**:
+  - `[supabase/migrations/20261004000001_guard_contract_history.sql](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261004000001_guard_contract_history.sql)`: New migration for `guard_contract_history` table.
+  - `[web/admin/users.html](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html)`: Dual-tab history modal, expiration calculation, renewal timeline, past establishment cards, and contract history auto-logging.
+  - `[web/tests/personnel_profile.spec.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/personnel_profile.spec.js)`: Expanded test coverage asserting contract expiration date, renewal timeline, and client establishment cards.
+  - `[CHANGE_LOG.md](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/CHANGE_LOG.md)`: Documented changes and test results.
+- **Verification & Testing**:
+  - `npx playwright test personnel_profile.spec.js`: Passed (1 passed, 4.9s).
+  - `npx playwright test contract_personnel.spec.js google_icons.spec.js`: Passed all 11 tests (11 passed, 17.1s).
+  - Validated clean JavaScript syntax across all `<script>` blocks in `web/admin/users.html`.
+
+---
 
 - **Scope & Objective**: Enhanced the Personnel records page (`web/admin/users.html`) to display comprehensive personnel information and file management as requested:
   1. **Clickable Personnel Names**: Guard and Inspector names in tables are now interactive buttons opening a rich **Personnel Record Profile** modal (`#personnelProfileModal`).
   2. **Personal Information Section**: Captures and displays complete name (First, Middle, Last), Date of Birth with auto-computed age (e.g. `28 yrs old`), Gender, Civil Status, Complete Address, Mobile / Contact Number, and Email.
-  3. **Employment Information Section**: Displays Personnel ID badge (e.g. `SEC-2026-0042`), Date Hired, dynamic **Years / Months of Service** (auto-computed from hire date to present), Duty Category (Regular, Contract, Reliever), Contract Status (Active, Probationary, Completed, Terminated), Contract Start/End dates, and Assigned Home Post / Inspector.
+  3. **Employment Information Section**: Displays Personnel ID badge (e.g. `SEC-2026-0042`), Date Hired, dynamic **Years / Months of Service** (auto-computed from hire date to present), Duty Category (Regular, Contract), Contract Status (Active, Probationary, Completed, Terminated), Contract Start/End dates, and Assigned Home Post / Inspector.
   4. **Uploaded Licenses & Credentials ("Maka upload ID")**: Added file upload inputs for:
      - License to Exercise Security Profession (LESP)
      - License to Carry Firearms (LTCF)
