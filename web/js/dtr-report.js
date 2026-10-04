@@ -164,15 +164,10 @@
     cells[key] = cells[key] ? `${cells[key]}\n${value}` : value;
   }
 
-  function formatPunchTime(value, dutyDate) {
+  function formatPunchTime(value) {
     const date = asDate(value);
     if (!date) return '';
-    const actualDate = toLocalDateString(date);
-    const dutyTime = Date.parse(`${dutyDate}T00:00:00Z`);
-    const actualTime = Date.parse(`${actualDate}T00:00:00Z`);
-    const dayOffset = Math.round((actualTime - dutyTime) / 86400000);
-    const suffix = dayOffset === 1 ? ' (next day)' : dayOffset > 1 ? ` (${dayOffset} days later)` : dayOffset === -1 ? ' (previous day)' : dayOffset < -1 ? ` (${-dayOffset} days earlier)` : '';
-    return `${formatTime(date)}${suffix}`;
+    return formatTime(date);
   }
 
   function buildDayRow(dutyDate, sessions) {
@@ -317,8 +312,7 @@
   function previewCell(value) {
     const text = String(value ?? '').trim();
     if (!text) return '<span class="dtr-sheet-blank" aria-hidden="true">&nbsp;</span>';
-    const escaped = escapeHtml(text).replace(/\n/g, '<br>');
-    return escaped.replace(/\((next day|\d+ days? later|previous day|\d+ days? earlier)\)/g, '<span class="badge-next-day">($1)</span>');
+    return escapeHtml(text).replace(/\n/g, '<br>');
   }
 
   function renderPreview(options) {

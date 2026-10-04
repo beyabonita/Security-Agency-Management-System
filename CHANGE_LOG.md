@@ -1,5 +1,25 @@
 # Project Change Log
 
+### [2026-10-04 23:00] - Refinement: Remove “(next day)” from DTR Punch Times and Reports
+
+- **Scope & Objective**: Remove the `(next day)` suffix from punch times and shift cells in the Daily Time Record (DTR) sheets and PDF export, ensuring DTR columns display clean clock timestamps (e.g. `6:00 AM`) without day-offset clutter.
+- **Key Enhancements**:
+  - **Clean DTR Punch Formatting (`web/js/dtr-report.js`)**:
+    - Updated `formatPunchTime(value)` to return clean formatted time strings without appending day offset suffixes (`(next day)`, `(previous day)`, etc.).
+    - Simplified `previewCell(value)` to remove the badge regex replacement, keeping DTR cells clean and legible.
+  - **Duty Schedule & Roster Preservation**:
+    - The Duty Schedule table (`web/admin/schedule.html`) and Shift Roster preview (`web/admin/js/shift-roster.js`) retain the subtle `.badge-next-day` pill badge for administrator shift planning clarity.
+  - **Test Suite Updates**:
+    - Updated `web/tests/dtr_report_test.js` assertions to verify clean time format without `(next day)` suffix.
+    - Verified all unit and Playwright tests pass cleanly.
+- **Files Modified**:
+  - `web/js/dtr-report.js`: Cleaned punch time formatting and preview rendering.
+  - `web/css/dtr-report.css`: Cleaned up unused `.badge-next-day` styling from DTR stylesheet.
+  - `web/tests/dtr_report_test.js`: Aligned test assertions with clean DTR punch formatting.
+  - `CHANGE_LOG.md`: Added change entry.
+
+---
+
 ### [2026-10-04 22:45] - Feature: Style Overnight “(next day)” Indicators as Subtle Badges
 
 - **Scope & Objective**: Transition the overnight indicator text `(next day)` across the Duty Schedule table, Shift Roster previews, and Daily Time Record (DTR) sheets from plain raw text into a clean, modern, and subtle pill badge.
