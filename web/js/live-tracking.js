@@ -242,6 +242,8 @@
     authSubscription?.unsubscribe();
     if(channel) await client.removeChannel(channel);
   }
+  const urlParam = new URLSearchParams(window.location.search).get('guard') || new URLSearchParams(window.location.search).get('q');
+  if (urlParam && search) search.value = urlParam;
   search.addEventListener('input',render);
   document.getElementById('fitGuards').onclick=fit;
   window.addEventListener('pagehide',stop,{once:true});

@@ -1,5 +1,18 @@
 # Project Change Log
 
+### [2026-10-05 01:28] - Feature: Field Inspector Dashboard Revamp (Phase 2 - Today's Live Guard Shift Roster)
+
+- **Scope & Objective**: Implement Phase 2 of the Field Inspector Dashboard revamp by embedding a real-time "Today's Guard Shift Roster" showing assigned guards currently on duty, their client post, shift hours, GPS fix status, clickable phone link, and direct map focus actions.
+- **Key Enhancements**:
+  - **Live Guard Shift Roster Panel (`web/inspector/dashboard.html`)**: Fetches active duty records via `live_guard_map_snapshot` RPC. Renders a responsive table displaying Guard Name, Assigned Post/Client, Shift Hours, GPS Status (`🟢 Live GPS` or `🟡 Waiting GPS`), direct phone call link (`📞 +63...`), and a `📍 View on map` action.
+  - **URL Parameter Search Pre-fill (`web/js/live-tracking.js`)**: Updated the live tracking map controller to support reading `?guard=` or `?q=` URL parameters on load, so clicking "View on map" from the dashboard automatically filters and zooms to that guard on the map.
+  - **Clean Zero-State**: When no guards are currently on shift, displays a clean `schedule` status card indicating no active clock-ins.
+- **Verification & Testing**:
+  - `npm run test:playwright -- inspector_team.spec.js`: All 6 tests passed.
+  - `npm run test:playwright -- google_icons.spec.js records.spec.js`: All 11 tests passed.
+
+---
+
 ### [2026-10-05 01:22] - Feature: Field Inspector Dashboard Revamp (Phase 1 - Field Status & Incident Queue)
 
 - **Scope & Objective**: Revamp the Field Inspector Dashboard (`web/inspector/dashboard.html`) to prioritize tactical field operations over passive counters. Introduced an active field investigations stat and a prominent real-time incident queue right on the dashboard.

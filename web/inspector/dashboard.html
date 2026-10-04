@@ -80,6 +80,19 @@
                 </div>
             </div>
 
+            <!-- Today's Live Guard Shift Roster -->
+            <div class="ax-section-label" style="display:flex; justify-content:space-between; align-items:center;">
+                <span>Today's Guard Shift Roster (On Duty Now)</span>
+                <a href="live-tracking.html" style="font-size:0.8rem; font-weight:600; text-decoration:none; color:var(--brand-primary,#b91c1c);">Open full map 📍 →</a>
+            </div>
+            <div class="ax-panel" id="liveRosterPanel" style="margin-bottom:28px;">
+                <div id="liveRosterList">
+                    <div style="padding:24px; text-align:center; color:var(--ix-muted);">
+                        <div class="spinner-border spinner-border-sm text-danger" role="status"></div> Loading today's guard roster…
+                    </div>
+                </div>
+            </div>
+
             <div class="ax-section-label">Quick access</div>
             <div class="ax-panel">
                 <div class="ax-link-list">
@@ -228,6 +241,75 @@ function renderIncidentQueue(items) {
         </div>`;
 }
 
+function formatShiftTime(start, end) {
+    if (!start) return '—';
+    const sDate = start && start.toDate ? start.toDate() : new Date(start);
+    const eDate = end ? (end.toDate ? end.toDate() : new Date(end)) : null;
+    const sTime = isNaN(sDate.getTime()) ? '' : sDate.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const eTime = eDate && !isNaN(eDate.getTime()) ? eDate.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true }) : '';
+    return sTime && eTime ? `${sTime} – ${eTime}` : sTime || '—';
+}
+
+function renderLiveRoster(locations) {
+    const container = document.getElementById("liveRosterList");
+    if (!container) return;
+    if (!locations.length) {
+        container.innerHTML = `
+            <div style="padding:32px 20px; text-align:center;">
+                <span class="material-symbols-rounded" style="font-size:40px; color:var(--ix-muted); margin-bottom:6px; display:inline-block;">schedule</span>
+                <p style="margin:0; font-weight:700; font-size:0.95rem;">No Guards Currently On Duty</p>
+                <p style="margin:4px 0 0; font-size:0.82rem; color:var(--ix-muted);">There are no active guard clock-ins recorded for this shift.</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="ax-table-wrapper" style="overflow-x:auto;">
+            <table class="ax-table" style="width:100%; margin:0;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--ax-border);">
+                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Guard</th>
+                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Assigned Post</th>
+                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Shift Hours</th>
+                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">GPS Status</th>
+                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Contact</th>
+                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted); text-align:right;">Locate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${locations.map(g => {
+                        const hasGps = Number.isFinite(g.latitude) && Number.isFinite(g.longitude);
+                        const gpsPill = hasGps
+                            ? '<span class="badge-status" style="background:#dcfce7; color:#15803d; font-weight:600;">🟢 Live GPS</span>'
+                            : '<span class="badge-status" style="background:#fef3c7; color:#b45309; font-weight:600;">🟡 Waiting GPS</span>';
+                        const postLabel = g.client_name || g.location_label || 'Assigned site';
+                        const postAddress = g.location_address ? `<div style="font-size:0.76rem; color:var(--ax-muted);">${escapeHtml(g.location_address)}</div>` : '';
+                        const shiftHours = formatShiftTime(g.duty_start_at, g.duty_end_at);
+                        const phone = (g.mobile_number || g.contact_number || '').trim();
+                        const phoneHtml = phone ? `<a href="tel:${escapeHtml(phone)}" style="color:var(--brand-primary,#b91c1c); text-decoration:none; font-weight:600;">📞 ${escapeHtml(phone)}</a>` : '<span style="color:var(--ax-muted);">—</span>';
+                        const mapUrl = `live-tracking.html?guard=${encodeURIComponent(g.guard_name || '')}`;
+
+                        return `<tr>
+                            <td>
+                                <strong>${escapeHtml(g.guard_name || 'Guard')}</strong>
+                            </td>
+                            <td>
+                                <div><strong>${escapeHtml(postLabel)}</strong></div>
+                                ${postAddress}
+                            </td>
+                            <td style="font-size:0.84rem; white-space:nowrap;">${escapeHtml(shiftHours)}</td>
+                            <td>${gpsPill}</td>
+                            <td style="white-space:nowrap; font-size:0.84rem;">${phoneHtml}</td>
+                            <td style="text-align:right; white-space:nowrap;">
+                                <a href="${mapUrl}" class="ax-btn" style="padding:5px 12px; font-size:0.78rem; text-decoration:none;">📍 View on map</a>
+                            </td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>`;
+}
+
 auth.onAuthStateChanged(async function(user) {
     if (!user) { window.location.href = "../staff/login.html"; return; }
 
@@ -288,6 +370,17 @@ async function loadDashboard() {
                 : activeIncidents.length + ' incidents awaiting action';
         }
         renderIncidentQueue(activeIncidents);
+
+        let liveSnapshot = { locations: [] };
+        if (window.appSupabase) {
+            try {
+                const res = await appSupabase.rpc('live_guard_map_snapshot');
+                if (res && res.data && Array.isArray(res.data.locations)) {
+                    liveSnapshot = res.data;
+                }
+            } catch (_) {}
+        }
+        renderLiveRoster(liveSnapshot.locations || []);
     } catch (error) {
         if (window.appDialog) appDialog.toast('Some overview totals could not be loaded. Refresh to try again.', { tone: 'danger' });
     }
