@@ -693,6 +693,43 @@ test('deployment site combobox opens dropdown on focus/click and filters options
   await expect(page.locator('#rosterSite')).toHaveValue('other-site');
 });
 
+test('scheduled shifts personnel and deployment site combobox filters open, filter on typing, and filter the schedule table', async ({ page }) => {
+  await page.evaluate(() => {
+    locations.push({ id: 'site-b', label: 'Branch B', address: 'Bacolod City' });
+    initScheduleSiteCombobox();
+  });
+  await showRows(page, [
+    record('s1', 'Test guard', { user_id: 'test-guard', location_id: 'test-site', location_label: 'Test post' }),
+    record('s2', 'Guard Two', { user_id: 'peer', location_id: 'site-b', location_label: 'Branch B' })
+  ]);
+  await expect(page.locator('#scheduleTable tr')).toHaveCount(2);
+
+  // Test Personnel combobox filter
+  await page.locator('#schedulePersonnelInput').click();
+  await expect(page.locator('#schedulePersonnelMenu')).toBeVisible();
+  await page.locator('#schedulePersonnelInput').fill('two');
+  await expect(page.locator('#schedulePersonnelMenu .roster-combobox-item')).toHaveCount(1);
+  await page.locator('#schedulePersonnelMenu .roster-combobox-item').click();
+  await expect(page.locator('#schedulePersonnelInput')).toHaveValue('Guard Two');
+  await expect(page.locator('#scheduleTable tr')).toHaveCount(1);
+  await expect(page.locator('#scheduleTable')).toContainText('Guard Two');
+
+  // Clear personnel filter
+  await page.locator('#schedulePersonnelClear').click();
+  await expect(page.locator('#scheduleTable tr')).toHaveCount(2);
+
+  // Test Deployment site combobox filter below Month
+  await page.locator('#scheduleSiteInput').click();
+  await expect(page.locator('#scheduleSiteMenu')).toBeVisible();
+  await page.locator('#scheduleSiteInput').fill('branch');
+  await expect(page.locator('#scheduleSiteMenu .roster-combobox-item')).toHaveCount(1);
+  await page.locator('#scheduleSiteMenu .roster-combobox-item').click();
+  await expect(page.locator('#scheduleSiteInput')).toHaveValue('Branch B');
+  await expect(page.locator('#scheduleTable tr')).toHaveCount(1);
+  await expect(page.locator('#scheduleTable')).toContainText('Branch B');
+});
+
+
 
 
 

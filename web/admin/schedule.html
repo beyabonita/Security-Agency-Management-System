@@ -83,7 +83,36 @@
         <div class="schedule-list-filters">
             <div class="schedule-field"><label class="form-label" for="scheduleMonth">Month</label><input type="month" id="scheduleMonth" class="form-control" onchange="renderSchedules()"></div>
             <div class="schedule-field"><label class="form-label" for="scheduleCutoff">DTR cut-off</label><select id="scheduleCutoff" class="form-select" onchange="renderSchedules()"><option value="first">1st–15th</option><option value="second">16th–end of month</option></select></div>
-            <div class="schedule-field"><label class="form-label" for="schedulePersonnelFilter">Personnel</label><select id="schedulePersonnelFilter" class="form-select" onchange="renderSchedules()"><option value="">All guards</option></select></div>
+            <div class="schedule-field roster-site-field">
+              <label class="form-label" for="scheduleSiteFilter">Deployment site</label>
+              <div class="roster-combobox" id="scheduleSiteCombobox">
+                <div class="roster-combobox-input-wrap">
+                  <span class="material-symbols-rounded roster-combobox-icon" aria-hidden="true">search</span>
+                  <input type="text" id="scheduleSiteInput" class="form-control roster-combobox-input" placeholder="All deployment sites" autocomplete="off" aria-label="Filter by deployment site" aria-autocomplete="list" aria-expanded="false" aria-controls="scheduleSiteMenu">
+                  <button type="button" id="scheduleSiteClear" class="roster-combobox-clear" aria-label="Clear site filter" title="Clear filter" hidden>&times;</button>
+                  <button type="button" id="scheduleSiteToggle" class="roster-combobox-arrow" aria-label="Toggle deployment sites" tabindex="-1">
+                    <span class="material-symbols-rounded" aria-hidden="true">expand_more</span>
+                  </button>
+                </div>
+                <div id="scheduleSiteMenu" class="roster-combobox-menu" role="listbox" hidden></div>
+                <select id="scheduleSiteFilter" class="form-select roster-site-hidden-select" onchange="renderSchedules()" tabindex="-1" aria-hidden="true"><option value="">All deployment sites</option></select>
+              </div>
+            </div>
+            <div class="schedule-field roster-site-field">
+              <label class="form-label" for="schedulePersonnelFilter">Personnel</label>
+              <div class="roster-combobox" id="schedulePersonnelCombobox">
+                <div class="roster-combobox-input-wrap">
+                  <span class="material-symbols-rounded roster-combobox-icon" aria-hidden="true">search</span>
+                  <input type="text" id="schedulePersonnelInput" class="form-control roster-combobox-input" placeholder="All guards" autocomplete="off" aria-label="Filter by personnel" aria-autocomplete="list" aria-expanded="false" aria-controls="schedulePersonnelMenu">
+                  <button type="button" id="schedulePersonnelClear" class="roster-combobox-clear" aria-label="Clear personnel filter" title="Clear filter" hidden>&times;</button>
+                  <button type="button" id="schedulePersonnelToggle" class="roster-combobox-arrow" aria-label="Toggle personnel" tabindex="-1">
+                    <span class="material-symbols-rounded" aria-hidden="true">expand_more</span>
+                  </button>
+                </div>
+                <div id="schedulePersonnelMenu" class="roster-combobox-menu" role="listbox" hidden></div>
+                <select id="schedulePersonnelFilter" class="form-select roster-site-hidden-select" onchange="renderSchedules()" tabindex="-1" aria-hidden="true"><option value="">All guards</option></select>
+              </div>
+            </div>
         </div>
         <p class="schedule-list-note">Philippine time (UTC+8)</p>
         <div class="table-responsive" tabindex="0" aria-label="Scheduled guard shifts">
@@ -179,6 +208,219 @@ function setScheduleListPeriod(dutyDate) {
     if (!cutoff) return;
     document.getElementById('scheduleMonth').value = dutyDate.slice(0, 7);
     document.getElementById('scheduleCutoff').value = cutoff.cutoff;
+    initSchedulePersonnelCombobox?.();
+    initScheduleSiteCombobox?.();
+}
+
+function setupCombobox({ comboboxId, inputId, clearId, toggleId, menuId, selectId, getItems, onSelect, defaultLabel }) {
+    const combobox = document.getElementById(comboboxId);
+    const input = document.getElementById(inputId);
+    const clear = document.getElementById(clearId);
+    const toggle = document.getElementById(toggleId);
+    const menu = document.getElementById(menuId);
+    const select = document.getElementById(selectId);
+    if (!combobox || !input || !menu || !select) return;
+
+    function renderMenu() {
+        const term = input.value.trim().toLowerCase();
+        const current = select.value;
+        const items = getItems();
+        const activeItem = items.find(it => it.id === current);
+        const isExactMatch = activeItem && activeItem.label.toLowerCase() === term;
+        const filtered = (!term || isExactMatch)
+            ? items
+            : items.filter(it => (it.label || '').toLowerCase().includes(term) || (it.sub || '').toLowerCase().includes(term));
+
+        let html = '';
+        if (!term || isExactMatch || defaultLabel.toLowerCase().includes(term)) {
+            html += `<div class="roster-combobox-item${!current ? ' is-selected' : ''}" data-id="" data-label="${escapeHtml(defaultLabel)}" role="option" aria-selected="${!current}">` +
+                `<span class="roster-combobox-item-label">${escapeHtml(defaultLabel)}</span>` +
+                `</div>`;
+        }
+
+        if (!filtered.length && !html) {
+            html = '<div class="roster-combobox-empty">No results match</div>';
+        } else if (filtered.length) {
+            html += filtered.map(it => {
+                const isSel = it.id === current;
+                return `<div class="roster-combobox-item${isSel ? ' is-selected' : ''}" data-id="${escapeHtml(it.id)}" data-label="${escapeHtml(it.label)}" role="option" aria-selected="${isSel}">` +
+                    `<span class="roster-combobox-item-label">${escapeHtml(it.label)}</span>` +
+                    (it.sub ? `<span class="roster-combobox-item-address">${escapeHtml(it.sub)}</span>` : '') +
+                    `</div>`;
+            }).join('');
+        }
+        menu.innerHTML = html;
+    }
+
+    function openMenu() {
+        menu.hidden = false;
+        combobox.classList.add('is-open');
+        input.setAttribute('aria-expanded', 'true');
+        renderMenu();
+    }
+
+    function closeMenu() {
+        menu.hidden = true;
+        combobox.classList.remove('is-open');
+        input.setAttribute('aria-expanded', 'false');
+        const items = getItems();
+        const activeItem = items.find(it => it.id === select.value);
+        if (select.value && activeItem) {
+            input.value = activeItem.label;
+        } else if (!select.value) {
+            input.value = '';
+        }
+        if (clear) clear.hidden = !select.value;
+    }
+
+    if (!combobox.dataset.initialized) {
+        combobox.dataset.initialized = 'true';
+
+        menu.addEventListener('click', (e) => {
+            const item = e.target.closest('.roster-combobox-item');
+            if (!item) return;
+            const id = item.dataset.id;
+            const label = item.dataset.label;
+            if (id && ![...select.options].some(o => o.value === id)) {
+                select.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(id)}">${escapeHtml(label)}</option>`);
+            }
+            select.value = id;
+            input.value = id ? label : '';
+            if (clear) clear.hidden = !id;
+            closeMenu();
+            onSelect?.(id);
+        });
+
+        input.addEventListener('focus', () => {
+            openMenu();
+            input.select();
+        });
+        input.addEventListener('click', () => {
+            if (menu.hidden) {
+                openMenu();
+                input.select();
+            }
+        });
+        input.addEventListener('input', () => {
+            openMenu();
+            if (clear) clear.hidden = !input.value;
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeMenu();
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (menu.hidden) openMenu();
+                const items = [...menu.querySelectorAll('.roster-combobox-item')];
+                if (!items.length) return;
+                const focused = menu.querySelector('.roster-combobox-item.is-focused');
+                const idx = focused ? items.indexOf(focused) : -1;
+                const next = items[Math.min(idx + 1, items.length - 1)];
+                items.forEach(it => it.classList.remove('is-focused'));
+                next.classList.add('is-focused');
+                next.scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                const items = [...menu.querySelectorAll('.roster-combobox-item')];
+                if (!items.length) return;
+                const focused = menu.querySelector('.roster-combobox-item.is-focused');
+                const idx = focused ? items.indexOf(focused) : items.length;
+                const prev = items[Math.max(idx - 1, 0)];
+                items.forEach(it => it.classList.remove('is-focused'));
+                prev.classList.add('is-focused');
+                prev.scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'Enter') {
+                const focused = menu.querySelector('.roster-combobox-item.is-focused');
+                if (focused && !menu.hidden) {
+                    e.preventDefault();
+                    focused.click();
+                }
+            }
+        });
+
+        toggle?.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (menu.hidden) {
+                input.focus();
+                openMenu();
+            } else {
+                closeMenu();
+            }
+        });
+
+        clear?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            select.value = '';
+            input.value = '';
+            clear.hidden = true;
+            closeMenu();
+            onSelect?.('');
+            input.focus();
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!combobox.contains(e.target)) {
+                closeMenu();
+            }
+        });
+
+        select.addEventListener('change', () => {
+            const items = getItems();
+            const activeItem = items.find(it => it.id === select.value);
+            input.value = activeItem ? activeItem.label : '';
+            if (clear) clear.hidden = !select.value;
+        });
+    }
+
+    const items = getItems();
+    const activeItem = items.find(it => it.id === select.value);
+    input.value = activeItem ? activeItem.label : '';
+    if (clear) clear.hidden = !select.value;
+}
+
+function initSchedulePersonnelCombobox() {
+    setupCombobox({
+        comboboxId: 'schedulePersonnelCombobox',
+        inputId: 'schedulePersonnelInput',
+        clearId: 'schedulePersonnelClear',
+        toggleId: 'schedulePersonnelToggle',
+        menuId: 'schedulePersonnelMenu',
+        selectId: 'schedulePersonnelFilter',
+        defaultLabel: 'All guards',
+        getItems: () => {
+            const select = document.getElementById('schedulePersonnelFilter');
+            if (guards && guards.length) {
+                return guards.filter(g => g.role === 'user').map(g => ({
+                    id: g.id,
+                    label: g.name,
+                    sub: g.employmentCategory ? `Category: ${g.employmentCategory}` : ''
+                }));
+            }
+            return select ? [...select.options].filter(o => o.value).map(o => ({ id: o.value, label: o.textContent, sub: '' })) : [];
+        },
+        onSelect: () => renderSchedules()
+    });
+}
+
+function initScheduleSiteCombobox() {
+    const siteSelect = document.getElementById('scheduleSiteFilter');
+    if (siteSelect) {
+        const cur = siteSelect.value;
+        siteSelect.innerHTML = '<option value="">All deployment sites</option>' + (locations || []).map(l => `<option value="${escapeHtml(l.id)}">${escapeHtml(l.label)}</option>`).join('');
+        siteSelect.value = cur;
+    }
+    setupCombobox({
+        comboboxId: 'scheduleSiteCombobox',
+        inputId: 'scheduleSiteInput',
+        clearId: 'scheduleSiteClear',
+        toggleId: 'scheduleSiteToggle',
+        menuId: 'scheduleSiteMenu',
+        selectId: 'scheduleSiteFilter',
+        defaultLabel: 'All deployment sites',
+        getItems: () => (locations || []).map(l => ({ id: l.id, label: l.label, sub: l.address || '' })),
+        onSelect: () => renderSchedules()
+    });
 }
 
 function loadGuards() {
@@ -192,6 +434,7 @@ function loadGuards() {
             guards.push({ id: doc.id, name: fullName, active: d.active !== false, loginId: displayLoginId(d), role: d.role, employmentCategory: d.employmentCategory || "regular", contractStartDate: d.contractStartDate, contractEndDate: d.contractEndDate, assignedLocationId: d.assignedLocationId || "" });
         });
         document.getElementById('schedulePersonnelFilter').innerHTML = '<option value="">All guards</option>' + guards.filter(guard=>guard.role==='user').map(guard => `<option value="${escapeHtml(guard.id)}">${escapeHtml(guard.name)}</option>`).join('');
+        initSchedulePersonnelCombobox();
         window.renderShiftRoster?.();
         if (schedules.length > 0) renderSchedules();
     });
@@ -206,6 +449,7 @@ function loadLocations() {
             const address = d.address || "";
             locations.push({ id: doc.id, label, address });
         });
+        initScheduleSiteCombobox();
         window.renderShiftRoster?.();
     });
 }
@@ -276,12 +520,17 @@ function renderSchedules() {
     const month = document.getElementById('scheduleMonth').value;
     const cutoff = document.getElementById('scheduleCutoff').value;
     const personnelId = document.getElementById('schedulePersonnelFilter').value;
+    const siteFilterEl = document.getElementById('scheduleSiteFilter');
+    const siteId = siteFilterEl ? siteFilterEl.value : '';
     const filtered = schedules.filter(schedule => {
         if (guards.find(person=>person.id===schedule.userId)?.role === 'inspector') return false;
         const date = schedule.date || window.SchedulePeriod.toLocalDateString(toDate(schedule.startAt));
+        const matchesPersonnel = !personnelId || schedule.userId === personnelId;
+        const matchesSite = !siteId || (schedule.locationId || schedule.location_id) === siteId || (schedule.locationLabel && locations.find(l => l.id === siteId)?.label === schedule.locationLabel);
         return date && date.slice(0, 7) === month
             && (Number(date.slice(8, 10)) <= 15 ? 'first' : 'second') === cutoff
-            && (!personnelId || schedule.userId === personnelId);
+            && matchesPersonnel
+            && matchesSite;
     });
     if (!filtered.length) {
         tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon material-symbols-rounded" aria-hidden="true">event_note</div><div>No scheduled duty for this cut-off.<br>Choose another period or assign a guard roster above.</div></div></td></tr>';

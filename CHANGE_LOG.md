@@ -1,5 +1,21 @@
 # Project Change Log
 
+### [2026-10-04 07:33] - Add Unified Combobox Filters for Personnel and Deployment Site to Scheduled Shifts
+
+- **Scope & Objective**: Upgrade the filter controls under the "Scheduled guard shifts" section (`web/admin/schedule.html`) to use the single, unified searchable combobox dropdown:
+  1. Converted the Personnel filter into a unified searchable combobox dropdown with live type-to-filter, toggle chevron, and clear button.
+  2. Added a new Deployment site filter directly below Month (using a balanced 2-column grid layout: Row 1 = Month, DTR cut-off; Row 2 = Deployment site, Personnel) with the same unified searchable combobox dropdown to filter schedules by site.
+- **Files Modified / Created**:
+  - [`web/admin/schedule.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/schedule.html): Replaced standard selects with `#scheduleSiteCombobox` and `#schedulePersonnelCombobox` while preserving hidden `<select>` elements for test compatibility, implemented `setupCombobox` engine, and updated `renderSchedules()` to filter by both selected site and personnel.
+  - [`web/admin/css/dtr-scheduling.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/dtr-scheduling.css): Configured `.schedule-list-filters` into a 2-column responsive grid where Deployment site sits directly below Month.
+  - [`web/tests/schedule_lifecycle.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/schedule_lifecycle.spec.js): Added test `scheduled shifts personnel and deployment site combobox filters open, filter on typing, and filter the schedule table`.
+- **Verification & Testing**:
+  - `node web/tests/google_icons_test.js` -> Passed (43 bundled symbols, 150 markup references).
+  - `npm --prefix web/tests run test:playwright -- --grep "roster|combobox"` -> Passed (14/14).
+- **Pending / Next Steps**:
+  - Ready for user review and commit.
+
+
 ### [2026-10-04 07:15] - Unify Deployment Site Selection into Single Searchable Dropdown Combobox
 
 - **Scope & Objective**: Merge the previously separated search input and `<select>` dropdown into a single, cohesive searchable combobox. Clicking or focusing the control opens the dropdown menu with all available sites, and typing in the input dynamically filters the dropdown list in real-time.
