@@ -430,6 +430,12 @@ body[data-it-page="users"] .ax-nav a[href="users.html"] {
     background: var(--sl-primary, #92400e);
     color: #ffffff;
 }
+.incident-highlights-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
 .incident-kpi-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -443,7 +449,7 @@ body[data-it-page="users"] .ax-nav a[href="users.html"] {
     background: var(--ax-surface, #ffffff);
     border: 1px solid var(--ax-border);
     border-radius: 10px;
-    min-height: 104px;
+    min-height: 98px;
 }
 .incident-kpi-label {
     display: flex;
@@ -456,8 +462,8 @@ body[data-it-page="users"] .ax-nav a[href="users.html"] {
     letter-spacing: .03em;
 }
 .incident-kpi-val {
-    margin: 8px 0 4px;
-    font-size: 1.12rem;
+    margin: 6px 0 2px;
+    font-size: 1.15rem;
     font-weight: 800;
     color: var(--ax-text);
     line-height: 1.25;
@@ -467,6 +473,45 @@ body[data-it-page="users"] .ax-nav a[href="users.html"] {
     font-size: .76rem;
     color: var(--ax-muted);
     font-weight: 600;
+}
+
+/* Ranked Horizontal Area Bar Chart */
+.incident-chart-panel {
+    background: var(--ax-surface, #ffffff);
+    border: 1px solid var(--ax-border);
+    border-radius: 10px;
+    padding: 16px 18px;
+}
+.incident-chart-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ax-border);
+}
+.incident-panel-title {
+    margin: 0;
+    font-size: .88rem;
+    font-weight: 800;
+    color: var(--ax-text);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+.incident-panel-sub {
+    font-size: .75rem;
+    color: var(--ax-muted);
+    font-weight: 600;
+    display: block;
+    margin-top: 2px;
+}
+.incident-status-legend {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
 }
 .incident-status-badges {
     display: flex;
@@ -478,7 +523,7 @@ body[data-it-page="users"] .ax-nav a[href="users.html"] {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 4px 8px;
+    padding: 3px 8px;
     border-radius: 6px;
     font-size: .75rem;
     font-weight: 700;
@@ -495,6 +540,114 @@ body[data-it-page="users"] .ax-nav a[href="users.html"] {
 .incident-status-pill.resolved {
     background: rgba(16, 185, 129, 0.12);
     color: #047857;
+}
+
+.incident-ranked-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.incident-bar-row {
+    display: grid;
+    grid-template-columns: minmax(130px, 190px) 1fr auto;
+    align-items: center;
+    gap: 14px;
+}
+.incident-bar-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+.incident-rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--ax-bg, #f1f5f9);
+    border: 1px solid var(--ax-border);
+    font-size: .72rem;
+    font-weight: 800;
+    color: var(--ax-muted);
+    flex-shrink: 0;
+}
+.incident-bar-row:first-child .incident-rank-badge {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #b91c1c;
+}
+.incident-bar-title {
+    font-size: .84rem;
+    font-weight: 700;
+    color: var(--ax-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.incident-bar-track-wrap {
+    width: 100%;
+    min-width: 80px;
+}
+.incident-bar-track {
+    width: 100%;
+    height: 24px;
+    background: var(--ax-bg, rgba(0, 0, 0, 0.04));
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--ax-border);
+}
+.incident-bar-progress {
+    height: 100%;
+    min-width: 28px;
+    background: linear-gradient(90deg, #f97316, #ea580c);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    transition: width 0.4s ease-out;
+}
+.incident-bar-row:nth-child(2) .incident-bar-progress {
+    background: linear-gradient(90deg, #fb923c, #f97316);
+}
+.incident-bar-row:nth-child(n+3) .incident-bar-progress {
+    background: linear-gradient(90deg, #fdba74, #fb923c);
+}
+.incident-bar-count {
+    color: #ffffff;
+    font-size: .75rem;
+    font-weight: 800;
+}
+.incident-bar-status-tags {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.mini-status {
+    font-size: .7rem;
+    font-weight: 700;
+    padding: 3px 6px;
+    border-radius: 4px;
+    line-height: 1;
+}
+.mini-status.open { background: rgba(249, 115, 22, 0.12); color: #c2410c; }
+.mini-status.ack { background: rgba(59, 130, 246, 0.12); color: #1d4ed8; }
+.mini-status.resolved { background: rgba(16, 185, 129, 0.12); color: #047857; }
+
+.incident-empty-chart {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 24px 12px;
+    color: var(--ax-muted);
+    font-size: .84rem;
+    font-weight: 600;
 }
 .incident-summary-grid {
     display: grid;
@@ -1086,6 +1239,8 @@ button.btn-add-schedule:focus-visible,
     .dashboard-donut-row { justify-content: flex-start; }
     .incident-summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .incident-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .incident-highlights-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .incident-bar-row { grid-template-columns: minmax(110px, 150px) 1fr auto; gap: 10px; }
     .ax-role-pill { display: none; }
     .ax-login-brand { display: none; }
     .ax-login-form-side { max-width: none; }
@@ -1114,6 +1269,9 @@ button.btn-add-schedule:focus-visible,
     .dashboard-donut { align-self: center; }
     .incident-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .incident-kpi-grid { grid-template-columns: 1fr; }
+    .incident-highlights-row { grid-template-columns: 1fr; }
+    .incident-bar-row { grid-template-columns: 1fr; gap: 6px; }
+    .incident-chart-panel-header { flex-direction: column; align-items: flex-start; }
     .incident-time-filter { width: 100%; justify-content: space-between; }
     .incident-filter-btn { flex: 1; text-align: center; padding: 6px 4px; }
 }

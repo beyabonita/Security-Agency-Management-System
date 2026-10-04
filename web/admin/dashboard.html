@@ -417,14 +417,17 @@ function renderIncidentIntelligence(days) {
         [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Guard'
     ]));
 
-    const locationCounts = {};
+    const locationStats = {};
     const guardCounts = {};
     const categoryCounts = {};
     const statusCounts = { Open: 0, Acknowledged: 0, Resolved: 0 };
 
     filtered.forEach(inc => {
         const loc = inc.location_label || 'Unassigned post';
-        locationCounts[loc] = (locationCounts[loc] || 0) + 1;
+        if (!locationStats[loc]) {
+            locationStats[loc] = { total: 0, Open: 0, Acknowledged: 0, Resolved: 0 };
+        }
+        locationStats[loc].total++;
 
         if (inc.user_id) {
             guardCounts[inc.user_id] = (guardCounts[inc.user_id] || 0) + 1;
@@ -435,14 +438,16 @@ function renderIncidentIntelligence(days) {
 
         const stat = incidentStatus(inc.status);
         if (statusCounts[stat] !== undefined) statusCounts[stat]++;
+        if (locationStats[loc][stat] !== undefined) locationStats[loc][stat]++;
     });
 
-    const topLocationEntry = Object.entries(locationCounts).sort((a, b) => b[1] - a[1])[0];
+    const sortedLocations = Object.entries(locationStats).sort((a, b) => b[1].total - a[1].total);
+    const topLocationEntry = sortedLocations[0];
     const topGuardEntry = Object.entries(guardCounts).sort((a, b) => b[1] - a[1])[0];
     const topCategoryEntry = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0];
 
     const topLocationName = topLocationEntry ? topLocationEntry[0] : 'None';
-    const topLocationCount = topLocationEntry ? topLocationEntry[1] : 0;
+    const topLocationCount = topLocationEntry ? topLocationEntry[1].total : 0;
     const topLocationPct = total > 0 ? Math.round((topLocationCount / total) * 100) : 0;
 
     const topGuardName = topGuardEntry ? (guardNameById.get(topGuardEntry[0]) || 'Guard') : 'None';
@@ -453,46 +458,77 @@ function renderIncidentIntelligence(days) {
     const topCategoryRate = total > 0 ? Math.round((topCategoryCount / total) * 100) : 0;
 
     const periodLabel = days === 7 ? 'past 7 days' : days === 30 ? 'past 30 days' : days === 365 ? 'past year' : 'all time';
+    const maxAreaCount = topLocationCount || 1;
+
+    const rankedBarsHtml = sortedLocations.length > 0 ? sortedLocations.map(([locName, stats], idx) => {
+        const pct = Math.max(14, Math.round((stats.total / maxAreaCount) * 100));
+        return `
+            <div class="incident-bar-row">
+                <div class="incident-bar-meta">
+                    <span class="incident-rank-badge">#${idx + 1}</span>
+                    <span class="incident-bar-title" title="${escapeHtml(locName)}">${escapeHtml(locName)}</span>
+                </div>
+                <div class="incident-bar-track-wrap">
+                    <div class="incident-bar-track">
+                        <div class="incident-bar-progress" style="width: ${pct}%;">
+                            <span class="incident-bar-count">${stats.total}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="incident-bar-status-tags">
+                    ${stats.Open > 0 ? `<span class="mini-status open">${stats.Open} Open</span>` : ''}
+                    ${stats.Acknowledged > 0 ? `<span class="mini-status ack">${stats.Acknowledged} Ack</span>` : ''}
+                    ${stats.Resolved > 0 ? `<span class="mini-status resolved">${stats.Resolved} Resolved</span>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('') : `<div class="incident-empty-chart"><span class="material-symbols-rounded" style="font-size:20px;">verified</span> No incidents recorded for ${periodLabel}.</div>`;
 
     container.innerHTML = `
-        <div class="incident-kpi-card">
-            <div class="incident-kpi-label">
-                <span class="material-symbols-rounded" style="font-size:16px;">location_on</span>
-                Highest incident area
+        <div class="incident-highlights-row">
+            <div class="incident-kpi-card highlight-card">
+                <div class="incident-kpi-label">
+                    <span class="material-symbols-rounded" style="font-size:16px;">location_on</span>
+                    Highest incident area
+                </div>
+                <div class="incident-kpi-val">${escapeHtml(topLocationName)}</div>
+                <div class="incident-kpi-sub">${total > 0 ? `${topLocationCount} incident${topLocationCount === 1 ? '' : 's'} (${topLocationPct}% of period)` : 'No reports in ' + periodLabel}</div>
             </div>
-            <div class="incident-kpi-val">${escapeHtml(topLocationName)}</div>
-            <div class="incident-kpi-sub">${total > 0 ? `${topLocationCount} incident${topLocationCount === 1 ? '' : 's'} (${topLocationPct}% of period)` : 'No reports in ' + periodLabel}</div>
+
+            <div class="incident-kpi-card highlight-card">
+                <div class="incident-kpi-label">
+                    <span class="material-symbols-rounded" style="font-size:16px;">shield_person</span>
+                    Top reporting guard
+                </div>
+                <div class="incident-kpi-val">${escapeHtml(topGuardName)}</div>
+                <div class="incident-kpi-sub">${topGuardCount > 0 ? `${topGuardCount} report${topGuardCount === 1 ? '' : 's'} filed` : 'No submissions in ' + periodLabel}</div>
+            </div>
+
+            <div class="incident-kpi-card highlight-card">
+                <div class="incident-kpi-label">
+                    <span class="material-symbols-rounded" style="font-size:16px;">warning</span>
+                    Top incident rate
+                </div>
+                <div class="incident-kpi-val">${escapeHtml(topCategoryName)}</div>
+                <div class="incident-kpi-sub">${total > 0 ? `${topCategoryCount} report${topCategoryCount === 1 ? '' : 's'} (${topCategoryRate}% rate)` : 'No incidents recorded'}</div>
+            </div>
         </div>
 
-        <div class="incident-kpi-card">
-            <div class="incident-kpi-label">
-                <span class="material-symbols-rounded" style="font-size:16px;">person</span>
-                Top reporting guard
+        <div class="incident-chart-panel">
+            <div class="incident-chart-panel-header">
+                <div>
+                    <h4 class="incident-panel-title">Incidents by deployment area</h4>
+                    <span class="incident-panel-sub">Ranked location volume and resolution status (${periodLabel})</span>
+                </div>
+                <div class="incident-status-legend">
+                    <span class="incident-status-pill open">● Open: <strong>${statusCounts.Open || 0}</strong></span>
+                    <span class="incident-status-pill ack">● Ack: <strong>${statusCounts.Acknowledged || 0}</strong></span>
+                    <span class="incident-status-pill resolved">● Resolved: <strong>${statusCounts.Resolved || 0}</strong></span>
+                </div>
             </div>
-            <div class="incident-kpi-val">${escapeHtml(topGuardName)}</div>
-            <div class="incident-kpi-sub">${topGuardCount > 0 ? `${topGuardCount} report${topGuardCount === 1 ? '' : 's'} filed` : 'No submissions in ' + periodLabel}</div>
-        </div>
-
-        <div class="incident-kpi-card">
-            <div class="incident-kpi-label">
-                <span class="material-symbols-rounded" style="font-size:16px;">warning</span>
-                Top incident rate
+            <div class="incident-ranked-bars">
+                ${rankedBarsHtml}
             </div>
-            <div class="incident-kpi-val">${escapeHtml(topCategoryName)}</div>
-            <div class="incident-kpi-sub">${total > 0 ? `${topCategoryCount} report${topCategoryCount === 1 ? '' : 's'} (${topCategoryRate}% rate)` : 'No incidents recorded'}</div>
-        </div>
-
-        <div class="incident-kpi-card">
-            <div class="incident-kpi-label">
-                <span class="material-symbols-rounded" style="font-size:16px;">analytics</span>
-                Status breakdown (${total})
-            </div>
-            <div class="incident-status-badges">
-                <span class="incident-status-pill open">● Open: <strong>${statusCounts.Open || 0}</strong></span>
-                <span class="incident-status-pill ack">● Ack: <strong>${statusCounts.Acknowledged || 0}</strong></span>
-                <span class="incident-status-pill resolved">● Resolved: <strong>${statusCounts.Resolved || 0}</strong></span>
-            </div>
-            <div class="incident-kpi-sub" style="margin-top:6px;">Filtered for ${periodLabel}</div>
         </div>
     `;
 }
