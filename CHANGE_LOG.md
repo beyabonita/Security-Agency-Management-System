@@ -17,13 +17,10 @@
     - Updated `ALLOWED_WEB_ORIGINS` on linked Supabase project (`syyofdcynuzgergqlaqj`) to explicitly include live production domains (`https://www.tts-agency.site`, `https://tts-agency.site`) and local development ports.
   - Deployed Functions:
     - Redeployed `admin-create-user`, `admin-manage-user`, `it-provision-client`, and `admin-delete-incident` to remote project `syyofdcynuzgergqlaqj`.
-  - `[web/admin/users.html](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html)`:
-    - Enhanced `createGuardAccount()` to retrieve the current session token and explicitly include `Authorization: Bearer <token>` in the Edge Function invocation options.
-- **Verification & Testing**:
-  - Tested preflight `OPTIONS` against live Supabase project for `https://www.tts-agency.site`, `https://tts-agency.site`, `http://127.0.0.1:5500`, `http://localhost:5500`, `http://localhost:8080`, and `null`: all return HTTP 204 with matching `access-control-allow-origin`.
-  - Automated Tests:
-    - `npx playwright test --config=playwright.config.cjs contract_personnel.spec.js`: Passed all 6 tests (14.4s).
-    - `npx playwright test --config=playwright.config.cjs personnel_profile.spec.js google_icons.spec.js`: Passed all 6 tests (15.0s).
+- **Database Migrations Pushed**:
+  - Pushed pending migrations `20261004000000_personnel_profile_extended_fields.sql` and `20261004000001_guard_contract_history.sql` to the linked remote database (`syyofdcynuzgergqlaqj`).
+  - Added new columns to remote `profiles` (`middle_name`, `date_of_birth`, `gender`, `civil_status`, `complete_address`, `date_hired`, `contract_status`, `license_security_url`, `license_firearms_url`).
+  - Created remote table `guard_contract_history` with RLS policies, resolving `PATCH .../profiles 400` and `POST .../guard_contract_history 404`.
 
 ---
 
