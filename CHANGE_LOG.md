@@ -1,5 +1,26 @@
 # Project Change Log
 
+### [2026-10-04 22:10] - Feature: Automatic Fill of Deployment Site Label from Client / Organization
+
+- **Scope & Objective**: Automatically populate the **DEPLOYMENT SITE LABEL** input (`#label`) in `web/admin/locations.html` based on the selected client, establishment, or organization when choosing from address search suggestions or placing a pin.
+- **Key Enhancements**:
+  - **Auto-Formatting Client & Area**:
+    - When selecting an address result in `selectAddressResult()` (or pin placement in `reverseGeocode()`), automatically derives the entity name (`resultPrimaryLabel(result)`) and appends the municipality/city (e.g. `[Organization] - [City / Area]`) if not already part of the name.
+    - Example: Selecting *"7-Eleven, Lacson Street, Bacolod City"* automatically fills the site label as **`7-Eleven Lacson - Bacolod`**.
+  - **Manual Edit Protection**:
+    - Tagged the input with `data-autofilled="true"` on auto-fill.
+    - Added an `input` event listener to `#label`: if the user manually types or edits a custom label, `dataset.autofilled` is set to `"false"`.
+    - Subsequent address selections or map clicks will **not** overwrite custom labels manually specified by the administrator.
+  - **Automated Verification**:
+    - Added an automated Playwright test in `web/tests/ph_location_search.spec.js` asserting that selecting an address auto-fills the label, and custom manual labels are strictly preserved.
+    - All 15 Playwright tests passing across location search and geofence suites.
+- **Files Modified**:
+  - `web/admin/locations.html`: Site label auto-fill logic and manual edit tracking.
+  - `web/tests/ph_location_search.spec.js`: Automated tests for label auto-fill and manual edit protection.
+  - `CHANGE_LOG.md`: Documented implementation details.
+
+---
+
 ### [2026-10-04 21:55] - Bugfix: Eliminate Nationwide Fallback Leak in Negros Island Search
 
 - **Problem & Root Cause**:

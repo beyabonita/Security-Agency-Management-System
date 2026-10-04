@@ -208,3 +208,33 @@ test('strictly excludes nationwide non-Negros results (e.g. Paranaque, Cavite, D
   }
 });
 
+test('automatically fills deployment site label from selected client/establishment and protects manual edits', async ({ page }) => {
+  await openLocations(page);
+  await page.route('https://nominatim.openstreetmap.org/search?**', route => route.fulfill({ json: [] }));
+  await page.getByRole('button', { name: 'Add Deployment Site', exact: true }).click();
+
+  // Initially label is empty
+  await expect(page.locator('#label')).toHaveValue('');
+
+  // Search for an establishment (e.g. 7-Eleven Lacson in Negros directory)
+  await page.locator('#addressSearch').fill('7-Eleven Lacson');
+  await page.locator('#addressSearchButton').click();
+  const suggestion = page.locator('#addressSuggestions button').first();
+  await expect(suggestion).toBeVisible();
+
+  // Clicking suggestion auto-fills the label with client name & area
+  await suggestion.click();
+  await expect(page.locator('#label')).toHaveValue('7-Eleven Lacson - Bacolod');
+
+  // If user manually types a custom label, selecting another place does NOT overwrite it
+  await page.locator('#label').fill('My Custom Post Label');
+  await page.locator('#addressSearch').fill('Zone 1 Talisay');
+  await page.locator('#addressSearchButton').click();
+  const zoneSuggestion = page.locator('#addressSuggestions button').first();
+  await expect(zoneSuggestion).toBeVisible();
+  await zoneSuggestion.click();
+
+  // Manual label is preserved
+  await expect(page.locator('#label')).toHaveValue('My Custom Post Label');
+});
+

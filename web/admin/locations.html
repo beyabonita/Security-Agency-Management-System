@@ -436,6 +436,12 @@ function initMap() {
         radiusInputRevision += 1;
         updateRadiusCircle();
     });
+    const labelEl = document.getElementById("label");
+    if (labelEl) {
+        labelEl.addEventListener("input", function() {
+            this.dataset.autofilled = "false";
+        });
+    }
     const searchInput = document.getElementById("addressSearch");
     searchInput.addEventListener("input", cancelAddressSearch);
     const addressAreaEl = document.getElementById('addressArea');
@@ -703,6 +709,19 @@ function selectAddressResult(index) {
     document.getElementById("addressSearch").value = address;
     setPin(lat, lng, address, false);
 
+    // Auto-fill site label according to client / organization
+    const labelInput = document.getElementById("label");
+    if (labelInput && (!labelInput.value.trim() || labelInput.dataset.autofilled === "true")) {
+        const primary = resultPrimaryLabel(result);
+        const cityOrArea = result.address?.city || result.address?.town || result.address?.municipality || "";
+        let autoLabel = primary;
+        if (cityOrArea && !primary.toLowerCase().includes(cityOrArea.toLowerCase())) {
+            autoLabel = `${primary} - ${cityOrArea}`;
+        }
+        labelInput.value = autoLabel;
+        labelInput.dataset.autofilled = "true";
+    }
+
     const bounds = Array.isArray(result.boundingbox) ? result.boundingbox.map(Number) : [];
     if (bounds.length === 4 && bounds.every(Number.isFinite)) {
         map.flyToBounds([[bounds[0], bounds[2]], [bounds[1], bounds[3]]], {
@@ -837,6 +856,20 @@ async function reverseGeocode(lat, lng) {
         document.getElementById("addressSearch").value = address;
         setSelectedAddress(address);
         setAddressSearchStatus("Pin verified within the Philippines.", "success");
+
+        const labelInput = document.getElementById("label");
+        if (labelInput && (!labelInput.value.trim() || labelInput.dataset.autofilled === "true")) {
+            const primary = data.name || data.address?.amenity || data.address?.building || data.address?.road || data.address?.suburb || data.display_name?.split(",")[0] || "";
+            const cityOrArea = data.address?.city || data.address?.town || data.address?.municipality || "";
+            if (primary) {
+                let autoLabel = primary;
+                if (cityOrArea && !primary.toLowerCase().includes(cityOrArea.toLowerCase())) {
+                    autoLabel = `${primary} - ${cityOrArea}`;
+                }
+                labelInput.value = autoLabel;
+                labelInput.dataset.autofilled = "true";
+            }
+        }
     } catch (error) {
         if (requestId !== reverseRequestId) return;
         const message = error.message || "Could not verify this Philippine address.";
@@ -898,7 +931,11 @@ function resetFormFields() {
     document.getElementById("addressType").value="all";
     cancelCurrentLocationRequest();
     document.getElementById("editId").value = "";
-    document.getElementById("label").value = "";
+    const labelEl = document.getElementById("label");
+    if (labelEl) {
+        labelEl.value = "";
+        labelEl.dataset.autofilled = "false";
+    }
     document.getElementById("addressSearch").value = "";
     document.getElementById("radius").value = "";
     document.getElementById("radiusDefaultStatus").textContent = "";
@@ -1171,7 +1208,11 @@ async function editLocation(id, button) {
         document.getElementById("locationForm").style.display = "block";
         document.getElementById("formTitle").innerText = "Edit Deployment Site";
         document.getElementById("editId").value = id;
-        document.getElementById("label").value = d.label || "";
+        const editLabelEl = document.getElementById("label");
+        if (editLabelEl) {
+            editLabelEl.value = d.label || "";
+            editLabelEl.dataset.autofilled = "false";
+        }
         document.getElementById("radius").value = d.radius ?? "";
         document.getElementById("radiusDefaultStatus").textContent = "";
         document.getElementById("formError").innerText = "";
