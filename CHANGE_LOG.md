@@ -1,5 +1,31 @@
 # Project Change Log
 
+### [2026-10-04 18:58] - Fix: Edge Function CORS Preflight & Guard Creation Failure
+
+- **Scope & Objective**: Fixed the `"Failed to send a request to the Edge Function"` error when attempting to create a Guard or Inspector in `web/admin/users.html`.
+- **Root Cause Analysis**:
+  1. The Supabase Edge Functions shared API (`supabase/functions/_shared/api.ts`) only permitted a hardcoded set of origins (`localhost:3000`, `127.0.0.1:3000`, and legacy Vercel URLs).
+  2. When the user accessed the portal via Live Server (`http://127.0.0.1:5500`, `http://localhost:5500`), other ports, or direct `file:///` URLs (where the browser transmits `Origin: null`), the browser's preflight `OPTIONS` request received HTTP 403 `origin_not_allowed` without an `Access-Control-Allow-Origin` header.
+  3. The browser immediately aborted the request with a CORS preflight failure (`TypeError: Failed to fetch`), which `@supabase/functions-js` surfaces as `"Failed to send a request to the Edge Function"`.
+- **Key Implementation Details**:
+  - `[supabase/functions/_shared/api.ts](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/functions/_shared/api.ts)`:
+    - Updated `isAllowedOrigin()` to allow all loopback origins on any port (`localhost`, `127.0.0.1`, `[::1]`), `null` (local file preview), all `*.vercel.app` domains, and configured origins.
+    - Updated `responseHeaders()` to mirror `Access-Control-Allow-Origin: origin === 'null' ? '*' : origin` whenever an origin is allowed.
+    - Updated `handleJsonPost()` to answer `OPTIONS` preflight immediately with status `204 No Content` and full CORS headers.
+  - Remote Project Secrets:
+    - Updated `ALLOWED_WEB_ORIGINS` on linked Supabase project (`syyofdcynuzgergqlaqj`) to explicitly allow local development ports (3000, 5500, 8000, 8080, 5173).
+  - Deployed Functions:
+    - Redeployed `admin-create-user`, `admin-manage-user`, `it-provision-client`, and `admin-delete-incident` to remote project `syyofdcynuzgergqlaqj`.
+  - `[web/admin/users.html](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html)`:
+    - Enhanced `createGuardAccount()` to retrieve the current session token and explicitly include `Authorization: Bearer <token>` in the Edge Function invocation options.
+- **Verification & Testing**:
+  - Tested preflight `OPTIONS` against live Supabase project for `http://127.0.0.1:5500`, `http://localhost:5500`, `http://localhost:8080`, and `null`: all return HTTP 204 with valid `access-control-allow-origin`.
+  - Automated Tests:
+    - `npx playwright test --config=playwright.config.cjs contract_personnel.spec.js`: Passed all 6 tests (14.4s).
+    - `npx playwright test --config=playwright.config.cjs personnel_profile.spec.js google_icons.spec.js`: Passed all 6 tests (15.0s).
+
+---
+
 ### [2026-10-04 18:35] - Guard History: Contract Expiration, Renewal Timeline & Past Client Establishments
 
 - **Scope & Objective**: Upgraded the History modal (`#assignmentHistoryModal`) in `web/admin/users.html` from a basic assignment list to a full dual-tab **Personnel History & Records** viewer per user request:

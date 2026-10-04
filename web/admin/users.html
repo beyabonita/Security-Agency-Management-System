@@ -2498,7 +2498,14 @@ async function createGuardAccount() {
                 .where("email", "==", normalizedUsername).limit(1).get();
             if (!dup.empty) throw new Error("That email address is already in use.");
             const authEmail = normalizedUsername;
+            let invokeHeaders = {};
+            try {
+                const sessionRes = await appSupabase.auth.getSession();
+                const token = sessionRes?.data?.session?.access_token;
+                if (token) invokeHeaders = { Authorization: `Bearer ${token}` };
+            } catch (_) {}
             const { data, error } = await appSupabase.functions.invoke("admin-create-user", {
+                headers: invokeHeaders,
                 body: {
                     email: authEmail,
                     password,

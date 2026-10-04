@@ -65,9 +65,16 @@ function configuredOrigins(): Set<string> {
   return allowed;
 }
 
+function isAllowedOrigin(origin: string | null): boolean {
+  if (!origin || origin === "null") return true;
+  if (/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:[0-9]+)?$/.test(origin)) return true;
+  if (/^https:\/\/[a-z0-9-]+(\.vercel\.app)$/i.test(origin)) return true;
+  return configuredOrigins().has(origin);
+}
+
 function originAllowed(request: Request): boolean {
   const origin = request.headers.get("Origin");
-  return origin === null || configuredOrigins().has(origin);
+  return isAllowedOrigin(origin);
 }
 
 function requestIdFor(request: Request): string {
@@ -88,8 +95,8 @@ function responseHeaders(request: Request, requestId: string): Headers {
     "X-Request-Id": requestId,
   });
   const origin = request.headers.get("Origin");
-  if (origin && configuredOrigins().has(origin)) {
-    headers.set("Access-Control-Allow-Origin", origin);
+  if (origin && isAllowedOrigin(origin)) {
+    headers.set("Access-Control-Allow-Origin", origin === "null" ? "*" : origin);
     headers.set(
       "Access-Control-Allow-Headers",
       "authorization, x-client-info, apikey, content-type, x-request-id",
