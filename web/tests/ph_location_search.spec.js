@@ -161,3 +161,50 @@ test('prioritizes Negros Occidental and Oriental locations and resolves local di
   await expect(page.locator('#lng')).toHaveValue('122.966');
 });
 
+test('strictly excludes nationwide non-Negros results (e.g. Paranaque, Cavite, Davao, Iloilo) and finds Negros hubs', async ({ page }) => {
+  // Unit test: filter must reject non-Negros results and keep only Negros Island
+  const paranaque = { name: 'Seven Eleven', display_name: 'Seven Eleven, Sun Valley, Parañaque, Metro Manila, 1711, Philippines', lat: '14.4926', lon: '121.0284', address: { country_code: 'ph', city: 'Parañaque', state: 'Metro Manila' } };
+  const cavite = { name: 'Seven Eleven', display_name: 'Seven Eleven, General Trias, Cavite, Calabarzon, 4107, Philippines', lat: '14.3555', lon: '120.9182', address: { country_code: 'ph', state: 'Cavite' } };
+  const davao = { name: 'Seven-Eleven', display_name: 'Seven-Eleven, Digos, Davao del Sur, Davao Region, 8002, Philippines', lat: '6.9411', lon: '125.3040', address: { country_code: 'ph', state: 'Davao del Sur' } };
+  const iloilo = { name: 'Seven-Eleven', display_name: 'Seven-Eleven, Carles, Iloilo, Western Visayas, 5019, Philippines', lat: '11.5732', lon: '123.1345', address: { country_code: 'ph', state: 'Iloilo' } };
+  const negrosSanCarlos = { name: 'Seven Eleven', display_name: 'Seven Eleven & Brigada, Rizal Street, San Carlos City, Negros Occidental, 6127, Philippines', lat: '10.4821', lon: '123.4198', address: { country_code: 'ph', state: 'Negros Occidental' } };
+
+  const filtered = search.filter([paranaque, cavite, davao, iloilo, negrosSanCarlos], 'Seven Eleven');
+  expect(filtered).toHaveLength(1);
+  expect(filtered[0].display_name).toContain('Negros Occidental');
+
+  // Verify that if all results are outside Negros, filter returns empty (never leaks fallback)
+  const nonNegrosOnly = search.filter([paranaque, cavite, davao, iloilo], 'Seven Eleven');
+  expect(nonNegrosOnly).toHaveLength(0);
+
+  // Verify searchNegros canonical word matching for Seven eleven / 7-Eleven
+  const localHubs = search.searchNegros('Seven eleven');
+  expect(localHubs.length).toBeGreaterThan(0);
+  expect(localHubs.every(h => h.is_negros)).toBe(true);
+
+  // UI verification: searching 'Seven eleven' does not display non-Negros results
+  await openLocations(page);
+  await page.route('https://nominatim.openstreetmap.org/search?**', route => {
+    route.fulfill({ json: [paranaque, cavite, davao, iloilo] });
+  });
+  await page.getByRole('button', { name: 'Add Deployment Site', exact: true }).click();
+  await page.locator('#addressSearch').fill('Seven eleven');
+  await page.locator('#addressSearchButton').click();
+
+  const firstSuggestion = page.locator('#addressSuggestions button').first();
+  await expect(firstSuggestion).toBeVisible();
+
+  const suggestions = page.locator('#addressSuggestions button');
+  const count = await suggestions.count();
+  expect(count).toBeGreaterThan(0);
+  for (let i = 0; i < count; i++) {
+    const text = await suggestions.nth(i).innerText();
+    expect(text).not.toContain('Metro Manila');
+    expect(text).not.toContain('Parañaque');
+    expect(text).not.toContain('Cavite');
+    expect(text).not.toContain('Davao');
+    expect(text).not.toContain('Iloilo');
+    expect(text).toContain('Negros');
+  }
+});
+

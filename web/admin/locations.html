@@ -719,7 +719,7 @@ function selectAddressResult(index) {
 
 function renderAddressResults() {
     const list=document.getElementById('addressSuggestions');
-    lastSearchResults=PhLocationSearch.filter(allSearchResults,addressResultQuery,document.getElementById('addressType').value);
+    lastSearchResults=PhLocationSearch.filter(allSearchResults,addressResultQuery,document.getElementById('addressType').value, { negrosOnly: true, strict: true });
     if(!allSearchResults.length)return;
     showSuggestions();
     list.replaceChildren();
@@ -770,13 +770,22 @@ async function searchAddress(query, button) {
 
     try {
         let osmMatches = [];
-        for(const term of PhLocationSearch.variants(query,area)){
+        const baseVariants = PhLocationSearch.variants(query, area);
+        const queryLower = (query + ' ' + area).toLowerCase();
+        const alreadySpecifiesNegros = /negros|bacolod|dumaguete|talisay|silay|bago|cadiz|sagay|victorias|san carlos|kabankalan|sipalay|binalbagan|himamaylan|hinigaran|la carlota|escalante|murcia|valladolid|pulupandan|pontevedra|manapla|eb magalona|san enrique|isabela|moises padilla|la castellana|ilog|cauayan|candoni|hinoba-an|calatrava|toboso|salvador benedicto|bais|bayawan|canlaon|guihulngan|tanjay|siaton|sibulan|valencia|dauin|bacong|zamboanguita|santa catalina|basay|manjuyod|bindoy|ayungon|tayasan|jimalalud|la libertad|vallehermoso|mabinay|pamplona|amlan|san jose/i.test(queryLower);
+
+        const termsToTry = [...baseVariants];
+        if (!alreadySpecifiesNegros && !area) {
+            termsToTry.push(`${query}, Negros Occidental`, `${query}, Negros Oriental`);
+        }
+
+        for(const term of termsToTry){
             if(!isCurrent())return;
             const results=await fetchNominatim('/search',{
                 q:term,format:'jsonv2',addressdetails:'1',namedetails:'1',limit:'40',dedupe:'1',countrycodes:'ph','accept-language':'en,fil'
             },'search-v2:'+term.toLocaleLowerCase('en-PH'),isCurrent);
             if(!isCurrent())return;
-            osmMatches=PhLocationSearch.filter(results,query);
+            osmMatches=PhLocationSearch.filter(results,query,'all',{negrosOnly:true,strict:true});
             if(osmMatches.length)break;
         }
 

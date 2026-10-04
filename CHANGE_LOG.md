@@ -1,5 +1,32 @@
 # Project Change Log
 
+### [2026-10-04 21:55] - Bugfix: Eliminate Nationwide Fallback Leak in Negros Island Search
+
+- **Problem & Root Cause**:
+  - When searching for establishments or generic brand queries (e.g. `"Seven eleven"`), OpenStreetMap Nominatim initially returned nationwide Philippine results (such as Parañaque in Metro Manila, General Trias in Cavite, Digos and Buhangin in Davao, and Carles in Iloilo).
+  - In `web/js/ph-location-search.js`, a fallback condition (`if (negrosOnly && !options.strict)`) was returning nationwide Philippine results whenever zero exact matches were found within Negros boundaries.
+  - This caused non-Negros locations to leak into the suggestions list despite the user specifying Negros Island only.
+- **Key Enhancements**:
+  - **Eliminated Nationwide Fallback**:
+    - Removed the fallback mechanism when `negrosOnly` is enabled in `PhLocationSearch.filter`. If results outside Negros are returned by Nominatim, they are strictly rejected, ensuring zero leakage of non-Negros locations.
+  - **Negative Location Checks**:
+    - Enhanced `isNegros(r)` with an explicit list of non-Negros provinces and regions (Metro Manila, Cavite, Davao, Iloilo, Cebu, Guimaras, etc.) to immediately exclude places outside Negros Island even if close to maritime borders.
+  - **Targeted Query Expansion for Commercial Establishments**:
+    - In `searchAddress` (`web/admin/locations.html`), when a search query does not explicitly specify a Negros LGU, automatically query targeted terms (e.g. `${query}, Negros Occidental` and `${query}, Negros Oriental`) to fetch actual branch locations on Negros Island.
+  - **Pre-Seeded Negros 7-Eleven Hubs & Number Normalization**:
+    - Added key 7-Eleven commercial hubs in Negros (Lacson, Mandalagan, BCGC, Talisay, San Carlos, Dumaguete Rizal Blvd, Silliman) to `NEGROS_DIRECTORY`.
+    - Added canonical word normalizers so `"Seven eleven"`, `"7-eleven"`, and `"7 eleven"` match accurately.
+  - **Automated Verification**:
+    - Added Playwright test in `web/tests/ph_location_search.spec.js` asserting that non-Negros results (Parañaque, Cavite, Davao, Iloilo) are strictly filtered out and only verified Negros results are presented.
+    - All 14 Playwright tests passing across `ph_location_search.spec.js`, `geofence_safeguard.spec.js`, and `geofence_default.spec.js`.
+- **Files Modified**:
+  - `web/js/ph-location-search.js`: Strict filtering, negative checks for other provinces, canonical number normalization, and pre-seeded convenience store hubs.
+  - `web/admin/locations.html`: Enforced `{ negrosOnly: true, strict: true }` and added targeted Negros queries.
+  - `web/tests/ph_location_search.spec.js`: Automated test for non-Negros exclusion and Negros hub resolution.
+  - `CHANGE_LOG.md`: Documented bugfix and resolution.
+
+---
+
 ### [2026-10-04 21:38] - Feature: Focus Location Search & Geofencing Strictly on Negros Island
 
 - **Scope & Objective**: Focused address searching, suggestions, and map framing in Company / Deployment Sites (`web/admin/locations.html` & `web/js/ph-location-search.js`) strictly on the **Negros Island Region** (Negros Occidental and Negros Oriental).

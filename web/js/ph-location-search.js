@@ -38,12 +38,35 @@
     return 'places';
   }
 
+  const NON_NEGROS_AREAS = [
+    'metro manila', 'national capital region', 'manila', 'paranaque', 'cavite', 'davao', 'iloilo', 'cebu', 'guimaras',
+    'antique', 'capiz', 'aklan', 'bohol', 'leyte', 'samar', 'laguna', 'batangas', 'rizal',
+    'bulacan', 'pampanga', 'pangasinan', 'benguet', 'zamboanga', 'cagayan', 'palawan',
+    'calabarzon', 'mimaropa', 'bicol', 'soccsksargen', 'caraga', 'barmm', 'ilocos'
+  ];
+
   function isNegros(r) {
     if (!r) return false;
     const lat = Number(r.lat), lon = Number(r.lon);
+    const text = normalize([
+      r.display_name,
+      r.address?.state,
+      r.address?.county,
+      r.address?.city,
+      r.address?.province,
+      r.address?.region
+    ].filter(Boolean).join(' '));
+
+    // Explicit Negros mention always qualifies
+    const hasNegrosTag = text.includes('negros occidental') || text.includes('negros oriental') || text.includes('negros island') || text.includes('negros occ') || text.includes('negros or');
+    if (hasNegrosTag) return true;
+
+    // If it contains another province or non-Negros region and doesn't mention negros, strictly reject
+    if (NON_NEGROS_AREAS.some(area => text.includes(area))) return false;
+
+    // Coordinate bounding box for Negros Island (lat 8.9 - 11.2, lon 122.3 - 123.65)
     const inNegrosBounds = Number.isFinite(lat) && Number.isFinite(lon) && lat >= 8.9 && lat <= 11.2 && lon >= 122.3 && lon <= 123.65;
-    const text = normalize((r.display_name || '') + ' ' + (r.address?.state || '') + ' ' + (r.address?.county || ''));
-    return inNegrosBounds || text.includes('negros occidental') || text.includes('negros oriental') || text.includes('negros island');
+    return inNegrosBounds;
   }
 
   function filter(results, query, type = 'all', options = {}) {
@@ -79,7 +102,8 @@
       return valid.sort((a, b) => score(b) - score(a));
     }
 
-    if (negrosOnly && !options.strict) {
+    // Only allow fallback to non-Negros results if caller explicitly disabled negrosOnly
+    if (!negrosOnly) {
       const fallbackSeen = new Set();
       const fallback = raw.filter(r => {
         if (String(r.address?.country_code).toLowerCase() !== 'ph' || r.lat == null || r.lon == null || String(r.lat).trim() === '' || String(r.lon).trim() === '') return false;
@@ -247,28 +271,46 @@
     { n: "Calindagan", d: "Barangay Calindagan, Dumaguete City, Negros Oriental, 6200, Philippines", lat: 9.2950, lon: 123.3050, t: "suburb", c: "communities", city: "Dumaguete", state: "Negros Oriental" },
     { n: "Junob", d: "Barangay Junob, Dumaguete City, Negros Oriental, 6200, Philippines", lat: 9.2850, lon: 123.2800, t: "suburb", c: "communities", city: "Dumaguete", state: "Negros Oriental" },
     { n: "Rizal Boulevard", d: "Rizal Boulevard, Dumaguete City, Negros Oriental, 6200, Philippines", lat: 9.3075, lon: 123.3120, t: "promenade", c: "places", city: "Dumaguete", state: "Negros Oriental" },
-    { n: "Silliman University", d: "Silliman University, Hibbard Ave, Dumaguete City, Negros Oriental, 6200, Philippines", lat: 9.3125, lon: 123.3075, t: "university", c: "places", city: "Dumaguete", state: "Negros Oriental" }
+    { n: "Silliman University", d: "Silliman University, Hibbard Ave, Dumaguete City, Negros Oriental, 6200, Philippines", lat: 9.3125, lon: 123.3075, t: "university", c: "places", city: "Dumaguete", state: "Negros Oriental" },
+
+    // --- KEY COMMERCIAL HUBS & CONVENIENCE STORES (NEGROS) ---
+    { n: "7-Eleven Lacson", d: "7-Eleven, Lacson Street, Bacolod City, Negros Occidental, 6100, Philippines", lat: 10.6795, lon: 122.9555, t: "convenience", c: "places", city: "Bacolod", state: "Negros Occidental" },
+    { n: "7-Eleven Mandalagan", d: "7-Eleven, Lacson St, Mandalagan, Bacolod City, Negros Occidental, 6100, Philippines", lat: 10.6920, lon: 122.9580, t: "convenience", c: "places", city: "Bacolod", state: "Negros Occidental" },
+    { n: "7-Eleven BCGC", d: "7-Eleven, Circumferential Rd, Bacolod City, Negros Occidental, 6100, Philippines", lat: 10.6635, lon: 122.9770, t: "convenience", c: "places", city: "Bacolod", state: "Negros Occidental" },
+    { n: "7-Eleven Talisay", d: "7-Eleven, Mabini Street, Zone 12, Talisay, Negros Occidental, 6115, Philippines", lat: 10.7425, lon: 122.9685, t: "convenience", c: "places", city: "Talisay", state: "Negros Occidental" },
+    { n: "7-Eleven San Carlos", d: "Seven Eleven & Brigada, Rizal Street, San Carlos City, Negros Occidental, 6127, Philippines", lat: 10.4821, lon: 123.4198, t: "convenience", c: "places", city: "San Carlos", state: "Negros Occidental" },
+    { n: "7-Eleven Dumaguete Rizal Blvd", d: "7-Eleven, Rizal Boulevard, Dumaguete City, Negros Oriental, 6200, Philippines", lat: 9.3080, lon: 123.3115, t: "convenience", c: "places", city: "Dumaguete", state: "Negros Oriental" },
+    { n: "7-Eleven Silliman", d: "7-Eleven, Hibbard Avenue, Dumaguete City, Negros Oriental, 6200, Philippines", lat: 9.3130, lon: 123.3080, t: "convenience", c: "places", city: "Dumaguete", state: "Negros Oriental" }
   ];
+
+  const canonicalWord = w => String(w || '').replace(/\bseven\b/g, '7').replace(/\beleven\b/g, '11');
 
   function searchNegros(query, type = 'all') {
     const qNorm = normalize(query);
     if (qNorm.length < 2) return [];
+    const qCanon = canonicalWord(qNorm);
     const words = qNorm.split(' ').filter(w => w.length > 0);
+    const canonWords = qCanon.split(' ').filter(w => w.length > 0);
     const compact = qNorm.replaceAll(' ', '');
+    const compactCanon = qCanon.replaceAll(' ', '');
 
     const matches = [];
     for (const item of NEGROS_DIRECTORY) {
       if (type !== 'all' && item.c !== type) continue;
       const nameNorm = normalize(item.n);
       const dispNorm = normalize(item.d);
-      const isWordMatch = words.every(w => nameNorm.includes(w) || dispNorm.includes(w));
+      const nameCanon = canonicalWord(nameNorm);
+      const dispCanon = canonicalWord(dispNorm);
+
+      const isWordMatch = words.every(w => nameNorm.includes(w) || dispNorm.includes(w))
+        || canonWords.every(w => nameCanon.includes(w) || dispCanon.includes(w));
       if (!isWordMatch) continue;
 
       let score = 50;
-      if (nameNorm === qNorm) score += 200;
-      else if (nameNorm.replaceAll(' ', '') === compact) score += 180;
-      else if (nameNorm.startsWith(qNorm)) score += 120;
-      else if (dispNorm.includes(qNorm)) score += 60;
+      if (nameNorm === qNorm || nameCanon === qCanon) score += 200;
+      else if (nameNorm.replaceAll(' ', '') === compact || nameCanon.replaceAll(' ', '') === compactCanon) score += 180;
+      else if (nameNorm.startsWith(qNorm) || nameCanon.startsWith(qCanon)) score += 120;
+      else if (dispNorm.includes(qNorm) || dispCanon.includes(qCanon)) score += 60;
 
       matches.push({
         item: {
