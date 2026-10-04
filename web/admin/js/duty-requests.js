@@ -153,20 +153,26 @@ async function decideRequest(r, approve, button) {
 
     const samePostGuards = Object.values(dutyProfiles).filter(p =>
       p.role === 'user' && p.active && p.id !== r.requester_id && postLocationId && p.assigned_location_id === postLocationId
-    );
+    ).sort((a, b) => profileName(a).localeCompare(profileName(b)));
 
     let replacementOptions = [];
+    let replacementHint = '';
     if (samePostGuards.length > 0) {
       replacementOptions = [
-        { value: '', label: `Select Guard from ${postName}` },
+        { value: '', label: 'Select replacement Guard' },
         ...samePostGuards.map(p => ({ value: p.id, label: `${profileName(p)} (${postName})` }))
       ];
+      replacementHint = `Showing active Guards assigned to ${postName}.`;
     } else {
+      const allActiveGuards = Object.values(dutyProfiles)
+        .filter(p => p.role === 'user' && p.active && p.id !== r.requester_id)
+        .sort((a, b) => profileName(a).localeCompare(profileName(b)));
+
       replacementOptions = [
-        { value: '', label: `No other Guards assigned to ${postName} — Select an active Guard` },
-        ...Object.values(dutyProfiles).filter(p => p.role === 'user' && p.active && p.id !== r.requester_id)
-          .map(p => ({ value: p.id, label: profileName(p) }))
+        { value: '', label: 'Select replacement Guard' },
+        ...allActiveGuards.map(p => ({ value: p.id, label: profileName(p) }))
       ];
+      replacementHint = `No other Guards assigned to ${postName}. Showing all active Guards.`;
     }
 
     fields.push({
@@ -174,6 +180,7 @@ async function decideRequest(r, approve, button) {
       label: 'Replacement Guard',
       type: 'select',
       required: true,
+      hint: replacementHint,
       options: replacementOptions
     });
   }

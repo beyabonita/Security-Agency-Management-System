@@ -342,6 +342,23 @@ textarea { min-height: 96px; }
 .sl-dialog-fields { display: grid; gap: 14px; padding: 4px 24px 8px; }
 .sl-dialog-field label { display: block; margin-bottom: 6px; color: var(--sl-muted); font-size: .77rem; font-weight: 750; }
 .sl-dialog-field input, .sl-dialog-field select, .sl-dialog-field textarea { width: 100%; min-height: 43px; padding: 10px 12px; border: 1px solid var(--sl-line); border-radius: 11px; background: var(--sl-surface-muted); color: var(--sl-ink); font: inherit; outline: none; }
+.sl-dialog-field select {
+  cursor: pointer;
+  padding-right: 36px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23786163' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+html[data-theme="dark"] .sl-dialog-field select,
+[data-theme="dark"] .sl-dialog-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23d1c4c6' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+.sl-dialog-hint { margin: 6px 0 0; color: var(--sl-muted); font-size: .77rem; line-height: 1.45; }
 .sl-dialog-field textarea { min-height: 96px; resize: vertical; }
 .sl-dialog-field input:focus, .sl-dialog-field select:focus, .sl-dialog-field textarea:focus { border-color: var(--sl-red); box-shadow: 0 0 0 4px rgba(200,30,42,.1); background: var(--sl-surface); }
 .sl-dialog-error { min-height: 0; margin: 0 24px; color: var(--sl-danger); font-size: .8rem; }

@@ -1,5 +1,27 @@
 # Project Change Log
 
+### [2026-10-05 04:40] - Fix: Replacement Guard Dropdown Truncation, Alphabetical Sorting & Field Hint in Approval Modal
+
+- **Scope & Objective**:
+  - Fixed visual truncation and layout overflow in the "Replacement Guard" select field on the Operations Head "Approve coverage request" modal (`web/admin/js/duty-requests.js`).
+  - Replaced the excessively long, overflowing sentence placeholder (`"No other Guards assigned to Balboa — Select an active Guard"`) with a clean, concise placeholder (`"Select replacement Guard"`).
+  - Added dedicated contextual field hint support (`field.hint` / `.sl-dialog-hint`) in `appDialog.form()` so post-assignment context is rendered cleanly below the input instead of inside `<option>` text.
+  - Sorted replacement guard options alphabetically by full name for effortless scanning.
+  - Enhanced `.sl-dialog-field select` styling in `web/css/app-experience.css` with a custom SVG chevron, text overflow ellipsis, and comfortable right padding so text never overlaps the dropdown arrow.
+  - Corrected unbundled icon reference in `web/inspector/dashboard.html` to maintain full offline font compliance with `google_icons_test.js`.
+- **Files Modified / Created**:
+  - [`web/admin/js/duty-requests.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/duty-requests.js): Cleaned placeholder to `"Select replacement Guard"`, sorted options alphabetically, and passed contextual hint (`"No other Guards assigned to ${postName}. Showing all active Guards."` or `"Showing active Guards assigned to ${postName}."`).
+  - [`web/js/app-dialogs.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/app-dialogs.js): Added support for `field.hint` and `option.disabled` in `fieldMarkup`.
+  - [`web/css/app-experience.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/css/app-experience.css): Added styled SVG chevron, text truncation, and `.sl-dialog-hint` styles for dialog select fields.
+  - [`web/inspector/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/dashboard.html): Replaced unbundled `schedule` icon with bundled `event_busy` symbol in empty roster state.
+  - [`web/tests/duty_requests.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/duty_requests.spec.js): Added test `replacement guard dropdown shows clean placeholder and informative hint when no guards are at the same post` and verified placeholder in existing test.
+- **Verification & Testing**:
+  - `node web/tests/google_icons_test.js`: Passed (52 bundled symbols, 210 markup references).
+  - `npx playwright test duty_requests.spec.js`: Passed (9/9 tests passed).
+
+---
+
+
 ### [2026-10-05 04:00] - Feature: Duty Request Same-Post Replacement Guard Filtering & Clarification
 
 - **Scope & Objective**:

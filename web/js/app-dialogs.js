@@ -136,14 +136,16 @@
         (field.options || []).map(function (option) {
           const optionValue = typeof option === 'string' ? option : option.value;
           const optionLabel = typeof option === 'string' ? option : option.label;
-          return '<option value="' + escapeHtml(optionValue) + '"' + (String(optionValue) === String(field.value) ? ' selected' : '') + '>' + escapeHtml(optionLabel) + '</option>';
+          const disabled = option && option.disabled ? ' disabled' : '';
+          return '<option value="' + escapeHtml(optionValue) + '"' + (String(optionValue) === String(field.value) ? ' selected' : '') + disabled + '>' + escapeHtml(optionLabel) + '</option>';
         }).join('') + '</select>';
     } else if (field.type === 'textarea') {
       control = '<textarea id="' + id + '" name="' + escapeHtml(field.name) + '"' + required + placeholder + '>' + value + '</textarea>';
     } else {
       control = '<input id="' + id + '" name="' + escapeHtml(field.name) + '" type="' + escapeHtml(field.type || 'text') + '" value="' + value + '"' + required + placeholder + (field.autocomplete ? ' autocomplete="' + escapeHtml(field.autocomplete) + '"' : '') + '>';
     }
-    return '<div class="sl-dialog-field"><label for="' + id + '">' + escapeHtml(field.label || field.name) + (field.required ? ' *' : '') + '</label>' + control + '</div>';
+    const hintMarkup = field.hint ? '<p class="sl-dialog-hint">' + escapeHtml(field.hint) + '</p>' : '';
+    return '<div class="sl-dialog-field"><label for="' + id + '">' + escapeHtml(field.label || field.name) + (field.required ? ' *' : '') + '</label>' + control + hintMarkup + '</div>';
   }
 
   function open(options) {

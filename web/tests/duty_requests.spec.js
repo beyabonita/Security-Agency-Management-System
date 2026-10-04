@@ -93,6 +93,30 @@ test('replacement guard dropdown filters guards assigned to the same post / depl
   const optionTexts = await select.locator('option').allInnerTexts();
   expect(optionTexts.some(t => t.includes('Cover Guard (Balboa)'))).toBe(true);
   expect(optionTexts.some(t => t.includes('Other PostGuard'))).toBe(false);
+  expect(optionTexts[0]).toBe('Select replacement Guard');
+  await expect(page.locator('.sl-dialog-hint')).toHaveText('Showing active Guards assigned to Balboa.');
+});
+
+test('replacement guard dropdown shows clean placeholder and informative hint when no guards are at the same post', async ({page}) => {
+  await prepare(page, 'swap');
+  await page.addInitScript(({guard, cover}) => {
+    window.profileRows = [
+      { id: guard, first_name: 'Guard', last_name: 'One', role: 'user', active: true, assigned_location_id: 'loc-balboa' },
+      { id: cover, first_name: 'Beta', last_name: 'Guard', role: 'user', active: true, assigned_location_id: 'loc-chmsu' },
+      { id: '33333333-3333-4333-8333-333333333334', first_name: 'Alpha', last_name: 'Guard', role: 'user', active: true, assigned_location_id: 'loc-chmsu' }
+    ];
+    window.dutyRows = [
+      { id: 'duty', start_at: '2026-09-10T00:00:00Z', end_at: '2026-09-10T09:00:00Z', location_id: 'loc-balboa', location_label: 'Balboa' }
+    ];
+  }, {guard, cover});
+  await page.goto('/admin/swaps.html');
+  await page.getByRole('button', {name: 'Approve', exact: true}).click();
+  const select = page.getByLabel('Replacement Guard');
+  await expect(select).toBeVisible();
+  const optionTexts = await select.locator('option').allInnerTexts();
+  expect(optionTexts[0]).toBe('Select replacement Guard');
+  expect(optionTexts.slice(1)).toEqual(['Alpha Guard', 'Beta Guard']);
+  await expect(page.locator('.sl-dialog-hint')).toHaveText('No other Guards assigned to Balboa. Showing all active Guards.');
 });
 
 test('reciprocal exchange shows both duties and approves without replacing the selected Guard',async({page},info)=>{
