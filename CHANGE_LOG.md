@@ -1,5 +1,23 @@
 # Project Change Log
 
+### [2026-10-05 00:55] - Fix: Retain Document Icon for Records Across All Pages and States
+
+- **Scope & Objective**: Fix sidebar icon inconsistency where the Records tab icon displayed as a broken text glyph (`D|`) on other admin pages (such as Live Guard Map or Dashboard) instead of the clean document icon (`description`) seen on the Records page.
+- **Root Cause**:
+  - The project operates with a self-hosted Google Material Symbols Rounded subset (`web/assets/fonts/material-symbols-rounded.woff2`) to avoid runtime CDN requests and ensure offline reliability.
+  - The glyph `description` was previously missing from the bundled subset.
+  - While `records.html` loaded an external Google Fonts CDN stylesheet (which rendered the icon properly), other pages only loaded the local bundle, causing the browser to fall back to the raw word `"description"`, which got clipped to `"D|"` in the 1em icon box.
+- **Files Modified**:
+  - `[web/assets/fonts/material-symbols-rounded.woff2](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/assets/fonts/material-symbols-rounded.woff2)`: Regenerated the WOFF2 font subset from the official Google Fonts API, embedding `description`, `badge`, `map`, `policy`, `event_busy`, `filter_alt`, `group_off`, `restart_alt`, and `hourglass_empty`.
+  - `[web/assets/fonts/material-symbols-rounded.json](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/assets/fonts/material-symbols-rounded.json)`: Updated manifest with the new icons in sorted order.
+  - `[web/admin/records.html](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/records.html)`: Removed external CDN stylesheet link so `records.html` strictly uses the local bundled font, ensuring uniform appearance with zero network latency.
+- **Verification & Testing**:
+  - `node web/tests/google_icons_test.js`: Passed (52 bundled symbols, 209 references, 10.2 KB font under 100 KB limit).
+  - `npm run test:playwright -- google_icons.spec.js`: All 5 tests passed across light and dark modes.
+  - `npm run test:playwright -- records.spec.js`: All 6 tests passed.
+
+---
+
 ### [2026-10-05 00:30] - Fix: Active Navigation Highlight for Live Guard Map and Records
 
 - **Scope & Objective**: Fix missing active navigation highlight (dark background, white text, and amber/yellow vertical accent bar) when navigating to "Live guard map" or "Records" in the Operations Head and Inspector sidebars.
