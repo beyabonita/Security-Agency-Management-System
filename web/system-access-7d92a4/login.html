@@ -56,7 +56,7 @@
     <div class="ax-brand-badge">Twenty-Twenty Security Agency</div>
     <h1>Security Agency Management System</h1>
     <p>Private platform administration for maintenance, upgrades, privileged access, and system governance.</p>
-    <div class="system-secure-note"><span></span> Restricted IT administrator access</div>
+    <div class="system-secure-note"><span></span> Restricted Superadmin access</div>
   </section>
   <section class="ax-login-form-side">
     <div class="system-theme-control" data-theme-toggle-host></div>
@@ -64,7 +64,7 @@
       <div class="system-mobile-mark" aria-hidden="true"><img src="../icons/sentinel-link-mark.png" alt=""></div>
       <p class="eyebrow">Private access</p>
       <h2>Welcome back</h2>
-      <p class="sub">Sign in with your IT administrator credentials.</p>
+      <p class="sub">Sign in with your Superadmin credentials.</p>
       <label for="username">Email</label>
       <input id="username" class="form-control" placeholder="name@gmail.com" inputmode="email" autocomplete="username" autocapitalize="none" spellcheck="false" required>
       <label for="password">Password</label>
@@ -83,7 +83,7 @@
 const auth=firebase.auth(),db=firebase.firestore();let navigationStarted=false;
 function showError(message){const error=document.getElementById('error');error.textContent=message;error.animate([{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:260});}
 function navigateToPanel(){if(navigationStarted)return;navigationStarted=true;document.body.classList.add('sl-page-leaving');setTimeout(()=>location.href='../it-admin/dashboard.html',190);}
-async function verify(user){const profile=await db.collection('users').doc(user.uid).get();if(!profile.exists||profile.data().role!=='it_admin'||profile.data().active===false)throw new Error('This account does not have IT administrator access.');navigateToPanel();}
+async function verify(user){const profile=await db.collection('users').doc(user.uid).get();if(!profile.exists||profile.data().role!=='it_admin'||profile.data().active===false)throw new Error('This account does not have Superadmin access.');navigateToPanel();}
 auth.onAuthStateChanged(async user=>{if(!user||navigationStarted)return;try{await verify(user)}catch(_){await auth.signOut()}});
 async function login(){const username=document.getElementById('username').value.trim(),password=document.getElementById('password').value,error=document.getElementById('error'),button=document.getElementById('login');error.textContent='';if(!username||!password){showError('Enter your email and password.');return}const invalid=username.includes('@')?validateEmail(username):validateUsername(username);if(invalid){showError(invalid);return}button.disabled=true;button.setAttribute('aria-busy','true');button.textContent='Verifying access…';try{const credential=await auth.signInWithEmailAndPassword(resolveAuthEmail(username),password);await verify(credential.user)}catch(loginError){await auth.signOut();showError(loginError?.message||'Unable to sign in.');button.disabled=false;button.removeAttribute('aria-busy');button.textContent='Continue to system control'}}
 document.getElementById('systemLoginForm').addEventListener('submit',event=>{event.preventDefault();login()});

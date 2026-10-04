@@ -14,7 +14,7 @@
     <aside class="ax-sidebar" id="itSidebar">
       <div class="ax-brand">
         <div class="ax-brand-badge">Security Agency Management System</div>
-        <p class="ax-brand-title">IT Admin Panel</p>
+        <p class="ax-brand-title">Superadmin Panel</p>
         <p class="ax-brand-sub">Platform maintenance</p>
       </div>
       <nav class="ax-nav">
@@ -77,7 +77,7 @@
               <label for="role">Role</label>
               <select id="role">
                 <option value="admin">Operations Head</option>
-                <option value="it_admin">IT Admin</option>
+                <option value="it_admin">Superadmin</option>
               </select>
             </div>
             <div><label for="first">First name</label><input id="first" autocomplete="given-name"></div>
@@ -129,7 +129,7 @@
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#039;');
-    const roleName = (role) => ({ admin: 'Operations Head', it_admin: 'IT Admin' }[role] || role);
+    const roleName = (role) => ({ admin: 'Operations Head', it_admin: 'Superadmin' }[role] || role);
 
     async function load() {
       const result = await appSupabase
@@ -248,7 +248,7 @@
           { name: 'email', label: 'Email', type: 'email', value: editableEmail(person), required: true },
           { name: 'role', label: 'Role', type: 'select', value: person.role, options: [
             { value: 'admin', label: 'Operations Head' },
-            { value: 'it_admin', label: 'IT Admin' },
+            { value: 'it_admin', label: 'Superadmin' },
           ] },
           { name: 'password', label: 'New password', type: 'password', placeholder: 'Leave blank to keep current password', autocomplete: 'new-password' },
         ],

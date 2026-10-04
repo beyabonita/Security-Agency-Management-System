@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const roles = { it_admin: 'IT Admin', admin: 'Operations Head', operations_head: 'Operations Head', inspector: 'Inspector', user: 'Guard' };
+  const roles = { it_admin: 'Superadmin', admin: 'Operations Head', operations_head: 'Operations Head', inspector: 'Inspector', user: 'Guard' };
   const safe = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   const when = value => value ? new Date(value).toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
   window.mountAccountActivity = function (host) {
@@ -12,7 +12,7 @@
       <div class="it-toolbar"><h2>Account activity · All roles</h2><button class="ax-btn" type="button" data-refresh>Refresh activity</button></div>
       <div class="it-form">
         <div><label>Search name or email<input type="search" data-search maxlength="160"></label></div>
-        <div><label>Role<select data-role><option value="">All roles</option><option value="it_admin">IT Admin</option><option value="admin">Operations Head</option><option value="inspector">Inspector</option><option value="user">Guard</option></select></label></div>
+        <div><label>Role<select data-role><option value="">All roles</option><option value="it_admin">Superadmin</option><option value="admin">Operations Head</option><option value="inspector">Inspector</option><option value="user">Guard</option></select></label></div>
         <div><label>Connection<select data-status><option value="">All connections</option><option value="online">Online</option><option value="offline">Offline</option></select></label></div>
       </div>
       <p data-feedback role="status">Loading account activity…</p>

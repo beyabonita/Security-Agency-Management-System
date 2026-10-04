@@ -1,5 +1,26 @@
 # Project Change Log
 
+### [2026-10-05 04:55] - UI/UX: Update IT Admin Display Labels to Superadmin
+
+- **Scope & Objective**:
+  - Updated the user-facing display titles and role labels across the System Administration portal from "IT Admin" to "Superadmin".
+  - Updated the sidebar header brand to "Superadmin Panel".
+  - Updated top navigation role badge to "Superadmin".
+  - Updated metrics and navigation quick-links ("Superadmins", "Superadmin & Operations Head access").
+  - Updated privileged account forms and activity filters to display "Superadmin".
+  - Updated private system access login page notices and verification messages to reference Superadmin credentials and access.
+- **Files Modified / Created**:
+  - [`web/it-admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/it-admin/dashboard.html): Updated sidebar title to "Superadmin Panel", header badge to "Superadmin", stat card to "Superadmins", and quick link to "Superadmin & Operations Head access".
+  - [`web/it-admin/clients.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/it-admin/clients.html): Updated brand title to "Superadmin Panel", role selection dropdowns to "Superadmin", and roleName mapper.
+  - [`web/it-admin/account-activity.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/it-admin/account-activity.js): Updated role label dictionary and filter dropdown option to "Superadmin".
+  - [`web/system-access-7d92a4/login.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/system-access-7d92a4/login.html): Updated restricted access badge, welcome subtitle, and error feedback to reference Superadmin access.
+- **Verification & Testing**:
+  - `node web/tests/google_icons_test.js`: Passed (52 bundled symbols, 210 markup references).
+  - `npx playwright test it_admin_accounts.spec.js platform_controls.spec.js`: Passed (46/46 tests passed).
+
+---
+
+
 ### [2026-10-05 04:40] - Fix: Replacement Guard Dropdown Truncation, Alphabetical Sorting & Field Hint in Approval Modal
 
 - **Scope & Objective**:
