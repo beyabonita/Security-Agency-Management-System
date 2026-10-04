@@ -1,5 +1,21 @@
 # Project Change Log
 
+### [2026-10-04 17:42] - Fix Guard Mobile App Version Badges and QR Code to v1.0.20 Build 21
+
+- **Scope & Objective**: The staff portal login card (`web/staff/login.html`) was still displaying the older static badges (`v1.0.18` / `Build 19`) and previous QR code graphic.
+  1. Updated the version pills in `web/staff/login.html` and the `#guardAppSetupTemplate` modal from `v1.0.18 · Build 19` to `v1.0.20 · Build 21`.
+  2. Updated the direct APK download query parameter and filenames to `?v=1.0.20` and `Security-Agency-Management-System-Guard-v1.0.20.apk`.
+  3. Replaced `web/staff/guard-app-qr.png` with the updated QR code matching release `v1.0.20`.
+- **Files Modified / Created**:
+  - `[web/staff/login.html](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/staff/login.html)`: Updated version badge text, download URL queries, and setup template metadata.
+  - `[web/staff/guard-app-qr.png](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/staff/guard-app-qr.png)`: Updated QR code image.
+- **Verification & Testing**:
+  - `npx playwright test guard_app_modal.spec.js`: Passed all 14 tests (14 passed, 24.1s).
+- **Pending / Next Steps**:
+  - Pushed to `origin/main` (`68d180a`).
+
+---
+
 ### [2026-10-04 17:28] - Selective Merge: Integrate Guard App v1.0.20 & Accomplishment Photos While Preserving Portal Customizations
 
 - **Scope & Objective**: Safely integrated the incoming version of the system (`C:\Users\USER\Documents\Security Management System`) into the active workspace without overwriting or losing any custom changes developed today (including Operations Head Top 5 risk metrics, incident intelligence, comboboxes, and Company navigation):
