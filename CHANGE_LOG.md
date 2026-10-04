@@ -1,5 +1,17 @@
 # Project Change Log
 
+### [2026-10-05 00:30] - Fix: Active Navigation Highlight for Live Guard Map and Records
+
+- **Scope & Objective**: Fix missing active navigation highlight (dark background, white text, and amber/yellow vertical accent bar) when navigating to "Live guard map" or "Records" in the Operations Head and Inspector sidebars.
+- **Files Modified**:
+  - `web/admin/css/admin-theme.css`: Added selectors for `body[data-ax-page="live-tracking"] .ax-nav a[href="live-tracking.html"]`, `body[data-ax-page="records"] .ax-nav a[href="records.html"]`, `body[data-ix-page="live-tracking"] .ax-nav a[href="live-tracking.html"]`, and `.ax-nav a[aria-current="page"]` to receive `var(--ax-nav-active)` yellow accent line, dark active background, and bold font weight.
+  - `web/tests/records.spec.js`: Added assertion confirming `border-left-color` and `color` on active `records.html` link.
+- **Verification & Testing**:
+  - Ran `records.spec.js`: 6/6 tests passed.
+  - Ran regression suite (`inspector_consistency.spec.js`, `live_tracking_updates.spec.js`): 24/24 tests passed.
+
+---
+
 ### [2026-10-05 00:15] - Feature: Records & Reports Module for Operations Head Console
 
 - **Scope & Objective**: Added a new sidebar tab for "Records" in the Operations Head console, featuring three comprehensive reporting views: Personnel Masterlist, Summary of Incident Report, and Monthly Attendance Summary with full filtering and export capabilities.

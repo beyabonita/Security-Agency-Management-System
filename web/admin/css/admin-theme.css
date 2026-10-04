@@ -130,15 +130,20 @@ body[data-ax-page="dashboard"] .ax-nav a[href="dashboard.html"],
 body[data-ax-page="users"] .ax-nav a[href="users.html"],
 body[data-ax-page="locations"] .ax-nav a[href="locations.html"],
 body[data-ax-page="schedule"] .ax-nav a[href="schedule.html"],
-body[data-ax-page="incidents"] .ax-nav a[href="incidents.html"] {
-    background: rgba(0,0,0,0.22); color: #fff;
-    border-left-color: var(--ax-nav-active); font-weight: 600;
-}
-
+body[data-ax-page="incidents"] .ax-nav a[href="incidents.html"],
 body[data-ax-page="swaps"] .ax-nav a[href="swaps.html"],
+body[data-ax-page="live-tracking"] .ax-nav a[href="live-tracking.html"],
+body[data-ax-page="records"] .ax-nav a[href="records.html"],
+body[data-ix-page="dashboard"] .ax-nav a[href="dashboard.html"],
+body[data-ix-page="users"] .ax-nav a[href="users.html"],
+body[data-ix-page="locations"] .ax-nav a[href="locations.html"],
+body[data-ix-page="incidents"] .ax-nav a[href="incidents.html"],
+body[data-ix-page="swaps"] .ax-nav a[href="swaps.html"],
+body[data-ix-page="live-tracking"] .ax-nav a[href="live-tracking.html"],
 body[data-it-page="dashboard"] .ax-nav a[href="dashboard.html"],
 body[data-it-page="controls"] .ax-nav a[href="clients.html"],
-body[data-it-page="users"] .ax-nav a[href="users.html"] {
+body[data-it-page="users"] .ax-nav a[href="users.html"],
+.ax-nav a[aria-current="page"] {
     background: rgba(0,0,0,0.22); color: #fff;
     border-left-color: var(--ax-nav-active); font-weight: 600;
 }

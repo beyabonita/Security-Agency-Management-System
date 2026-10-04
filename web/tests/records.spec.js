@@ -64,6 +64,9 @@ test.describe('Records & Reports Module', () => {
         await recordsLink.click();
         await expect(page).toHaveURL(/records\.html/);
         await expect(page.locator('.ax-page-title')).toContainText('Records & Reports');
+        const activeRecordsLink = page.locator('.ax-nav a[href="records.html"]');
+        await expect(activeRecordsLink).toHaveCSS('border-left-color', 'rgb(251, 191, 36)');
+        await expect(activeRecordsLink).toHaveCSS('color', 'rgb(255, 255, 255)');
     });
 
     test('switches between Personnel Masterlist, Summary of Incident Report, and Monthly Attendance Summary tabs', async ({ page }) => {
