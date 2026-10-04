@@ -51,7 +51,7 @@
       '<div class="roster-dtr-scroll" tabindex="0" aria-label="Planned guard shifts"><table class="roster-dtr-preview"><thead><tr><th scope="col">Shift and Guard</th><th scope="col">Scheduled IN</th><th scope="col">Scheduled OUT</th><th scope="col">Planned hours</th></tr></thead><tbody>'+
       periods().map((p,i)=>{
         const shift=SchedulePeriod.calculate(date.value,p[0],p[1]);
-        const cell=(time,nextDay=false)=>time ? `<strong>${escapeHtml(formatTime(time))}${nextDay?' (next day)':''}</strong>` : '—';
+        const cell=(time,nextDay=false)=>time ? `<strong>${escapeHtml(formatTime(time))}${nextDay?' <span class="badge-next-day">(next day)</span>':''}</strong>` : '—';
         return `<tr><td>${p[2]} — ${available(date.value,p)?escapeHtml(currentName(ids[i])):'Shift ended (not assigned)'}</td><td>${cell(shift?.startAt)}</td><td>${cell(shift?.endAt,shift?.overnight)}</td><td>${shift ? escapeHtml(SchedulePeriod.formatDuration(shift.durationMinutes)) : '—'}</td></tr>`;
       }).join('')+'</tbody></table></div>';
     const rows=schedules.filter(s=>(s.locationId||s.location_id)===site.value && s.date===date.value && s.approval_status!=='cancelled');

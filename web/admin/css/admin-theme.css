@@ -894,6 +894,27 @@ body[data-it-page="users"] .ax-nav a[href="users.html"] {
 .badge-ack { background: var(--sl-warning-soft); color: var(--sl-warning); border: 1px solid var(--sl-line); }
 .badge-resolved { background: var(--sl-success-soft); color: var(--sl-success); border: 1px solid var(--sl-line); }
 .badge-status { font-size: 0.68rem; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+.badge-next-day {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(14, 165, 233, 0.08);
+    border: 1px solid rgba(14, 165, 233, 0.22);
+    color: #0284c7;
+    border-radius: 999px;
+    padding: 1px 7px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-left: 5px;
+    vertical-align: middle;
+    letter-spacing: 0.02em;
+}
+html[data-theme="dark"] .badge-next-day,
+body.dark-mode .badge-next-day {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+}
 
 .empty-state { text-align: center; padding: 40px 20px; color: var(--ax-muted); font-size: 0.875rem; }
 .empty-state .icon { font-size: 2rem; margin-bottom: 12px; opacity: 0.35; }

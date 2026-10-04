@@ -545,14 +545,17 @@ function renderSchedules() {
         const punch=time=>{
             if(!time)return '—';
             const dayOffset=Math.round((Date.parse(SchedulePeriod.toLocalDateString(time)+'T00:00:00Z')-Date.parse(schedule.date+'T00:00:00Z'))/86400000);
-            return formatTime(time)+(dayOffset===1?' (next day)':dayOffset>1?' ('+dayOffset+' days later)':'');
+            const timeStr=escapeHtml(formatTime(time));
+            if(dayOffset===1)return `${timeStr} <span class="badge-next-day">(next day)</span>`;
+            if(dayOffset>1)return `${timeStr} <span class="badge-next-day">(${dayOffset} days later)</span>`;
+            return timeStr;
         };
         const cancelled=schedule.approval_status==='cancelled';
         return `<tr>
             <td><strong>${escapeHtml(person?.name||schedule.guardName||'Personnel unavailable')}</strong></td>
             <td>${escapeHtml(formatDate(schedule.date))}</td>
-            <td class="schedule-dtr-time">${escapeHtml(punch(start))}</td>
-            <td class="schedule-dtr-time">${escapeHtml(punch(end))}</td>
+            <td class="schedule-dtr-time">${punch(start)}</td>
+            <td class="schedule-dtr-time">${punch(end)}</td>
             <td>${cancelled?'—':escapeHtml(formatDurationBetween(start,end))}</td>
             <td>${formatLocationCell(schedule)}</td>
             <td class="schedule-period-actions">${renderPeriodAction(schedule)}</td>

@@ -1,5 +1,29 @@
 # Project Change Log
 
+### [2026-10-04 22:45] - Feature: Style Overnight “(next day)” Indicators as Subtle Badges
+
+- **Scope & Objective**: Transition the overnight indicator text `(next day)` across the Duty Schedule table, Shift Roster previews, and Daily Time Record (DTR) sheets from plain raw text into a clean, modern, and subtle pill badge.
+- **Key Enhancements**:
+  - **Subtle Pill Badge (`.badge-next-day`)**:
+    - Designed a dedicated badge with soft background tint (`rgba(14, 165, 233, 0.08)` in light mode, `rgba(56, 189, 248, 0.15)` in dark mode) and subtle border styling.
+    - Accurately separates the primary clock time (e.g. `6:00 AM`) from the cross-midnight indicator `(next day)`.
+  - **Unified Consistency**:
+    - Applied in **Duty Schedule Table** (`web/admin/schedule.html`): `Scheduled OUT` column now highlights cross-midnight punches with the subtle badge.
+    - Applied in **Shift Roster Previews** (`web/admin/js/shift-roster.js`): Planned shift tables display the clean badge.
+    - Applied in **DTR Previews & Sheets** (`web/js/dtr-report.js` & `web/css/dtr-report.css`): Preview cells automatically format `(next day)` into the styled badge while maintaining pure text for PDF exports.
+  - **Automated Verification**:
+    - Verified with node test suites `dtr_report_test.js` and `schedule_period_test.js`.
+    - Verified with Playwright tests (`schedule_lifecycle.spec.js`, `responsive_shells.spec.js`, `ph_location_search.spec.js`, `geofence_safeguard.spec.js`, and `geofence_default.spec.js`).
+- **Files Modified**:
+  - `web/admin/css/admin-theme.css`: Defined `.badge-next-day` with light and dark mode styles.
+  - `web/css/dtr-report.css`: Defined `.badge-next-day` for DTR sheet previews.
+  - `web/admin/schedule.html`: Wrapped overnight punches in `.badge-next-day`.
+  - `web/admin/js/shift-roster.js`: Wrapped overnight shift preview cells in `.badge-next-day`.
+  - `web/js/dtr-report.js`: Wrapped overnight indicators in `.badge-next-day`.
+  - `CHANGE_LOG.md`: Documented implementation details.
+
+---
+
 ### [2026-10-04 22:23] - Feature: Display Number of Assigned Guards in Site Status Column
 
 - **Scope & Objective**: Enhance the **STATUS** column in the Deployment Sites table (`web/admin/locations.html`) to display the exact number of active security guards assigned to each establishment.

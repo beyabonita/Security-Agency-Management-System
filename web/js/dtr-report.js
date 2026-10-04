@@ -316,7 +316,9 @@
 
   function previewCell(value) {
     const text = String(value ?? '').trim();
-    return text ? escapeHtml(text).replace(/\n/g, '<br>') : '<span class="dtr-sheet-blank" aria-hidden="true">&nbsp;</span>';
+    if (!text) return '<span class="dtr-sheet-blank" aria-hidden="true">&nbsp;</span>';
+    const escaped = escapeHtml(text).replace(/\n/g, '<br>');
+    return escaped.replace(/\((next day|\d+ days? later|previous day|\d+ days? earlier)\)/g, '<span class="badge-next-day">($1)</span>');
   }
 
   function renderPreview(options) {
