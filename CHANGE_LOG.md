@@ -1,6 +1,28 @@
 # Project Change Log
 
-### [2026-10-05 02:46] - Feature: DTR Inline Tardiness & Undertime Tags with Summary Totals
+### [2026-10-05 03:15] - Feature: Accomplishment Notification Deep-Linking & Auto-Open Specific Report
+
+- **Scope & Objective**: Resolved an issue where clicking "Open personnel reports" from an accomplishment notification modal only navigated generally to the Personnel page (`/admin/users.html`) without opening the guard's accomplishment modal or showing the specific report.
+- **Files Modified / Created**:
+  - `[web/js/notification-center.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/notification-center.js)`:
+    - Updated `actionUrl(item)` to construct deep-link query parameters (`?reportId=...&guardId=...`) when `item.action_key === 'accomplishment'`.
+    - In `viewNotification(item)`, added in-page handler detection: if user is already on `users.html`, it directly calls `window.handleUrlTargetReport` with the target IDs and replaces browser history rather than triggering an unnecessary full page reload.
+  - `[web/admin/users.html](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html)`:
+    - Added `.target-accomplishment-card` CSS with accent glow border and subtle pulse animation (`@keyframes target-report-pulse`).
+    - Updated `renderAccomplishmentReport(report, isTarget)` to attach unique `id="accomplishment-${report.id}"`, `data-report-id`, target styling, and a visible `Target Report` badge when focused.
+    - Updated `viewAccomplishments(uid, targetReportId)` to accept `targetReportId` and auto-scroll the targeted report smoothly into view.
+    - Added `handleUrlTargetReport(targetReportId, targetGuardId)` and `checkInitialUrlTargetReport()` to automatically parse `reportId` / `guardId` on page load (resolving `guard_id` from database if missing) and trigger `viewAccomplishments`.
+  - `[web/tests/accomplishment_notification_deeplink.spec.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/accomplishment_notification_deeplink.spec.js)`:
+    - Created automated Playwright test suite verifying:
+      1. Clicking "Open personnel reports" from the notification drawer modal navigates to `users.html?reportId=...&guardId=...`, opens the guard's accomplishment modal, and highlights the target report card.
+      2. Direct page load with `?reportId=...` resolves the guard and automatically opens and highlights the report.
+- **Verification & Testing**:
+  - `npx playwright test accomplishment_notification_deeplink.spec.js -c playwright.config.cjs`: 2 passed.
+  - `npx playwright test notification_center.spec.js -c playwright.config.cjs`: 11 passed.
+  - `npx playwright test accomplishment_photos.spec.js -c playwright.config.cjs`: 1 passed.
+
+---
+
 
 - **Scope & Objective**: Added Late (Tardiness) and Undertime (Early Departure) tracking to the Daily Time Record (DTR) generator, web preview, and exported PDF. Implemented as clean inline tags under actual punch times accompanied by summary totals at the bottom of the report.
 - **Files Modified / Created**:

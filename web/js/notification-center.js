@@ -92,7 +92,25 @@
     };
     const page = maps[role] && maps[role][item.action_key];
     const folder = { admin: 'admin', inspector: 'inspector', it_admin: 'it-admin' }[role];
-    return page && folder ? '/' + folder + '/' + page : null;
+    if (!page || !folder) return null;
+    const path = '/' + folder + '/' + page;
+
+    if (item.action_key === 'accomplishment') {
+      let meta = item.metadata;
+      if (typeof meta === 'string') {
+        try { meta = JSON.parse(meta); } catch (_) { meta = {}; }
+      }
+      meta = meta || {};
+      const reportId = item.entity_type === 'accomplishment_report' ? item.entity_id : (meta.report_id || meta.reportId);
+      const guardId = meta.guard_id || meta.guardId || (item.entity_type === 'guard' ? item.entity_id : null);
+      const params = new URLSearchParams();
+      if (reportId) params.set('reportId', reportId);
+      if (guardId) params.set('guardId', guardId);
+      const qs = params.toString();
+      if (qs) return path + '?' + qs;
+    }
+
+    return path;
   }
 
   function relatedActionLabel(item) {
@@ -151,7 +169,15 @@
         readStatus.textContent = 'Could not mark this notification as read. Close and reopen it to retry.';
       });
       const openRelatedPage = await choice;
-      if (openRelatedPage && url) location.href = url;
+      if (openRelatedPage && url) {
+        if (location.pathname.endsWith('/users.html') && url.includes('users.html') && typeof window.handleUrlTargetReport === 'function') {
+          const targetUrl = new URL(url, location.origin);
+          window.history.replaceState(null, '', url);
+          window.handleUrlTargetReport(targetUrl.searchParams.get('reportId'), targetUrl.searchParams.get('guardId'));
+        } else {
+          location.href = url;
+        }
+      }
       else if (returnToDrawer && state.user) {
         render();
         openDrawer();

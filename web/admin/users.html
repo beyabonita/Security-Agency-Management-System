@@ -27,6 +27,16 @@
     box-sizing: border-box;
 }
 .glass-card { background: var(--sl-surface); border: 1px solid var(--sl-line); border-radius: 14px; overflow-x: auto; max-width: 100%; }
+.target-accomplishment-card {
+    border: 2px solid var(--sl-danger, #d32f2f) !important;
+    box-shadow: 0 0 16px rgba(211, 47, 47, 0.25) !important;
+    background: rgba(211, 47, 47, 0.03) !important;
+    animation: target-report-pulse 1.8s ease-in-out 3;
+}
+@keyframes target-report-pulse {
+    0%, 100% { box-shadow: 0 0 8px rgba(211, 47, 47, 0.2); }
+    50% { box-shadow: 0 0 20px rgba(211, 47, 47, 0.45); }
+}
 .personnel-table-section + .personnel-table-section { margin-top: 26px; }
 .personnel-table-heading {
     display: flex; align-items: center; justify-content: space-between; gap: 12px;
@@ -1402,6 +1412,7 @@ async function loadUsers() {
         document.getElementById("inspectorTableBody").innerHTML = inspectorRows ||
             `<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--sl-muted);">No inspector personnel found.</td></tr>`;
         finishPageLoading();
+        checkInitialUrlTargetReport();
     } catch (err) {
         const message = escapeHtml(err?.message || "Could not load personnel.");
         document.getElementById("guardTableBody").innerHTML =
@@ -1409,6 +1420,7 @@ async function loadUsers() {
         document.getElementById("inspectorTableBody").innerHTML =
             `<tr><td colspan="4" style="text-align:center;color:var(--sl-danger);padding:32px;">Error: ${message}</td></tr>`;
         finishPageLoading();
+        checkInitialUrlTargetReport();
     }
 }
 
@@ -2224,7 +2236,7 @@ function accomplishmentStatusMeta(status) {
     return { label: 'Submitted', className: 'report-status-submitted' };
 }
 
-function renderAccomplishmentReport(report) {
+function renderAccomplishmentReport(report, isTarget = false) {
     const status = accomplishmentStatusMeta(report.review_status);
     const issues = report.issues_encountered
         ? `<p class="report-copy" style="margin:10px 0 0"><strong>Issues encountered:</strong> ${escapeHtml(report.issues_encountered)}</p>`
@@ -2232,9 +2244,11 @@ function renderAccomplishmentReport(report) {
     const review = report.reviewed_at
         ? `<p class="report-copy" style="margin:10px 0 0"><strong>Review:</strong> ${escapeHtml(report.review_note || 'No note added.')}<br><span class="dtr-punch-meta">${formatReportTimestamp(report.reviewed_at)}</span></p>`
         : '';
-    return `<article class="dtr-day-card">
+    const targetBadge = isTarget ? `<span class="badge bg-danger ms-2" style="font-size:0.75rem;vertical-align:middle;">Target Report</span>` : '';
+    const targetCardClass = isTarget ? ' target-accomplishment-card' : '';
+    return `<article class="dtr-day-card${targetCardClass}" id="accomplishment-${escapeHtml(report.id)}" data-report-id="${escapeHtml(report.id)}">
         <div class="dtr-day-header">
-            <div><span class="dtr-day-date">${escapeHtml(report.summary)}</span><div class="dtr-punch-meta">Submitted ${formatReportTimestamp(report.submitted_at)}</div></div>
+            <div><span class="dtr-day-date">${escapeHtml(report.summary)}</span>${targetBadge}<div class="dtr-punch-meta">Submitted ${formatReportTimestamp(report.submitted_at)}</div></div>
             <span class="report-status ${status.className}">${escapeHtml(status.label)}</span>
         </div>
         ${report.photo_path ? `<div data-report-photo="${escapeHtml(report.id)}" style="margin:12px 0" aria-live="polite">Loading photo report…</div>` : ''}
@@ -2244,7 +2258,7 @@ function renderAccomplishmentReport(report) {
     </article>`;
 }
 
-async function viewAccomplishments(uid) {
+async function viewAccomplishments(uid, targetReportId) {
     currentAccomplishmentGuardId = uid;
     currentAccomplishmentData = [];
     document.getElementById('accomplishmentGuardName').textContent = personnelDisplayName(personnelAccounts[uid]);
@@ -2261,9 +2275,18 @@ async function viewAccomplishments(uid) {
     }
     currentAccomplishmentData = data || [];
     listEl.innerHTML = currentAccomplishmentData.length
-        ? currentAccomplishmentData.map(renderAccomplishmentReport).join('')
+        ? currentAccomplishmentData.map(report => renderAccomplishmentReport(report, report.id === targetReportId)).join('')
         : '<div style="text-align:center;padding:32px;color:var(--sl-muted)">No accomplishment reports submitted yet.</div>';
     if (window.loadAccomplishmentPhotos) loadAccomplishmentPhotos(listEl, currentAccomplishmentData);
+
+    if (targetReportId) {
+        setTimeout(() => {
+            const card = document.getElementById(`accomplishment-${targetReportId}`);
+            if (card) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 200);
+    }
 }
 
 async function reviewAccomplishment(reportId, button) {
@@ -2307,6 +2330,47 @@ async function reviewAccomplishment(reportId, button) {
     }
 }
 
+let initialTargetProcessed = false;
+async function handleUrlTargetReport(targetReportId, targetGuardId) {
+    if (!targetReportId && !targetGuardId) {
+        const params = new URLSearchParams(window.location.search);
+        targetReportId = params.get('reportId') || params.get('accomplishmentId');
+        targetGuardId = params.get('guardId');
+    }
+    if (!targetReportId && !targetGuardId) return;
+
+    if (!targetGuardId && targetReportId) {
+        try {
+            const { data, error } = await appSupabase
+                .from('accomplishment_reports')
+                .select('guard_id')
+                .eq('id', targetReportId)
+                .maybeSingle();
+            if (!error && data?.guard_id) {
+                targetGuardId = data.guard_id;
+            }
+        } catch (e) {
+            console.warn('Could not resolve guard for report ID:', e);
+        }
+    }
+
+    if (targetGuardId) {
+        await viewAccomplishments(targetGuardId, targetReportId);
+    }
+}
+window.handleUrlTargetReport = handleUrlTargetReport;
+
+async function checkInitialUrlTargetReport() {
+    if (initialTargetProcessed) return;
+    const params = new URLSearchParams(window.location.search);
+    const reportId = params.get('reportId') || params.get('accomplishmentId');
+    const guardId = params.get('guardId');
+    if (reportId || guardId) {
+        initialTargetProcessed = true;
+        await handleUrlTargetReport(reportId, guardId);
+    }
+}
+
 async function toggleUser(uid, currentlyActive, button) {
     const account = personnelAccounts[uid];
     const name = account ? personnelDisplayName(account) : 'this account';
@@ -2344,8 +2408,25 @@ async function resetDevice(uid, button) {
 }
 
 async function managePersonnelAccount(body) {
-    const { data, error } = await appSupabase.functions.invoke("admin-manage-user", { body });
-    await edgeFunctionErrors.unwrap({ data, error }, 'Could not update the account.');
+    let session = null;
+    try {
+        session = (await appSupabase.auth?.getSession?.())?.data?.session;
+        if (session?.expires_at && session.expires_at * 1000 < Date.now() + 60000) {
+            const refreshed = await appSupabase.auth?.refreshSession?.();
+            session = refreshed?.data?.session || session;
+        }
+    } catch (_) {}
+    const headers = session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined;
+    const invokeOptions = headers ? { body, headers } : { body };
+    const { data, error } = await appSupabase.functions.invoke("admin-manage-user", invokeOptions);
+    try {
+        return await edgeFunctionErrors.unwrap({ data, error }, 'Could not update the account.');
+    } catch (err) {
+        if (/unauthorized/i.test(err.message)) {
+            throw new Error('Your login session has expired. Please sign out and sign back in to change account details.');
+        }
+        throw err;
+    }
 }
 
 async function editPersonnel(uid, button) {
