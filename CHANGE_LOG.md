@@ -16,12 +16,14 @@
     - Verified cryptographic signature validity and SHA-256 digest (`d09ceda1a94f6f1e6fb560c10e3c5037e34674c32ae96153d5c4c1dc48366c62`).
   - **Distribution & Git Tracking**:
     - Placed release APK at `web/downloads/security-agency-management-system-guard.apk` (47.2 MiB) and `build/app/outputs/flutter-apk/app-release.apk`.
-    - Updated `.gitignore` to allow tracking `!web/downloads/security-agency-management-system-guard.apk`.
+    - Updated `.gitignore` and `web/.vercelignore` to allow tracking and deploying `!web/downloads/security-agency-management-system-guard.apk` to Vercel on `tts-agency.site`.
     - Verified QR code test (`web/tests/guard_app_qr_test.js`) and Playwright test suite (12/12 tests passing).
 - **Files Modified / Created**:
   - `web/downloads/security-agency-management-system-guard.apk`: Updated signed APK.
   - `build/app/outputs/flutter-apk/app-release.apk`: Copied release APK.
   - `.gitignore`: Whitelisted release APK for deployment.
+  - `web/.vercelignore`: Whitelisted release APK for Vercel deployment.
+
 
 ---
 

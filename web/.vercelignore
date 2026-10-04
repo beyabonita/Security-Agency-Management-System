@@ -2,3 +2,4 @@
 .env*
 tests/
 downloads/*.apk
+!downloads/security-agency-management-system-guard.apk
