@@ -1,5 +1,18 @@
 # Project Change Log
 
+### [2026-10-04 16:20] - Remove Quick Actions Section from Operations Head Dashboard
+
+- **Scope & Objective**: Cleaned up the Operations Head dashboard (`web/admin/dashboard.html`) layout by removing the redundant "Quick actions" navigation block:
+  1. Removed the `Quick actions` section label and the `.ax-panel` containing links to `users.html`, `locations.html`, `schedule.html`, `swaps.html`, and `incidents.html` since these are all accessible via the persistent global sidebar.
+- **Files Modified / Created**:
+  - `web/admin/dashboard.html`: Removed Quick actions markup block.
+- **Verification & Testing**:
+  - `npx playwright test admin_dashboard.spec.js` in `web/tests`: Passed (1 passed, 2.1s).
+- **Pending / Next Steps**:
+  - Ready for commit and push to production.
+
+---
+
 ### [2026-10-04 16:15] - Incident Intelligence Top 5 Ranking Cards & Status Bar
 
 - **Scope & Objective**: Converted the Incident Intelligence summary on the Operations Head dashboard (`web/admin/dashboard.html`) to display the Top 5 rankings instead of single highlights, and completely eliminated visual graph/bar charts per user request:
