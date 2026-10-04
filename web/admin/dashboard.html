@@ -55,24 +55,106 @@
             <div class="ax-stat-strip">
                 <div class="ax-stat-item">
                     <div class="ax-stat-num" id="totalGuards"><span class="ax-skeleton ax-skeleton-stat"></span></div>
-                    <div class="ax-stat-lbl">Security guards</div>
+                    <div class="ax-stat-lbl">Total guards</div>
                     <div class="ax-stat-hint" id="activeGuards"><span class="ax-skeleton ax-skeleton-line" style="width:48px;height:12px;"></span></div>
                 </div>
                 <div class="ax-stat-item">
+                    <div class="ax-stat-num" id="totalDeployed"><span class="ax-skeleton ax-skeleton-stat"></span></div>
+                    <div class="ax-stat-lbl">Deployed</div>
+                    <div class="ax-stat-hint" id="deployedHint"><span class="ax-skeleton ax-skeleton-line" style="width:48px;height:12px;"></span></div>
+                </div>
+                <div class="ax-stat-item">
                     <div class="ax-stat-num" id="totalLocations"><span class="ax-skeleton ax-skeleton-stat"></span></div>
-                    <div class="ax-stat-lbl">Deployment sites</div>
+                    <div class="ax-stat-lbl">Number of clients</div>
                     <div class="ax-stat-hint" id="activeLocations"><span class="ax-skeleton ax-skeleton-line" style="width:48px;height:12px;"></span></div>
                 </div>
                 <div class="ax-stat-item">
-                    <div class="ax-stat-num" id="totalSchedules" title="One assigned guard shift counts as one. Includes past, current and future dates; excludes drafts and cancellations."><span class="ax-skeleton ax-skeleton-stat"></span></div>
-                    <div class="ax-stat-lbl">Assigned guard shifts</div>
-                    <div class="ax-stat-hint">All Guards · all dates</div>
-                </div>
-                <div class="ax-stat-item">
                     <div class="ax-stat-num" id="totalInspectors"><span class="ax-skeleton ax-skeleton-stat"></span></div>
-                    <div class="ax-stat-lbl">Inspectors</div>
+                    <div class="ax-stat-lbl">Inspector</div>
                 </div>
             </div>
+
+            <section class="dashboard-section" aria-labelledby="deploymentHeading">
+                <div class="dashboard-section-head">
+                    <h2 id="deploymentHeading">Deployment</h2>
+                    <div class="dashboard-filter-bar" aria-label="Deployment filters">
+                        <label>
+                            <span>Site</span>
+                            <select id="deploymentSiteFilter">
+                                <option value="">All sites</option>
+                            </select>
+                        </label>
+                        <label>
+                            <span>Shift</span>
+                            <select id="deploymentShiftFilter">
+                                <option value="">All shifts</option>
+                                <option value="day">Day</option>
+                                <option value="night">Night</option>
+                            </select>
+                        </label>
+                        <label>
+                            <span>Search</span>
+                            <input id="deploymentSearch" type="search" autocomplete="off" placeholder="Site or location">
+                        </label>
+                    </div>
+                </div>
+                <div class="dashboard-table-wrap">
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Client (Deployment sites)</th>
+                                <th>Location</th>
+                                <th>Day</th>
+                                <th>Night</th>
+                                <th>Total number of guards assigned</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deploymentTableBody">
+                            <tr><td colspan="5"><span class="ax-skeleton ax-skeleton-line full"></span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="dashboard-grid">
+                <section class="dashboard-card" aria-labelledby="contractStatusHeading">
+                    <h2 id="contractStatusHeading">Contract status</h2>
+                    <div class="dashboard-donut-row">
+                        <div class="dashboard-donut" id="contractDonut" role="img" aria-label="Contract status chart"></div>
+                        <div class="dashboard-legend" id="contractLegend"></div>
+                    </div>
+                </section>
+                <section class="dashboard-card" aria-labelledby="attendanceOverviewHeading">
+                    <h2 id="attendanceOverviewHeading">Attendance overview</h2>
+                    <div class="dashboard-donut-row">
+                        <div class="dashboard-donut dashboard-donut-attendance" id="attendanceDonut" role="img" aria-label="Attendance overview chart"></div>
+                        <div class="dashboard-legend" id="attendanceLegend"></div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="dashboard-section" aria-labelledby="recentIncidentsHeading">
+                <h2 id="recentIncidentsHeading">Recent incidents</h2>
+                <div class="dashboard-table-wrap">
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentIncidentTableBody">
+                            <tr><td colspan="4"><span class="ax-skeleton ax-skeleton-line full"></span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="incident-summary">
+                    <h3>Incident summary:</h3>
+                    <div class="incident-summary-grid" id="incidentSummary"></div>
+                </div>
+            </section>
 
             <div class="ax-section-label">Quick actions</div>
             <div class="ax-panel">
@@ -144,25 +226,224 @@ auth.onAuthStateChanged(async function(user) {
 
 async function loadDashboard() {
     try {
-        const [guardSnapshot, inspectorSnapshot, locationSnapshot, scheduleSnapshot] = await Promise.all([
-            db.collection("users").where("role", "==", "user").get(),
-            db.collection("users").where("role", "==", "inspector").get(),
-            db.collection("locations").get(),
-            db.collection("schedules").get(),
+        const [profilesResult, locationsResult, schedulesResult, attendanceResult, incidentsResult] = await Promise.all([
+            appSupabase.from('profiles').select('id,first_name,middle_initial,last_name,role,active,assigned_location_id,employment_category,contract_start_date,contract_end_date'),
+            appSupabase.from('locations').select('id,label,address,active').order('label', { ascending: true }),
+            appSupabase.from('schedules').select('id,user_id,location_id,location_label,location_address,guard_name,start_at,end_at,duty_date,approval_status').order('start_at', { ascending: false }).limit(500),
+            appSupabase.from('attendance_sessions').select('id,user_id,schedule_id,location_id,location_label,duty_date,scheduled_start_at,clock_in_at,clock_out_at,status').order('duty_date', { ascending: false }).limit(500),
+            appSupabase.from('incidents').select('id,category,location_label,status,created_at,captured_at').order('created_at', { ascending: false }).limit(100),
         ]);
-        document.getElementById("totalGuards").innerText = guardSnapshot.size;
-        let active = 0;
-        guardSnapshot.forEach(d => { if (d.data().active !== false) active++; });
-        document.getElementById("activeGuards").innerText = active + " active";
-        document.getElementById("totalInspectors").innerText = inspectorSnapshot.size;
-        document.getElementById("totalLocations").innerText = locationSnapshot.size;
-        let activeLocations = 0;
-        locationSnapshot.forEach(d => { if (d.data().active) activeLocations++; });
-        document.getElementById("activeLocations").innerText = activeLocations + " active";
-        document.getElementById("totalSchedules").innerText = countAssignedGuardShifts(scheduleSnapshot.docs, new Set(guardSnapshot.docs.map(guard => guard.id)));
+        for (const result of [profilesResult, locationsResult, schedulesResult, attendanceResult, incidentsResult]) {
+            if (result.error) throw result.error;
+        }
+        const profiles = profilesResult.data || [];
+        const guards = profiles.filter(profile => profile.role === 'user');
+        const inspectors = profiles.filter(profile => profile.role === 'inspector');
+        const locations = locationsResult.data || [];
+        const schedules = (schedulesResult.data || []).filter(schedule => !['draft', 'cancelled'].includes(schedule.approval_status));
+        const attendance = attendanceResult.data || [];
+        const incidents = incidentsResult.data || [];
+        const activeGuards = guards.filter(guard => guard.active !== false);
+        const activeLocations = locations.filter(location => location.active !== false);
+        const deployedIds = new Set(activeGuards.filter(guard => guard.assigned_location_id).map(guard => guard.id));
+
+        document.getElementById("totalGuards").innerText = guards.length;
+        document.getElementById("activeGuards").innerText = activeGuards.length + " active";
+        document.getElementById("totalInspectors").innerText = inspectors.length;
+        document.getElementById("totalLocations").innerText = locations.length;
+        document.getElementById("activeLocations").innerText = activeLocations.length + " active";
+        document.getElementById("totalDeployed").innerText = deployedIds.size;
+        document.getElementById("deployedHint").innerText = "Home post set";
+
+        populateDeploymentFilters(locations);
+        renderDeploymentTable(schedules, locations);
+        renderContractStatus(guards);
+        renderAttendanceOverview(schedules, attendance);
+        renderRecentIncidents(incidents);
+        bindDashboardFilters(schedules, locations);
     } catch (error) {
         if (window.appDialog) appDialog.toast('Some dashboard totals could not be loaded. Refresh to try again.', { tone: 'danger' });
     }
+}
+
+function bindDashboardFilters(schedules, locations) {
+    const controls = ['deploymentSiteFilter', 'deploymentShiftFilter', 'deploymentSearch']
+        .map(id => document.getElementById(id))
+        .filter(Boolean);
+    controls.forEach(control => {
+        if (control.dataset.bound) return;
+        control.dataset.bound = 'true';
+        control.addEventListener(control.tagName === 'INPUT' ? 'input' : 'change', () => renderDeploymentTable(schedules, locations));
+    });
+}
+
+function populateDeploymentFilters(locations) {
+    const select = document.getElementById('deploymentSiteFilter');
+    const current = select.value;
+    select.innerHTML = '<option value="">All sites</option>' + locations
+        .map(location => '<option value="' + escapeHtml(location.id) + '">' + escapeHtml(location.label || 'Deployment site') + '</option>')
+        .join('');
+    select.value = [...select.options].some(option => option.value === current) ? current : '';
+}
+
+function renderDeploymentTable(schedules, locations) {
+    const siteFilter = document.getElementById('deploymentSiteFilter').value;
+    const shiftFilter = document.getElementById('deploymentShiftFilter').value;
+    const search = document.getElementById('deploymentSearch').value.trim().toLowerCase();
+    const locationById = new Map(locations.map(location => [location.id, location]));
+    const grouped = new Map();
+    schedules.forEach(schedule => {
+        const locationId = schedule.location_id || '';
+        const location = locationById.get(locationId) || {};
+        const siteName = schedule.location_label || location.label || 'Unassigned site';
+        const address = schedule.location_address || location.address || '-';
+        const shift = dashboardShiftKind(schedule.start_at);
+        const haystack = (siteName + ' ' + address).toLowerCase();
+        if (siteFilter && locationId !== siteFilter) return;
+        if (shiftFilter && shift !== shiftFilter) return;
+        if (search && !haystack.includes(search)) return;
+        const key = locationId || siteName;
+        if (!grouped.has(key)) grouped.set(key, { siteName, address, day: new Set(), night: new Set() });
+        grouped.get(key)[shift].add(schedule.user_id || schedule.guard_name || schedule.id);
+    });
+    const rows = [...grouped.values()].sort((a, b) => a.siteName.localeCompare(b.siteName));
+    document.getElementById('deploymentTableBody').innerHTML = rows.length ? rows.map(row => {
+        const day = row.day.size;
+        const night = row.night.size;
+        return '<tr>' +
+            '<td>' + escapeHtml(row.siteName) + '</td>' +
+            '<td>' + escapeHtml(row.address) + '</td>' +
+            '<td>' + day + '</td>' +
+            '<td>' + night + '</td>' +
+            '<td>' + (day + night) + '</td>' +
+        '</tr>';
+    }).join('') : '<tr><td colspan="5" class="empty-state">No deployment records match the filters.</td></tr>';
+}
+
+function renderContractStatus(guards) {
+    const today = localDateString(new Date());
+    const soon = addDays(today, 30);
+    const counts = { expiring: 0, expired: 0, active: 0 };
+    guards.filter(guard => guard.active !== false && guard.employment_category === 'contract').forEach(guard => {
+        const end = guard.contract_end_date;
+        if (!end || end < today) counts.expired++;
+        else if (end <= soon) counts.expiring++;
+        else counts.active++;
+    });
+    renderDonut('contractDonut', 'contractLegend', [
+        { label: 'Expiring Soon', value: counts.expiring, color: '#f8bfa9' },
+        { label: 'Expired', value: counts.expired, color: '#f97316' },
+        { label: 'Active Contract', value: counts.active, color: '#92400e' },
+    ]);
+}
+
+function renderAttendanceOverview(schedules, attendance) {
+    const today = localDateString(new Date());
+    const todaySchedules = schedules.filter(schedule => (schedule.duty_date || localDateString(new Date(schedule.start_at))) === today);
+    const attendanceBySchedule = new Map(attendance.filter(row => row.duty_date === today).map(row => [row.schedule_id, row]));
+    let present = 0;
+    let late = 0;
+    todaySchedules.forEach(schedule => {
+        const session = attendanceBySchedule.get(schedule.id);
+        if (!session?.clock_in_at) return;
+        present++;
+        if (new Date(session.clock_in_at).getTime() > new Date(session.scheduled_start_at || schedule.start_at).getTime() + 5 * 60000) late++;
+    });
+    const absent = Math.max(0, todaySchedules.length - present);
+    renderDonut('attendanceDonut', 'attendanceLegend', [
+        { label: 'Present', value: present, color: '#fde3b3' },
+        { label: 'Absent', value: absent, color: '#f5b400' },
+        { label: 'Late', value: late, color: '#5b3412' },
+    ]);
+}
+
+function renderRecentIncidents(incidents) {
+    const recent = incidents.slice(0, 5);
+    document.getElementById('recentIncidentTableBody').innerHTML = recent.length ? recent.map(incident => (
+        '<tr data-incident-id="' + escapeHtml(incident.id) + '">' +
+            '<td>' + escapeHtml(formatDashboardDate(incident.captured_at || incident.created_at)) + '</td>' +
+            '<td>' + escapeHtml(incidentCategory(incident.category)) + '</td>' +
+            '<td>' + escapeHtml(incident.location_label || '-') + '</td>' +
+            '<td>' + escapeHtml(incidentStatus(incident.status)) + '</td>' +
+        '</tr>'
+    )).join('') : '<tr><td colspan="4" class="empty-state">No recent incidents.</td></tr>';
+    const byStatus = incidents.reduce((totals, incident) => {
+        const status = incidentStatus(incident.status);
+        totals[status] = (totals[status] || 0) + 1;
+        return totals;
+    }, {});
+    document.getElementById('incidentSummary').innerHTML = [
+        { label: 'Year', value: incidents.filter(incident => isWithinDays(incident.created_at, 365)).length },
+        { label: 'Month', value: incidents.filter(incident => isWithinDays(incident.created_at, 30)).length },
+        { label: 'Week', value: incidents.filter(incident => isWithinDays(incident.created_at, 7)).length },
+        { label: 'Open', value: byStatus.Open || 0 },
+        { label: 'Acknowledged', value: byStatus.Acknowledged || 0 },
+        { label: 'Resolved', value: byStatus.Resolved || 0 },
+    ].map(item => '<div><strong>' + item.value + '</strong><span>' + item.label + '</span></div>').join('');
+}
+
+function renderDonut(chartId, legendId, segments) {
+    const total = segments.reduce((sum, segment) => sum + segment.value, 0);
+    let cursor = 0;
+    const stops = total ? segments.map(segment => {
+        const start = cursor;
+        cursor += (segment.value / total) * 360;
+        return segment.color + ' ' + start.toFixed(2) + 'deg ' + cursor.toFixed(2) + 'deg';
+    }).join(', ') : '#e5e7eb 0deg 360deg';
+    const chart = document.getElementById(chartId);
+    chart.style.background = 'conic-gradient(' + stops + ')';
+    chart.dataset.total = total;
+    chart.setAttribute('aria-label', segments.map(segment => segment.label + ': ' + segment.value).join(', '));
+    document.getElementById(legendId).innerHTML = segments.map(segment =>
+        '<span><i style="background:' + segment.color + '"></i>' + escapeHtml(segment.label) + ' <strong>' + segment.value + '</strong></span>'
+    ).join('');
+}
+
+function dashboardShiftKind(startAt) {
+    const date = new Date(startAt);
+    const hourText = date.toLocaleString('en-PH', { timeZone: 'Asia/Manila', hour: '2-digit', hour12: false });
+    const hour = Number.isNaN(date.getTime()) ? 8 : Number(hourText);
+    return hour >= 18 || hour < 6 ? 'night' : 'day';
+}
+
+function localDateString(date) {
+    return date.toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
+}
+
+function addDays(dateString, days) {
+    const date = new Date(dateString + 'T00:00:00+08:00');
+    date.setDate(date.getDate() + days);
+    return localDateString(date);
+}
+
+function isWithinDays(value, days) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return false;
+    return Date.now() - date.getTime() <= days * 86400000;
+}
+
+function formatDashboardDate(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '-';
+    return date.toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function incidentCategory(category) {
+    return ({ crime: 'Crime / theft', fire: 'Fire / hazard', medical: 'Medical emergency', disturbance: 'Disturbance / fight', other: 'Emergency' })[category] || category || 'Incident';
+}
+
+function incidentStatus(status) {
+    const normalized = ['open', 'acknowledged', 'resolved'].includes(status) ? status : 'open';
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+}
+
+function escapeHtml(text) {
+    return String(text ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 </script>
 </body>

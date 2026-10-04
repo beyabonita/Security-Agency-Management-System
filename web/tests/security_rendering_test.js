@@ -64,6 +64,14 @@ for (const page of ['dashboard.html', 'users.html', 'locations.html', 'schedule.
   expectIncludes(source, '</span> Personnel</a>', `${page} Personnel navigation label`);
   expectExcludes(source, '</span> Users</a>', `${page} legacy Users navigation label`);
 }
+const adminDashboard = read('admin', 'dashboard.html');
+expectIncludes(adminDashboard, 'id="deploymentSiteFilter"', 'Operations Head deployment filters');
+expectIncludes(adminDashboard, 'id="contractDonut"', 'Operations Head contract-status chart');
+expectIncludes(adminDashboard, 'id="attendanceDonut"', 'Operations Head attendance-overview chart');
+expectIncludes(adminDashboard, 'id="recentIncidentTableBody"', 'Operations Head recent incident table');
+expectIncludes(adminDashboard, "data-incident-id", 'safe dashboard incident row identifier');
+expectExcludes(adminDashboard, 'onclick="openDetail', 'dashboard inline incident opener');
+assertInlineScriptsParse(adminDashboard, 'admin/dashboard.html');
 assertInlineScriptsParse(adminUsers, 'admin/users.html');
 
 const inspectorUsers = read('inspector', 'users.html');
