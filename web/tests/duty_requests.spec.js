@@ -153,6 +153,8 @@ test('Operations Head must confirm actual Time Out before approving started-duty
   await page.getByRole('button',{name:'Approve',exact:true}).click();
   await expect(page.getByRole('dialog')).toContainText('Confirm when the Guard actually stopped working');
   await page.getByLabel('Replacement Guard').selectOption(cover);
+  const actualEndInput = page.getByLabel('Confirmed actual Time Out (Philippine time)');
+  await expect(actualEndInput).not.toHaveValue('');
   await page.getByRole('button',{name:'Approve request',exact:true}).click();
   expect(await page.evaluate(()=>calls.filter(c=>c.name==='decide_duty_relief').length)).toBe(0);
   await page.getByLabel('Confirmed actual Time Out (Philippine time)').fill('2026-09-11T10:30');

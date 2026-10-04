@@ -135,7 +135,16 @@ async function decideRequest(r, approve, button) {
     const {data,error}=await appSupabase.from('attendance_sessions').select('id,clock_in_at,clock_out_at,scheduled_end_at').eq('schedule_id',r.requested_schedule_id);
     if(error)throw error;
     openAttendance=(data||[]).find(a=>!a.clock_out_at);
-    if(openAttendance)fields.push({name:'actualEnd',label:'Confirmed actual Time Out (Philippine time)',type:'datetime-local',required:true});
+    if(openAttendance) {
+      const clampMs = Math.min(Date.now(), new Date(openAttendance.scheduled_end_at).getTime());
+      const submissionMs = r.created_at ? new Date(r.created_at).getTime() : Date.now();
+      const defaultMs = Math.max(
+        new Date(openAttendance.clock_in_at).getTime(),
+        Math.min(submissionMs, clampMs)
+      );
+      const defaultTimeLocal = new Date(defaultMs + 8 * 3600000).toISOString().slice(0, 16);
+      fields.push({name:'actualEnd',label:'Confirmed actual Time Out (Philippine time)',type:'datetime-local',required:true,value:defaultTimeLocal});
+    }
   }
   if (needsReplacement) {
     const targetSchedule = dutySchedules[r.requested_schedule_id];
