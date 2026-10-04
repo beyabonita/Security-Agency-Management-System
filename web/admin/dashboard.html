@@ -434,10 +434,7 @@ function renderIncidentIntelligence(days) {
 
     filtered.forEach(inc => {
         const loc = inc.location_label || 'Unassigned post';
-        if (!locationStats[loc]) {
-            locationStats[loc] = { total: 0, Open: 0, Acknowledged: 0, Resolved: 0 };
-        }
-        locationStats[loc].total++;
+        locationStats[loc] = (locationStats[loc] || 0) + 1;
 
         if (inc.user_id) {
             guardCounts[inc.user_id] = (guardCounts[inc.user_id] || 0) + 1;
@@ -448,98 +445,93 @@ function renderIncidentIntelligence(days) {
 
         const stat = incidentStatus(inc.status);
         if (statusCounts[stat] !== undefined) statusCounts[stat]++;
-        if (locationStats[loc][stat] !== undefined) locationStats[loc][stat]++;
     });
 
-    const sortedLocations = Object.entries(locationStats).sort((a, b) => b[1].total - a[1].total);
-    const topLocationEntry = sortedLocations[0];
-    const topGuardEntry = Object.entries(guardCounts).sort((a, b) => b[1] - a[1])[0];
-    const topCategoryEntry = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0];
+    const topLocations = Object.entries(locationStats)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([rawName, count]) => {
+            const locDisplay = formatLocationDisplay(rawName);
+            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+            return { rawName, displayName: locDisplay.name, sub: locDisplay.sub, count, pct };
+        });
 
-    const topLocationName = topLocationEntry ? topLocationEntry[0] : 'None';
-    const topLocationCount = topLocationEntry ? topLocationEntry[1].total : 0;
-    const topLocationPct = total > 0 ? Math.round((topLocationCount / total) * 100) : 0;
-    const topLocationFormatted = formatLocationDisplay(topLocationName);
+    const topGuards = Object.entries(guardCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([uid, count]) => {
+            const name = guardNameById.get(uid) || 'Guard';
+            return { name, count };
+        });
 
-    const topGuardName = topGuardEntry ? (guardNameById.get(topGuardEntry[0]) || 'Guard') : 'None';
-    const topGuardCount = topGuardEntry ? topGuardEntry[1] : 0;
-
-    const topCategoryName = topCategoryEntry ? topCategoryEntry[0] : 'None';
-    const topCategoryCount = topCategoryEntry ? topCategoryEntry[1] : 0;
-    const topCategoryRate = total > 0 ? Math.round((topCategoryCount / total) * 100) : 0;
+    const topCategories = Object.entries(categoryCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([name, count]) => {
+            const rate = total > 0 ? Math.round((count / total) * 100) : 0;
+            return { name, count, rate };
+        });
 
     const periodLabel = days === 7 ? 'past 7 days' : days === 30 ? 'past 30 days' : days === 365 ? 'past year' : 'all time';
-    const maxAreaCount = topLocationCount || 1;
 
-    const rankedBarsHtml = sortedLocations.length > 0 ? sortedLocations.map(([locName, stats], idx) => {
-        const pct = Math.max(14, Math.round((stats.total / maxAreaCount) * 100));
-        const locDisplay = formatLocationDisplay(locName);
-        return `
-            <div class="incident-bar-row">
-                <div class="incident-bar-meta">
-                    <span class="incident-rank-badge">#${idx + 1}</span>
-                    <span class="incident-bar-title" title="${escapeHtml(locName)}">${escapeHtml(locDisplay.name)}</span>
-                </div>
-                <div class="incident-bar-track-wrap">
-                    <div class="incident-bar-track">
-                        <div class="incident-bar-progress" style="width: ${pct}%;">
-                            <span class="incident-bar-count">${stats.total}</span>
-                        </div>
+    function renderList(items, badgeFn, emptyText) {
+        if (!items.length) {
+            return `<li class="incident-top5-empty">${escapeHtml(emptyText)}</li>`;
+        }
+        return items.map((item, idx) => `
+            <li class="incident-top5-item">
+                <div class="incident-top5-item-left">
+                    <span class="incident-top5-rank">${idx + 1}</span>
+                    <div class="incident-top5-info">
+                        <span class="incident-top5-name" title="${escapeHtml(item.rawName || item.name)}">${escapeHtml(item.displayName || item.name)}</span>
+                        ${item.sub ? `<span class="incident-top5-sub">${escapeHtml(item.sub)}</span>` : ''}
                     </div>
                 </div>
-                <div class="incident-bar-status-tags">
-                    ${stats.Open > 0 ? `<span class="mini-status open">${stats.Open} Open</span>` : ''}
-                    ${stats.Acknowledged > 0 ? `<span class="mini-status ack">${stats.Acknowledged} Ack</span>` : ''}
-                    ${stats.Resolved > 0 ? `<span class="mini-status resolved">${stats.Resolved} Resolved</span>` : ''}
-                </div>
-            </div>
-        `;
-    }).join('') : `<div class="incident-empty-chart"><span class="material-symbols-rounded" style="font-size:20px;">verified</span> No incidents recorded for ${periodLabel}.</div>`;
+                <span class="incident-top5-badge">${badgeFn(item)}</span>
+            </li>
+        `).join('');
+    }
 
     container.innerHTML = `
-        <div class="incident-highlights-row">
-            <div class="incident-kpi-card highlight-card">
-                <div class="incident-kpi-label">
-                    <span class="material-symbols-rounded" style="font-size:16px;">location_on</span>
-                    Highest incident area
-                </div>
-                <div class="incident-kpi-val" title="${escapeHtml(topLocationName)}">${escapeHtml(topLocationFormatted.name)}</div>
-                <div class="incident-kpi-sub">${escapeHtml(topLocationFormatted.sub ? topLocationFormatted.sub + ' • ' : '')}${total > 0 ? `${topLocationCount} incident${topLocationCount === 1 ? '' : 's'} (${topLocationPct}% of period)` : 'No reports in ' + periodLabel}</div>
+        <div class="incident-status-summary-bar">
+            <span class="incident-status-summary-label">Status breakdown (${total})</span>
+            <div class="incident-status-badges">
+                <span class="incident-status-pill open">● Open: <strong>${statusCounts.Open || 0}</strong></span>
+                <span class="incident-status-pill ack">● Ack: <strong>${statusCounts.Acknowledged || 0}</strong></span>
+                <span class="incident-status-pill resolved">● Resolved: <strong>${statusCounts.Resolved || 0}</strong></span>
             </div>
-
-            <div class="incident-kpi-card highlight-card">
-                <div class="incident-kpi-label">
-                    <span class="material-symbols-rounded" style="font-size:16px;">shield_person</span>
-                    Top reporting guard
-                </div>
-                <div class="incident-kpi-val">${escapeHtml(topGuardName)}</div>
-                <div class="incident-kpi-sub">${topGuardCount > 0 ? `${topGuardCount} report${topGuardCount === 1 ? '' : 's'} filed` : 'No submissions in ' + periodLabel}</div>
-            </div>
-
-            <div class="incident-kpi-card highlight-card">
-                <div class="incident-kpi-label">
-                    <span class="material-symbols-rounded" style="font-size:16px;">warning</span>
-                    Top incident rate
-                </div>
-                <div class="incident-kpi-val">${escapeHtml(topCategoryName)}</div>
-                <div class="incident-kpi-sub">${total > 0 ? `${topCategoryCount} report${topCategoryCount === 1 ? '' : 's'} (${topCategoryRate}% rate)` : 'No incidents recorded'}</div>
-            </div>
+            <span class="incident-status-period">Filtered for ${periodLabel}</span>
         </div>
 
-        <div class="incident-chart-panel">
-            <div class="incident-chart-panel-header">
-                <div>
-                    <h4 class="incident-panel-title">Incidents by deployment area</h4>
-                    <span class="incident-panel-sub">Ranked location volume and resolution status (${periodLabel})</span>
+        <div class="incident-top5-grid">
+            <div class="incident-top5-card">
+                <div class="incident-top5-header">
+                    <span class="material-symbols-rounded">location_on</span>
+                    <h4>Highest incident area (Top 5)</h4>
                 </div>
-                <div class="incident-status-legend">
-                    <span class="incident-status-pill open">● Open: <strong>${statusCounts.Open || 0}</strong></span>
-                    <span class="incident-status-pill ack">● Ack: <strong>${statusCounts.Acknowledged || 0}</strong></span>
-                    <span class="incident-status-pill resolved">● Resolved: <strong>${statusCounts.Resolved || 0}</strong></span>
-                </div>
+                <ol class="incident-top5-list">
+                    ${renderList(topLocations, item => `${item.count} report${item.count === 1 ? '' : 's'} (${item.pct}%)`, 'No reports in ' + periodLabel)}
+                </ol>
             </div>
-            <div class="incident-ranked-bars">
-                ${rankedBarsHtml}
+
+            <div class="incident-top5-card">
+                <div class="incident-top5-header">
+                    <span class="material-symbols-rounded">shield_person</span>
+                    <h4>Top reporting guard (Top 5)</h4>
+                </div>
+                <ol class="incident-top5-list">
+                    ${renderList(topGuards, item => `${item.count} filed`, 'No submissions in ' + periodLabel)}
+                </ol>
+            </div>
+
+            <div class="incident-top5-card">
+                <div class="incident-top5-header">
+                    <span class="material-symbols-rounded">warning</span>
+                    <h4>Top incident rate &amp; types (Top 5)</h4>
+                </div>
+                <ol class="incident-top5-list">
+                    ${renderList(topCategories, item => `${item.count} (${item.rate}%)`, 'No incidents recorded')}
+                </ol>
             </div>
         </div>
     `;

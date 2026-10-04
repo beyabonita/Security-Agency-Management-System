@@ -1,5 +1,23 @@
 # Project Change Log
 
+### [2026-10-04 16:15] - Incident Intelligence Top 5 Ranking Cards & Status Bar
+
+- **Scope & Objective**: Converted the Incident Intelligence summary on the Operations Head dashboard (`web/admin/dashboard.html`) to display the Top 5 rankings instead of single highlights, and completely eliminated visual graph/bar charts per user request:
+  1. Removed horizontal/vertical graphs and chart panels completely.
+  2. Highest Incident Area: Displays top 5 deployment locations ranked #1 through #5 with report counts and incident share percentages.
+  3. Top Reporting Guard: Displays top 5 guards ranked #1 through #5 with resolved names and filed report counts.
+  4. Top Incident Rate: Displays top 5 incident types/categories ranked #1 through #5 with frequency rates and counts.
+  5. Dedicated Status & Period Summary Bar: Added `#incidentStatusSummaryBar` directly above the 3-column leaderboard displaying live counts for `Open`, `Acknowledged`, and `Resolved` alongside timeframe and total report volume.
+- **Files Modified / Created**:
+  - `web/admin/dashboard.html`: Updated `renderIncidentIntelligence()` to slice top 5 items for locations, guards, and categories; added `.incident-status-summary-bar` and 3-column Top 5 leaderboard grid.
+  - `web/admin/css/admin-theme.css`: Removed all `.incident-chart-panel` / `.incident-ranked-bars` rules and added styles for `.incident-status-summary-bar`, `.incident-top5-grid`, `.incident-top5-card`, `.incident-top5-item`, `.incident-top5-rank`, and responsive mobile wrapping.
+- **Verification & Testing**:
+  - `npx playwright test admin_dashboard.spec.js` in `web/tests`: Passed (1 passed, 2.0s).
+- **Pending / Next Steps**:
+  - Ready for commit and push to production.
+
+---
+
 ### [2026-10-04 15:48] - Incident Intelligence Summary with Timeframe Filters and Risk KPIs
 
 - **Scope & Objective**: Enhanced the incident summary section on the Operations Head dashboard (`web/admin/dashboard.html`) to include interactive period filtering and 4 live analytics KPI cards:
