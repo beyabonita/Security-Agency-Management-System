@@ -39,24 +39,44 @@
       </div></header>
       <main class="ax-content">
 
-            <div class="ax-stat-strip">
+            <div class="ax-stat-strip" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
                 <div class="ax-stat-item">
                     <div class="ax-stat-num" id="totalGuards">—</div>
                     <div class="ax-stat-lbl">My assigned Guards</div>
                     <div class="ax-stat-hint" id="activeGuardsLabel"></div>
                 </div>
+                <div class="ax-stat-item" style="border-top-color: var(--sl-danger, #dc2626);">
+                    <div class="ax-stat-num" id="activeIncidents" style="color:var(--sl-danger, #dc2626);">—</div>
+                    <div class="ax-stat-lbl">Field investigations</div>
+                    <div class="ax-stat-hint" id="activeIncidentsHint" style="color:var(--sl-danger, #dc2626);">Checking status…</div>
+                </div>
+                <div class="ax-stat-item">
+                    <div class="ax-stat-num" id="activeGuards">—</div>
+                    <div class="ax-stat-lbl">Active guards</div>
+                    <div class="ax-stat-hint" style="color:var(--ax-muted,#6b7280);">Available for shift</div>
+                </div>
                 <div class="ax-stat-item">
                     <div class="ax-stat-num" id="totalLocations">—</div>
                     <div class="ax-stat-lbl">Active sites</div>
+                    <div class="ax-stat-hint" style="color:var(--ax-muted,#6b7280);">Monitored posts</div>
                 </div>
                 <div class="ax-stat-item">
                     <div class="ax-stat-num" id="totalSchedules" title="One assigned guard shift counts as one. Includes past, current and future dates; excludes drafts and cancellations.">—</div>
                     <div class="ax-stat-lbl">Assigned guard shifts</div>
                     <div class="ax-stat-hint">Your Guards · all dates</div>
                 </div>
-                <div class="ax-stat-item">
-                    <div class="ax-stat-num" id="activeGuards">—</div>
-                    <div class="ax-stat-lbl">Active guards</div>
+            </div>
+
+            <!-- Active Field Investigations Queue -->
+            <div class="ax-section-label" style="display:flex; justify-content:space-between; align-items:center;">
+                <span>Active field investigations</span>
+                <a href="incidents.html" style="font-size:0.8rem; font-weight:600; text-decoration:none; color:var(--brand-primary,#b91c1c);">View all incidents →</a>
+            </div>
+            <div class="ax-panel" id="incidentQueuePanel" style="margin-bottom:28px;">
+                <div id="incidentQueueList">
+                    <div style="padding:24px; text-align:center; color:var(--ix-muted);">
+                        <div class="spinner-border spinner-border-sm text-danger" role="status"></div> Loading investigations…
+                    </div>
                 </div>
             </div>
 
@@ -112,6 +132,102 @@ const auth = firebase.auth();
 const db   = firebase.firestore();
 let inspectorUserId = null;
 
+const CATEGORY_LABELS = {
+    crime: 'Crime / theft',
+    fire: 'Fire / hazard',
+    medical: 'Medical emergency',
+    trespassing: 'Trespassing',
+    disturbance: 'Disturbance',
+    property_damage: 'Property damage',
+    suspicious_activity: 'Suspicious activity',
+    fire_hazard: 'Fire / hazard',
+    other: 'General incident'
+};
+
+function formatWhen(ts) {
+    if (!ts) return '—';
+    const date = ts.toDate ? ts.toDate() : new Date(ts);
+    if (isNaN(date.getTime())) return '—';
+    return date.toLocaleString('en-PH', {
+        month: 'short', day: 'numeric',
+        hour: 'numeric', minute: '2-digit', hour12: true
+    });
+}
+
+function escapeHtml(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+function statusBadge(status) {
+    const s = ['under_investigation', 'escalated', 'acknowledged', 'resolved', 'open'].includes(status) ? status : 'open';
+    let cls = 'badge-open';
+    let label = 'Open';
+    if (s === 'resolved') {
+        cls = 'badge-resolved';
+        label = 'Resolved';
+    } else if (s === 'under_investigation') {
+        cls = 'badge-investigating';
+        label = 'Under investigation';
+    } else if (s === 'escalated') {
+        cls = 'badge-escalated';
+        label = 'Escalated';
+    } else if (s === 'acknowledged') {
+        cls = 'badge-ack';
+        label = 'Acknowledged';
+    }
+    return '<span class="badge-status ' + cls + '">' + label + '</span>';
+}
+
+function renderIncidentQueue(items) {
+    const container = document.getElementById("incidentQueueList");
+    if (!container) return;
+    if (!items.length) {
+        container.innerHTML = `
+            <div style="padding:32px 20px; text-align:center;">
+                <span class="material-symbols-rounded" style="font-size:40px; color:#16a34a; margin-bottom:6px; display:inline-block;">verified_user</span>
+                <p style="margin:0; font-weight:700; font-size:0.95rem;">All Assigned Posts Clear</p>
+                <p style="margin:4px 0 0; font-size:0.82rem; color:var(--ix-muted);">No open or escalated incident reports requiring field disposition.</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = `
+        <div class="ax-table-wrapper" style="overflow-x:auto;">
+            <table class="ax-table" style="width:100%; margin:0;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--ax-border);">
+                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">When</th>
+                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Guard &amp; Post</th>
+                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Category</th>
+                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Status</th>
+                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Evidence</th>
+                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted); text-align:right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${items.map(inc => {
+                        const cat = CATEGORY_LABELS[inc.category] || inc.category || 'Incident';
+                        const evidence = inc.videoPath ? (String(inc.videoDurationSeconds || 15) + 's video' + (inc.photoData || inc.photoUrl ? ' + photo' : '')) : (inc.photoData || inc.photoUrl ? 'Photo' : 'Text report');
+                        return `<tr>
+                            <td style="white-space:nowrap; font-size:0.82rem; color:var(--ax-muted);">${escapeHtml(formatWhen(inc.capturedAt || inc.createdAt))}</td>
+                            <td>
+                                <strong>${escapeHtml(inc.guardName || 'Assigned Guard')}</strong>
+                                <div style="font-size:0.78rem; color:var(--ax-muted);">${escapeHtml(inc.locationLabel || 'Assigned site')}</div>
+                            </td>
+                            <td><span class="badge-cat">${escapeHtml(cat)}</span></td>
+                            <td>${statusBadge(inc.status)}</td>
+                            <td style="font-size:0.8rem; color:var(--ax-muted);">${escapeHtml(evidence)}</td>
+                            <td style="text-align:right;">
+                                <a href="incidents.html" class="ax-btn" style="padding:5px 12px; font-size:0.78rem; text-decoration:none;">Review</a>
+                            </td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>`;
+}
+
 auth.onAuthStateChanged(async function(user) {
     if (!user) { window.location.href = "../staff/login.html"; return; }
 
@@ -144,10 +260,11 @@ auth.onAuthStateChanged(async function(user) {
 
 async function loadDashboard() {
     try {
-        const [guardSnapshot, locationSnapshot, scheduleSnapshot] = await Promise.all([
+        const [guardSnapshot, locationSnapshot, scheduleSnapshot, incidentSnapshot] = await Promise.all([
             db.collection("users").where("role", "==", "user").where('inspector_id', '==', inspectorUserId).get(),
             db.collection("locations").where("active", "==", true).get(),
             db.collection("schedules").get(),
+            db.collection("incidents").get().catch(() => ({ docs: [] })),
         ]);
         const assignedIds = new Set(guardSnapshot.docs.map(guard => guard.id));
         document.getElementById("totalGuards").innerText = assignedIds.size;
@@ -157,6 +274,20 @@ async function loadDashboard() {
         document.getElementById("activeGuardsLabel").innerText = assignedIds.size ? active + " currently active" : 'Operations Head has not assigned Guards to you yet.';
         document.getElementById("totalLocations").innerText = locationSnapshot.size;
         document.getElementById("totalSchedules").innerText = countAssignedGuardShifts(scheduleSnapshot.docs, assignedIds);
+
+        const allIncidents = (incidentSnapshot.docs || []).map(d => ({ id: d.id, ...d.data() }));
+        const activeIncidents = allIncidents.filter(inc => inc.status === 'under_investigation' || inc.status === 'escalated' || inc.status === 'open');
+        const activeCountEl = document.getElementById("activeIncidents");
+        if (activeCountEl) activeCountEl.innerText = activeIncidents.length;
+        const activeHintEl = document.getElementById("activeIncidentsHint");
+        if (activeHintEl) {
+            activeHintEl.innerText = activeIncidents.length === 0
+                ? 'All posts clear'
+                : activeIncidents.length === 1
+                ? '1 incident awaiting action'
+                : activeIncidents.length + ' incidents awaiting action';
+        }
+        renderIncidentQueue(activeIncidents);
     } catch (error) {
         if (window.appDialog) appDialog.toast('Some overview totals could not be loaded. Refresh to try again.', { tone: 'danger' });
     }

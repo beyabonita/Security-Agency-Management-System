@@ -1,5 +1,18 @@
 # Project Change Log
 
+### [2026-10-05 01:22] - Feature: Field Inspector Dashboard Revamp (Phase 1 - Field Status & Incident Queue)
+
+- **Scope & Objective**: Revamp the Field Inspector Dashboard (`web/inspector/dashboard.html`) to prioritize tactical field operations over passive counters. Introduced an active field investigations stat and a prominent real-time incident queue right on the dashboard.
+- **Key Enhancements**:
+  - **Operational Stat Strip**: Added a dedicated `Field investigations` stat card with amber/red accent tracking active incidents (`under_investigation`, `escalated`, `open`) awaiting field disposition, alongside assigned guards, active guards, and active posts.
+  - **Active Field Investigations Queue**: Added a real-time table queue displaying pending incidents from assigned guards with timestamp, guard name, post location, category badge, status badge (`Under investigation`, `Escalated`, `Open`), evidence details (photo / 15s video), and a direct "Review" button linking to disposition.
+  - **Reassuring Empty State**: When all assigned posts are clear with no pending investigations, displays a clean `verified_user` green shield banner confirming all assigned posts are secure.
+  - **Backward Compatibility**: Preserved all existing DOM IDs (`#totalGuards`, `#totalSchedules`, `#activeGuards`, `#totalLocations`) ensuring existing automated tests remain fully green.
+- **Verification & Testing**:
+  - `npm run test:playwright -- inspector_team.spec.js`: All 6 tests passed.
+
+---
+
 ### [2026-10-05 01:12] - Feature: Inspector Incident Review Status Options (Under Investigation, Escalated, Resolved)
 
 - **Scope & Objective**: In the Inspector console incident review and disposition modal, remove the "Open" status option and configure the status options as requested: "Under investigation", "Escalated", and "Resolved".
