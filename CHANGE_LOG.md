@@ -1,6 +1,36 @@
 # Project Change Log
 
-### [2026-10-04 20:20] - Fix: Android APK Native Lib Compression (STORED) & QR Code Endpoint
+### [2026-10-04 21:05] - Feature: Geofence Editing Safeguard for Deployed Guard Locations
+
+- **Scope & Objective**: Added a robust safeguard to the geofencing editor in Company / Deployment Sites (`web/admin/locations.html`) preventing accidental alteration of coordinates, radius, or address when active security guards are stationed at the location.
+- **Problem & Rationale**:
+  - If an administrator modifies the geofence perimeter or relocates a site that currently has active guards assigned, existing shifts, GPS check-in audits, and DTR historical verification will be invalidated or corrupted.
+  - Per the user's requirement, editing must be locked when guards are deployed at the location, ensuring only the site label can be updated while preserving geofence boundaries.
+- **Key Implementation Details**:
+  - **Deployed Guards Detection**:
+    - During `loadLocations()` and when opening `editLocation(id)`, queried active assigned personnel (`assignedLocationId === siteId && active !== false`).
+    - Stored count and guard list in `deployedGuardsByLocation`.
+  - **Visual Indicator in Sites Table**:
+    - Added a `🔒 X Deployed` badge in the deployment sites table alongside the location name.
+    - Updated the "Edit" button to show a lock icon when guards are stationed.
+  - **Prominent Safeguard Banner**:
+    - Added `#geofenceSafeguardBanner` displaying an alert notice, active guard chips with names, quick link to open "View Deployed Guards" modal, and direct navigation to reassign guards in the Personnel tab.
+  - **Input & Map Interaction Locking**:
+    - Radius (`#radius`), Philippine Address Search (`#addressSearch`), Search Button (`#addressSearchButton`), Place Type (`#addressType`), and area filters are locked (`disabled` + `.input-locked`).
+    - Map click events are intercepted to reject pin movement and show an informative toast notice.
+    - Leaflet marker dragging is disabled with an explanatory tooltip (`Geofence locked: active guards deployed`).
+  - **Guarded Save Mechanism**:
+    - In `saveLocation()`, if guards are deployed, strictly restricts updates to `{ label }` in Firestore, completely blocking changes to `latitude`, `longitude`, `radius`, or `address`.
+  - **Automated Test Coverage**:
+    - Added `web/tests/geofence_safeguard.spec.js` asserting locked controls, banner rendering, guard chip display, marker lock, and guarded save behavior (2/2 passing).
+    - Verified all existing Playwright tests in `geofence_default.spec.js` and `ph_location_search.spec.js` pass (12/12 passing).
+    - Verified Google Material icon font compliance (`node web/tests/google_icons_test.js` - 43 bundled symbols, 179 references passing).
+- **Files Modified / Created**:
+  - `web/admin/locations.html`: Safeguard banner, badge, locked state controls, guarded save logic, and styling.
+  - `web/tests/geofence_safeguard.spec.js`: Automated Playwright test suite for geofencing safeguard.
+  - `CHANGE_LOG.md`: Documented implementation and rationale.
+
+---
 
 - **Scope & Objective**: Resolved the `"Invalid when installed"` error on Android and updated the Guard mobile app download links and QR code to point to the live `tts-agency.site` domain.
 - **Root Cause Analysis**:
