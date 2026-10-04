@@ -16,15 +16,27 @@
   }
 
   function normalizedStatus(status) {
-    return ['open', 'acknowledged', 'resolved'].includes(status) ? status : 'open';
+    return ['under_investigation', 'escalated', 'acknowledged', 'resolved', 'open'].includes(status) ? status : 'open';
   }
 
   function statusBadge(status) {
     const value = normalizedStatus(status);
-    const cssClass = value === 'resolved'
-      ? 'badge-resolved'
-      : value === 'acknowledged' ? 'badge-ack' : 'badge-open';
-    return `<span class="badge-status ${cssClass}">${value.charAt(0).toUpperCase() + value.slice(1)}</span>`;
+    let cssClass = 'badge-open';
+    let label = 'Open';
+    if (value === 'resolved') {
+      cssClass = 'badge-resolved';
+      label = 'Resolved';
+    } else if (value === 'under_investigation') {
+      cssClass = 'badge-investigating';
+      label = 'Under investigation';
+    } else if (value === 'escalated') {
+      cssClass = 'badge-escalated';
+      label = 'Escalated';
+    } else if (value === 'acknowledged') {
+      cssClass = 'badge-ack';
+      label = 'Acknowledged';
+    }
+    return `<span class="badge-status ${cssClass}">${label}</span>`;
   }
 
   function pauseCurrentVideo() {
@@ -66,7 +78,15 @@
         + (incident.updatedBy ? 'Reviewer details not recorded for this earlier update.' : 'No recorded review yet.') + '</p></div>';
     }
     return history.slice().reverse().filter(entry => entry && typeof entry === 'object').map(entry => {
-      const action = entry.status === 'acknowledged' ? 'Acknowledged by' : entry.status === 'resolved' ? 'Resolved by' : 'Noted by';
+      const action = entry.status === 'under_investigation'
+        ? 'Under investigation by'
+        : entry.status === 'escalated'
+        ? 'Escalated by'
+        : entry.status === 'acknowledged'
+        ? 'Acknowledged by'
+        : entry.status === 'resolved'
+        ? 'Resolved by'
+        : 'Noted by';
       const name = entry.reviewer_name || 'Name not recorded';
       const role = roles[entry.reviewer_role] || 'Staff';
       const date = new Date(entry.reviewed_at || '');

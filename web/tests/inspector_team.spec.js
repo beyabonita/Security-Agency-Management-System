@@ -115,19 +115,21 @@ test('Inspector overview counts assigned Guards only', async ({ page }) => {
   await expect(page.getByText('My assigned Guards')).toBeVisible();
 });
 
-test('Inspector acknowledges an assigned Guard incident through the secured RPC', async ({ page }) => {
+test('Inspector reviews an assigned Guard incident through the secured RPC', async ({ page }) => {
   await teamMocks(page);
   await page.goto('/inspector/incidents.html');
   await expect(page.locator('#incidentTableBody')).toContainText('Assigned Guard');
   await page.locator('#incidentTableBody tr').click();
-  await page.locator('#statusSelect').selectOption('acknowledged');
+  const options = await page.locator('#statusSelect option').allInnerTexts();
+  expect(options).toEqual(['Under investigation', 'Escalated', 'Resolved']);
+  await page.locator('#statusSelect').selectOption('under_investigation');
   await page.locator('#statusNote').fill('Response team notified.');
   await page.getByRole('button', { name: 'Save review' }).click();
   await expect.poll(() => page.evaluate(() => teamRpcCalls)).toEqual([{
     name: 'update_incident_status',
     params: {
       p_incident_id: 'incident-a',
-      p_status: 'acknowledged',
+      p_status: 'under_investigation',
       p_status_note: 'Response team notified.',
     },
   }]);

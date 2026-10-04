@@ -1,5 +1,20 @@
 # Project Change Log
 
+### [2026-10-05 01:12] - Feature: Inspector Incident Review Status Options (Under Investigation, Escalated, Resolved)
+
+- **Scope & Objective**: In the Inspector console incident review and disposition modal, remove the "Open" status option and configure the status options as requested: "Under investigation", "Escalated", and "Resolved".
+- **Files Modified / Created**:
+  - `[web/inspector/incidents.html](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/incidents.html)`: Replaced `#statusSelect` options with `under_investigation` (Under investigation), `escalated` (Escalated), and `resolved` (Resolved); updated `statusBadge` to render badges for new statuses; updated `openDetail` to automatically select `under_investigation` when an unreviewed `open` incident is opened for disposition.
+  - `[web/inspector/css/inspector-theme.css](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/css/inspector-theme.css)`: Added `.badge-investigating` and `.badge-escalated` badge classes in light and dark modes.
+  - `[web/js/incident-report-view.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/incident-report-view.js)`: Supported `under_investigation` and `escalated` in normalized status, status badges, and review timeline action labels ("Under investigation by", "Escalated by").
+  - `[supabase/migrations/20261005000001_inspector_incident_status_options.sql](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261005000001_inspector_incident_status_options.sql)`: Updated `public.incidents` status check constraint and `update_incident_status` security definer RPC function to allow `'under_investigation'` and `'escalated'`.
+  - `[web/tests/inspector_team.spec.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/inspector_team.spec.js)`: Added test assertion verifying `#statusSelect` options are exactly `['Under investigation', 'Escalated', 'Resolved']` without `'Open'`, and verified RPC call submits `p_status: 'under_investigation'`.
+- **Verification & Testing**:
+  - `npm run test:playwright -- inspector_team.spec.js`: All 6 tests passed.
+  - `npm run test:playwright -- incident_report.spec.js records.spec.js`: All 14 tests passed.
+
+---
+
 ### [2026-10-05 00:55] - Fix: Retain Document Icon for Records Across All Pages and States
 
 - **Scope & Objective**: Fix sidebar icon inconsistency where the Records tab icon displayed as a broken text glyph (`D|`) on other admin pages (such as Live Guard Map or Dashboard) instead of the clean document icon (`description`) seen on the Records page.

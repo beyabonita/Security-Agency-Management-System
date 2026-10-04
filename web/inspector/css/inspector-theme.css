@@ -624,7 +624,11 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 .badge-status { font-size: 0.68rem; padding: 4px 10px; border-radius: 999px; font-weight: 600; }
 .badge-open { background: var(--sl-red-soft); color: var(--sl-danger); }
 .badge-ack { background: var(--sl-warning-soft); color: var(--sl-warning); }
+.badge-investigating { background: rgba(245, 158, 11, 0.15); color: #d97706; }
+.badge-escalated { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
 .badge-resolved { background: var(--sl-success-soft); color: var(--sl-success); }
+[data-theme="dark"] .badge-investigating { background: rgba(245, 158, 11, 0.22); color: #fbbf24; }
+[data-theme="dark"] .badge-escalated { background: rgba(239, 68, 68, 0.22); color: #f87171; }
 .thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 8px; border: 1px solid var(--ix-border); }
 .detail-photo { max-width: 100%; max-height: 360px; border-radius: 12px; }
 .ix-modal .form-control, .ix-modal .form-select {
