@@ -1,6 +1,23 @@
 # Project Change Log
 
-### [2026-10-04 07:33] - Add Unified Combobox Filters for Personnel and Deployment Site to Scheduled Shifts
+### [2026-10-04 15:48] - Incident Intelligence Summary with Timeframe Filters and Risk KPIs
+
+- **Scope & Objective**: Enhanced the incident summary section on the Operations Head dashboard (`web/admin/dashboard.html`) to include interactive period filtering and 4 live analytics KPI cards:
+  1. Timeframe Filter: Added interactive toggle buttons for `All time`, `This Year` (365d), `This Month` (30d), and `This Week` (7d).
+  2. Highest Incident Area: Identifies the deployment location/site with the highest report count and share percentage.
+  3. Top Reporting Guard: Resolves the reporting personnel user ID to their full name from `profiles` with total submission counts.
+  4. Top Incident Rate: Calculates the most frequent incident category and its percentage frequency rate.
+  5. Status Breakdown: Displays live colored badges for `Open`, `Acknowledged`, and `Resolved` counts.
+- **Files Modified / Created**:
+  - `[web/admin/dashboard.html](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html)`: Added timeframe filter strip `#incidentTimeFilter`, KPI container `#incidentSummary`, passed `profiles` to `renderRecentIncidents`, and implemented `renderIncidentIntelligence()` engine.
+  - `[web/admin/css/admin-theme.css](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/admin-theme.css)`: Added styles for `.incident-summary-header`, `.incident-time-filter`, `.incident-filter-btn`, `.incident-kpi-grid`, `.incident-kpi-card`, and responsive media queries.
+  - `[web/tests/admin_dashboard.spec.js](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/admin_dashboard.spec.js)`: Updated Playwright test suite to verify KPI rendering, reporter name resolution, and timeframe button interaction.
+- **Verification & Testing**:
+  - `npx playwright test admin_dashboard.spec.js` in `web/tests`: Passed (1 passed, 3.8s).
+- **Pending / Next Steps**:
+  - Ready for commit and push to production.
+
+---
 
 - **Scope & Objective**: Upgrade the filter controls under the "Scheduled guard shifts" section (`web/admin/schedule.html`) to use the single, unified searchable combobox dropdown:
   1. Converted the Personnel filter into a unified searchable combobox dropdown with live type-to-filter, toggle chevron, and clear button.

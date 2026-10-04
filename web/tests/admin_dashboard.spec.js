@@ -26,7 +26,7 @@ test('Operations Head dashboard renders deployment, contract, attendance, and in
           { id: 'session-day', user_id: 'guard-day', schedule_id: 'schedule-day', location_id: 'site-a', location_label: 'State University of Northern Negros', duty_date: '2026-10-04', scheduled_start_at: '2026-10-04T00:00:00Z', clock_in_at: '2026-10-04T00:03:00Z', status: 'open' }
         ],
         incidents: [
-          { id: 'incident-a', category: 'fire', location_label: 'Sagay', status: 'open', created_at: '2026-10-04T02:00:00Z', captured_at: '2026-10-04T02:00:00Z' }
+          { id: 'incident-a', user_id: 'guard-day', category: 'fire', location_label: 'Sagay', status: 'open', created_at: '2026-10-04T02:00:00Z', captured_at: '2026-10-04T02:00:00Z' }
         ]
       };
       function snapshot(data) {
@@ -73,5 +73,12 @@ test('Operations Head dashboard renders deployment, contract, attendance, and in
   await expect(page.locator('#attendanceLegend')).toContainText('Present');
   await expect(page.locator('#recentIncidentTableBody')).toContainText('Fire / hazard');
   await expect(page.locator('#recentIncidentTableBody tr').first()).toHaveAttribute('data-incident-id', 'incident-a');
+  await expect(page.locator('#incidentSummary')).toContainText('Sagay');
+  await expect(page.locator('#incidentSummary')).toContainText('Highest incident area');
+  await expect(page.locator('#incidentSummary')).toContainText('Top reporting guard');
+  await expect(page.locator('#incidentSummary')).toContainText('Top incident rate');
+  await expect(page.locator('#incidentSummary')).toContainText('Open: 1');
+  await page.click('#incidentTimeFilter button[data-days="365"]');
+  await expect(page.locator('#incidentTimeFilter button[data-days="365"]')).toHaveClass(/is-active/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

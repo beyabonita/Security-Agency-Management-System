@@ -374,13 +374,127 @@ body[data-it-page="users"] .ax-nav a[href="users.html"] {
     margin-left: auto;
     color: var(--ax-text);
 }
-.incident-summary { margin-top: 20px; }
+.incident-summary {
+    margin-top: 24px;
+    padding: 20px;
+    border: 1px solid var(--ax-border);
+    border-radius: 12px;
+    background: var(--sl-surface-muted);
+}
+.incident-summary-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+}
 .incident-summary h3 {
-    margin: 0 0 12px;
+    margin: 0;
     color: var(--ax-text);
-    font-size: .98rem;
+    font-size: .95rem;
     font-weight: 800;
     text-transform: uppercase;
+    letter-spacing: .04em;
+}
+.incident-summary-sub {
+    font-size: .78rem;
+    color: var(--ax-muted);
+    display: block;
+    margin-top: 2px;
+    font-weight: 600;
+}
+.incident-time-filter {
+    display: inline-flex;
+    padding: 3px;
+    background: var(--ax-surface, #ffffff);
+    border: 1px solid var(--ax-border);
+    border-radius: 8px;
+    gap: 3px;
+}
+.incident-filter-btn {
+    border: none;
+    background: transparent;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--ax-muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.incident-filter-btn:hover {
+    color: var(--ax-text);
+}
+.incident-filter-btn.is-active {
+    background: var(--sl-primary, #92400e);
+    color: #ffffff;
+}
+.incident-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+.incident-kpi-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--ax-surface, #ffffff);
+    border: 1px solid var(--ax-border);
+    border-radius: 10px;
+    min-height: 104px;
+}
+.incident-kpi-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--ax-muted);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+.incident-kpi-val {
+    margin: 8px 0 4px;
+    font-size: 1.12rem;
+    font-weight: 800;
+    color: var(--ax-text);
+    line-height: 1.25;
+    word-break: break-word;
+}
+.incident-kpi-sub {
+    font-size: .76rem;
+    color: var(--ax-muted);
+    font-weight: 600;
+}
+.incident-status-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0 4px;
+}
+.incident-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: .75rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.incident-status-pill.open {
+    background: rgba(249, 115, 22, 0.12);
+    color: #c2410c;
+}
+.incident-status-pill.ack {
+    background: rgba(59, 130, 246, 0.12);
+    color: #1d4ed8;
+}
+.incident-status-pill.resolved {
+    background: rgba(16, 185, 129, 0.12);
+    color: #047857;
 }
 .incident-summary-grid {
     display: grid;
@@ -971,6 +1085,7 @@ button.btn-add-schedule:focus-visible,
     .dashboard-grid { grid-template-columns: 1fr; gap: 16px; }
     .dashboard-donut-row { justify-content: flex-start; }
     .incident-summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .incident-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ax-role-pill { display: none; }
     .ax-login-brand { display: none; }
     .ax-login-form-side { max-width: none; }
@@ -998,6 +1113,9 @@ button.btn-add-schedule:focus-visible,
     .dashboard-donut-row { align-items: flex-start; flex-direction: column; min-height: 0; }
     .dashboard-donut { align-self: center; }
     .incident-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .incident-kpi-grid { grid-template-columns: 1fr; }
+    .incident-time-filter { width: 100%; justify-content: space-between; }
+    .incident-filter-btn { flex: 1; text-align: center; padding: 6px 4px; }
 }
 
 /* Override legacy per-page <style> blocks (schedule.html, etc.) */

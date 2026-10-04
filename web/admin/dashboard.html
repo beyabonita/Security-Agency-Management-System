@@ -151,8 +151,19 @@
                     </table>
                 </div>
                 <div class="incident-summary">
-                    <h3>Incident summary:</h3>
-                    <div class="incident-summary-grid" id="incidentSummary"></div>
+                    <div class="incident-summary-header">
+                        <div>
+                            <h3>Incident intelligence summary</h3>
+                            <span class="incident-summary-sub">Insights by period, area risk, top reporter, and status</span>
+                        </div>
+                        <div class="incident-time-filter" id="incidentTimeFilter" role="group" aria-label="Incident Timeframe Filter">
+                            <button type="button" class="incident-filter-btn" data-days="0">All</button>
+                            <button type="button" class="incident-filter-btn" data-days="365">Year</button>
+                            <button type="button" class="incident-filter-btn" data-days="30">Month</button>
+                            <button type="button" class="incident-filter-btn is-active" data-days="7">Week</button>
+                        </div>
+                    </div>
+                    <div class="incident-kpi-grid" id="incidentSummary"></div>
                 </div>
             </section>
 
@@ -231,7 +242,7 @@ async function loadDashboard() {
             appSupabase.from('locations').select('id,label,address,active').order('label', { ascending: true }),
             appSupabase.from('schedules').select('id,user_id,location_id,location_label,location_address,guard_name,start_at,end_at,duty_date,approval_status').order('start_at', { ascending: false }).limit(500),
             appSupabase.from('attendance_sessions').select('id,user_id,schedule_id,location_id,location_label,duty_date,scheduled_start_at,clock_in_at,clock_out_at,status').order('duty_date', { ascending: false }).limit(500),
-            appSupabase.from('incidents').select('id,category,location_label,status,created_at,captured_at').order('created_at', { ascending: false }).limit(100),
+            appSupabase.from('incidents').select('id,user_id,category,location_label,status,created_at,captured_at').order('created_at', { ascending: false }).limit(200),
         ]);
         for (const result of [profilesResult, locationsResult, schedulesResult, attendanceResult, incidentsResult]) {
             if (result.error) throw result.error;
@@ -259,7 +270,7 @@ async function loadDashboard() {
         renderDeploymentTable(schedules, locations);
         renderContractStatus(guards);
         renderAttendanceOverview(schedules, attendance);
-        renderRecentIncidents(incidents);
+        renderRecentIncidents(incidents, profiles);
         bindDashboardFilters(schedules, locations);
     } catch (error) {
         if (window.appDialog) appDialog.toast('Some dashboard totals could not be loaded. Refresh to try again.', { tone: 'danger' });
@@ -357,7 +368,13 @@ function renderAttendanceOverview(schedules, attendance) {
     ]);
 }
 
-function renderRecentIncidents(incidents) {
+let currentIncidentDays = 7;
+let dashboardIncidents = [];
+let dashboardProfiles = [];
+
+function renderRecentIncidents(incidents, profiles = []) {
+    dashboardIncidents = incidents;
+    dashboardProfiles = profiles;
     const recent = incidents.slice(0, 5);
     document.getElementById('recentIncidentTableBody').innerHTML = recent.length ? recent.map(incident => (
         '<tr data-incident-id="' + escapeHtml(incident.id) + '">' +
@@ -367,19 +384,117 @@ function renderRecentIncidents(incidents) {
             '<td>' + escapeHtml(incidentStatus(incident.status)) + '</td>' +
         '</tr>'
     )).join('') : '<tr><td colspan="4" class="empty-state">No recent incidents.</td></tr>';
-    const byStatus = incidents.reduce((totals, incident) => {
-        const status = incidentStatus(incident.status);
-        totals[status] = (totals[status] || 0) + 1;
-        return totals;
-    }, {});
-    document.getElementById('incidentSummary').innerHTML = [
-        { label: 'Year', value: incidents.filter(incident => isWithinDays(incident.created_at, 365)).length },
-        { label: 'Month', value: incidents.filter(incident => isWithinDays(incident.created_at, 30)).length },
-        { label: 'Week', value: incidents.filter(incident => isWithinDays(incident.created_at, 7)).length },
-        { label: 'Open', value: byStatus.Open || 0 },
-        { label: 'Acknowledged', value: byStatus.Acknowledged || 0 },
-        { label: 'Resolved', value: byStatus.Resolved || 0 },
-    ].map(item => '<div><strong>' + item.value + '</strong><span>' + item.label + '</span></div>').join('');
+
+    bindIncidentTimeFilters();
+    renderIncidentIntelligence(currentIncidentDays);
+}
+
+function bindIncidentTimeFilters() {
+    const filterGroup = document.getElementById('incidentTimeFilter');
+    if (!filterGroup || filterGroup.dataset.bound) return;
+    filterGroup.dataset.bound = 'true';
+    filterGroup.querySelectorAll('.incident-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterGroup.querySelectorAll('.incident-filter-btn').forEach(b => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+            currentIncidentDays = Number(btn.dataset.days || 0);
+            renderIncidentIntelligence(currentIncidentDays);
+        });
+    });
+}
+
+function renderIncidentIntelligence(days) {
+    const container = document.getElementById('incidentSummary');
+    if (!container) return;
+
+    const filtered = days > 0
+        ? dashboardIncidents.filter(i => isWithinDays(i.created_at || i.captured_at, days))
+        : dashboardIncidents;
+
+    const total = filtered.length;
+    const guardNameById = new Map(dashboardProfiles.map(p => [
+        p.id,
+        [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Guard'
+    ]));
+
+    const locationCounts = {};
+    const guardCounts = {};
+    const categoryCounts = {};
+    const statusCounts = { Open: 0, Acknowledged: 0, Resolved: 0 };
+
+    filtered.forEach(inc => {
+        const loc = inc.location_label || 'Unassigned post';
+        locationCounts[loc] = (locationCounts[loc] || 0) + 1;
+
+        if (inc.user_id) {
+            guardCounts[inc.user_id] = (guardCounts[inc.user_id] || 0) + 1;
+        }
+
+        const cat = incidentCategory(inc.category);
+        categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+
+        const stat = incidentStatus(inc.status);
+        if (statusCounts[stat] !== undefined) statusCounts[stat]++;
+    });
+
+    const topLocationEntry = Object.entries(locationCounts).sort((a, b) => b[1] - a[1])[0];
+    const topGuardEntry = Object.entries(guardCounts).sort((a, b) => b[1] - a[1])[0];
+    const topCategoryEntry = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0];
+
+    const topLocationName = topLocationEntry ? topLocationEntry[0] : 'None';
+    const topLocationCount = topLocationEntry ? topLocationEntry[1] : 0;
+    const topLocationPct = total > 0 ? Math.round((topLocationCount / total) * 100) : 0;
+
+    const topGuardName = topGuardEntry ? (guardNameById.get(topGuardEntry[0]) || 'Guard') : 'None';
+    const topGuardCount = topGuardEntry ? topGuardEntry[1] : 0;
+
+    const topCategoryName = topCategoryEntry ? topCategoryEntry[0] : 'None';
+    const topCategoryCount = topCategoryEntry ? topCategoryEntry[1] : 0;
+    const topCategoryRate = total > 0 ? Math.round((topCategoryCount / total) * 100) : 0;
+
+    const periodLabel = days === 7 ? 'past 7 days' : days === 30 ? 'past 30 days' : days === 365 ? 'past year' : 'all time';
+
+    container.innerHTML = `
+        <div class="incident-kpi-card">
+            <div class="incident-kpi-label">
+                <span class="material-symbols-rounded" style="font-size:16px;">location_on</span>
+                Highest incident area
+            </div>
+            <div class="incident-kpi-val">${escapeHtml(topLocationName)}</div>
+            <div class="incident-kpi-sub">${total > 0 ? `${topLocationCount} incident${topLocationCount === 1 ? '' : 's'} (${topLocationPct}% of period)` : 'No reports in ' + periodLabel}</div>
+        </div>
+
+        <div class="incident-kpi-card">
+            <div class="incident-kpi-label">
+                <span class="material-symbols-rounded" style="font-size:16px;">person</span>
+                Top reporting guard
+            </div>
+            <div class="incident-kpi-val">${escapeHtml(topGuardName)}</div>
+            <div class="incident-kpi-sub">${topGuardCount > 0 ? `${topGuardCount} report${topGuardCount === 1 ? '' : 's'} filed` : 'No submissions in ' + periodLabel}</div>
+        </div>
+
+        <div class="incident-kpi-card">
+            <div class="incident-kpi-label">
+                <span class="material-symbols-rounded" style="font-size:16px;">warning</span>
+                Top incident rate
+            </div>
+            <div class="incident-kpi-val">${escapeHtml(topCategoryName)}</div>
+            <div class="incident-kpi-sub">${total > 0 ? `${topCategoryCount} report${topCategoryCount === 1 ? '' : 's'} (${topCategoryRate}% rate)` : 'No incidents recorded'}</div>
+        </div>
+
+        <div class="incident-kpi-card">
+            <div class="incident-kpi-label">
+                <span class="material-symbols-rounded" style="font-size:16px;">analytics</span>
+                Status breakdown (${total})
+            </div>
+            <div class="incident-status-badges">
+                <span class="incident-status-pill open">● Open: <strong>${statusCounts.Open || 0}</strong></span>
+                <span class="incident-status-pill ack">● Ack: <strong>${statusCounts.Acknowledged || 0}</strong></span>
+                <span class="incident-status-pill resolved">● Resolved: <strong>${statusCounts.Resolved || 0}</strong></span>
+            </div>
+            <div class="incident-kpi-sub" style="margin-top:6px;">Filtered for ${periodLabel}</div>
+        </div>
+    `;
 }
 
 function renderDonut(chartId, legendId, segments) {
