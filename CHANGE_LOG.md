@@ -1,6 +1,22 @@
 # Project Change Log
 
-### [2026-10-06 03:45] - Feat: Remove Legacy 'Open' Incident Status & Default to 'Under investigation'
+### [2026-10-06 04:08] - Fix: Eliminate Huge Whitespace Gap on Sides in Operations Head Console
+
+- **Scope & Objective**:
+  - Resolved the layout defect where Operations Head dashboard (`web/admin/dashboard.html`), personnel, and shared console layouts showed a huge empty whitespace gap on the right/sides on standard (1920x1080) and widescreen displays.
+- **Root Cause**:
+  - In `web/css/app-experience.css` (line 98), `.ax-content, .ix-content` was constrained with `width: min(100%, 1440px)` and `margin-left: 0; margin-right: auto;`.
+  - In `web/admin/css/admin-theme.css`, `max-width: 100%` was applied to `.ax-content`, but in CSS, `max-width` does not override a smaller explicit `width` rule (`min(100%, 1440px)`). Consequently, any desktop viewport wider than 1440px + 272px (sidebar) forced the content into a 1440px box and pushed all remaining width (208px to 800px+) into an unnatural blank void on the right side, misaligning with the full-width topbar.
+- **Files Modified**:
+  - [`web/css/app-experience.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/css/app-experience.css): Set `.ax-content, .ix-content` to `width: 100%; max-width: 100%; margin: 0; box-sizing: border-box;` so the layout fluently fills the main content shell.
+  - [`web/admin/css/admin-theme.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/admin-theme.css): Enforced `width: 100% !important; max-width: 100% !important; margin: 0 !important;` on `.ax-content` and added badge styles for `.incident-status-pill.investigation` and `.incident-status-pill.escalated`.
+  - [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html): Updated inline `.ax-content` styling to `width: 100% !important; max-width: 100% !important; margin: 0 !important;`.
+  - [`web/admin/css/records.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/records.css): Updated `.records-container` to `width: 100%; max-width: 100%; margin: 0;` to prevent side gaps in Records & Reports.
+  - [`web/admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html): Aligned the Incident Intelligence summary status breakdown keys and pills to `Under investigation`, `Escalated`, and `Resolved`.
+  - [`web/tests/admin_dashboard.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/admin_dashboard.spec.js): Updated Playwright mock incident status and expectation to `under_investigation`.
+- **Verification & Testing**:
+  - Ran Playwright tests: `admin_dashboard.spec.js` passed (100%).
+  - Ran responsive shell tests: verified containment and responsive drawer behavior on both phone (390px) and desktop (1440px) across light and dark themes.
 
 - **Scope & Objective**:
   - Completely eliminated the legacy `Open` status from all incident reports, filters, badges, and database schemas.

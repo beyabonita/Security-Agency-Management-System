@@ -95,7 +95,7 @@ body.sl-page-leaving .ax-login-card { opacity: 0; transform: translateY(-10px) s
 .ax-topbar, .ix-shell { backdrop-filter: saturate(1.15) blur(16px); }
 .ax-topbar { background: color-mix(in srgb, var(--ax-surface, var(--sl-surface)) 90%, transparent) !important; }
 .ax-main, .ix-main, .ax-content, .ix-content { min-width: 0; }
-.ax-content, .ix-content { position: relative; width: min(100%, 1440px); margin-left: 0; margin-right: auto; }
+.ax-content, .ix-content { position: relative; width: 100%; max-width: 100%; margin-left: 0; margin-right: 0; box-sizing: border-box; }
 .ax-page-title, .ix-page-title { letter-spacing: -.035em; text-wrap: balance; }
 .ax-breadcrumb, .ix-breadcrumb { letter-spacing: .09em !important; }
 .ax-nav a[aria-current="page"], .ix-topnav a[aria-current="page"] { cursor: default; }

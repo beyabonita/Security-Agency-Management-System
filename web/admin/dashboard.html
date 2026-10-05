@@ -393,7 +393,7 @@ function renderIncidentIntelligence(days) {
     const locationStats = {};
     const guardCounts = {};
     const categoryCounts = {};
-    const statusCounts = { Open: 0, Acknowledged: 0, Resolved: 0 };
+    const statusCounts = { 'Under investigation': 0, Escalated: 0, Resolved: 0 };
 
     filtered.forEach(inc => {
         const loc = inc.location_label || 'No location on record';
@@ -459,8 +459,8 @@ function renderIncidentIntelligence(days) {
         <div class="incident-status-summary-bar">
             <span class="incident-status-summary-label">Status breakdown (${total})</span>
             <div class="incident-status-badges">
-                <span class="incident-status-pill open">● Open: <strong>${statusCounts.Open || 0}</strong></span>
-                <span class="incident-status-pill ack">● Ack: <strong>${statusCounts.Acknowledged || 0}</strong></span>
+                <span class="incident-status-pill investigation">● Under investigation: <strong>${statusCounts['Under investigation'] || 0}</strong></span>
+                <span class="incident-status-pill escalated">● Escalated: <strong>${statusCounts.Escalated || 0}</strong></span>
                 <span class="incident-status-pill resolved">● Resolved: <strong>${statusCounts.Resolved || 0}</strong></span>
             </div>
             <span class="incident-status-period">Filtered for ${periodLabel}</span>
