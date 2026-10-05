@@ -1,5 +1,23 @@
 # Project Change Log
 
+### [2026-10-05 22:35] - Bugfix: Prevent "Edit Shift Times" from Polluting "Shifting Setup" Dropdown
+
+- **Scope & Objective**:
+  - Fixed issue where manually editing shift times for selected guards in the *Selected guard shifts* preview was automatically saving new permanent shifting setup templates (e.g. `2 Shifts (8:02 AM – 6 PM)`) into the database and cluttering the **"Shifting setup"** dropdown menu.
+  - Root Cause:
+    - `rosterTimesForm` submission previously invoked `save_shift_roster_setup` or `update_shift_roster_setup`, generating new rows in `shift_roster_setups` every time custom hours were entered.
+  - Solution:
+    1. **Decoupled Template Saving from Assignment**: Updated [`web/admin/js/shift-roster.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/shift-roster.js) to store custom shift times in memory (`customRosterShifts`) for the current assignment only, removing any database template creation on modal submit.
+    2. **Visual Indicators & Reset Action**: Added a `Custom times` badge and an interactive `Reset times` button in the preview header so users can revert back to standard template hours with a single click.
+    3. **Custom Assignment Execution**: Updated `saveRoster` to assign guards using custom shift times directly via `assign_custom_shift_roster` RPC with automatic seamless fallback to `create_dtr_schedule`.
+    4. **Template List Hygiene**: Filtered out any auto-generated template names matching `^\d+ Shifts \(...` from the dropdown and created migration [`supabase/migrations/20261005000003_assign_custom_shift_roster.sql`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261005000003_assign_custom_shift_roster.sql) to archive them in Supabase.
+- **Verification & Testing**:
+  - `npm --prefix web/tests run test:playwright -- --grep "editing existing shift times"`: Passed.
+  - `npm --prefix web/tests run test:playwright -- --grep "roster"`: All 12 tests passed.
+  - `node web/tests/google_icons_test.js`: Passed.
+
+---
+
 ### [2026-10-05 21:55] - Bugfix: Allow Editing & Restoring Previously Removed Personnel Accounts
 
 - **Scope & Objective**:

@@ -9,8 +9,9 @@
   let saving=false,setupSaving=false,setupLoading=false;
   let savedSetups=[];
   let editingSetup=null,setupRevision=0,setupsLoaded=false;
+  let customRosterShifts=null;
   const customSetup=()=>savedSetups.find(item=>item.id===setup.value);
-  const periods=()=>customSetup()?RosterSetup.periods(customSetup().shifts):[];
+  const periods=()=>customRosterShifts ? RosterSetup.periods(customRosterShifts) : (customSetup()?RosterSetup.periods(customSetup().shifts):[]);
   const selected=()=>[...slots.querySelectorAll('select')].map(s=>s.value);
   const available=(day,p,now=new Date())=>SchedulePeriod.calculate(day,p[0],p[1])?.endAt>now;
   function availability(){
@@ -35,17 +36,23 @@
     availability();
     managementControls();
     syncGuardSelections();
-    if(!customSetup()){
+    if(!customSetup() && !customRosterShifts){
       preview.textContent=setupsLoaded?'Create a shifting setup to get started.':'Loading shifting setups…';
       assigned.textContent='';return;
     }
     const ids=selected();
     const cutoff=SchedulePeriod.dtrPeriodForDate(date.value);
     preview.innerHTML='<div class="roster-preview-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">'+
-      '<p class="mb-0"><strong>Selected guard shifts</strong></p>'+
-      '<button type="button" id="editRosterTimesBtn" class="btn btn-sm btn-outline-danger py-1 px-2" aria-label="Edit shift times">'+
-        'Edit shift times'+
-      '</button>'+
+      '<div class="d-flex align-items-center gap-2">'+
+        '<p class="mb-0"><strong>Selected guard shifts</strong></p>'+
+        (customRosterShifts ? '<span class="badge bg-warning text-dark" style="font-size:0.75rem;">Custom times</span>' : '')+
+      '</div>'+
+      '<div class="d-flex align-items-center gap-2">'+
+        (customRosterShifts ? '<button type="button" id="resetRosterTimesBtn" class="btn btn-sm btn-outline-secondary py-1 px-2" aria-label="Reset shift times">Reset times</button>' : '')+
+        '<button type="button" id="editRosterTimesBtn" class="btn btn-sm btn-outline-danger py-1 px-2" aria-label="Edit shift times">'+
+          'Edit shift times'+
+        '</button>'+
+      '</div>'+
       '</div>'+
       `<p class="mb-2 text-muted small">${cutoff ? `Duty date: ${escapeHtml(formatDate(date.value))} · DTR cut-off: ${escapeHtml(cutoff.label)}` : 'Choose a valid schedule date.'}</p>`+
       '<div class="roster-dtr-scroll" tabindex="0" aria-label="Planned guard shifts"><table class="roster-dtr-preview"><thead><tr><th scope="col">Shift and Guard</th><th scope="col">Scheduled IN</th><th scope="col">Scheduled OUT</th><th scope="col">Planned hours</th></tr></thead><tbody>'+
@@ -207,7 +214,7 @@
   };
   date.min=todayDateString();
   date.value=todayDateString();
-  setup.addEventListener('change',()=>{if(editingSetup)resetEditor();window.renderShiftRoster();});
+  setup.addEventListener('change',()=>{if(editingSetup)resetEditor();customRosterShifts=null;window.renderShiftRoster();});
   date.addEventListener('change',summary);
   site.addEventListener('change', () => {
     const activeObj = locations.find(l => l.id === site.value);
@@ -315,7 +322,7 @@
     if(saving||setupSaving)return;
     summary();
     const chosenSetup=customSetup(),day=date.value,location=site.value,now=new Date();
-    if(!chosenSetup)return;
+    if(!chosenSetup && !customRosterShifts)return;
     const shifts=periods(),ids=selected().map((id,i)=>available(day,shifts[i],now)?id:null);
     const active=ids.filter((_,i)=>available(day,shifts[i],now)),expected=active.length;
     if(!location||!day||day<todayDateString()||active.some(id=>!id)||new Set(active).size!==expected){
@@ -336,14 +343,58 @@
     if (saveSetupBtn) saveSetupBtn.disabled = true;
     try{
       await appDialog.runBusy(button,async()=>{
-        const args={p_location_id:location,p_duty_date:day,p_guard_ids:ids};
-        args.p_setup_id=chosenSetup.id;args.p_expected_version=chosenSetup.version;
-        const {data,error}=await appSupabase.rpc('assign_saved_shift_roster',args);
-        if(error)throw error;
-        if(!Array.isArray(data)||data.length!==expected)throw Error('Could not confirm all assignments. Refresh the schedule before retrying.');
-        chosenSetup.in_use=true;setupRevision++;managementControls();
+        let assignedData = null;
+        if (customRosterShifts) {
+          try {
+            const { data, error } = await appSupabase.rpc('assign_custom_shift_roster', {
+              p_location_id: location,
+              p_duty_date: day,
+              p_guard_ids: ids,
+              p_shifts: customRosterShifts
+            });
+            if (!error && Array.isArray(data)) {
+              assignedData = data;
+            } else if (error && error.code !== 'PGRST202' && !error.message?.includes('assign_custom_shift_roster')) {
+              throw error;
+            }
+          } catch (rpcErr) {
+            if (rpcErr.code !== 'PGRST202' && !rpcErr.message?.includes('assign_custom_shift_roster')) {
+              throw rpcErr;
+            }
+          }
+
+          if (!assignedData) {
+            assignedData = [];
+            for (let i = 0; i < ids.length; i++) {
+              if (!available(day, shifts[i], now)) continue;
+              const { data: dtrData, error: dtrErr } = await appSupabase.rpc('create_dtr_schedule', {
+                p_user_id: ids[i],
+                p_location_id: location,
+                p_duty_date: day,
+                p_periods: [{ period: 'auto', start_time: shifts[i][0], end_time: shifts[i][1], next_day: false }]
+              });
+              if (dtrErr) throw dtrErr;
+              if (Array.isArray(dtrData)) assignedData.push(...dtrData);
+              else if (dtrData) assignedData.push(dtrData);
+            }
+          }
+
+          if (!Array.isArray(assignedData) || assignedData.length !== expected) {
+            throw Error('Could not confirm all assignments. Refresh the schedule before retrying.');
+          }
+          customRosterShifts = null;
+        } else {
+          const args={p_location_id:location,p_duty_date:day,p_guard_ids:ids};
+          args.p_setup_id=chosenSetup.id;args.p_expected_version=chosenSetup.version;
+          const {data,error}=await appSupabase.rpc('assign_saved_shift_roster',args);
+          if(error)throw error;
+          if(!Array.isArray(data)||data.length!==expected)throw Error('Could not confirm all assignments. Refresh the schedule before retrying.');
+          chosenSetup.in_use=true;setupRevision++;managementControls();
+          assignedData = data;
+        }
+
         setScheduleListPeriod(day);await refreshSchedules();
-        appDialog.toast(`${data.length} ${data.length===1?'shift':'shifts'} assigned successfully.`,{tone:'success'});
+        appDialog.toast(`${assignedData.length} ${assignedData.length===1?'shift':'shifts'} assigned successfully.`,{tone:'success'});
       },{label:'Assigning shifts…'});
     }catch(error){appDialog.toast(error.message||'Could not confirm the roster. Refresh before retrying.',{tone:'danger'});}
     finally{saving=false;[setup,date,site].forEach(el=>el.disabled=false);if(siteFilter)siteFilter.disabled=false;if(comboboxToggle)comboboxToggle.disabled=false;const sBtn=document.getElementById('saveRosterSetup');if(sBtn)sBtn.disabled=setupSaving;summary();}
@@ -391,7 +442,8 @@
       if(!Array.isArray(data)||data.some(item=>!item.id||typeof item.name!=='string'||typeof item.in_use!=='boolean'||RosterSetup.validate(item.shifts)))throw Error('Invalid saved setup response.');
       // A late read must never restore an item removed/edited during the request.
       if(revision!==setupRevision){if(setupStatus)setupStatus.textContent='';return;}
-      const next=uniqueSetups(data);
+      const cleanData = data.filter(item => !/^\d+\s*Shifts\s*\(\d{1,2}(:\d{2})?\s*(AM|PM)/i.test(item.name));
+      const next = uniqueSetups(cleanData);
       const definition=items=>JSON.stringify(items.map(({id,name,shifts,version})=>({id,name,shifts,version})));
       const changed=!setupsLoaded||definition(savedSetups)!==definition(next);
       savedSetups=next;setupsLoaded=true;
@@ -560,7 +612,8 @@
 
   function openRosterTimesModal(focusIndex = 0) {
     const cur = customSetup();
-    if (!cur || !cur.shifts || !cur.shifts.length) {
+    const activeShifts = customRosterShifts || cur?.shifts;
+    if (!activeShifts || !activeShifts.length) {
       appDialog.toast('No active shifting setup found to edit.', { tone: 'warning' });
       return;
     }
@@ -569,7 +622,7 @@
       rosterTimesError.textContent = '';
     }
 
-    renderRosterTimesInputs(cur.shifts);
+    renderRosterTimesInputs(activeShifts);
     showModal(rosterTimesModalEl);
 
     setTimeout(() => {
@@ -578,12 +631,22 @@
     }, 150);
   }
 
-  // Delegated click handler on preview container for edit button
+  // Delegated click handler on preview container for edit and reset buttons
   preview.addEventListener('click', e => {
     const editBtn = e.target.closest('#editRosterTimesBtn');
     if (editBtn) {
       e.preventDefault();
       openRosterTimesModal(0);
+      return;
+    }
+    const resetBtn = e.target.closest('#resetRosterTimesBtn');
+    if (resetBtn) {
+      e.preventDefault();
+      customRosterShifts = null;
+      window.renderShiftRoster();
+      summary();
+      appDialog.toast('Reset back to template times.', { tone: 'info' });
+      return;
     }
   });
 
@@ -643,7 +706,7 @@
     rosterTimesForm.addEventListener('submit', async event => {
       event.preventDefault();
       const cur = customSetup();
-      if (!cur) return;
+      if (!cur && !customRosterShifts) return;
 
       const starts = [...rosterTimesInputs.querySelectorAll('[data-start]')];
       const ends = [...rosterTimesInputs.querySelectorAll('[data-end]')];
@@ -661,61 +724,13 @@
         return;
       }
 
-      const saveBtn = document.getElementById('saveRosterTimesBtn');
-      if (saveBtn) saveBtn.disabled = true;
+      // Apply custom shift times to current duty assignment only - do NOT save as a permanent template!
+      customRosterShifts = newShifts;
 
-      try {
-        let savedInDb = false;
-        if (cur.id && window.appSupabase) {
-          try {
-            if (cur.in_use === false && cur.version) {
-              const { data, error } = await appSupabase.rpc('update_shift_roster_setup', {
-                p_setup_id: cur.id,
-                p_name: cur.name,
-                p_shifts: newShifts,
-                p_expected_version: cur.version
-              });
-              if (!error && data) {
-                cur.shifts = newShifts;
-                cur.version = data.version;
-                savedInDb = true;
-              }
-            }
-            if (!savedInDb) {
-              const newName = `${newShifts.length} Shifts (${formatTimeShort(newShifts[0].start_time)} – ${formatTimeShort(newShifts[0].end_time)})`;
-              const { data, error } = await appSupabase.rpc('save_shift_roster_setup', {
-                p_name: newName,
-                p_shifts: newShifts
-              });
-              if (!error && data?.id) {
-                setupRevision++;
-                const existingIdx = savedSetups.findIndex(s => s.id === data.id);
-                if (existingIdx >= 0) savedSetups[existingIdx] = data;
-                else savedSetups.push(data);
-                setup.value = data.id;
-                savedInDb = true;
-              }
-            }
-          } catch (dbErr) {
-            console.warn('Database sync for shift times edit:', dbErr);
-          }
-        }
-
-        // Always update active setup shifts in memory
-        cur.shifts = newShifts;
-
-        hideModal(rosterTimesModalEl);
-        window.renderShiftRoster();
-        summary();
-        appDialog.toast('Shift times updated successfully.', { tone: 'success' });
-      } catch (err) {
-        if (rosterTimesError) {
-          rosterTimesError.textContent = err.message || 'Could not update shift times.';
-          rosterTimesError.hidden = false;
-        }
-      } finally {
-        if (saveBtn) saveBtn.disabled = false;
-      }
+      hideModal(rosterTimesModalEl);
+      window.renderShiftRoster();
+      summary();
+      appDialog.toast('Shift times updated for this assignment.', { tone: 'success' });
     });
   }
 
