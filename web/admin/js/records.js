@@ -487,6 +487,7 @@
                 const personnelId = p.personnel_id || `SEC-${new Date(p.created_at || Date.now()).getFullYear()}-${String(idx + 1).padStart(4, '0')}`;
                 const gender = p.gender || (idx % 2 === 0 ? 'Male' : 'Female');
                 const contactNumber = p.mobile_number || '—';
+                const dutyCategory = latestSched?.duty_category || p.duty_category || p.employment_category || 'Regular';
                 const employmentStatus = p.removed_at ? 'Archived' : (p.active ? 'Active' : 'Inactive');
                 const contractStatus = p.contract_status || (p.active ? 'Active' : 'Expired');
                 const dateHired = formatDate(p.date_hired || p.created_at);
