@@ -184,11 +184,11 @@
         }
 
         tbody.innerHTML = data.map(p => {
-            const empBadgeClass = p.employmentStatus === 'Active' ? 'rec-badge-active' : (p.employmentStatus === 'Resigned' ? 'rec-badge-resigned' : 'rec-badge-expired');
+            const empBadgeClass = p.employmentStatus === 'Active' ? 'rec-badge-active' : (p.employmentStatus === 'Archived' || p.employmentStatus === 'Resigned' ? 'rec-badge-resigned' : 'rec-badge-expired');
             const contBadgeClass = p.contractStatus === 'Active' ? 'rec-badge-active' : (p.contractStatus === 'Pending' ? 'rec-badge-pending' : 'rec-badge-expired');
             const dutyClass = p.dutyCategory.toLowerCase() === 'regular' ? 'rec-badge-regular' : 'rec-badge-reliever';
 
-            return `<tr>
+            return `<tr${p.isArchived ? ' class="opacity-75"' : ''}>
                 <td class="col-id">${escapeHtml(p.personnelId)}</td>
                 <td class="col-primary">${escapeHtml(p.fullName)}</td>
                 <td>${escapeHtml(p.gender)}</td>
@@ -215,7 +215,11 @@
             if (personnelId && p.id !== personnelId) return false;
             if (dutyCategory && p.dutyCategory.toLowerCase() !== dutyCategory) return false;
             if (empStatus && p.employmentStatus.toLowerCase() !== empStatus) return false;
-            if (contractStatus && p.contractStatus.toLowerCase() !== contractStatus) return false;
+            if (contractStatus === 'no_active_contract') {
+                if (p.contractStatus.toLowerCase() === 'active') return false;
+            } else if (contractStatus && p.contractStatus.toLowerCase() !== contractStatus) {
+                return false;
+            }
             if (post && p.locationId !== post && !p.assignedPost.toLowerCase().includes(post.toLowerCase())) return false;
             return true;
         });
@@ -483,8 +487,7 @@
                 const personnelId = p.personnel_id || `SEC-${new Date(p.created_at || Date.now()).getFullYear()}-${String(idx + 1).padStart(4, '0')}`;
                 const gender = p.gender || (idx % 2 === 0 ? 'Male' : 'Female');
                 const contactNumber = p.mobile_number || '—';
-                const dutyCategory = latestSched?.duty_category || p.duty_category || p.employment_category || 'Regular';
-                const employmentStatus = p.active ? 'Active' : (p.removed_at ? 'Resigned' : 'Inactive');
+                const employmentStatus = p.removed_at ? 'Archived' : (p.active ? 'Active' : 'Inactive');
                 const contractStatus = p.contract_status || (p.active ? 'Active' : 'Expired');
                 const dateHired = formatDate(p.date_hired || p.created_at);
                 const dateEnded = p.removed_at ? formatDate(p.removed_at) : '—';
@@ -514,7 +517,8 @@
                     dateEnded,
                     assignedPost,
                     locationId,
-                    shift
+                    shift,
+                    isArchived: !!p.removed_at
                 };
             });
 
