@@ -551,8 +551,10 @@ function incidentCategory(category) {
 }
 
 function incidentStatus(status) {
-    const normalized = ['open', 'acknowledged', 'resolved'].includes(status) ? status : 'open';
-    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+    if (status === 'resolved') return 'Resolved';
+    if (status === 'escalated') return 'Escalated';
+    if (status === 'acknowledged') return 'Acknowledged';
+    return 'Under investigation';
 }
 
 function escapeHtml(text) {

@@ -197,9 +197,9 @@ function formatWhen(ts) {
 }
 
 function statusBadge(status) {
-  const s = ['under_investigation', 'escalated', 'acknowledged', 'resolved', 'open'].includes(status) ? status : 'open';
-  let cls = 'badge-open';
-  let label = 'Open';
+  const s = ['under_investigation', 'escalated', 'acknowledged', 'resolved'].includes(status) ? status : 'under_investigation';
+  let cls = 'badge-investigating';
+  let label = 'Under investigation';
   if (s === 'resolved') {
     cls = 'badge-resolved';
     label = 'Resolved';

@@ -16,13 +16,13 @@
   }
 
   function normalizedStatus(status) {
-    return ['under_investigation', 'escalated', 'acknowledged', 'resolved', 'open'].includes(status) ? status : 'open';
+    return ['under_investigation', 'escalated', 'acknowledged', 'resolved'].includes(status) ? status : 'under_investigation';
   }
 
   function statusBadge(status) {
     const value = normalizedStatus(status);
-    let cssClass = 'badge-open';
-    let label = 'Open';
+    let cssClass = 'badge-investigating';
+    let label = 'Under investigation';
     if (value === 'resolved') {
       cssClass = 'badge-resolved';
       label = 'Resolved';

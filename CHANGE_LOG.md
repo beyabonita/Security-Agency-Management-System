@@ -1,18 +1,18 @@
 # Project Change Log
 
-### [2026-10-06 03:40] - Feat: Align Operations Head Incident Status with Inspector
+### [2026-10-06 03:45] - Feat: Remove Legacy 'Open' Incident Status & Default to 'Under investigation'
 
 - **Scope & Objective**:
-  - Updated the Incident Report review and disposition status in Operations Head (Admin) ([`web/admin/incidents.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/incidents.html) and [`web/admin/records.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/records.html)) to match the Inspector incident statuses: **Under investigation**, **Escalated**, and **Resolved** (removing legacy Open/Acknowledged from the disposition review options).
-- **Files Modified**:
-  - [`web/admin/incidents.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/incidents.html): Updated `#statusSelect` options to `under_investigation`, `escalated`, `resolved`; updated `statusBadge` renderer and default modal pre-selection (`under_investigation`).
-  - [`web/admin/css/admin-theme.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/admin-theme.css): Added `.badge-investigating` and `.badge-escalated` status badge styles for light and dark modes.
-  - [`web/admin/records.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/records.html): Updated `#statusSelect` and filter `#irFilterStatus` options to include `under_investigation` and `escalated`.
-  - [`web/admin/js/records.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/records.js): Updated table badge classes, human-readable status labels, and modal pre-selection.
-  - [`web/admin/css/records.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/records.css): Added `.rec-badge-investigating` and `.rec-badge-escalated` styles for light and dark modes.
+  - Completely eliminated the legacy `Open` status from all incident reports, filters, badges, and database schemas.
+  - Replaced the initial/default filing status with **Under investigation** (`under_investigation`).
+- **Files Modified / Created**:
+  - `supabase/migrations/20261006000004_default_incident_status_under_investigation.sql`: Migrated all existing `open` records to `under_investigation`, altered default column value to `under_investigation`, and updated `file_incident_report` RPC to initialize new alerts as `under_investigation`. Applied via `npx supabase db push`.
+  - [`web/admin/records.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/records.html): Removed `Open` filter option from `#irFilterStatus`.
+  - [`web/admin/js/records.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/records.js): Updated table rendering and filter logic to map unreviewed/open incidents to `Under investigation`.
+  - [`web/admin/incidents.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/incidents.html), [`web/inspector/incidents.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/incidents.html), [`web/inspector/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/dashboard.html), [`web/admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html), [`web/js/incident-report-view.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/incident-report-view.js): Updated `statusBadge()` and `incidentStatus()` helpers so default/unreviewed reports render as `Under investigation` badge rather than `Open`.
 - **Verification & Testing**:
-  - Verified JavaScript and HTML syntax with Node.js: 0 errors.
-  - Verified Google Material icon and official Supabase client compatibility tests passed.
+  - Successfully ran `npx supabase db push` to push migration `20261006000004` to the remote Supabase project.
+  - Verified JavaScript and HTML syntax across all modified files with Node.js: 0 errors.
 
 ---
 

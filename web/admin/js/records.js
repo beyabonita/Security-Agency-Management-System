@@ -256,8 +256,8 @@
         }
 
         tbody.innerHTML = data.map(inc => {
-            const statusClass = inc.isArchived ? 'rec-badge-expired' : (inc.status === 'resolved' ? 'rec-badge-resolved' : (inc.status === 'under_investigation' ? 'rec-badge-investigating' : (inc.status === 'escalated' ? 'rec-badge-escalated' : (inc.status === 'acknowledged' ? 'rec-badge-acknowledged' : 'rec-badge-open'))));
-            const statusText = inc.isArchived ? 'Archived' : (inc.status === 'under_investigation' ? 'Under investigation' : (inc.status === 'escalated' ? 'Escalated' : (inc.status ? inc.status.charAt(0).toUpperCase() + inc.status.slice(1) : 'Open')));
+            const statusClass = inc.isArchived ? 'rec-badge-expired' : (inc.status === 'resolved' ? 'rec-badge-resolved' : (inc.status === 'escalated' ? 'rec-badge-escalated' : (inc.status === 'acknowledged' ? 'rec-badge-acknowledged' : 'rec-badge-investigating')));
+            const statusText = inc.isArchived ? 'Archived' : (inc.status === 'escalated' ? 'Escalated' : (inc.status === 'acknowledged' ? 'Acknowledged' : (inc.status === 'resolved' ? 'Resolved' : 'Under investigation')));
             return `<tr onclick="openIncidentDetail('${inc.id}')" style="cursor:pointer;" title="Click to view full incident details">
                 <td class="col-id">${escapeHtml(inc.displayId)}</td>
                 <td class="col-primary">
@@ -291,7 +291,9 @@
             } else if (status === 'all') {
                 // Return both active and archived
             } else if (status) {
-                if (inc.isArchived || inc.status.toLowerCase() !== status) return false;
+                const incStatus = (inc.status || '').toLowerCase();
+                const effectiveStatus = (incStatus === 'open') ? 'under_investigation' : incStatus;
+                if (inc.isArchived || effectiveStatus !== status) return false;
             } else {
                 // Default "" (All active statuses): exclude archived
                 if (inc.isArchived) return false;
