@@ -28,6 +28,18 @@ export interface ManagedProfile extends CallerProfile {
   id: string;
   last_name: string;
   middle_initial: string;
+  middle_name?: string | null;
+  mobile_number: string | null;
+  personnel_id?: string | null;
+  date_of_birth?: string | null;
+  gender?: string | null;
+  civil_status?: string | null;
+  complete_address?: string | null;
+  date_hired?: string | null;
+  contract_status?: string | null;
+  license_security_url?: string | null;
+  license_firearms_url?: string | null;
+  removed_at?: string | null;
   username: string;
 }
 
@@ -65,22 +77,26 @@ export function optionalString(
   body: JsonObject,
   key: string,
   label: string,
-  options: { max: number; min?: number; normalize?: (value: string) => string },
+  options?: { max?: number; min?: number; normalize?: (value: string) => string },
 ): string | undefined {
   if (body[key] === undefined) return undefined;
   if (typeof body[key] !== "string") {
     reject(400, `${label} must be text.`, "invalid_input");
   }
-  const value = options.normalize
+  const value = options?.normalize
     ? options.normalize(body[key] as string)
     : (body[key] as string);
   if (value.includes("\u0000")) {
     reject(400, `${label} contains invalid characters.`, "invalid_input");
   }
-  if (value.length < (options.min ?? 0) || value.length > options.max) {
-    const range = options.min
-      ? `${options.min} to ${options.max}`
-      : `at most ${options.max}`;
+  const min = options?.min ?? 0;
+  const max = options?.max;
+  if (value.length < min || (max !== undefined && value.length > max)) {
+    const range = options?.min !== undefined && max !== undefined
+      ? `${options.min} to ${max}`
+      : max !== undefined
+      ? `at most ${max}`
+      : `at least ${min}`;
     reject(400, `${label} must contain ${range} characters.`, "invalid_input");
   }
   return value;

@@ -50,14 +50,14 @@ Deno.serve((request) =>
     if (typeof body.action !== "string") {
       reject(400, "Account action is required.", "invalid_action");
     }
-    if (body.action === "delete") {
-      reject(
-        409,
-        "Account deletion is disabled to preserve attendance, schedules, reports, and incident records. Disable the account instead.",
-        "account_deletion_disabled",
-      );
-    }
-    if (body.action !== "update" && body.action !== "remove") {
+    if (body.action !== "update" && body.action !== "remove" && body.action !== "purge") {
+      if (body.action === "delete") {
+        reject(
+          409,
+          "Account deletion is disabled to preserve attendance, schedules, reports, and incident records. Disable the account instead.",
+          "account_deletion_disabled",
+        );
+      }
       reject(400, "Invalid account action.", "invalid_action");
     }
 
@@ -73,7 +73,7 @@ Deno.serve((request) =>
     const { data: targetData, error: targetError } = await service
       .from("profiles")
       .select(
-        "id,username,email,first_name,middle_initial,last_name,mobile_number,role,active,organization_id,employment_category,contract_start_date,contract_end_date,device_id,device_locked,removed_at",
+        "id,username,email,first_name,middle_initial,middle_name,last_name,mobile_number,role,active,organization_id,employment_category,contract_start_date,contract_end_date,device_id,device_locked,removed_at,personnel_id,date_of_birth,gender,civil_status,complete_address,date_hired,contract_status,license_security_url,license_firearms_url",
       )
       .eq("id", targetId)
       .maybeSingle();
@@ -148,7 +148,7 @@ Deno.serve((request) =>
       );
     }
 
-    if (body.action === 'purge' || body.action === 'delete') {
+    if (body.action === 'purge') {
       if (!isHr || !FIELD_ROLES.includes(target.role as 'user' | 'inspector') || targetId === callerId) {
         reject(403, 'Only Operations Head can delete field personnel.', 'forbidden_target');
       }
@@ -284,7 +284,7 @@ Deno.serve((request) =>
     const middleName = optionalString(body, "middleName", "Middle name", {
       max: 100,
       normalize: (value) => value.trim(),
-    }) ?? (body.middleName === null ? null : (target as Record<string, unknown>).middle_name as string | null | undefined);
+    }) ?? (body.middleName === null ? null : target.middle_name);
     const middleInitial =
       optionalString(body, "middleInitial", "Middle initial", {
         max: 10,
@@ -299,25 +299,25 @@ Deno.serve((request) =>
     const personnelId = optionalString(body, "personnelId", "Personnel ID", {
       max: 100,
       normalize: (value) => value.trim(),
-    }) ?? (body.personnelId === null ? null : (target as Record<string, unknown>).personnel_id as string | null | undefined);
+    }) ?? (body.personnelId === null ? null : target.personnel_id);
     const dateOfBirth = optionalString(body, "dateOfBirth", "Date of birth") ??
-      (body.dateOfBirth === null ? null : (target as Record<string, unknown>).date_of_birth as string | null | undefined);
+      (body.dateOfBirth === null ? null : target.date_of_birth);
     const gender = optionalString(body, "gender", "Gender", { max: 50 }) ??
-      (body.gender === null ? null : (target as Record<string, unknown>).gender as string | null | undefined);
+      (body.gender === null ? null : target.gender);
     const civilStatus = optionalString(body, "civilStatus", "Civil status", { max: 50 }) ??
-      (body.civilStatus === null ? null : (target as Record<string, unknown>).civil_status as string | null | undefined);
+      (body.civilStatus === null ? null : target.civil_status);
     const completeAddress = optionalString(body, "completeAddress", "Complete address", {
       max: 500,
       normalize: (value) => value.trim(),
-    }) ?? (body.completeAddress === null ? null : (target as Record<string, unknown>).complete_address as string | null | undefined);
+    }) ?? (body.completeAddress === null ? null : target.complete_address);
     const dateHired = optionalString(body, "dateHired", "Date hired") ??
-      (body.dateHired === null ? null : (target as Record<string, unknown>).date_hired as string | null | undefined);
+      (body.dateHired === null ? null : target.date_hired);
     const contractStatus = optionalString(body, "contractStatus", "Contract status", { max: 50 }) ??
-      (body.contractStatus === null ? null : (target as Record<string, unknown>).contract_status as string | null | undefined);
+      (body.contractStatus === null ? null : target.contract_status);
     const licenseSecurityUrl = typeof body.licenseSecurityUrl === "string" ? body.licenseSecurityUrl :
-      (body.licenseSecurityUrl === null ? null : (target as Record<string, unknown>).license_security_url as string | null | undefined);
+      (body.licenseSecurityUrl === null ? null : target.license_security_url);
     const licenseFirearmsUrl = typeof body.licenseFirearmsUrl === "string" ? body.licenseFirearmsUrl :
-      (body.licenseFirearmsUrl === null ? null : (target as Record<string, unknown>).license_firearms_url as string | null | undefined);
+      (body.licenseFirearmsUrl === null ? null : target.license_firearms_url);
 
     const mobileNumber = body.mobileNumber === undefined ? target.mobile_number ?? null
       : philippineMobileNumber(body.mobileNumber);
@@ -363,6 +363,7 @@ Deno.serve((request) =>
       email: target.email,
       first_name: target.first_name,
       middle_initial: target.middle_initial,
+      middle_name: target.middle_name ?? null,
       mobile_number: target.mobile_number ?? null,
       last_name: target.last_name,
       role: target.role,
@@ -373,6 +374,15 @@ Deno.serve((request) =>
       contract_end_date: target.contract_end_date,
       device_id: target.device_id,
       device_locked: target.device_locked,
+      personnel_id: target.personnel_id ?? null,
+      date_of_birth: target.date_of_birth ?? null,
+      gender: target.gender ?? null,
+      civil_status: target.civil_status ?? null,
+      complete_address: target.complete_address ?? null,
+      date_hired: target.date_hired ?? null,
+      contract_status: target.contract_status ?? null,
+      license_security_url: target.license_security_url ?? null,
+      license_firearms_url: target.license_firearms_url ?? null,
     };
     const profileUpdate: Record<string, unknown> = {
       username,
