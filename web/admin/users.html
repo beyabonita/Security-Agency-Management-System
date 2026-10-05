@@ -1729,7 +1729,7 @@ function renderGuardRow(id, data, locationsById) {
         `<button type="button" class="action-btn btn-history" onclick="viewAssignmentHistory('${id}')">History</button>`,
         `<button type="button" class="action-btn btn-inspector" onclick="assignInspector('${id}', this)">Set Inspector</button>`,
         `<button type="button" class="action-btn btn-reports" onclick="viewAccomplishments('${id}')">Reports</button>`,
-        `<button type="button" class="action-btn btn-danger" style="color:var(--sl-danger);font-weight:600;" onclick="deletePersonnel('${id}', this)">Delete</button>`,
+
     ]);
     return `<tr${isArchived ? ' class="opacity-75"' : ''}>
         <td>${renderPersonnelIdentity(id, data)}</td>
@@ -1750,7 +1750,7 @@ function renderInspectorRow(id, data) {
     const actions = renderPersonnelActions(id, [
         `<button type="button" class="action-btn btn-locations" onclick="editPersonnel('${id}', this)">Edit</button>`,
         toggle,
-        `<button type="button" class="action-btn btn-danger" style="color:var(--sl-danger);font-weight:600;" onclick="deletePersonnel('${id}', this)">Delete</button>`,
+
     ]);
     return `<tr>
         <td>${renderPersonnelIdentity(id, data)}</td>
@@ -2712,35 +2712,6 @@ async function archivePersonnel(uid, shouldArchive, button) {
     }
 }
 
-async function deletePersonnel(uid, button) {
-    const account = personnelAccounts[uid];
-    const name = account ? personnelDisplayName(account) : 'this personnel account';
-    const role = account?.role === 'inspector' ? 'Inspector' : 'Guard';
-    const approved = await appDialog.confirm(
-        `Permanently delete ${role} "${name}"?\n\nThis will remove their profile and login, and unassign any linked guard duties or assignments.`,
-        {
-            title: `Delete ${role}`,
-            confirmText: 'Delete permanently',
-            danger: true
-        }
-    );
-    if (!approved) return;
-
-    try {
-        await appDialog.runBusy(button, async () => {
-            try {
-                await managePersonnelAccount({ action: "purge", userId: uid });
-            } catch (fnErr) {
-                const { error: rpcErr } = await appSupabase.rpc("purge_personnel_account", { p_user_id: uid });
-                if (rpcErr) throw rpcErr;
-            }
-            await loadUsers();
-        }, { label: 'Deleting…' });
-        appDialog.toast(`${role} "${name}" was permanently deleted.`, { tone: 'success' });
-    } catch (error) {
-        appDialog.toast("Could not delete account: " + (error.message || 'Please try again.'), { tone: "danger" });
-    }
-}
 
 async function resetDevice(uid, button) {
     const account = personnelAccounts[uid];
