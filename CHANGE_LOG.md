@@ -1,5 +1,34 @@
 # Project Change Log
 
+### [2026-10-05 05:55] - Feature: Personnel Table Duty Category, Contract Status & Enhanced Assigned Post with Client, Location & Shift Indicator
+
+- **Scope & Objective**:
+  - Updated the Personnel table in the Operations Head portal (`web/admin/users.html`) to separate Duty Category and Contract Status into distinct, readable columns.
+  - Renamed the "Home Post" column header to "Assigned Post".
+  - Enhanced the "Assigned Post" cell to display:
+    - Client / Company Name (`locations.label`) with business icon.
+    - Specific location address (`locations.address`) with location pin icon.
+    - Prominent Shift indicator badge (`Day Shift` / `Night Shift`) with `light_mode` / `dark_mode` iconography, dynamically resolved from active schedules, assignment history records, or defaulting cleanly.
+    - Clean "Not assigned" badge when personnel has no post assignment.
+  - Updated the "Assign Deployment" modal to "Assigned Post & Shift" with a dedicated selector for Assigned Shift (`Day Shift` vs `Night Shift`), persisting the shift choice and updating the table reactively.
+  - Updated the Personnel Profile modal to display "Assigned Post (Detachment)" and "Assigned Shift".
+  - Ensured all Google Material Symbols used (`business`, `location_on`, `light_mode`, `dark_mode`) comply with the offline bundled manifest font.
+- **Files Modified / Created**:
+  - [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html):
+    - Added dedicated table headers for `Duty Category` and `Contract Status`, and renamed `Home Post` to `Assigned Post`.
+    - Added CSS styling for `.badge-duty-contract`, `.badge-duty-regular`, `.assigned-post-cell`, `.assigned-post-company`, `.assigned-post-location`, `.badge-shift-day`, `.badge-shift-night`, with comprehensive light and dark mode rules.
+    - Added helper functions `resolveGuardShift()`, `renderDutyCategoryCell()`, `renderContractStatusCell()`, `renderAssignedPostCell()`.
+    - Updated `loadUsers()` to fetch `schedules` and `guard_assignment_history` to dynamically resolve shifts for each guard.
+    - Updated `deploymentModal` to allow selecting and saving Assigned Shift.
+    - Updated `openPersonnelProfile()` modal to display "Assigned Post (Detachment)" and "Assigned Shift".
+- **Verification & Testing**:
+  - `node web/tests/google_icons_test.js`: Passed (52 bundled symbols, 212 markup references, 10.2 KB font).
+  - `npx playwright test contract_personnel.spec.js personnel_profile.spec.js dark_mode.spec.js`: All 14 tests passed.
+  - `npx playwright test responsive_shells.spec.js -g "all protected pages stay contained on a phone viewport"`: Passed.
+  - Personnel modal buttons, profile card overview, and dark mode contrast tests verified.
+
+---
+
 ### [2026-10-05 04:55] - UI/UX: Update IT Admin Display Labels to Superadmin
 
 - **Scope & Objective**:

@@ -93,15 +93,109 @@
 }
 .user-table thead th:first-child { border-top-left-radius: 13px; }
 .user-table thead th:last-child { border-top-right-radius: 13px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(1) { min-width: 160px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(2) { min-width: 145px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(3) { min-width: 65px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(4) { min-width: 75px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(5) { min-width: 95px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(6) { min-width: 105px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(7) { min-width: 85px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(8) { min-width: 75px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(9) { min-width: 60px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(1) { min-width: 155px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(2) { min-width: 110px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(3) { min-width: 140px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(4) { min-width: 65px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(5) { min-width: 75px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(6) { min-width: 165px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(7) { min-width: 105px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(8) { min-width: 85px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(9) { min-width: 75px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(10) { min-width: 60px; }
+.badge-duty-contract {
+    background: rgba(100, 116, 139, 0.12);
+    color: #475569;
+    border: 1px solid rgba(100, 116, 139, 0.28);
+    font-weight: 600;
+    font-size: 0.74rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+}
+.badge-duty-regular {
+    background: rgba(14, 165, 233, 0.12);
+    color: #0284c7;
+    border: 1px solid rgba(14, 165, 233, 0.28);
+    font-weight: 600;
+    font-size: 0.74rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-block;
+}
+.assigned-post-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 150px;
+}
+.assigned-post-company {
+    font-weight: 600;
+    color: var(--sl-ink);
+    font-size: 0.88rem;
+    line-height: 1.25;
+}
+.assigned-post-location {
+    font-size: 0.76rem;
+    color: var(--sl-muted);
+    line-height: 1.25;
+    display: flex;
+    align-items: flex-start;
+    gap: 3px;
+}
+.assigned-post-location .material-symbols-rounded {
+    flex-shrink: 0;
+    color: var(--sl-danger);
+    font-size: 14px;
+    margin-top: 1px;
+}
+.assigned-post-shift {
+    margin-top: 2px;
+}
+.badge-shift-day {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(245, 158, 11, 0.12);
+    color: #b45309;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+.badge-shift-night {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(99, 102, 241, 0.12);
+    color: #4338ca;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+[data-bs-theme="dark"] .badge-duty-contract {
+    background: rgba(148, 163, 184, 0.16);
+    color: #cbd5e1;
+    border-color: rgba(148, 163, 184, 0.3);
+}
+[data-bs-theme="dark"] .badge-duty-regular {
+    background: rgba(56, 189, 248, 0.16);
+    color: #7dd3fc;
+    border-color: rgba(56, 189, 248, 0.3);
+}
+[data-bs-theme="dark"] .badge-shift-day {
+    background: rgba(251, 191, 36, 0.16);
+    color: #fde68a;
+    border-color: rgba(251, 191, 36, 0.3);
+}
+[data-bs-theme="dark"] .badge-shift-night {
+    background: rgba(129, 140, 248, 0.16);
+    color: #c7d2fe;
+    border-color: rgba(129, 140, 248, 0.3);
+}
 .personnel-table-section[aria-labelledby="inspectorPersonnelHeading"] .user-table th:nth-child(1) { min-width: 200px; }
 .personnel-table-section[aria-labelledby="inspectorPersonnelHeading"] .user-table th:nth-child(2) { min-width: 90px; }
 .personnel-table-section[aria-labelledby="inspectorPersonnelHeading"] .user-table th:nth-child(3) { min-width: 90px; }
@@ -697,9 +791,10 @@
                 <tr>
                     <th>Personnel</th>
                     <th>Duty Category</th>
+                    <th>Contract Status</th>
                     <th>Days of Duty</th>
                     <th>Status</th>
-                    <th>Home Post</th>
+                    <th>Assigned Post</th>
                     <th>Inspector</th>
                     <th>Actions</th>
                     <th class="text-center">DTR</th>
@@ -709,10 +804,11 @@
             <tbody id="guardTableBody">
                 <tr class="ax-skeleton-tr">
                     <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-avatar"></span><span class="ax-skeleton ax-skeleton-line" style="width:130px;"></span></div></td>
-                    <td><span class="ax-skeleton ax-skeleton-pill"></span></td>
-                    <td><span class="ax-skeleton ax-skeleton-line" style="width:70px;"></span></td>
+                    <td><span class="ax-skeleton ax-skeleton-pill" style="width:70px;"></span></td>
+                    <td><span class="ax-skeleton ax-skeleton-pill" style="width:90px;"></span></td>
+                    <td><span class="ax-skeleton ax-skeleton-line" style="width:50px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-pill" style="width:60px;"></span></td>
-                    <td><span class="ax-skeleton ax-skeleton-line" style="width:120px;"></span></td>
+                    <td><span class="ax-skeleton ax-skeleton-line" style="width:130px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-line" style="width:90px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-btn"></span></td>
                     <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:40px;"></span></td>
@@ -720,10 +816,11 @@
                 </tr>
                 <tr class="ax-skeleton-tr">
                     <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-avatar"></span><span class="ax-skeleton ax-skeleton-line" style="width:145px;"></span></div></td>
-                    <td><span class="ax-skeleton ax-skeleton-pill"></span></td>
-                    <td><span class="ax-skeleton ax-skeleton-line" style="width:65px;"></span></td>
+                    <td><span class="ax-skeleton ax-skeleton-pill" style="width:70px;"></span></td>
+                    <td><span class="ax-skeleton ax-skeleton-pill" style="width:90px;"></span></td>
+                    <td><span class="ax-skeleton ax-skeleton-line" style="width:50px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-pill" style="width:60px;"></span></td>
-                    <td><span class="ax-skeleton ax-skeleton-line" style="width:110px;"></span></td>
+                    <td><span class="ax-skeleton ax-skeleton-line" style="width:120px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-line" style="width:85px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-btn"></span></td>
                     <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:40px;"></span></td>
@@ -731,8 +828,9 @@
                 </tr>
                 <tr class="ax-skeleton-tr">
                     <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-avatar"></span><span class="ax-skeleton ax-skeleton-line" style="width:115px;"></span></div></td>
-                    <td><span class="ax-skeleton ax-skeleton-pill"></span></td>
-                    <td><span class="ax-skeleton ax-skeleton-line" style="width:75px;"></span></td>
+                    <td><span class="ax-skeleton ax-skeleton-pill" style="width:70px;"></span></td>
+                    <td><span class="ax-skeleton ax-skeleton-pill" style="width:90px;"></span></td>
+                    <td><span class="ax-skeleton ax-skeleton-line" style="width:50px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-pill" style="width:60px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-line" style="width:130px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-line" style="width:95px;"></span></td>
@@ -943,7 +1041,7 @@
 </div>
 <div class="modal-footer">
     <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
-    <button type="button" class="btn-save" id="createGuardBtn" onclick="createGuardAccount()">Create Personnel</button>
+    <button type="button" class="btn-save" id="createGuardBtn" onclick="createGuardAccount()">Create Guard</button>
 </div>
 </div>
 </div>
@@ -1127,24 +1225,31 @@
 <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
 <div class="modal-content">
 <div class="modal-header">
-    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">add_location_alt</span>Assigned Location</h5>
+    <h5 class="modal-title"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">add_location_alt</span>Assigned Post &amp; Shift</h5>
     <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
 </div>
 <div class="modal-body">
     <p class="modal-guard-meta">Guard: <strong id="deploymentGuardName"></strong></p>
     <div class="mb-3">
-        <label class="form-label" for="deploymentLocation">ASSIGNED LOCATION</label>
+        <label class="form-label" for="deploymentLocation">ASSIGNED POST / COMPANY</label>
         <select id="deploymentLocation" class="form-select"></select>
     </div>
+    <div class="mb-3">
+        <label class="form-label" for="deploymentShift">ASSIGNED SHIFT</label>
+        <select id="deploymentShift" class="form-select">
+            <option value="Day Shift">Day Shift (06:00 – 18:00)</option>
+            <option value="Night Shift">Night Shift (18:00 – 06:00)</option>
+        </select>
+    </div>
     <div>
-        <label class="form-label" for="deploymentRemarks">REASSIGNMENT REMARKS <span style="font-weight:400;">(optional)</span></label>
-        <textarea id="deploymentRemarks" class="form-control" rows="3" maxlength="1500" placeholder="Example: Reassigned for additional coverage."></textarea>
+        <label class="form-label" for="deploymentRemarks">ASSIGNMENT REMARKS <span style="font-weight:400;">(optional)</span></label>
+        <textarea id="deploymentRemarks" class="form-control" rows="3" maxlength="1500" placeholder="Example: Assigned to Day Shift for client entrance security."></textarea>
     </div>
     <div id="deploymentError"></div>
 </div>
 <div class="modal-footer">
     <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
-    <button type="button" class="btn-save" id="saveDeploymentBtn" onclick="saveDeployment()">Save Assigned Location</button>
+    <button type="button" class="btn-save" id="saveDeploymentBtn" onclick="saveDeployment()">Save Assigned Post</button>
 </div>
 </div>
 </div>
@@ -1294,6 +1399,8 @@ let currentDTRUid        = null;
 let personnelAccounts    = {};
 let personnelLocationsById = {};
 let allGuards              = [];
+let guardSchedulesByUserId = {};
+let guardHistoryShiftByUserId = {};
 
 function getGuardContractStatus(data, today) {
     if (data.employmentCategory !== 'contract') return 'regular';
@@ -1302,6 +1409,55 @@ function getGuardContractStatus(data, today) {
     if (today < start) return 'contract_not_started';
     if (today > end) return 'contract_expired';
     return 'contract_active';
+}
+
+function resolveGuardShift(guardId, data) {
+    const explicit = data?.assignedShift || data?.shift;
+    if (explicit) {
+        if (/night/i.test(explicit)) return 'Night Shift';
+        if (/day/i.test(explicit)) return 'Day Shift';
+    }
+
+    const scheds = (guardSchedulesByUserId && guardSchedulesByUserId[guardId]) || [];
+    const activeScheds = scheds.filter(s => s.approval_status !== 'cancelled');
+    if (activeScheds.length) {
+        const todayStr = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+        const sched = activeScheds.find(s => s.duty_date === todayStr) ||
+                      activeScheds.find(s => s.duty_date >= todayStr) ||
+                      activeScheds[0];
+
+        if (sched) {
+            if (sched.start_at) {
+                const start = new Date(sched.start_at);
+                if (!isNaN(start.getTime())) {
+                    const hour = parseInt(new Intl.DateTimeFormat('en-GB', {
+                        timeZone: 'Asia/Manila', hour: '2-digit', hourCycle: 'h23'
+                    }).format(start), 10);
+                    const end = sched.end_at ? new Date(sched.end_at) : null;
+                    const endHour = end && !isNaN(end.getTime()) ? parseInt(new Intl.DateTimeFormat('en-GB', {
+                        timeZone: 'Asia/Manila', hour: '2-digit', hourCycle: 'h23'
+                    }).format(end), 10) : null;
+
+                    if (hour >= 18 || hour < 6 || (end && endHour !== null && endHour < hour)) {
+                        return 'Night Shift';
+                    }
+                    return 'Day Shift';
+                }
+            }
+            if (sched.dtr_period === 'afternoon') return 'Night Shift';
+            if (sched.dtr_period === 'morning') return 'Day Shift';
+        }
+    }
+
+    if (guardHistoryShiftByUserId && guardHistoryShiftByUserId[guardId]) {
+        return guardHistoryShiftByUserId[guardId];
+    }
+    if (data?.assignedLocationRemarks) {
+        if (/night\s*shift/i.test(data.assignedLocationRemarks)) return 'Night Shift';
+        if (/day\s*shift/i.test(data.assignedLocationRemarks)) return 'Day Shift';
+    }
+
+    return 'Day Shift';
 }
 
 function applyGuardFilters() {
@@ -1351,7 +1507,7 @@ function applyGuardFilters() {
 
     const guardRows = filtered.map(({ id, data }) => renderGuardRow(id, data, personnelLocationsById)).join("");
     document.getElementById("guardTableBody").innerHTML = guardRows ||
-        `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--sl-muted);">No guards match the selected filters. <a href="javascript:void(0)" onclick="resetGuardFilters()" style="color:var(--sl-danger);text-decoration:underline;margin-left:6px;">Reset filters</a></td></tr>`;
+        `<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--sl-muted);">No guards match the selected filters. <a href="javascript:void(0)" onclick="resetGuardFilters()" style="color:var(--sl-danger);text-decoration:underline;margin-left:6px;">Reset filters</a></td></tr>`;
 }
 
 function resetGuardFilters() {
@@ -1384,16 +1540,49 @@ auth.onAuthStateChanged(user => {
     });
 });
 
+async function safeSupabaseSelect(table, columns, orderCol, orderOpts) {
+    try {
+        if (!window.appSupabase?.from) return { data: [] };
+        let q = appSupabase.from(table).select(columns);
+        if (orderCol && typeof q?.order === 'function') {
+            q = q.order(orderCol, orderOpts || {});
+        }
+        const res = await q;
+        return res || { data: [] };
+    } catch (_) {
+        return { data: [] };
+    }
+}
+
 async function loadUsers() {
     try {
-        const [snapshot, locationResult] = await Promise.all([
+        const [snapshot, locationResult, scheduleResult, historyResult] = await Promise.all([
             db.collection("users").get(),
-            appSupabase.from("locations").select("id,label,address")
+            safeSupabaseSelect("locations", "id,label,address"),
+            safeSupabaseSelect("schedules", "id,user_id,location_id,location_label,location_address,start_at,end_at,duty_date,dtr_period,approval_status", "start_at", { ascending: false }),
+            safeSupabaseSelect("guard_assignment_history", "guard_id,location_id,remarks,ended_at", "assigned_at", { ascending: false })
         ]);
         if (locationResult.error) throw locationResult.error;
         const locationsById = Object.fromEntries((locationResult.data || []).map(location => [location.id, location.label]));
         personnelLocationDetailsById = Object.fromEntries((locationResult.data || []).map(location => [location.id, location]));
-        let html = "";
+
+        guardSchedulesByUserId = {};
+        for (const s of (scheduleResult.data || [])) {
+            if (!s.user_id) continue;
+            guardSchedulesByUserId[s.user_id] ||= [];
+            guardSchedulesByUserId[s.user_id].push(s);
+        }
+
+        guardHistoryShiftByUserId = {};
+        for (const h of (historyResult.data || [])) {
+            if (!h.guard_id || guardHistoryShiftByUserId[h.guard_id]) continue;
+            if (/night\s*shift/i.test(h.remarks || '')) {
+                guardHistoryShiftByUserId[h.guard_id] = 'Night Shift';
+            } else if (/day\s*shift/i.test(h.remarks || '')) {
+                guardHistoryShiftByUserId[h.guard_id] = 'Day Shift';
+            }
+        }
+
         personnelAccounts = {};
         personnelLocationsById = locationsById;
         const accounts = [];
@@ -1416,7 +1605,7 @@ async function loadUsers() {
     } catch (err) {
         const message = escapeHtml(err?.message || "Could not load personnel.");
         document.getElementById("guardTableBody").innerHTML =
-            `<tr><td colspan="9" style="text-align:center;color:var(--sl-danger);padding:32px;">Error: ${message}</td></tr>`;
+            `<tr><td colspan="10" style="text-align:center;color:var(--sl-danger);padding:32px;">Error: ${message}</td></tr>`;
         document.getElementById("inspectorTableBody").innerHTML =
             `<tr><td colspan="4" style="text-align:center;color:var(--sl-danger);padding:32px;">Error: ${message}</td></tr>`;
         finishPageLoading();
@@ -1452,27 +1641,78 @@ function renderPersonnelActions(id, actions) {
     </div>`;
 }
 
+function renderDutyCategoryCell(data) {
+    const isContract = data.employmentCategory === "contract";
+    const category = isContract ? "Contract" : "Regular";
+    const badgeClass = isContract ? "badge-duty-contract" : "badge-duty-regular";
+    return `<span class="badge ${badgeClass}">${category}</span>`;
+}
+
+function renderContractStatusCell(data) {
+    if (data.employmentCategory !== "contract") {
+        return `<span class="badge bg-success-subtle text-success fw-semibold">Permanent</span><div class="small text-muted">No contract date limit</div>`;
+    }
+    const start = data.contractStartDate, end = data.contractEndDate;
+    if (!start || !end) {
+        return `<span class="badge bg-danger-subtle text-danger fw-semibold">Set contract dates</span>`;
+    }
+    const today = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+    let badgeClass = "bg-success-subtle text-success";
+    let statusText = "Active contract";
+    if (today < start) {
+        badgeClass = "bg-warning-subtle text-warning";
+        statusText = "Not started";
+    } else if (today > end) {
+        badgeClass = "bg-danger-subtle text-danger";
+        statusText = "Expired";
+    }
+    return `<span class="badge ${badgeClass} fw-semibold">${statusText}</span><div class="small text-muted">${escapeHtml(start)} – ${escapeHtml(end)}</div>`;
+}
+
+function renderAssignedPostCell(id, data, locationsById) {
+    const locId = data.assignedLocationId;
+    if (!locId) {
+        return `<span class="text-muted">Not assigned</span>`;
+    }
+    const locDetails = (personnelLocationDetailsById && personnelLocationDetailsById[locId]) || {};
+    const companyName = locDetails.label || (locationsById && locationsById[locId]) || "Assigned post unavailable";
+    const locationAddress = locDetails.address || "";
+    const shift = resolveGuardShift(id, data);
+    const isNight = shift === "Night Shift";
+
+    return `<div class="assigned-post-cell">
+        <div class="assigned-post-company">
+            <span class="material-symbols-rounded align-middle me-1" style="font-size:15px;color:var(--sl-danger);" aria-hidden="true">business</span>
+            <strong>${escapeHtml(companyName)}</strong>
+        </div>
+        ${locationAddress ? `<div class="assigned-post-location small text-muted"><span class="material-symbols-rounded align-middle me-1" style="font-size:13px;" aria-hidden="true">location_on</span>${escapeHtml(locationAddress)}</div>` : ''}
+        <div class="assigned-post-shift mt-1">
+            <span class="badge ${isNight ? 'badge-shift-night' : 'badge-shift-day'}">
+                <span class="material-symbols-rounded align-middle me-1" style="font-size:13px;" aria-hidden="true">${isNight ? 'dark_mode' : 'light_mode'}</span>
+                ${escapeHtml(shift)}
+            </span>
+        </div>
+    </div>`;
+}
+
 function renderGuardRow(id, data, locationsById) {
-    const category = data.employmentCategory === "contract" ? "Contract" : "Regular";
     const inspector = data.inspectorId ? personnelAccounts[data.inspectorId] : null;
-    const assignedPost = data.assignedLocationId
-        ? (locationsById[data.assignedLocationId] || "Assigned post unavailable")
-        : "Not assigned";
     const toggle = `<button type="button" class="action-btn ${data.active !== false ? 'btn-disable' : 'btn-enable'}" onclick="toggleUser('${id}', ${data.active !== false}, this)">${data.active !== false ? 'Disable' : 'Enable'}</button>`;
     const actions = renderPersonnelActions(id, [
         `<button type="button" class="action-btn btn-locations" onclick="editPersonnel('${id}', this)">Edit</button>`,
         toggle,
-        `<button type="button" class="action-btn btn-schedule-del" onclick="assignDeployment('${id}')">Assigned Location</button>`,
+        `<button type="button" class="action-btn btn-schedule-del" onclick="assignDeployment('${id}')">Assigned Post</button>`,
         `<button type="button" class="action-btn btn-history" onclick="viewAssignmentHistory('${id}')">History</button>`,
         `<button type="button" class="action-btn btn-inspector" onclick="assignInspector('${id}', this)">Set Inspector</button>`,
         `<button type="button" class="action-btn btn-reports" onclick="viewAccomplishments('${id}')">Reports</button>`,
     ]);
     return `<tr>
         <td>${renderPersonnelIdentity(id, data)}</td>
-        <td>${category}<div class="small text-muted">${escapeHtml(ContractPeriod.label(data))}</div></td>
+        <td>${renderDutyCategoryCell(data)}</td>
+        <td>${renderContractStatusCell(data)}</td>
         <td>${escapeHtml(String(data.dutyDaysTotal || 0))}</td>
         <td>${renderPersonnelStatus(data)}</td>
-        <td>${escapeHtml(assignedPost)}</td>
+        <td>${renderAssignedPostCell(id, data, locationsById)}</td>
         <td>${escapeHtml(inspector ? personnelDisplayName(inspector) : "Unassigned")}</td>
         <td>${actions}</td>
         <td class="text-center"><button type="button" class="action-btn btn-dtr" onclick="viewDTR('${id}')">View DTR</button></td>
@@ -1524,8 +1764,10 @@ let pendingDeployment = null;
 let deploymentModal = null;
 
 async function assignDeployment(guardId) {
-    const guardName = personnelDisplayName(personnelAccounts[guardId]);
+    const guard = personnelAccounts[guardId] || {};
+    const guardName = personnelDisplayName(guard);
     const select = document.getElementById("deploymentLocation");
+    const shiftSelect = document.getElementById("deploymentShift");
     const errorEl = document.getElementById("deploymentError");
     errorEl.innerText = "";
     select.innerHTML = '<option value="">Loading active duty locations…</option>';
@@ -1533,6 +1775,10 @@ async function assignDeployment(guardId) {
     deploymentModal ||= new bootstrap.Modal(document.getElementById("deploymentModal"));
     document.getElementById("deploymentGuardName").innerText = guardName;
     document.getElementById("deploymentRemarks").value = "";
+    if (shiftSelect) {
+        const curShift = resolveGuardShift(guardId, guard);
+        shiftSelect.value = curShift === 'Night Shift' ? 'Night Shift' : 'Day Shift';
+    }
     deploymentModal.show();
     const { data: locations, error } = await appSupabase.from("locations").select().order("label");
     if (error) {
@@ -1547,8 +1793,9 @@ async function assignDeployment(guardId) {
         select.innerHTML = '<option value="">No active locations</option>';
         return;
     }
+    const currentLocId = guard.assignedLocationId || "";
     select.innerHTML = '<option value="">Select a duty location</option>' + active.map(location =>
-        `<option value="${location.id}">${escapeHtml(location.label)}${location.address ? ' — ' + escapeHtml(location.address) : ''}</option>`
+        `<option value="${location.id}" ${location.id === currentLocId ? 'selected' : ''}>${escapeHtml(location.label)}${location.address ? ' — ' + escapeHtml(location.address) : ''}</option>`
     ).join("");
 }
 
@@ -1556,20 +1803,23 @@ async function saveDeployment() {
     const errorEl = document.getElementById("deploymentError");
     const button = document.getElementById("saveDeploymentBtn");
     const locationId = document.getElementById("deploymentLocation").value;
+    const shiftVal = document.getElementById("deploymentShift")?.value || "Day Shift";
     const remarks = document.getElementById("deploymentRemarks").value.trim();
     errorEl.innerText = "";
     if (!pendingDeployment || !locationId) { errorEl.innerText = "Select a duty location."; return; }
     const location = pendingDeployment.locations.find(item => item.id === locationId);
     if (!location) { errorEl.innerText = "Choose an active duty location."; return; }
+    const combinedRemarks = remarks ? `${remarks} [Shift: ${shiftVal}]` : `[Shift: ${shiftVal}]`;
     await appDialog.runBusy(button, async () => {
         const { error } = await appSupabase.rpc("assign_guard_location", {
-            p_guard_id: pendingDeployment.guardId, p_location_id: locationId, p_remarks: remarks
+            p_guard_id: pendingDeployment.guardId, p_location_id: locationId, p_remarks: combinedRemarks
         });
         if (error) throw error;
+        guardHistoryShiftByUserId[pendingDeployment.guardId] = shiftVal;
         deploymentModal.hide();
-        appDialog.toast(`${pendingDeployment.guardName}'s assigned location is now ${location.label}.`, { tone: 'success' });
+        appDialog.toast(`${pendingDeployment.guardName}'s assigned post is now ${location.label} (${shiftVal}).`, { tone: 'success' });
         await loadUsers();
-    }, { label: 'Saving location…' }).catch(error => {
+    }, { label: 'Saving post…' }).catch(error => {
         errorEl.innerText = "Assignment failed: " + (error.message || "please try again.");
         appDialog.toast(errorEl.innerText, { tone: 'danger' });
     });
@@ -2882,9 +3132,14 @@ function openPersonnelProfile(uid) {
                     <span class="profile-data-value">${account.contractEndDate || '—'}</span>
                 </div>` : ''}
                 <div class="profile-data-item">
-                    <span class="profile-data-label">Home Post (Detachment)</span>
+                    <span class="profile-data-label">Assigned Post (Detachment)</span>
                     <span class="profile-data-value">${escapeHtml(assignedLocation)}</span>
                 </div>
+                ${account.assignedLocationId ? `
+                <div class="profile-data-item">
+                    <span class="profile-data-label">Assigned Shift</span>
+                    <span class="profile-data-value">${escapeHtml(resolveGuardShift(uid, account))}</span>
+                </div>` : ''}
                 <div class="profile-data-item">
                     <span class="profile-data-label">Assigned Field Inspector</span>
                     <span class="profile-data-value">${escapeHtml(inspectorName)}</span>
