@@ -256,8 +256,8 @@
         }
 
         tbody.innerHTML = data.map(inc => {
-            const statusClass = inc.isArchived ? 'rec-badge-expired' : (inc.status === 'resolved' ? 'rec-badge-resolved' : (inc.status === 'acknowledged' ? 'rec-badge-acknowledged' : 'rec-badge-open'));
-            const statusText = inc.isArchived ? 'Archived' : inc.status;
+            const statusClass = inc.isArchived ? 'rec-badge-expired' : (inc.status === 'resolved' ? 'rec-badge-resolved' : (inc.status === 'under_investigation' ? 'rec-badge-investigating' : (inc.status === 'escalated' ? 'rec-badge-escalated' : (inc.status === 'acknowledged' ? 'rec-badge-acknowledged' : 'rec-badge-open'))));
+            const statusText = inc.isArchived ? 'Archived' : (inc.status === 'under_investigation' ? 'Under investigation' : (inc.status === 'escalated' ? 'Escalated' : (inc.status ? inc.status.charAt(0).toUpperCase() + inc.status.slice(1) : 'Open')));
             return `<tr onclick="openIncidentDetail('${inc.id}')" style="cursor:pointer;" title="Click to view full incident details">
                 <td class="col-id">${escapeHtml(inc.displayId)}</td>
                 <td class="col-primary">
@@ -650,7 +650,10 @@
         }
 
         const statusSel = document.getElementById('statusSelect');
-        if (statusSel) statusSel.value = inc.status || incItem.status || 'open';
+        if (statusSel) {
+            const rawStatus = inc.status || incItem.status || '';
+            statusSel.value = (rawStatus && rawStatus !== 'open') ? rawStatus : 'under_investigation';
+        }
 
         const statusNoteEl = document.getElementById('statusNote');
         if (statusNoteEl) statusNoteEl.value = inc.status_note || inc.statusNote || '';

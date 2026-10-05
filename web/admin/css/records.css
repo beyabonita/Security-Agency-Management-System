@@ -385,14 +385,16 @@
 
 .rec-badge-expired,
 .rec-badge-resigned,
-.rec-badge-open {
+.rec-badge-open,
+.rec-badge-escalated {
     background: #fee2e2;
     color: #991b1b;
 }
 
 .rec-badge-reliever,
 .rec-badge-acknowledged,
-.rec-badge-pending {
+.rec-badge-pending,
+.rec-badge-investigating {
     background: #fef3c7;
     color: #92400e;
 }
@@ -412,14 +414,16 @@
 
 [data-theme="dark"] .rec-badge-expired,
 [data-theme="dark"] .rec-badge-resigned,
-[data-theme="dark"] .rec-badge-open {
+[data-theme="dark"] .rec-badge-open,
+[data-theme="dark"] .rec-badge-escalated {
     background: rgba(239, 68, 68, 0.2);
     color: #fca5a5;
 }
 
 [data-theme="dark"] .rec-badge-reliever,
 [data-theme="dark"] .rec-badge-acknowledged,
-[data-theme="dark"] .rec-badge-pending {
+[data-theme="dark"] .rec-badge-pending,
+[data-theme="dark"] .rec-badge-investigating {
     background: rgba(245, 158, 11, 0.2);
     color: #fcd34d;
 }

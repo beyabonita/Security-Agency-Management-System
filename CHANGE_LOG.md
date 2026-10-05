@@ -1,6 +1,22 @@
 # Project Change Log
 
-### [2026-10-06 03:25] - Fix: Assigned Post & Shift Dropdown Modal Overflow
+### [2026-10-06 03:40] - Feat: Align Operations Head Incident Status with Inspector
+
+- **Scope & Objective**:
+  - Updated the Incident Report review and disposition status in Operations Head (Admin) ([`web/admin/incidents.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/incidents.html) and [`web/admin/records.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/records.html)) to match the Inspector incident statuses: **Under investigation**, **Escalated**, and **Resolved** (removing legacy Open/Acknowledged from the disposition review options).
+- **Files Modified**:
+  - [`web/admin/incidents.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/incidents.html): Updated `#statusSelect` options to `under_investigation`, `escalated`, `resolved`; updated `statusBadge` renderer and default modal pre-selection (`under_investigation`).
+  - [`web/admin/css/admin-theme.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/admin-theme.css): Added `.badge-investigating` and `.badge-escalated` status badge styles for light and dark modes.
+  - [`web/admin/records.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/records.html): Updated `#statusSelect` and filter `#irFilterStatus` options to include `under_investigation` and `escalated`.
+  - [`web/admin/js/records.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/records.js): Updated table badge classes, human-readable status labels, and modal pre-selection.
+  - [`web/admin/css/records.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/records.css): Added `.rec-badge-investigating` and `.rec-badge-escalated` styles for light and dark modes.
+- **Verification & Testing**:
+  - Verified JavaScript and HTML syntax with Node.js: 0 errors.
+  - Verified Google Material icon and official Supabase client compatibility tests passed.
+
+---
+
+
 
 - **Scope & Objective**:
   - Fixed the "ASSIGNED POST / COMPANY" dropdown menu in the *Assigned Post & Shift* modal ([`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html)) overflowing up to 1200px wide across the screen.

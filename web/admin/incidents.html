@@ -124,8 +124,8 @@
                     <div class="incident-review-field">
                         <label for="statusSelect">Status</label>
                         <select id="statusSelect" class="form-select">
-                            <option value="open">Open</option>
-                            <option value="acknowledged">Acknowledged</option>
+                            <option value="under_investigation">Under investigation</option>
+                            <option value="escalated">Escalated</option>
                             <option value="resolved">Resolved</option>
                         </select>
                     </div>
@@ -220,9 +220,22 @@ function formatWhen(ts) {
 }
 
 function statusBadge(status) {
-  const s = ['open', 'acknowledged', 'resolved'].includes(status) ? status : 'open';
-  const cls = s === 'resolved' ? 'badge-resolved' : (s === 'acknowledged' ? 'badge-ack' : 'badge-open');
-  const label = s.charAt(0).toUpperCase() + s.slice(1);
+  const s = ['under_investigation', 'escalated', 'acknowledged', 'resolved', 'open'].includes(status) ? status : 'open';
+  let cls = 'badge-open';
+  let label = 'Open';
+  if (s === 'resolved') {
+    cls = 'badge-resolved';
+    label = 'Resolved';
+  } else if (s === 'under_investigation') {
+    cls = 'badge-investigating';
+    label = 'Under investigation';
+  } else if (s === 'escalated') {
+    cls = 'badge-escalated';
+    label = 'Escalated';
+  } else if (s === 'acknowledged') {
+    cls = 'badge-ack';
+    label = 'Acknowledged';
+  }
   return '<span class="badge-status ' + cls + '">' + label + '</span>';
 }
 
@@ -280,7 +293,8 @@ function openDetail(id) {
     formatWhen
   });
 
-  document.getElementById('statusSelect').value = inc.status || 'open';
+  const currentStatus = (inc.status && inc.status !== 'open') ? inc.status : 'under_investigation';
+  document.getElementById('statusSelect').value = currentStatus;
   document.getElementById('statusNote').value = inc.statusNote || '';
   const isArchived = !!(inc.archivedAt || inc.archived_at);
   const archiveBtn = document.getElementById('archiveIncidentBtn');
