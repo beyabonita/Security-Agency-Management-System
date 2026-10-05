@@ -163,9 +163,9 @@ for (const panel of ['admin', 'inspector']) {
   assertInlineScriptsParse(incidents, `${panel}/incidents.html`);
 }
 const adminIncidents = read('admin', 'incidents.html');
-expectIncludes(adminIncidents, "functions.invoke('admin-delete-incident'", 'server-authorized incident deletion');
-expectIncludes(adminIncidents, 'Delete report and media', 'irreversible deletion confirmation');
-expectExcludes(read('inspector', 'incidents.html'), 'deleteIncidentBtn', 'Inspector incident deletion action');
+expectIncludes(adminIncidents, "rpc('archive_incident_report'", 'server-authorized incident archiving');
+expectIncludes(adminIncidents, 'Archive emergency report?', 'archiving confirmation');
+expectExcludes(read('inspector', 'incidents.html'), 'archiveIncidentBtn', 'Inspector incident archiving action');
 
 const incidentReportView = read('js', 'incident-report-view.js');
 expectIncludes(incidentReportView, 'incident.detailedNarrative || incident.description', 'shared detailed incident narrative');

@@ -82,14 +82,14 @@
       personnelId: 'personnel_id', dateOfBirth: 'date_of_birth', gender: 'gender', civilStatus: 'civil_status',
       completeAddress: 'complete_address', dateHired: 'date_hired', contractStatus: 'contract_status',
       licenseSecurityUrl: 'license_security_url', licenseFirearmsUrl: 'license_firearms_url', mobileNumber: 'mobile_number',
-      createdAt: 'created_at', updatedAt: 'updated_at', updatedBy: 'updated_by',
+      createdAt: 'created_at', updatedAt: 'updated_at', updatedBy: 'updated_by', archivedAt: 'archived_at',
       photoData: 'photo_data', radius: 'radius_meters', name: 'guard_name',
     };
     const allowed = {
       users: ['id', 'username', 'email', 'first_name', 'middle_initial', 'middle_name', 'last_name', 'role', 'organization_id', 'active', 'device_id', 'device_locked', 'created_at', 'personnel_id', 'date_of_birth', 'gender', 'civil_status', 'complete_address', 'date_hired', 'contract_status', 'license_security_url', 'license_firearms_url', 'mobile_number', 'employment_category', 'contract_start_date', 'contract_end_date', 'assigned_location_id', 'inspector_id'],
       locations: ['id', 'label', 'address', 'latitude', 'longitude', 'radius_meters', 'active', 'created_at'],
       schedules: ['id', 'user_id', 'location_id', 'location_label', 'location_address', 'guard_name', 'start_at', 'end_at', 'duty_date', 'dtr_period', 'duty_category', 'duty_days', 'approval_status', 'marked_done', 'completed_at', 'completed_by', 'created_at'],
-      incidents: ['id', 'user_id', 'guard_name', 'guard_email', 'category', 'description', 'photo_data', 'latitude', 'longitude', 'location_label', 'status', 'status_note', 'created_at', 'updated_at', 'updated_by', 'deletion_requested_at'],
+      incidents: ['id', 'user_id', 'guard_name', 'guard_email', 'category', 'description', 'photo_data', 'latitude', 'longitude', 'location_label', 'status', 'status_note', 'created_at', 'updated_at', 'updated_by', 'deletion_requested_at', 'archived_at'],
     };
     return Object.fromEntries(
       Object.entries(data)
@@ -117,7 +117,7 @@
       completed_at: 'completedAt', completed_by: 'completedBy', first_name: 'firstName',
       middle_initial: 'middleInitial', last_name: 'lastName', device_id: 'deviceId',
       device_locked: 'deviceLocked', created_at: 'createdAt', updated_at: 'updatedAt',
-      updated_by: 'updatedBy', captured_at: 'capturedAt', filed_at: 'filedAt',
+      updated_by: 'updatedBy', captured_at: 'capturedAt', filed_at: 'filedAt', archived_at: 'archivedAt',
       personnel_id: 'personnelId', middle_name: 'middleName', date_of_birth: 'dateOfBirth',
       gender: 'gender', civil_status: 'civilStatus', complete_address: 'completeAddress',
       date_hired: 'dateHired', contract_status: 'contractStatus', license_security_url: 'licenseSecurityUrl',

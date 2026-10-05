@@ -188,32 +188,22 @@ test('Operations Head must confirm actual Time Out before approving started-duty
   expect(await page.evaluate(()=>calls.find(c=>c.name==='decide_duty_relief').args.p_actual_end_at)).toBe('2026-09-11T02:30:00.000Z');
 });
 
-test('emergency deletion supports cancel, clear errors, retry and success',async({page},info)=>{
+test('emergency archiving supports cancel and archiving report',async({page},info)=>{
   await openIncident(page);
-  await page.getByRole('button',{name:'Delete report',exact:true}).click();
-  await expect(page.locator('.sl-dialog')).toContainText('cannot be undone');
-  await page.getByRole('button',{name:'Keep report',exact:true}).click();
-  expect(await page.evaluate(()=>window.calls.length)).toBe(0);
-  await page.evaluate(()=>window.deleteError='Video cleanup failed. The report is still listed; retry Delete report.');
-  await page.getByRole('button',{name:'Delete report',exact:true}).click();
-  await page.getByRole('button',{name:'Delete report and media',exact:true}).click();
-  await expect(page.locator('.sl-toast').last()).toContainText('Video cleanup failed');
-  await expect(page.locator('#detailModal')).toBeVisible();
-  expect(await page.evaluate(()=>incidents.length)).toBe(1);
-  await page.screenshot({path:info.outputPath('incident-cleanup-error-retains-report.png')});
-  await page.evaluate(()=>window.deleteError=null);
-  await page.getByRole('button',{name:'Delete report',exact:true}).click();
-  await page.getByRole('button',{name:'Delete report and media',exact:true}).click();
+  await page.getByRole('button',{name:'Archive report',exact:true}).click();
+  await expect(page.locator('.sl-dialog')).toContainText('Archive emergency report?');
+  await page.getByRole('button',{name:'Cancel',exact:true}).click();
+  await page.getByRole('button',{name:'Archive report',exact:true}).click();
+  await page.getByRole('button',{name:'Archive report',exact:true}).last().click();
   await expect(page.locator('#detailModal')).toBeHidden();
   await expect(page.locator('#incidentTableBody')).toContainText('No incident reports');
-  expect(await page.evaluate(()=>window.calls.every(c=>c.name==='admin-delete-incident'))).toBe(true);
-  await page.screenshot({path:info.outputPath('incident-deletion-success.png')});
+  await page.screenshot({path:info.outputPath('incident-archiving-success.png')});
 });
 
-test('Inspector has no emergency delete button or duty approval controls',async({page})=>{
+test('Inspector has no emergency archive button or duty approval controls',async({page})=>{
   await page.route('**/supabase-firebase-bridge.js',r=>r.fulfill({contentType:'text/javascript',body:'window.firebase={auth:()=>({onAuthStateChanged(){}}),firestore:()=>({})};'}));
   await page.goto('/inspector/incidents.html');
-  await expect(page.locator('#deleteIncidentBtn')).toHaveCount(0);
+  await expect(page.locator('#archiveIncidentBtn')).toHaveCount(0);
   await page.goto('/inspector/swaps.html');
   expect(await page.evaluate(()=>typeof window.decide)).toBe('undefined');
   await expect(page.getByRole('button',{name:'Recommend',exact:true})).toHaveCount(0);

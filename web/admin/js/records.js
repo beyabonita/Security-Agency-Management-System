@@ -248,14 +248,15 @@
         }
 
         tbody.innerHTML = data.map(inc => {
-            const statusClass = inc.status === 'resolved' ? 'rec-badge-resolved' : (inc.status === 'acknowledged' ? 'rec-badge-acknowledged' : 'rec-badge-open');
+            const statusClass = inc.isArchived ? 'rec-badge-expired' : (inc.status === 'resolved' ? 'rec-badge-resolved' : (inc.status === 'acknowledged' ? 'rec-badge-acknowledged' : 'rec-badge-open'));
+            const statusText = inc.isArchived ? 'Archived' : inc.status;
             return `<tr>
                 <td class="col-id">${escapeHtml(inc.displayId)}</td>
                 <td class="col-primary">
                     <div>${escapeHtml(inc.clientPost)}</div>
                     <div style="font-size:11.5px; color:var(--brand-text-muted,#64748b);">${escapeHtml(inc.categoryLabel)}</div>
                 </td>
-                <td><span class="rec-badge ${statusClass}">${escapeHtml(inc.status)}</span></td>
+                <td><span class="rec-badge ${statusClass}">${escapeHtml(statusText)}</span></td>
                 <td>${escapeHtml(inc.reportedBy)}</td>
                 <td style="max-width:260px; white-space:normal;">${escapeHtml(inc.responseSummary)}</td>
                 <td>${escapeHtml(inc.evidenceSummary)}</td>
@@ -276,7 +277,18 @@
             if (dateTo && inc.rawDate > dateTo) return false;
             if (personnelId && inc.userId !== personnelId) return false;
             if (category && inc.rawCategory !== category) return false;
-            if (status && inc.status.toLowerCase() !== status) return false;
+
+            if (status === 'archived') {
+                if (!inc.isArchived) return false;
+            } else if (status === 'all') {
+                // Return both active and archived
+            } else if (status) {
+                if (inc.isArchived || inc.status.toLowerCase() !== status) return false;
+            } else {
+                // Default "" (All active statuses): exclude archived
+                if (inc.isArchived) return false;
+            }
+
             if (locationId) {
                 const locObj = allLocations.find(l => l.id === locationId);
                 const locLabel = locObj ? locObj.label.toLowerCase() : '';
@@ -532,7 +544,9 @@
                     rawDate,
                     rawCategory,
                     categoryLabel,
-                    userId: inc.user_id
+                    userId: inc.user_id,
+                    isArchived: !!inc.archived_at,
+                    archivedAt: inc.archived_at
                 };
             });
 

@@ -48,7 +48,17 @@
                 <button type="button" class="ax-btn-logout" onclick="adminLogout()">Sign out</button>
             </div>
         </header>
-        <main class="ax-content">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 mb-0 fw-bold">Incident Reports</h2>
+            <div class="d-flex align-items-center gap-2">
+                <label for="incidentViewFilter" class="form-label mb-0 fw-semibold text-muted" style="font-size:13px;">View:</label>
+                <select id="incidentViewFilter" class="form-select form-select-sm" style="width: auto;">
+                    <option value="active" selected>Active Reports</option>
+                    <option value="archived">Archived Reports</option>
+                    <option value="all">All Reports</option>
+                </select>
+            </div>
+        </div>
 
     <div class="glass-card">
         <div class="table-responsive">
@@ -108,7 +118,7 @@
                 <div class="incident-review-head">
                     <strong>Review and disposition</strong>
                     <span>Update the case status and document the follow-up action.</span>
-                    <button type="button" class="action-btn btn-disable" id="deleteIncidentBtn">Delete report</button>
+                    <button type="button" class="action-btn btn-warning" id="archiveIncidentBtn">Archive report</button>
                 </div>
                 <div class="incident-review-grid">
                     <div class="incident-review-field">
@@ -216,25 +226,38 @@ function statusBadge(status) {
   return '<span class="badge-status ' + cls + '">' + label + '</span>';
 }
 
+document.getElementById('incidentViewFilter')?.addEventListener('change', renderTable);
+
 function renderTable() {
   const tbody = document.getElementById('incidentTableBody');
-  if (!incidents.length) {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No incident reports yet.</td></tr>';
+  const viewFilter = document.getElementById('incidentViewFilter')?.value || 'active';
+  const filtered = incidents.filter(function(inc) {
+    const isArchived = !!(inc.archivedAt || inc.archived_at);
+    if (viewFilter === 'active') return !isArchived;
+    if (viewFilter === 'archived') return isArchived;
+    return true;
+  });
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No ' + (viewFilter === 'archived' ? 'archived' : 'incident') + ' reports found.</td></tr>';
     return;
   }
-  tbody.innerHTML = incidents.map(function(inc) {
+  tbody.innerHTML = filtered.map(function(inc) {
     const src = incidentPhotoSrc(inc);
     const thumb = src
       ? '<img src="' + escapeHtml(src) + '" class="thumb" alt="photo">'
       : '<span style="color:var(--sl-muted)">—</span>';
     const cat = CATEGORY_LABELS[inc.category] || inc.category || '—';
+    const isArchived = !!(inc.archivedAt || inc.archived_at);
+    const statusMarkup = isArchived
+      ? '<span class="badge-status badge-ack">Archived</span>'
+      : (inc.deletion_requested_at ? '<span class="badge-status badge-open">Deletion retry</span>' : statusBadge(inc.status));
     return '<tr onclick="openDetail(\'' + inc.id + '\')">' +
       '<td>' + thumb + '</td>' +
       '<td>' + formatWhen(inc.capturedAt || inc.createdAt) + '</td>' +
       '<td><strong>' + escapeHtml(inc.guardName || '—') + '</strong><br><small style="color:var(--sl-muted)">' + escapeHtml(reportEmail(inc.guardEmail)) + '</small></td>' +
       '<td><span class="badge-cat">' + escapeHtml(cat) + '</span></td>' +
-      '<td>' + (inc.deletion_requested_at ? '<span class="badge-status badge-open">Deletion retry</span>' : statusBadge(inc.status)) + '</td>' +
-      '<td style="color:var(--sl-muted)">' + (inc.deletion_requested_at ? 'Cleanup interrupted · open report and retry' : (inc.videoPath ? escapeHtml(String(inc.videoDurationSeconds || 15) + ' sec video' + (src ? ' + photo' : '')) : 'Photo alert')) + '</td>' +
+      '<td>' + statusMarkup + '</td>' +
+      '<td style="color:var(--sl-muted)">' + (isArchived ? 'Archived report · preserved in records' : (inc.videoPath ? escapeHtml(String(inc.videoDurationSeconds || 15) + ' sec video' + (src ? ' + photo' : '')) : 'Photo alert')) + '</td>' +
       '</tr>';
   }).join('');
 }
@@ -259,8 +282,10 @@ function openDetail(id) {
 
   document.getElementById('statusSelect').value = inc.status || 'open';
   document.getElementById('statusNote').value = inc.statusNote || '';
-  document.getElementById('deleteIncidentBtn').textContent = inc.deletion_requested_at ? 'Retry deletion' : 'Delete report';
-  document.getElementById('saveStatusBtn').disabled = !!inc.deletion_requested_at;
+  const isArchived = !!(inc.archivedAt || inc.archived_at);
+  const archiveBtn = document.getElementById('archiveIncidentBtn');
+  if (archiveBtn) archiveBtn.textContent = isArchived ? 'Unarchive report' : 'Archive report';
+  document.getElementById('saveStatusBtn').disabled = false;
   detailModal.show();
   if (inc.videoPath) incidentReportView.loadVideo(inc, requestId);
 }
@@ -269,34 +294,35 @@ document.getElementById('detailModal').addEventListener('hidden.bs.modal', funct
   incidentReportView.close();
 });
 
-let deletingIncident = false;
-document.getElementById('deleteIncidentBtn').addEventListener('click', async function() {
-  if (!selectedId || !currentUser || deletingIncident) return;
+let archivingIncident = false;
+document.getElementById('archiveIncidentBtn')?.addEventListener('click', async function() {
+  if (!selectedId || !currentUser || archivingIncident) return;
   const id = selectedId;
-  deletingIncident = true;
+  const inc = incidents.find(item => item.id === id);
+  if (!inc) return;
+  const isArchived = !!(inc.archivedAt || inc.archived_at);
+  archivingIncident = true;
   try {
     const confirmed = await appDialog.confirm(
-      'This removes the report, its photo, its video, and related alerts. This cannot be undone. Save any evidence you need first.', {
-      title: 'Permanently delete emergency report?',
-      confirmText: 'Delete report and media', cancelText: 'Keep report', danger: true,
+      isArchived
+        ? 'Restore this incident report to active status?'
+        : 'Archive this incident report? It will be safely moved to records archive for future auditing.', {
+      title: isArchived ? 'Restore emergency report?' : 'Archive emergency report?',
+      confirmText: isArchived ? 'Restore report' : 'Archive report', cancelText: 'Cancel', danger: false,
     });
     if (!confirmed) return;
     await appDialog.runBusy(this, async () => {
-      const result = await appSupabase.functions.invoke('admin-delete-incident', { body: { incidentId: id } });
-      if (result.error) {
-        let message = 'Could not delete the report. Try again.';
-        try { message = (await result.error.context?.json())?.error || result.error.message || message; } catch (_) {}
-        throw new Error(message);
-      }
-      if (!result.data?.ok) throw new Error(result.data?.error || 'Deletion was not confirmed. Refresh and try again.');
-      incidents = incidents.filter(item => item.id !== id);
+      const { error } = await appSupabase.rpc('archive_incident_report', { p_incident_id: id, p_archive: !isArchived });
+      if (error) throw new Error(error.message || 'Could not update archive status.');
+      inc.archivedAt = !isArchived ? new Date().toISOString() : null;
+      inc.archived_at = inc.archivedAt;
       renderTable();
       detailModal.hide();
-    }, { label: 'Deleting report & media…' });
-    appDialog.toast('Emergency report and its media deleted.', { tone: 'success' });
+    }, { label: isArchived ? 'Restoring report…' : 'Archiving report…' });
+    appDialog.toast(isArchived ? 'Incident report restored.' : 'Incident report archived.', { tone: 'success' });
   } catch (error) {
-    appDialog.toast(error.message || 'Deletion failed. The report remains available for retry.', { tone: 'danger' });
-  } finally { deletingIncident = false; }
+    appDialog.toast(error.message || 'Action failed. Please try again.', { tone: 'danger' });
+  } finally { archivingIncident = false; }
 });
 
 document.getElementById('saveStatusBtn').addEventListener('click', async function() {
