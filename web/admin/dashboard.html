@@ -343,7 +343,7 @@ function renderRecentIncidents(incidents, profiles = []) {
         '<tr data-incident-id="' + escapeHtml(incident.id) + '">' +
             '<td>' + escapeHtml(formatDashboardDate(incident.captured_at || incident.created_at)) + '</td>' +
             '<td>' + escapeHtml(incidentCategory(incident.category)) + '</td>' +
-            '<td>' + escapeHtml(incident.location_label || '-') + '</td>' +
+            '<td>' + (incident.location_label ? escapeHtml(incident.location_label) : '<em class="text-muted">No location on record</em>') + '</td>' +
             '<td>' + escapeHtml(incidentStatus(incident.status)) + '</td>' +
         '</tr>'
     )).join('') : '<tr><td colspan="4" class="empty-state">No recent incidents.</td></tr>';
@@ -396,7 +396,7 @@ function renderIncidentIntelligence(days) {
     const statusCounts = { Open: 0, Acknowledged: 0, Resolved: 0 };
 
     filtered.forEach(inc => {
-        const loc = inc.location_label || 'Unassigned post';
+        const loc = inc.location_label || 'No location on record';
         locationStats[loc] = (locationStats[loc] || 0) + 1;
 
         if (inc.user_id) {
