@@ -250,7 +250,7 @@
         tbody.innerHTML = data.map(inc => {
             const statusClass = inc.isArchived ? 'rec-badge-expired' : (inc.status === 'resolved' ? 'rec-badge-resolved' : (inc.status === 'acknowledged' ? 'rec-badge-acknowledged' : 'rec-badge-open'));
             const statusText = inc.isArchived ? 'Archived' : inc.status;
-            return `<tr>
+            return `<tr onclick="openIncidentDetail('${inc.id}')" style="cursor:pointer;" title="Click to view full incident details">
                 <td class="col-id">${escapeHtml(inc.displayId)}</td>
                 <td class="col-primary">
                     <div>${escapeHtml(inc.clientPost)}</div>
@@ -546,7 +546,8 @@
                     categoryLabel,
                     userId: inc.user_id,
                     isArchived: !!inc.archived_at,
-                    archivedAt: inc.archived_at
+                    archivedAt: inc.archived_at,
+                    raw: inc
                 };
             });
 
@@ -564,6 +565,82 @@
     }
 
     // ==========================================
+    // Incident Detail Modal Handler
+    // ==========================================
+    let selectedId = null;
+    let detailModal = null;
+
+    function openIncidentDetail(id) {
+        selectedId = id;
+        const incItem = allIncidents.find(i => i.id === id);
+        if (!incItem) return;
+        const inc = incItem.raw || incItem;
+        const categoryLabel = INCIDENT_CATEGORIES[inc.category || incItem.rawCategory] || inc.category || incItem.categoryLabel || 'Incident';
+
+        const modalTitleEl = document.getElementById('modalTitle');
+        if (modalTitleEl) modalTitleEl.textContent = 'Incident report — ' + (inc.guard_name || inc.guardName || incItem.reportedBy || 'Guard');
+
+        const photoSrc = inc.photo_data
+            ? (inc.photo_data.startsWith('data:') ? inc.photo_data : 'data:image/jpeg;base64,' + inc.photo_data)
+            : (inc.photoData || '');
+
+        if (window.incidentReportView && document.getElementById('modalBody')) {
+            const requestId = window.incidentReportView.render(document.getElementById('modalBody'), {
+                incident: {
+                    ...inc,
+                    guardName: inc.guard_name || inc.guardName || incItem.reportedBy,
+                    guardEmail: inc.guard_email || inc.guardEmail,
+                    createdAt: inc.created_at || inc.createdAt,
+                    capturedAt: inc.captured_at || inc.capturedAt,
+                    filedAt: inc.filed_at || inc.filedAt,
+                    videoPath: inc.video_path || inc.videoPath,
+                    videoDurationSeconds: inc.video_duration_seconds || inc.videoDurationSeconds,
+                    statusNote: inc.status_note || inc.statusNote,
+                    reviewHistory: inc.review_history || inc.reviewHistory || [],
+                    detailedNarrative: inc.detailed_narrative || inc.description,
+                    locationLabel: inc.location_label || inc.locationLabel || incItem.clientPost,
+                    archivedAt: inc.archived_at || inc.archivedAt
+                },
+                categoryLabel,
+                photoSrc,
+                formatWhen: function(ts) {
+                    if (!ts) return '—';
+                    const d = typeof ts === 'string' ? new Date(ts) : (ts.toDate ? ts.toDate() : new Date(ts));
+                    if (isNaN(d.getTime())) return '—';
+                    return d.toLocaleString('en-PH', {
+                        month: 'short', day: 'numeric', year: 'numeric',
+                        hour: 'numeric', minute: '2-digit', hour12: true
+                    });
+                }
+            });
+
+            if (inc.video_path || inc.videoPath) {
+                window.incidentReportView.loadVideo({
+                    ...inc,
+                    videoPath: inc.video_path || inc.videoPath
+                }, requestId);
+            }
+        }
+
+        const statusSel = document.getElementById('statusSelect');
+        if (statusSel) statusSel.value = inc.status || incItem.status || 'open';
+
+        const statusNoteEl = document.getElementById('statusNote');
+        if (statusNoteEl) statusNoteEl.value = inc.status_note || inc.statusNote || '';
+
+        const archiveBtn = document.getElementById('archiveIncidentBtn');
+        if (archiveBtn) archiveBtn.textContent = incItem.isArchived ? 'Unarchive report' : 'Archive report';
+
+        const modalEl = document.getElementById('detailModal');
+        if (modalEl && window.bootstrap?.Modal) {
+            if (!detailModal) detailModal = new window.bootstrap.Modal(modalEl);
+            detailModal.show();
+        }
+    }
+
+    window.openIncidentDetail = openIncidentDetail;
+
+    // ==========================================
     // Event Listeners Binding
     // ==========================================
     function bindEvents() {
@@ -575,6 +652,72 @@
 
         document.getElementById('attBtnApply')?.addEventListener('click', applyAttendanceFilter);
         document.getElementById('attBtnReset')?.addEventListener('click', resetAttendanceFilter);
+
+        document.getElementById('archiveIncidentBtn')?.addEventListener('click', async function() {
+            if (!selectedId || !client) return;
+            const incItem = allIncidents.find(i => i.id === selectedId);
+            if (!incItem) return;
+            const isArchived = incItem.isArchived;
+
+            const confirmed = window.appDialog ? await window.appDialog.confirm(
+                isArchived ? 'Restore this incident report to active status?' : 'Archive this incident report? It will be safely stored in records.',
+                { title: isArchived ? 'Restore emergency report?' : 'Archive emergency report?', confirmText: isArchived ? 'Restore report' : 'Archive report' }
+            ) : confirm(isArchived ? 'Restore this report?' : 'Archive this report?');
+
+            if (!confirmed) return;
+
+            try {
+                const { error } = await client.rpc('archive_incident_report', { p_incident_id: selectedId, p_archive: !isArchived });
+                if (error) throw new Error(error.message || 'Archiving failed');
+
+                incItem.isArchived = !isArchived;
+                incItem.archivedAt = !isArchived ? new Date().toISOString() : null;
+                if (incItem.raw) incItem.raw.archived_at = incItem.archivedAt;
+
+                if (detailModal) detailModal.hide();
+                applyIncidentFilter();
+                if (window.appDialog) window.appDialog.toast(isArchived ? 'Report restored to active.' : 'Report archived successfully.', { tone: 'success' });
+            } catch (err) {
+                if (window.appDialog) window.appDialog.toast(err.message, { tone: 'danger' });
+                else alert(err.message);
+            }
+        });
+
+        document.getElementById('saveStatusBtn')?.addEventListener('click', async function() {
+            if (!selectedId || !client) return;
+            const nextStatus = document.getElementById('statusSelect')?.value;
+            const statusNote = (document.getElementById('statusNote')?.value || '').trim();
+
+            if (nextStatus === 'resolved' && statusNote.length < 5) {
+                if (window.appDialog) window.appDialog.toast('Add a resolution note of at least 5 characters before closing.', { tone: 'warning' });
+                return;
+            }
+
+            try {
+                const { error } = await client.rpc('update_incident_status', {
+                    p_incident_id: selectedId,
+                    p_status: nextStatus,
+                    p_status_note: statusNote
+                });
+                if (error) throw new Error(error.message || 'Status update failed.');
+
+                const incItem = allIncidents.find(i => i.id === selectedId);
+                if (incItem) {
+                    incItem.status = nextStatus;
+                    if (incItem.raw) {
+                        incItem.raw.status = nextStatus;
+                        incItem.raw.status_note = statusNote;
+                    }
+                }
+
+                if (detailModal) detailModal.hide();
+                applyIncidentFilter();
+                if (window.appDialog) window.appDialog.toast('Incident status updated successfully.', { tone: 'success' });
+            } catch (err) {
+                if (window.appDialog) window.appDialog.toast(err.message, { tone: 'danger' });
+                else alert(err.message);
+            }
+        });
     }
 
     // Initialize on DOM ready
