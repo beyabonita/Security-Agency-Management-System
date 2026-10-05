@@ -769,6 +769,8 @@
                                 <option value="all">All Status</option>
                                 <option value="active">Active Only</option>
                                 <option value="inactive">Inactive / Disabled</option>
+                                <option value="archived">Archived Guards</option>
+                                <option value="no_active_contract">No Active Contract</option>
                             </select>
                         </div>
                         <div class="personnel-filter-group">
@@ -1482,10 +1484,14 @@ function applyGuardFilters() {
 
     const filtered = allGuards.filter(({ data }) => {
         const isActive = data.active !== false;
-        if (statusFilter === "active" && !isActive) return false;
-        if (statusFilter === "inactive" && isActive) return false;
-
+        const isArchived = !!(data.removedAt || data.removed_at);
         const contractStatus = getGuardContractStatus(data, today);
+
+        if (statusFilter === "active" && (!isActive || isArchived)) return false;
+        if (statusFilter === "inactive" && (isActive || isArchived)) return false;
+        if (statusFilter === "archived" && !isArchived) return false;
+        if (statusFilter === "no_active_contract" && contractStatus === "contract_active") return false;
+
         if (categoryFilter === "regular") {
             if (contractStatus !== 'regular') return false;
         } else if (categoryFilter === "contract_active") {
@@ -1635,6 +1641,9 @@ function renderPersonnelIdentity(id, data) {
 }
 
 function renderPersonnelStatus(data) {
+    if (data.removedAt || data.removed_at) {
+        return '<span class="badge bg-secondary text-white fw-semibold">Archived</span>';
+    }
     return data.active !== false
         ? '<span class="badge-active">Active</span>'
         : '<span class="badge-disabled">Disabled</span>';
@@ -1707,17 +1716,22 @@ function renderAssignedPostCell(id, data, locationsById) {
 
 function renderGuardRow(id, data, locationsById) {
     const inspector = data.inspectorId ? personnelAccounts[data.inspectorId] : null;
+    const isArchived = !!(data.removedAt || data.removed_at);
     const toggle = `<button type="button" class="action-btn ${data.active !== false ? 'btn-disable' : 'btn-enable'}" onclick="toggleUser('${id}', ${data.active !== false}, this)">${data.active !== false ? 'Disable' : 'Enable'}</button>`;
+    const archiveBtn = isArchived
+        ? `<button type="button" class="action-btn btn-enable" onclick="archivePersonnel('${id}', false, this)">Unarchive</button>`
+        : `<button type="button" class="action-btn btn-warning" style="color:#b45309;font-weight:600;" onclick="archivePersonnel('${id}', true, this)">Archive</button>`;
     const actions = renderPersonnelActions(id, [
         `<button type="button" class="action-btn btn-locations" onclick="editPersonnel('${id}', this)">Edit</button>`,
         toggle,
+        archiveBtn,
         `<button type="button" class="action-btn btn-schedule-del" onclick="assignDeployment('${id}')">Assigned Post</button>`,
         `<button type="button" class="action-btn btn-history" onclick="viewAssignmentHistory('${id}')">History</button>`,
         `<button type="button" class="action-btn btn-inspector" onclick="assignInspector('${id}', this)">Set Inspector</button>`,
         `<button type="button" class="action-btn btn-reports" onclick="viewAccomplishments('${id}')">Reports</button>`,
         `<button type="button" class="action-btn btn-danger" style="color:var(--sl-danger);font-weight:600;" onclick="deletePersonnel('${id}', this)">Delete</button>`,
     ]);
-    return `<tr>
+    return `<tr${isArchived ? ' class="opacity-75"' : ''}>
         <td>${renderPersonnelIdentity(id, data)}</td>
         <td>${renderDutyCategoryCell(data)}</td>
         <td>${renderContractStatusCell(data)}</td>
@@ -2650,6 +2664,51 @@ async function toggleUser(uid, currentlyActive, button) {
         appDialog.toast(`Account ${currentlyActive ? 'disabled' : 'enabled'}.`, { tone: 'success' });
     } catch (error) {
         appDialog.toast("Could not update account: " + (error.message || 'Please try again.'), { tone: "danger" });
+    }
+}
+
+async function archivePersonnel(uid, shouldArchive, button) {
+    const account = personnelAccounts[uid];
+    const name = account ? personnelDisplayName(account) : 'this guard';
+    const today = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+    const contractStatus = getGuardContractStatus(account || {}, today);
+
+    if (shouldArchive && contractStatus === 'contract_active') {
+        const endDate = (account && account.contractEndDate) || 'active contract period';
+        const proceed = await appDialog.confirm(
+            `Cannot archive Guard "${name}" because they currently have an Active Contract valid until ${endDate}.\n\nYou can only archive guards who do not have an active contract (e.g. expired or ended contract). Would you like to edit their profile contract dates now?`,
+            {
+                title: 'Active Contract Restriction',
+                confirmText: 'Edit Guard Profile',
+                cancelText: 'Cancel',
+                danger: false
+            }
+        );
+        if (proceed) openEditPersonnelModal(uid);
+        return;
+    }
+
+    const actionTitle = shouldArchive ? 'Archive Guard' : 'Unarchive Guard';
+    const confirmMsg = shouldArchive
+        ? `Archive Guard "${name}"?\n\nThis guard will be deactivated and stored as Archived in records. You can unarchive them anytime.`
+        : `Unarchive Guard "${name}" and restore their active account status?`;
+
+    const approved = await appDialog.confirm(confirmMsg, {
+        title: actionTitle,
+        confirmText: shouldArchive ? 'Archive Guard' : 'Unarchive Guard',
+        danger: shouldArchive
+    });
+    if (!approved) return;
+
+    try {
+        await appDialog.runBusy(button, async () => {
+            const { error } = await appSupabase.rpc("archive_personnel_account", { p_user_id: uid, p_archive: shouldArchive });
+            if (error) throw error;
+            await loadUsers();
+        }, { label: shouldArchive ? 'Archiving…' : 'Restoring…' });
+        appDialog.toast(shouldArchive ? `Guard "${name}" archived successfully.` : `Guard "${name}" restored.`, { tone: 'success' });
+    } catch (error) {
+        appDialog.toast("Could not update guard status: " + (error.message || 'Please try again.'), { tone: "danger" });
     }
 }
 
