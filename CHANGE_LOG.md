@@ -1,6 +1,32 @@
 # Project Change Log
 
-### [2026-10-05 23:20] - Fix: Synchronize Inspector Dashboard & My Guards On-Duty / Clock-In Status
+### [2026-10-06 00:20] - Feat & Fix: Purge Inspector T. Base & Add Permanent Personnel Account Purge
+
+- **Scope & Objective**:
+  - Completely purged Inspector T. Base (`inspector1@gmail.com`) and resolved database foreign-key deletion blocker (`prevent_historical_profile_deletion`).
+  - Implemented secure administrative RPC `purge_personnel_account` to clean up all dependent references (guard inspector assignments, shift swaps, incident audits, schedules, sessions) before deleting the profile and auth account.
+  - Added a "Delete" action in the Personnel table Actions dropdown in [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html) for both Guards and Inspectors with a safety confirmation dialog.
+- **Key Implementation Details**:
+  1. **Database Migration (`supabase/migrations/20261006000000_purge_personnel_account.sql`)**:
+     - Created `public.purge_personnel_account(p_user_id uuid)`:
+       - Automatically unassigns any guards linked via `inspector_id` (`update public.profiles set inspector_id = null`).
+       - Cleans up shift swap requests, incident updater references, schedules, and attendance sessions.
+       - Safely checks table existence via `to_regclass` to prevent missing table relation errors.
+       - Deletes the profile and auth user.
+     - Immediately purged `inspector1@gmail.com` (Inspector T. Base) and his auth credentials upon migration push.
+  2. **Edge Function (`supabase/functions/admin-manage-user/index.ts`)**:
+     - Added support for `body.action === 'purge' | 'delete'` calling `purge_personnel_account` and deleting the auth user.
+     - Redeployed `admin-manage-user` to remote Supabase project `syyofdcynuzgergqlaqj`.
+  3. **Frontend Actions (`web/admin/users.html`)**:
+     - Added red `Delete` button to `renderGuardRow` and `renderInspectorRow`.
+     - Added `deletePersonnel(uid, button)` with confirmation modal and auto-table reload.
+- **Verification & Testing**:
+  - Pushed migration to remote Supabase (`syyofdcynuzgergqlaqj`): applied successfully.
+  - Redeployed `admin-manage-user` edge function: deployed successfully.
+  - `npm --prefix web/tests run test:playwright -- --grep "inspector|contract"`: All 34 tests passed.
+  - `node web/tests/google_icons_test.js`: Passed.
+
+---
 
 - **Scope & Objective**:
   - Resolved discrepancy between Inspector Dashboard ("No Guards Currently On Duty") and My Guards (`(on duty)` badge) when guards have an active schedule window but haven't clocked in via the mobile app yet.

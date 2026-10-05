@@ -148,6 +148,16 @@ Deno.serve((request) =>
       );
     }
 
+    if (body.action === 'purge' || body.action === 'delete') {
+      if (!isHr || !FIELD_ROLES.includes(target.role as 'user' | 'inspector') || targetId === callerId) {
+        reject(403, 'Only Operations Head can delete field personnel.', 'forbidden_target');
+      }
+      const { error: purgeError } = await service.rpc('purge_personnel_account', { p_user_id: targetId });
+      if (purgeError) backendFailure('Could not delete personnel: ' + purgeError.message, 'personnel_purge_failed', purgeError);
+      await service.auth.admin.deleteUser(targetId).catch(() => {});
+      return { data: { ok: true, purged: true } };
+    }
+
     if (body.action === 'remove') {
       if (!isHr || !FIELD_ROLES.includes(target.role as 'user' | 'inspector') || targetId === callerId) reject(403,'Only Operations Head can remove field personnel.','forbidden_target');
       const {error: removeError}=await service.from('profiles').update({active:false,removed_at:new Date().toISOString()}).eq('id',targetId);
