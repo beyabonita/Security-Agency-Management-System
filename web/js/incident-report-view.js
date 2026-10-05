@@ -327,10 +327,7 @@
             Your browser does not support HTML video playback.
           </video>
         </div>
-        <div class="incident-video-feedback" id="incidentVideoFeedback">Secure evidence link ready for 15 minutes.</div>
-        <div class="incident-video-actions">
-          <a class="incident-evidence-action" href="${escapeHtml(signedUrl)}" target="_blank" rel="noopener">Open video separately</a>
-        </div>`;
+        <div class="incident-video-feedback" id="incidentVideoFeedback">Secure evidence link ready for 15 minutes.</div>`;
       const player = document.getElementById('incidentEvidenceVideo');
       const feedback = document.getElementById('incidentVideoFeedback');
       player?.addEventListener('loadedmetadata', () => {
@@ -339,7 +336,7 @@
       player?.addEventListener('error', () => {
         if (!feedback) return;
         feedback.classList.add('is-error');
-        feedback.textContent = 'The browser could not play this recording. Try opening the video separately.';
+        feedback.textContent = 'The browser could not play this recording.';
       }, { once: true });
     } catch (error) {
       console.warn('Incident video playback unavailable', { name: error?.name, status: error?.status });

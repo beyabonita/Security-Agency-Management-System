@@ -1,0 +1,216 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="980" viewBox="0 0 1400 980" role="img" aria-labelledby="title desc">
+  <title id="title">Security Agency Management System - Context Diagram (DFD Level 0)</title>
+  <desc id="desc">DFD Level 0 Context Diagram illustrating external entities Super Admin, Operations Head, Inspector, and Security Guard interacting with the Security Agency Management System.</desc>
+
+  <defs>
+    <style>
+      .canvas { fill: #ffffff; }
+      .diagram-title { font: 700 24px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; fill: #0f172a; text-anchor: middle; }
+      .diagram-sub { font: 400 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; fill: #64748b; text-anchor: middle; }
+      
+      /* Process 0 Center Bubble */
+      .proc-box { fill: #ffffff; stroke: #0f172a; stroke-width: 2.5; }
+      .proc-header { fill: #f8fafc; stroke: #0f172a; stroke-width: 2.5; }
+      .proc-num { font: 700 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; fill: #0f172a; text-anchor: middle; }
+      .proc-title { font: 700 17px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; fill: #0f172a; text-anchor: middle; }
+      .proc-sub { font: 500 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; fill: #475569; text-anchor: middle; }
+
+      /* External Entities (Terminators) */
+      .entity-box { fill: #ffffff; stroke: #0f172a; stroke-width: 2; rx: 4px; }
+      .entity-title { font: 700 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; fill: #0f172a; text-anchor: middle; }
+      .entity-sub { font: 500 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      /* Flow Labels */
+      .flow-text { font: 400 11.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; fill: #1e293b; line-height: 1.35; }
+      .flow-bold { font-weight: 600; fill: #0f172a; }
+
+      /* Arrows */
+      .arrow-line { fill: none; stroke: #334155; stroke-width: 1.75; }
+      .arrow-head { fill: #334155; }
+    </style>
+
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+      <path d="M 0 1.5 L 7 4 L 0 6.5 Z" class="arrow-head"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect class="canvas" width="1400" height="980"/>
+
+  <!-- Titles -->
+  <text class="diagram-title" x="700" y="42">Context Diagram (DFD Level 0)</text>
+  <text class="diagram-sub" x="700" y="66">Security Agency Management System (Sentinel Link) — Web &amp; Mobile Real-Time Platform</text>
+
+  <!-- =================================================================== -->
+  <!-- CENTER PROCESS 0 -->
+  <!-- =================================================================== -->
+  <!-- Process Box (Gane & Sarson / Yourdon rounded rect) -->
+  <g id="process-0">
+    <rect class="proc-box" x="535" y="405" width="330" height="150" rx="16"/>
+    <!-- Top divider bar for Process Identifier "0" -->
+    <path d="M 535 440 L 865 440" stroke="#0f172a" stroke-width="2.5" />
+    <text class="proc-num" x="700" y="428">0</text>
+    <text class="proc-title" x="700" y="472">Security Agency Management</text>
+    <text class="proc-title" x="700" y="494">System</text>
+    <text class="proc-sub" x="700" y="524">(Web Administration &amp; Mobile Platform)</text>
+  </g>
+
+  <!-- =================================================================== -->
+  <!-- EXTERNAL ENTITIES (TERMINATORS) -->
+  <!-- =================================================================== -->
+
+  <!-- 1. TOP: SUPER ADMIN -->
+  <g id="entity-super-admin">
+    <rect class="entity-box" x="590" y="105" width="220" height="75"/>
+    <text class="entity-title" x="700" y="142">Super Admin</text>
+    <text class="entity-sub" x="700" y="162">(IT Administrator)</text>
+  </g>
+
+  <!-- 2. LEFT: OPERATIONS HEAD -->
+  <g id="entity-operations-head">
+    <rect class="entity-box" x="40" y="440" width="210" height="80"/>
+    <text class="entity-title" x="145" y="478">Operations Head</text>
+    <text class="entity-sub" x="145" y="498">(Agency Administrator)</text>
+  </g>
+
+  <!-- 3. RIGHT: INSPECTOR -->
+  <g id="entity-inspector">
+    <rect class="entity-box" x="1150" y="440" width="210" height="80"/>
+    <text class="entity-title" x="1255" y="478">Inspector</text>
+    <text class="entity-sub" x="1255" y="498">(Field Supervisor)</text>
+  </g>
+
+  <!-- 4. BOTTOM: SECURITY GUARD -->
+  <g id="entity-guard">
+    <rect class="entity-box" x="585" y="785" width="230" height="80"/>
+    <text class="entity-title" x="700" y="823">Security Guard</text>
+    <text class="entity-sub" x="700" y="843">(Mobile App User)</text>
+  </g>
+
+  <!-- =================================================================== -->
+  <!-- DATA FLOWS: SUPER ADMIN (TOP) <-> PROCESS 0 -->
+  <!-- =================================================================== -->
+
+  <!-- Inflow: Super Admin -> Process 0 (Left line going down) -->
+  <line class="arrow-line" x1="645" y1="180" x2="645" y2="405" marker-end="url(#arrow)"/>
+  <!-- Inflow Label -->
+  <g transform="translate(425, 235)">
+    <text class="flow-text" text-anchor="end">
+      <tspan x="205" y="0">• Login Credentials &amp; Auth Requests</tspan>
+      <tspan x="205" y="17">• Privileged Account Provisioning</tspan>
+      <tspan x="205" y="34">• Device Binding Resets &amp; Permissions</tspan>
+      <tspan x="205" y="51">• System Security &amp; Config Settings</tspan>
+      <tspan x="205" y="68">• System Maintenance Commands</tspan>
+    </text>
+  </g>
+
+  <!-- Outflow: Process 0 -> Super Admin (Right line going up) -->
+  <line class="arrow-line" x1="755" y1="405" x2="755" y2="180" marker-end="url(#arrow)"/>
+  <!-- Outflow Label -->
+  <g transform="translate(770, 235)">
+    <text class="flow-text">
+      <tspan x="0" y="0">• Access Authorization &amp; Session Status</tspan>
+      <tspan x="0" y="17">• System Health &amp; Diagnostic Logs</tspan>
+      <tspan x="0" y="34">• Account Security &amp; Audit Trail Records</tspan>
+      <tspan x="0" y="51">• Privileged Account Lists &amp; Activity</tspan>
+      <tspan x="0" y="68">• Platform Diagnostic Telemetry</tspan>
+    </text>
+  </g>
+
+  <!-- =================================================================== -->
+  <!-- DATA FLOWS: OPERATIONS HEAD (LEFT) <-> PROCESS 0 -->
+  <!-- =================================================================== -->
+
+  <!-- Inflow: Operations Head -> Process 0 (Top line going right) -->
+  <line class="arrow-line" x1="250" y1="455" x2="535" y2="455" marker-end="url(#arrow)"/>
+  <!-- Inflow Label -->
+  <g transform="translate(392, 335)">
+    <text class="flow-text" text-anchor="middle">
+      <tspan x="0" y="0">• Login Credentials &amp; Account Updates</tspan>
+      <tspan x="0" y="17">• Personnel Records (Duty Category, Contract Dates)</tspan>
+      <tspan x="0" y="34">• Client Companies &amp; Deployment Posts</tspan>
+      <tspan x="0" y="51">• Geofence Coordinates &amp; Radius Settings</tspan>
+      <tspan x="0" y="68">• Duty Rosters &amp; Shifts (Day/Night Assignments)</tspan>
+      <tspan x="0" y="85">• Request Approvals (Relief, Swap, Overtime)</tspan>
+      <tspan x="0" y="102">• DTR Adjustments &amp; Incident Resolutions</tspan>
+    </text>
+  </g>
+
+  <!-- Outflow: Process 0 -> Operations Head (Bottom line going left) -->
+  <line class="arrow-line" x1="535" y1="505" x2="250" y2="505" marker-end="url(#arrow)"/>
+  <!-- Outflow Label -->
+  <g transform="translate(392, 535)">
+    <text class="flow-text" text-anchor="middle">
+      <tspan x="0" y="0">• Access Authorization &amp; Role Permissions</tspan>
+      <tspan x="0" y="17">• Real-Time Live Guard Map &amp; Tracking Data</tspan>
+      <tspan x="0" y="34">• Daily Time Records (DTR) &amp; Attendance Logs</tspan>
+      <tspan x="0" y="51">• Incident Reports with Photo/Video Evidence</tspan>
+      <tspan x="0" y="68">• Guard Absence, Relief &amp; Shift Swap Requests</tspan>
+      <tspan x="0" y="85">• Deployment History &amp; Accomplishment Reports</tspan>
+    </text>
+  </g>
+
+  <!-- =================================================================== -->
+  <!-- DATA FLOWS: INSPECTOR (RIGHT) <-> PROCESS 0 -->
+  <!-- =================================================================== -->
+
+  <!-- Inflow: Inspector -> Process 0 (Top line going left) -->
+  <line class="arrow-line" x1="1150" y1="455" x2="865" y2="455" marker-end="url(#arrow)"/>
+  <!-- Inflow Label -->
+  <g transform="translate(1007, 345)">
+    <text class="flow-text" text-anchor="middle">
+      <tspan x="0" y="0">• Login Credentials &amp; Profile Updates</tspan>
+      <tspan x="0" y="17">• Post Inspection Logs &amp; Field Audit Remarks</tspan>
+      <tspan x="0" y="34">• Compliance Checklists &amp; Performance Notes</tspan>
+      <tspan x="0" y="51">• Field Incident Notes &amp; Verification</tspan>
+      <tspan x="0" y="68">• Emergency Post Endorsement / Relief Notes</tspan>
+    </text>
+  </g>
+
+  <!-- Outflow: Process 0 -> Inspector (Bottom line going right) -->
+  <line class="arrow-line" x1="865" y1="505" x2="1150" y2="505" marker-end="url(#arrow)"/>
+  <!-- Outflow Label -->
+  <g transform="translate(1007, 535)">
+    <text class="flow-text" text-anchor="middle">
+      <tspan x="0" y="0">• Access Authorization &amp; Scoped Permissions</tspan>
+      <tspan x="0" y="17">• Assigned Guard Roster &amp; Detachment Posts</tspan>
+      <tspan x="0" y="34">• Authorized Live Guard Map (Inspector Scope)</tspan>
+      <tspan x="0" y="51">• Real-Time Incident Alerts &amp; Photo Evidence</tspan>
+      <tspan x="0" y="68">• Guard Attendance Logs &amp; DTR Summaries</tspan>
+      <tspan x="0" y="85">• Inspection History &amp; Audit Records</tspan>
+    </text>
+  </g>
+
+  <!-- =================================================================== -->
+  <!-- DATA FLOWS: SECURITY GUARD (BOTTOM) <-> PROCESS 0 -->
+  <!-- =================================================================== -->
+
+  <!-- Inflow: Security Guard -> Process 0 (Left line going up) -->
+  <line class="arrow-line" x1="645" y1="785" x2="645" y2="555" marker-end="url(#arrow)"/>
+  <!-- Inflow Label -->
+  <g transform="translate(425, 615)">
+    <text class="flow-text" text-anchor="end">
+      <tspan x="205" y="0">• Mobile Login &amp; Device Hardware ID</tspan>
+      <tspan x="205" y="17">• Attendance Punch (Time In / Time Out)</tspan>
+      <tspan x="205" y="34">• Punch GPS Coordinates &amp; Geofence Fix</tspan>
+      <tspan x="205" y="51">• On-Duty Continuous Live GPS Stream</tspan>
+      <tspan x="205" y="68">• Incident Reports &amp; Photo Evidence</tspan>
+      <tspan x="205" y="85">• Duty Requests (Relief, Swap, Overtime)</tspan>
+    </text>
+  </g>
+
+  <!-- Outflow: Process 0 -> Security Guard (Right line going down) -->
+  <line class="arrow-line" x1="755" y1="555" x2="755" y2="785" marker-end="url(#arrow)"/>
+  <!-- Outflow Label -->
+  <g transform="translate(770, 615)">
+    <text class="flow-text">
+      <tspan x="0" y="0">• Authentication &amp; Device Verification Status</tspan>
+      <tspan x="0" y="17">• Assigned Post Details (Client Name, Location)</tspan>
+      <tspan x="0" y="34">• Assigned Shift (Day / Night Shift) &amp; Roster</tspan>
+      <tspan x="0" y="51">• Geofence Attendance Validation Result</tspan>
+      <tspan x="0" y="68">• Duty Request Approvals &amp; Notifications</tspan>
+      <tspan x="0" y="85">• Personal DTR &amp; Duty Hours History</tspan>
+    </text>
+  </g>
+
+</svg>

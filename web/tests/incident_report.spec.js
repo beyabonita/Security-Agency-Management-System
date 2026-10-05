@@ -113,7 +113,7 @@ for (const panel of ['admin', 'inspector']) {
     await expect(page.locator('#modalBody')).toContainText('unidentified person attempted to enter');
     await expect(page.locator('#incidentEvidenceVideo')).toHaveAttribute('controls', '');
     await expect(page.locator('#incidentEvidenceVideo')).toHaveAttribute('src', TEST_SIGNED_URL);
-    await expect(page.getByRole('link', { name: 'Open video separately' })).toHaveAttribute('href', TEST_SIGNED_URL);
+    await expect(page.getByRole('link', { name: 'Open video separately' })).toHaveCount(0);
     await expect(page.locator('#statusNote')).toHaveJSProperty('tagName', 'TEXTAREA');
     expect(await page.evaluate(() => window.signedVideoRequests)).toEqual([{
       bucket: 'incident-videos',

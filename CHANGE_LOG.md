@@ -1,5 +1,20 @@
 # Project Change Log
 
+### [2026-10-05 06:30] - UI/UX: Remove "Open video separately" Button from Incident Report Modal
+
+- **Scope & Objective**:
+  - Removed the extraneous `[Open video separately]` action button beneath the embedded incident evidence video player in the Incident Report modal.
+  - Simplified the video playback card across both Operations Head (`web/admin/incidents.html`) and Field Inspector (`web/inspector/incidents.html`) modals, keeping playback self-contained within the native HTML5 controls (play, pause, seek, volume, and full-screen).
+  - Updated video error fallback copy to cleanly prompt without referencing the removed button.
+- **Files Modified / Created**:
+  - [`web/js/incident-report-view.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/incident-report-view.js): Removed `.incident-video-actions` and the `Open video separately` link from the video render template; cleaned error fallback copy.
+  - [`web/tests/incident_report.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/incident_report.spec.js): Updated assertion to verify `Open video separately` link is not rendered.
+- **Verification & Testing**:
+  - `npx playwright test incident_report.spec.js`: Passed (10/10 tests passed).
+  - `node web/tests/google_icons_test.js`: Passed (52 bundled symbols, 212 references).
+
+---
+
 ### [2026-10-05 05:55] - Feature: Personnel Table Duty Category, Contract Status & Enhanced Assigned Post with Client, Location & Shift Indicator
 
 - **Scope & Objective**:

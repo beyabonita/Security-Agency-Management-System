@@ -103,7 +103,7 @@ void main() {
       await tester.tap(find.text('Sign in'));
       await tester.pumpAndSettle();
       expect(
-        find.text('Please enter your username and password.'),
+        find.text('Please enter your email and password.'),
         findsOneWidget,
       );
       expect(tester.takeException(), isNull);

@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Operational Framework of Sentinel Link</title>
+  <desc id="desc">A simple operational framework showing Security Guard mobile application, secured backend, database, staff web portal, Super Admin, Operations Head, and Inspector.</desc>
+  <defs>
+    <style>
+      .title { font: 400 29px Arial, sans-serif; fill: #111; text-decoration: underline; }
+      .label { font: 400 16px Arial, sans-serif; fill: #111; }
+      .small { font: 400 13px Arial, sans-serif; fill: #111; }
+      .tiny { font: 400 11px Arial, sans-serif; fill: #111; }
+      .shape { fill: #fff; stroke: #111; stroke-width: 2; }
+      .line { fill: none; stroke: #111; stroke-width: 2; marker-end: url(#arrow); }
+      .thin { fill: none; stroke: #111; stroke-width: 1.7; marker-end: url(#arrow); }
+      .both { fill: none; stroke: #111; stroke-width: 1.7; marker-start: url(#arrowStart); marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="8" refY="4" orient="auto"><path d="M0,0 L9,4 L0,8 Z" fill="#111"/></marker>
+    <marker id="arrowStart" markerWidth="9" markerHeight="9" refX="1" refY="4" orient="auto"><path d="M9,0 L0,4 L9,8 Z" fill="#111"/></marker>
+  </defs>
+
+  <rect width="1600" height="900" fill="#fff"/>
+  <text class="title" x="800" y="62" text-anchor="middle">Operational Framework of Web-Based Security Agency Management</text>
+  <text class="title" x="800" y="106" text-anchor="middle">System with Mobile Application for Real-Time Monitoring</text>
+
+  <!-- Database -->
+  <ellipse class="shape" cx="795" cy="177" rx="48" ry="14"/>
+  <path class="shape" d="M747 177 V222 C747 241 843 241 843 222 V177"/>
+  <path d="M747 222 C747 241 843 241 843 222" fill="none" stroke="#111" stroke-width="2"/>
+  <text class="small" x="795" y="205" text-anchor="middle">Database</text>
+
+  <!-- Guard actor -->
+  <circle class="shape" cx="126" cy="432" r="19"/>
+  <path class="shape" d="M126 451 L126 502 M96 472 L126 460 L156 472 M126 502 L101 540 M126 502 L151 540"/>
+  <text class="label" x="126" y="573" text-anchor="middle">Security Guard</text>
+
+  <!-- Mobile phone -->
+  <rect class="shape" x="282" y="425" width="55" height="110" rx="8"/>
+  <rect x="291" y="441" width="37" height="70" fill="#111"/>
+  <circle cx="310" cy="522" r="4" fill="#111"/>
+  <text class="small" x="310" y="559" text-anchor="middle">Mobile App</text>
+
+  <!-- Backend cloud -->
+  <path class="shape" d="M575 505 C545 505 542 465 572 458 C581 420 636 416 654 453 C681 429 724 447 722 480 C747 482 753 520 721 528 H579 C557 528 549 511 575 505 Z"/>
+  <text class="label" x="649" y="486" text-anchor="middle">Secured Backend</text>
+  <text class="tiny" x="649" y="505" text-anchor="middle">Supabase API, Auth, RPC, Realtime</text>
+
+  <!-- Web portal -->
+  <rect class="shape" x="941" y="431" width="115" height="73" rx="3"/>
+  <rect x="950" y="440" width="97" height="55" fill="#fff" stroke="#111" stroke-width="1.5"/>
+  <path d="M975 528 H1022 M998 504 V528" stroke="#111" stroke-width="2"/>
+  <text class="small" x="998" y="554" text-anchor="middle">Staff Web Portal</text>
+
+  <!-- Super Admin -->
+  <circle class="shape" cx="1367" cy="235" r="19"/>
+  <path class="shape" d="M1367 254 L1367 305 M1337 275 L1367 263 L1397 275 M1367 305 L1342 343 M1367 305 L1392 343"/>
+  <text class="small" x="1367" y="371" text-anchor="middle">Super Admin</text>
+
+  <!-- Operations Head -->
+  <circle class="shape" cx="1392" cy="475" r="19"/>
+  <path class="shape" d="M1392 494 L1392 545 M1362 515 L1392 503 L1422 515 M1392 545 L1367 583 M1392 545 L1417 583"/>
+  <text class="small" x="1392" y="611" text-anchor="middle">Operations Head</text>
+
+  <!-- Inspector -->
+  <circle class="shape" cx="1367" cy="696" r="19"/>
+  <path class="shape" d="M1367 715 L1367 766 M1337 736 L1367 724 L1397 736 M1367 766 L1342 804 M1367 766 L1392 804"/>
+  <text class="small" x="1367" y="834" text-anchor="middle">Inspector</text>
+
+  <!-- Flow: Guard to Mobile -->
+  <path class="line" d="M160 451 H272"/>
+  <text class="small" x="216" y="405" text-anchor="middle">Sign in and GPS</text>
+  <text class="small" x="216" y="425" text-anchor="middle">Clock in / Clock out</text>
+  <text class="small" x="216" y="445" text-anchor="middle">Incident and duty request</text>
+
+  <!-- Flow: Mobile / Backend -->
+  <path class="both" d="M347 456 H540"/>
+  <text class="small" x="443" y="421" text-anchor="middle">Assigned duty and geofence status</text>
+  <text class="small" x="443" y="443" text-anchor="middle">Attendance, GPS, incident, request data</text>
+  <text class="small" x="443" y="465" text-anchor="middle">Role-targeted notifications</text>
+
+  <!-- Flow: Backend / DB -->
+  <path class="both" d="M684 449 V248 H795"/>
+  <text class="small" x="650" y="323" text-anchor="end">Store protected operational records</text>
+  <text class="small" x="650" y="344" text-anchor="end">Retrieve role-scoped records</text>
+
+  <!-- Flow: Backend / web -->
+  <path class="both" d="M732 480 H930"/>
+  <text class="small" x="831" y="442" text-anchor="middle">Manage and review operations</text>
+  <text class="small" x="831" y="464" text-anchor="middle">Live map, notifications, DTR, reports</text>
+
+  <!-- Portal / roles -->
+  <path class="thin" d="M1047 448 L1340 273"/>
+  <text class="small" x="1175" y="322" text-anchor="middle">Platform settings,</text>
+  <text class="small" x="1175" y="342" text-anchor="middle">privileged accounts, devices</text>
+  <path class="both" d="M1067 468 H1357"/>
+  <text class="small" x="1215" y="435" text-anchor="middle">Personnel, rosters, deployments,</text>
+  <text class="small" x="1215" y="455" text-anchor="middle">geofences, DTR, approvals</text>
+  <path class="thin" d="M1047 495 L1340 735"/>
+  <text class="small" x="1195" y="625" text-anchor="middle">Assigned guard records,</text>
+  <text class="small" x="1195" y="645" text-anchor="middle">incidents, authorized live map</text>
+
+  <text class="label" x="800" y="873" text-anchor="middle">Role-based access, geofence validation, and audit controls support accountable security operations.</text>
+</svg>

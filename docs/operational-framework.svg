@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-labelledby="title desc">
+  <title id="title">Sentinel Link Operational Framework</title>
+  <desc id="desc">A role-based operational framework for security agency management, showing guards on mobile, administrative web portals, secured Supabase services, and operational records.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f7f9fc; }
+      .title { font: 700 34px Arial, sans-serif; fill: #14213d; }
+      .subtitle { font: 400 17px Arial, sans-serif; fill: #526275; }
+      .section { font: 700 18px Arial, sans-serif; fill: #14213d; letter-spacing: .6px; }
+      .role { fill: #ffffff; stroke: #9eb2c9; stroke-width: 2; }
+      .guard { fill: #e6f5ee; stroke: #238b63; stroke-width: 2; }
+      .admin { fill: #eaf1fb; stroke: #2f6fad; stroke-width: 2; }
+      .inspect { fill: #fff3dc; stroke: #c57918; stroke-width: 2; }
+      .platform { fill: #162c4a; stroke: #162c4a; stroke-width: 2; }
+      .data { fill: #ffffff; stroke: #6e87a4; stroke-width: 2; }
+      .rtitle { font: 700 20px Arial, sans-serif; fill: #14213d; }
+      .rbody { font: 400 15px Arial, sans-serif; fill: #34485e; }
+      .darktitle { font: 700 22px Arial, sans-serif; fill: #ffffff; }
+      .darkbody { font: 400 15px Arial, sans-serif; fill: #e6eef8; }
+      .label { font: 600 13px Arial, sans-serif; fill: #526275; }
+      .arrow { fill: none; stroke: #516f8f; stroke-width: 2.4; marker-end: url(#head); }
+      .arrowgreen { fill: none; stroke: #238b63; stroke-width: 2.8; marker-end: url(#headgreen); }
+      .arroworange { fill: none; stroke: #c57918; stroke-width: 2.8; marker-end: url(#headorange); }
+    </style>
+    <marker id="head" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L10,3 L0,6 Z" fill="#516f8f"/></marker>
+    <marker id="headgreen" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L10,3 L0,6 Z" fill="#238b63"/></marker>
+    <marker id="headorange" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L10,3 L0,6 Z" fill="#c57918"/></marker>
+  </defs>
+
+  <rect class="bg" width="1600" height="1050"/>
+  <text class="title" x="800" y="58" text-anchor="middle">Operational Framework of Sentinel Link</text>
+  <text class="subtitle" x="800" y="88" text-anchor="middle">Web-Based Security Agency Management System with Mobile Real-Time Monitoring</text>
+
+  <text class="section" x="800" y="136" text-anchor="middle">OPERATIONAL ACTORS AND INTERFACES</text>
+
+  <rect class="guard" x="55" y="165" width="330" height="178" rx="10"/>
+  <text class="rtitle" x="220" y="202" text-anchor="middle">Security Guard</text>
+  <text class="rbody" x="220" y="234" text-anchor="middle">Sentinel Link Mobile App</text>
+  <text class="rbody" x="220" y="262" text-anchor="middle">• Assigned duty and post</text>
+  <text class="rbody" x="220" y="286" text-anchor="middle">• GPS/geofence attendance</text>
+  <text class="rbody" x="220" y="310" text-anchor="middle">• Live location, incidents, requests</text>
+
+  <rect class="admin" x="445" y="165" width="330" height="178" rx="10"/>
+  <text class="rtitle" x="610" y="202" text-anchor="middle">Super Admin</text>
+  <text class="rbody" x="610" y="234" text-anchor="middle">Super Admin Web Portal</text>
+  <text class="rbody" x="610" y="262" text-anchor="middle">• Platform settings</text>
+  <text class="rbody" x="610" y="286" text-anchor="middle">• Privileged accounts and devices</text>
+  <text class="rbody" x="610" y="310" text-anchor="middle">• Configuration audit trail</text>
+
+  <rect class="admin" x="835" y="165" width="330" height="178" rx="10"/>
+  <text class="rtitle" x="1000" y="202" text-anchor="middle">Operations Head</text>
+  <text class="rbody" x="1000" y="234" text-anchor="middle">Operations Head Web Portal</text>
+  <text class="rbody" x="1000" y="262" text-anchor="middle">• Personnel, posts, geofences</text>
+  <text class="rbody" x="1000" y="286" text-anchor="middle">• Rosters and deployments</text>
+  <text class="rbody" x="1000" y="310" text-anchor="middle">• Approval, reports, and DTR</text>
+
+  <rect class="inspect" x="1225" y="165" width="320" height="178" rx="10"/>
+  <text class="rtitle" x="1385" y="202" text-anchor="middle">Inspector</text>
+  <text class="rbody" x="1385" y="234" text-anchor="middle">Inspector Web Portal</text>
+  <text class="rbody" x="1385" y="262" text-anchor="middle">• Assigned guard oversight</text>
+  <text class="rbody" x="1385" y="286" text-anchor="middle">• Authorized live guard map</text>
+  <text class="rbody" x="1385" y="310" text-anchor="middle">• Incident and record review</text>
+
+  <path class="arrowgreen" d="M220 343 V420 H520"/>
+  <text class="label" x="298" y="404">authenticated mobile operations</text>
+  <path class="arrow" d="M610 343 V420 H690"/>
+  <path class="arrow" d="M1000 343 V420 H890"/>
+  <path class="arroworange" d="M1385 343 V420 H1085"/>
+  <text class="label" x="1125" y="404">role-scoped web access</text>
+
+  <rect class="platform" x="260" y="425" width="1080" height="252" rx="12"/>
+  <text class="darktitle" x="800" y="466" text-anchor="middle">SECURED SUPABASE SERVICE BOUNDARY</text>
+  <text class="darkbody" x="800" y="494" text-anchor="middle">Clients use authenticated APIs and RPCs. They do not connect directly to the database.</text>
+  <line x1="530" y1="525" x2="530" y2="638" stroke="#7395bb" stroke-width="1"/>
+  <line x1="805" y1="525" x2="805" y2="638" stroke="#7395bb" stroke-width="1"/>
+  <line x1="1080" y1="525" x2="1080" y2="638" stroke="#7395bb" stroke-width="1"/>
+  <text class="darktitle" x="395" y="556" text-anchor="middle" font-size="18">Authentication</text>
+  <text class="darkbody" x="395" y="584" text-anchor="middle">Role-based access control</text>
+  <text class="darkbody" x="395" y="609" text-anchor="middle">Registered-device check</text>
+  <text class="darktitle" x="668" y="556" text-anchor="middle" font-size="18">Operational Services</text>
+  <text class="darkbody" x="668" y="584" text-anchor="middle">Data API, database RPCs</text>
+  <text class="darkbody" x="668" y="609" text-anchor="middle">and Edge Functions</text>
+  <text class="darktitle" x="942" y="556" text-anchor="middle" font-size="18">Realtime Services</text>
+  <text class="darkbody" x="942" y="584" text-anchor="middle">Notifications and authorized</text>
+  <text class="darkbody" x="942" y="609" text-anchor="middle">live-location updates</text>
+  <text class="darktitle" x="1210" y="556" text-anchor="middle" font-size="18">Policy Enforcement</text>
+  <text class="darkbody" x="1210" y="584" text-anchor="middle">Row Level Security, scopes,</text>
+  <text class="darkbody" x="1210" y="609" text-anchor="middle">and server-side validation</text>
+
+  <text class="section" x="800" y="733" text-anchor="middle">CONTROLLED OPERATIONAL RECORDS AND OUTCOMES</text>
+  <path class="arrow" d="M520 677 V760 H280"/>
+  <path class="arrow" d="M710 677 V760 H670"/>
+  <path class="arrow" d="M900 677 V760 H1030"/>
+  <path class="arrow" d="M1090 677 V760 H1390"/>
+
+  <rect class="data" x="70" y="770" width="420" height="175" rx="10"/>
+  <text class="rtitle" x="280" y="810" text-anchor="middle">Duty and Attendance Records</text>
+  <text class="rbody" x="280" y="843" text-anchor="middle">Approved schedules and rosters</text>
+  <text class="rbody" x="280" y="870" text-anchor="middle">Validated clock-in/clock-out</text>
+  <text class="rbody" x="280" y="897" text-anchor="middle">DTR and overtime review</text>
+
+  <rect class="data" x="510" y="770" width="320" height="175" rx="10"/>
+  <text class="rtitle" x="670" y="810" text-anchor="middle">Active-Duty Monitoring</text>
+  <text class="rbody" x="670" y="843" text-anchor="middle">Latest valid GPS location</text>
+  <text class="rbody" x="670" y="870" text-anchor="middle">Only during an open duty</text>
+  <text class="rbody" x="670" y="897" text-anchor="middle">Removed when duty ends</text>
+
+  <rect class="data" x="850" y="770" width="360" height="175" rx="10"/>
+  <text class="rtitle" x="1030" y="810" text-anchor="middle">Incident and Request Records</text>
+  <text class="rbody" x="1030" y="843" text-anchor="middle">Incident narrative and evidence</text>
+  <text class="rbody" x="1030" y="870" text-anchor="middle">Absence, swap, relief requests</text>
+  <text class="rbody" x="1030" y="897" text-anchor="middle">Review and approval actions</text>
+
+  <rect class="data" x="1230" y="770" width="300" height="175" rx="10"/>
+  <text class="rtitle" x="1380" y="810" text-anchor="middle">Accountability</text>
+  <text class="rbody" x="1380" y="843" text-anchor="middle">Personnel and incident reports</text>
+  <text class="rbody" x="1380" y="870" text-anchor="middle">Configuration audit records</text>
+  <text class="rbody" x="1380" y="897" text-anchor="middle">Operational decisions</text>
+
+  <text class="subtitle" x="800" y="997" text-anchor="middle">Sentinel Link aligns field activity, real-time oversight, operational review, and accountable recordkeeping.</text>
+</svg>
