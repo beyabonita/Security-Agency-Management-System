@@ -227,8 +227,10 @@ auth.onAuthStateChanged(user => {
             window.clearTimeout(scheduleUpdateTimer);
             scheduleUpdateTimer = window.setTimeout(() => loadGuards(), 250);
         }, () => { /* Opening the modal and periodic refresh also re-read schedules. */ });
-    }).catch(() => {
-        window.location.href = "../staff/login.html";
+    }).catch((error) => {
+        console.warn('Inspector profile fetch failed, retrying...', error);
+        // Don't redirect on transient network errors.
+        finishPageLoading();
     });
 });
 

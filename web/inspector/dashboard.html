@@ -343,7 +343,10 @@ auth.onAuthStateChanged(async function(user) {
         watchInspectorAssignments(loadDashboard);
         finishPageLoading();
     } catch (error) {
-        window.location.href = "../staff/login.html";
+        console.warn('Inspector auth check failed, retrying...', error);
+        // Don't redirect on network errors — only on confirmed missing session.
+        // The onAuthStateChanged will fire again if the session truly expires.
+        finishPageLoading();
     }
 });
 

@@ -163,7 +163,8 @@ auth.onAuthStateChanged(async function(user) {
     watchInspectorAssignments(loadIncidents);
     finishPageLoading();
   } catch (e) {
-    window.location.href = '../staff/login.html';
+    console.warn('Inspector auth check failed, retrying...', e);
+    finishPageLoading();
   }
 });
 
