@@ -1244,7 +1244,14 @@
     <p class="modal-guard-meta">Guard: <strong id="deploymentGuardName"></strong></p>
     <div class="mb-3">
         <label class="form-label" for="deploymentLocation">ASSIGNED POST / COMPANY</label>
-        <select id="deploymentLocation" class="form-select"></select>
+        <select id="deploymentLocation" class="form-select" onchange="updateDeploymentLocationAddress()"></select>
+        <div id="deploymentLocationAddress" style="display:none; margin-top:8px; padding:8px 12px; font-size:0.78rem; color:var(--sl-muted); background:var(--sl-surface, #f8fafc); border-radius:6px; border:1px solid var(--ax-border, #e2e8f0); line-height:1.4;">
+            <div style="font-weight:600; color:var(--ax-text, #1e293b); margin-bottom:2px; display:flex; align-items:center; gap:4px;">
+                <span class="material-symbols-rounded" style="font-size:15px; color:var(--sl-danger, #dc2626);" aria-hidden="true">location_on</span>
+                <span>Post Address</span>
+            </div>
+            <div id="deploymentLocationAddressText"></div>
+        </div>
     </div>
     <div class="mb-3">
         <label class="form-label" for="deploymentShift">ASSIGNED SHIFT</label>
@@ -1789,6 +1796,30 @@ document.addEventListener('keydown', event => {
 let pendingDeployment = null;
 let deploymentModal = null;
 
+function getShortLocationCity(address) {
+    if (!address) return '';
+    const parts = address.split(',').map(s => s.trim()).filter(Boolean);
+    const filtered = parts.filter(p => !/^(Negros|Philippines|\b\d{4}\b)/i.test(p));
+    if (!filtered.length) return '';
+    return filtered[filtered.length - 1];
+}
+
+function updateDeploymentLocationAddress() {
+    const select = document.getElementById("deploymentLocation");
+    const container = document.getElementById("deploymentLocationAddress");
+    const textEl = document.getElementById("deploymentLocationAddressText");
+    if (!select || !container || !textEl) return;
+    const locId = select.value;
+    const loc = pendingDeployment?.locations?.find(item => item.id === locId);
+    if (loc && loc.address) {
+        textEl.textContent = loc.address;
+        container.style.display = 'block';
+    } else {
+        container.style.display = 'none';
+        textEl.textContent = '';
+    }
+}
+
 async function assignDeployment(guardId) {
     const guard = personnelAccounts[guardId] || {};
     const guardName = personnelDisplayName(guard);
@@ -1797,6 +1828,7 @@ async function assignDeployment(guardId) {
     const errorEl = document.getElementById("deploymentError");
     errorEl.innerText = "";
     select.innerHTML = '<option value="">Loading active duty locations…</option>';
+    updateDeploymentLocationAddress();
     pendingDeployment = { guardId, guardName, locations: [] };
     deploymentModal ||= new bootstrap.Modal(document.getElementById("deploymentModal"));
     document.getElementById("deploymentGuardName").innerText = guardName;
@@ -1810,6 +1842,7 @@ async function assignDeployment(guardId) {
     if (error) {
         errorEl.innerText = "Could not load duty locations: " + (error.message || "please try again.");
         select.innerHTML = '<option value="">No locations available</option>';
+        updateDeploymentLocationAddress();
         return;
     }
     const active = (locations || []).filter(location => location.active !== false);
@@ -1817,12 +1850,19 @@ async function assignDeployment(guardId) {
     if (!active.length) {
         errorEl.innerText = "No active duty locations exist. Create a location first, then return here.";
         select.innerHTML = '<option value="">No active locations</option>';
+        updateDeploymentLocationAddress();
         return;
     }
     const currentLocId = guard.assignedLocationId || "";
-    select.innerHTML = '<option value="">Select a duty location</option>' + active.map(location =>
-        `<option value="${location.id}" ${location.id === currentLocId ? 'selected' : ''}>${escapeHtml(location.label)}${location.address ? ' — ' + escapeHtml(location.address) : ''}</option>`
-    ).join("");
+    select.innerHTML = '<option value="">Select a duty location</option>' + active.map(location => {
+        const city = getShortLocationCity(location.address);
+        let displayLabel = location.label || 'Duty location';
+        if (city && !displayLabel.toLowerCase().includes(city.toLowerCase())) {
+            displayLabel += ` (${city})`;
+        }
+        return `<option value="${location.id}" ${location.id === currentLocId ? 'selected' : ''} title="${escapeHtml(location.address || displayLabel)}">${escapeHtml(displayLabel)}</option>`;
+    }).join("");
+    updateDeploymentLocationAddress();
 }
 
 async function saveDeployment() {
@@ -1843,6 +1883,7 @@ async function saveDeployment() {
         if (error) throw error;
         guardHistoryShiftByUserId[pendingDeployment.guardId] = shiftVal;
         deploymentModal.hide();
+        updateDeploymentLocationAddress();
         appDialog.toast(`${pendingDeployment.guardName}'s assigned post is now ${location.label} (${shiftVal}).`, { tone: 'success' });
         await loadUsers();
     }, { label: 'Saving post…' }).catch(error => {

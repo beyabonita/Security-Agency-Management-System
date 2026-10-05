@@ -1,6 +1,26 @@
 # Project Change Log
 
-### [2026-10-06 00:20] - Feat & Fix: Purge Inspector T. Base & Add Permanent Personnel Account Purge
+### [2026-10-06 03:25] - Fix: Assigned Post & Shift Dropdown Modal Overflow
+
+- **Scope & Objective**:
+  - Fixed the "ASSIGNED POST / COMPANY" dropdown menu in the *Assigned Post & Shift* modal ([`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html)) overflowing up to 1200px wide across the screen.
+  - Root Cause:
+    - `<select id="deploymentLocation">` was appending full 150-character Philippine geocoded addresses (including barangay, municipality, province, island region, and zip code) directly into the `<option>` inner text.
+    - Native browser `<select>` menus calculate their opened popover width based on the longest option text, causing the popup menu to stretch across the entire screen and spill far outside the modal boundaries.
+  - Solution:
+    1. **Concise & Disambiguated Options ([`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html))**:
+       - Extracted the clean municipality/city disambiguation tag (e.g., `Chmsu (Talisay)` vs `CHMSU (Silay)`, `LSAB (Talisay)`, `Balboa (Bacolod)`).
+       - Kept `<option>` text concise (15-30 characters) so the browser's native dropdown popup aligns neatly within the modal width.
+       - Added `title` attribute with the full address for native hover tooltips.
+    2. **Dedicated Post Address Card ([`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html))**:
+       - Added `#deploymentLocationAddress` below the dropdown that reactively displays the full geocoded address with a pin icon (`📍 Post Address`) whenever a post is selected or loaded.
+- **Verification & Testing**:
+  - Validated HTML and JavaScript syntax with Node.js: 0 errors.
+  - Verified city extraction and disambiguation logic against all 12 active duty location addresses: all produced clean labels under 25 characters without duplication.
+
+---
+
+
 
 - **Scope & Objective**:
   - Completely purged Inspector T. Base (`inspector1@gmail.com`) and resolved database foreign-key deletion blocker (`prevent_historical_profile_deletion`).
