@@ -2869,16 +2869,74 @@ function resetPasswordVisibility(inputId, btn) {
     }
 }
 
-function openPersonnelCreate() {
-    document.getElementById("newGuardRole").disabled = false;
-    document.getElementById("newGuardRole").value = "user";
-    document.getElementById("createGuardError").innerText = "";
-    document.getElementById("newGuardPersonnelId").value = generateNextPersonnelId();
-    updateCreateUserHint();
+function resetCreateGuardModal() {
+    const roleEl = document.getElementById("newGuardRole");
+    if (roleEl) {
+        roleEl.disabled = false;
+        roleEl.value = "user";
+    }
+    const categoryEl = document.getElementById("newGuardEmploymentCategory");
+    if (categoryEl) categoryEl.value = "regular";
+    const pidEl = document.getElementById("newGuardPersonnelId");
+    if (pidEl) pidEl.value = generateNextPersonnelId();
+    
+    const textIds = [
+        "newGuardFirstName", "newGuardMiddleName", "newGuardLastName",
+        "newGuardDob", "newGuardAddress", "newGuardUsername",
+        "newGuardMobileNumber", "newGuardDateHired",
+        "newGuardContractStart", "newGuardContractEnd",
+        "newGuardPassword", "newGuardPasswordConfirm"
+    ];
+    textIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+    });
+
+    const genderEl = document.getElementById("newGuardGender");
+    if (genderEl) genderEl.value = "Male";
+    const civilEl = document.getElementById("newGuardCivilStatus");
+    if (civilEl) civilEl.value = "Single";
+    const contractStatusEl = document.getElementById("newGuardContractStatus");
+    if (contractStatusEl) contractStatusEl.value = "Active";
+
+    const contractPeriodEl = document.getElementById("newGuardContractPeriod");
+    if (contractPeriodEl) contractPeriodEl.hidden = true;
+
+    // Reset document license file inputs and previews
+    const secInput = document.getElementById("newGuardLicenseSecurity");
+    if (secInput) secInput.value = "";
+    const secImg = document.getElementById("newGuardLicenseSecurityPreview");
+    if (secImg) {
+        secImg.removeAttribute("src");
+        secImg.src = "";
+    }
+    const secWrap = document.getElementById("newGuardLicenseSecurityPreviewWrap");
+    if (secWrap) secWrap.style.display = "none";
+
+    const fireInput = document.getElementById("newGuardLicenseFirearms");
+    if (fireInput) fireInput.value = "";
+    const fireImg = document.getElementById("newGuardLicenseFirearmsPreview");
+    if (fireImg) {
+        fireImg.removeAttribute("src");
+        fireImg.src = "";
+    }
+    const fireWrap = document.getElementById("newGuardLicenseFirearmsPreviewWrap");
+    if (fireWrap) fireWrap.style.display = "none";
+
+    const errEl = document.getElementById("createGuardError");
+    if (errEl) errEl.innerText = "";
+
     resetPasswordVisibility('newGuardPassword', document.getElementById('newGuardPasswordToggle'));
     resetPasswordVisibility('newGuardPasswordConfirm', document.getElementById('newGuardPasswordConfirmToggle'));
-    new bootstrap.Modal(document.getElementById("createGuardModal")).show();
+    updateCreateUserHint();
 }
+
+function openPersonnelCreate() {
+    resetCreateGuardModal();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById("createGuardModal")).show();
+}
+
+document.getElementById("createGuardModal")?.addEventListener("hidden.bs.modal", resetCreateGuardModal);
 
 async function createGuardAccount() {
     const role      = document.getElementById("newGuardRole").value;
@@ -3016,22 +3074,7 @@ async function createGuardAccount() {
             await loadUsers();
         }, { label: `Creating ${role === 'user' ? 'Guard' : 'Inspector'}…` });
         const roleLabel = role === "user" ? "Guard" : role === "inspector" ? "Inspector" : "Operations Head";
-        document.getElementById("newGuardFirstName").value = "";
-        document.getElementById("newGuardMiddleName").value = "";
-        document.getElementById("newGuardLastName").value = "";
-        document.getElementById("newGuardUsername").value = "";
-        const mobileEl = document.getElementById("newGuardMobileNumber");
-        if (mobileEl) mobileEl.value = "";
-        document.getElementById("newGuardPersonnelId").value = "";
-        document.getElementById("newGuardDob").value = "";
-        document.getElementById("newGuardAddress").value = "";
-        document.getElementById("newGuardDateHired").value = "";
-        document.getElementById("newGuardPassword").value = "";
-        document.getElementById("newGuardPasswordConfirm").value = "";
-        resetPasswordVisibility('newGuardPassword', document.getElementById('newGuardPasswordToggle'));
-        resetPasswordVisibility('newGuardPasswordConfirm', document.getElementById('newGuardPasswordConfirmToggle'));
-        document.getElementById('newGuardContractStart').value = '';
-        document.getElementById('newGuardContractEnd').value = '';
+        resetCreateGuardModal();
         bootstrap.Modal.getOrCreateInstance(document.getElementById("createGuardModal")).hide();
         appDialog.toast(`${roleLabel} account created. Email: ${normalizedUsername}`, { tone: 'success', duration: 6000 });
     } catch (error) {

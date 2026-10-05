@@ -1,6 +1,21 @@
 # Project Change Log
 
-### [2026-10-06 04:08] - Fix: Eliminate Huge Whitespace Gap on Sides in Operations Head Console
+### [2026-10-06 04:32] - Fix: Clear Uploaded Documents & License Previews When Opening Create Guard Modal
+
+- **Scope & Objective**:
+  - Fixed an issue in the Personnel tab ([`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html)) where after adding a Guard with uploaded credentials/licenses, opening the modal again to add another Guard would still display the previous Guard's document attachments and image previews.
+- **Root Cause**:
+  - `openPersonnelCreate()` did not reset `<input type="file">` elements (`#newGuardLicenseSecurity`, `#newGuardLicenseFirearms`), their preview wrappers (`#newGuardLicenseSecurityPreviewWrap`, `#newGuardLicenseFirearmsPreviewWrap`), or their `<img>` preview sources (`#newGuardLicenseSecurityPreview`, `#newGuardLicenseFirearmsPreview`).
+  - Furthermore, `createGuardAccount()` only cleared basic text inputs upon completion, leaving the file inputs and preview wrappers in their previous state.
+- **Files Modified**:
+  - [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html):
+    - Added dedicated `resetCreateGuardModal()` function that comprehensively resets all fields, clears file inputs (`.value = ""`), removes preview `src` attributes, hides preview wrapper containers (`display: none`), resets select defaults, regenerates the next Personnel ID, and resets password visibility toggles.
+    - Updated `openPersonnelCreate()` to call `resetCreateGuardModal()` before displaying the modal so it always starts completely clean.
+    - Updated `createGuardAccount()` to call `resetCreateGuardModal()` upon successful submission.
+    - Attached a `hidden.bs.modal` listener to `#createGuardModal` so any cancellation or modal dismissal also purges entered data and uploaded files.
+- **Verification & Testing**:
+  - Validated JavaScript syntax: parsed and verified 0 errors.
+  - Ran Playwright test suites: `personnel_profile.spec.js` and `responsive_shells.spec.js` passed (100%).
 
 - **Scope & Objective**:
   - Resolved the layout defect where Operations Head dashboard (`web/admin/dashboard.html`), personnel, and shared console layouts showed a huge empty whitespace gap on the right/sides on standard (1920x1080) and widescreen displays.
