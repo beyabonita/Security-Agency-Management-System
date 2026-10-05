@@ -1,5 +1,40 @@
 # Project Change Log
 
+### [2026-10-05 21:15] - Bugfix: Personnel Profile Edit Document Persistence & RPC Backend Security
+
+- **Scope & Objective**:
+  - Resolved issue where editing an existing guard or inspector account did not save or display uploaded license credentials (`license_security_url` and `license_firearms_url`) or extended profile attributes in the Personnel Profile modal.
+  - Root Cause:
+    1. `admin-manage-user` Edge Function did not accept or update extended fields (`personnelId`, `middleName`, `dateOfBirth`, `gender`, `civilStatus`, `completeAddress`, `dateHired`, `contractStatus`, `licenseSecurityUrl`, `licenseFirearmsUrl`).
+    2. In `web/admin/users.html`, `savePersonnelEdit()` did not include these fields when calling `managePersonnelAccount()`.
+    3. Direct client-side `appSupabase.from('profiles').update(...)` was blocked by Postgres table-level security (`revoke insert, update, delete on public.profiles from authenticated`), causing updates to fail silently.
+  - Fix & Enhancements:
+    1. Created `supabase/migrations/20261005000002_update_personnel_profile_rpc.sql`: A `security definer` RPC function `public.update_personnel_profile(...)` allowing Admin to securely update profile attributes and licenses for accounts in their organization.
+    2. Updated [`supabase/functions/admin-manage-user/index.ts`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/functions/admin-manage-user/index.ts) to accept all extended attributes and licenses, persisting them via service-role with fallback handling.
+    3. Updated `savePersonnelEdit()` in [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html) to pass all fields to `managePersonnelAccount()`, call `update_personnel_profile` RPC, and update the in-memory `personnelAccounts` cache immediately.
+    4. Extended automated test [`web/tests/personnel_profile.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/personnel_profile.spec.js) to verify edit modal file upload persistence and immediate rendering in the profile view modal.
+- **Verification & Testing**:
+  - `npx playwright test personnel_profile.spec.js contract_personnel.spec.js`: Passed (7/7 tests passed).
+  - `node web/tests/google_icons_test.js`: Passed.
+
+---
+
+
+
+- **Scope & Objective**:
+  - Aligned database schema and backend Edge Functions with all new inputs collected in the "Add Guard / Inspector" and "Edit Personnel" modals (`personnel_id`, `middle_name`, `date_of_birth`, `gender`, `civil_status`, `complete_address`, `date_hired`, `contract_status`, `license_security_url`, `license_firearms_url`).
+  - Updated `admin-create-user` Edge Function to accept and persist extended personnel profile attributes directly with service-role security and fallback safety.
+  - Updated `createGuardAccount()` in `web/admin/users.html` to pass all modal inputs to the backend payload and log database update telemetry.
+  - Prepared the consolidated, copy-pasteable SQL migration script for execution in the Supabase Dashboard SQL Editor.
+- **Files Modified / Created**:
+  - [`supabase/functions/admin-create-user/index.ts`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/functions/admin-create-user/index.ts): Added extraction and persistence for all extended personnel attributes with graceful column fallback.
+  - [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html): Passed all modal inputs directly to `admin-create-user` payload and added proper warning logging.
+- **Verification & Testing**:
+  - `npx playwright test contract_personnel.spec.js personnel_profile.spec.js`: Passed (7/7 tests).
+  - `node web/tests/google_icons_test.js`: Passed (52 bundled symbols, 212 references).
+
+---
+
 ### [2026-10-05 06:30] - UI/UX: Remove "Open video separately" Button from Incident Report Modal
 
 - **Scope & Objective**:

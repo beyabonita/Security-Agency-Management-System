@@ -162,7 +162,30 @@ test('clicking personnel name opens rich profile card modal with personal and em
       window.appSupabase = {
         from: table => query(table),
         auth: { getSession: async () => ({ data: { session: null } }) },
-        functions: { invoke: async () => ({ data: {}, error: null }) }
+        functions: { invoke: async (name, opts) => {
+          if (name === 'admin-manage-user' && opts?.body?.userId) {
+            const p = (rows.profiles || []).find(x => x.id === opts.body.userId);
+            if (p) {
+              if (opts.body.personnelId) p.personnel_id = opts.body.personnelId;
+              if (opts.body.completeAddress) p.complete_address = opts.body.completeAddress;
+              if (opts.body.licenseSecurityUrl) p.license_security_url = opts.body.licenseSecurityUrl;
+              if (opts.body.licenseFirearmsUrl) p.license_firearms_url = opts.body.licenseFirearmsUrl;
+            }
+          }
+          return { data: {}, error: null };
+        } },
+        rpc: async (name, params) => {
+          if (name === 'update_personnel_profile' && params?.p_user_id) {
+            const p = (rows.profiles || []).find(x => x.id === params.p_user_id);
+            if (p) {
+              if (params.p_personnel_id) p.personnel_id = params.p_personnel_id;
+              if (params.p_complete_address) p.complete_address = params.p_complete_address;
+              if (params.p_license_security_url) p.license_security_url = params.p_license_security_url;
+              if (params.p_license_firearms_url) p.license_firearms_url = params.p_license_firearms_url;
+            }
+          }
+          return { data: null, error: null };
+        }
       };
 
       window.applyAdminRoleNavigation = () => {};
@@ -263,4 +286,28 @@ test('clicking personnel name opens rich profile card modal with personal and em
   await expect(establishmentsPane).toContainText('Lacson St, Mandalagan, Bacolod City');
   await expect(establishmentsPane).toContainText('Current Active Home Post');
   await expect(establishmentsPane).toContainText('Assigned as primary entrance post');
+
+  // 5. Test saving edits with updated documents and verifying in profile modal
+  await page.evaluate(() => {
+    bootstrap.Modal.getOrCreateInstance(document.getElementById("assignmentHistoryModal")).hide();
+    openEditPersonnelModal('guard-1');
+  });
+  await editModal.locator('#editGuardPersonnelId').fill('SEC-2026-9999');
+  await editModal.locator('#editGuardAddress').fill('Updated Guard Address, Metro Manila');
+  await page.evaluate(() => {
+    editSecurityLicenseData = 'data:image/png;base64,UPDATED_SECURITY_LICENSE';
+    editFirearmsLicenseData = 'data:image/png;base64,UPDATED_FIREARMS_LICENSE';
+  });
+  await editModal.locator('#editGuardSaveBtn').click();
+
+  // Re-open profile modal and verify updated values and license images
+  await nameButton.click();
+  await expect(profileModal).toContainText('SEC-2026-9999');
+  await expect(profileModal).toContainText('Updated Guard Address, Metro Manila');
+  const secImg = profileModal.locator('img[alt="Security License"]');
+  await expect(secImg).toBeVisible();
+  await expect(secImg).toHaveAttribute('src', 'data:image/png;base64,UPDATED_SECURITY_LICENSE');
+  const fireImg = profileModal.locator('img[alt="Firearms License"]');
+  await expect(fireImg).toBeVisible();
+  await expect(fireImg).toHaveAttribute('src', 'data:image/png;base64,UPDATED_FIREARMS_LICENSE');
 });

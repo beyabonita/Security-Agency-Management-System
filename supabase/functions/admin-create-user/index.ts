@@ -178,25 +178,73 @@ Deno.serve((request) =>
       );
     }
 
+    const middleName = optionalString(body, "middleName", "Middle name", {
+      max: 100,
+      normalize: (value) => value.trim(),
+    }) ?? null;
+    const personnelId = optionalString(body, "personnelId", "Personnel ID", {
+      max: 100,
+      normalize: (value) => value.trim(),
+    }) ?? null;
+    const dateOfBirth = optionalString(body, "dateOfBirth", "Date of birth") ?? null;
+    const gender = optionalString(body, "gender", "Gender", { max: 50 }) ?? "Male";
+    const civilStatus = optionalString(body, "civilStatus", "Civil status", { max: 50 }) ?? "Single";
+    const completeAddress = optionalString(body, "completeAddress", "Complete address", {
+      max: 500,
+      normalize: (value) => value.trim(),
+    }) ?? null;
+    const dateHired = optionalString(body, "dateHired", "Date hired") ?? null;
+    const contractStatus = optionalString(body, "contractStatus", "Contract status", { max: 50 }) ?? "Active";
+    const licenseSecurityUrl = typeof body.licenseSecurityUrl === "string" ? body.licenseSecurityUrl : null;
+    const licenseFirearmsUrl = typeof body.licenseFirearmsUrl === "string" ? body.licenseFirearmsUrl : null;
+
     const targetId = authData.user.id;
-    const { data: profile, error: profileError } = await service
+    const basePayload: Record<string, unknown> = {
+      username,
+      email: authEmail,
+      first_name: firstName,
+      middle_initial: middleInitial || (middleName ? middleName.charAt(0).toUpperCase() : ""),
+      last_name: lastName,
+      mobile_number: mobileNumber,
+      role,
+      organization_id: targetOrganizationId,
+      employment_category: role === "user" ? employmentCategory : "regular",
+      contract_start_date: contract.start,
+      contract_end_date: contract.end,
+    };
+
+    const extendedPayload = {
+      ...basePayload,
+      ...(middleName ? { middle_name: middleName } : {}),
+      ...(personnelId ? { personnel_id: personnelId } : {}),
+      ...(dateOfBirth ? { date_of_birth: dateOfBirth } : {}),
+      ...(gender ? { gender } : {}),
+      ...(civilStatus ? { civil_status: civilStatus } : {}),
+      ...(completeAddress ? { complete_address: completeAddress } : {}),
+      ...(dateHired ? { date_hired: dateHired } : {}),
+      ...(contractStatus ? { contract_status: contractStatus } : {}),
+      ...(licenseSecurityUrl ? { license_security_url: licenseSecurityUrl } : {}),
+      ...(licenseFirearmsUrl ? { license_firearms_url: licenseFirearmsUrl } : {}),
+    };
+
+    let { data: profile, error: profileError } = await service
       .from("profiles")
-      .update({
-        username,
-        email: authEmail,
-        first_name: firstName,
-        middle_initial: middleInitial,
-        last_name: lastName,
-        mobile_number: mobileNumber,
-        role,
-        organization_id: targetOrganizationId,
-        employment_category: role === "user" ? employmentCategory : "regular",
-        contract_start_date: contract.start,
-        contract_end_date: contract.end,
-      })
+      .update(extendedPayload)
       .eq("id", targetId)
       .select("id")
       .maybeSingle();
+
+    // If extended columns are not yet added to live DB, fallback gracefully to base payload
+    if (profileError && (profileError as { code?: string })?.code === "42703") {
+      const fallback = await service
+        .from("profiles")
+        .update(basePayload)
+        .eq("id", targetId)
+        .select("id")
+        .maybeSingle();
+      profile = fallback.data;
+      profileError = fallback.error;
+    }
 
     if (profileError || !profile) {
       const { error: rollbackError } = await service.auth.admin.deleteUser(

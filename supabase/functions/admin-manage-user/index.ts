@@ -265,16 +265,43 @@ Deno.serve((request) =>
       max: 100,
       normalize: personnelName,
     }) ?? target.first_name;
+    const middleName = optionalString(body, "middleName", "Middle name", {
+      max: 100,
+      normalize: (value) => value.trim(),
+    }) ?? (body.middleName === null ? null : (target as Record<string, unknown>).middle_name as string | null | undefined);
     const middleInitial =
       optionalString(body, "middleInitial", "Middle initial", {
         max: 10,
         normalize: personnelName,
-      }) ?? target.middle_initial;
+      }) ?? (middleName ? middleName.charAt(0).toUpperCase() : target.middle_initial);
     const lastName = optionalString(body, "lastName", "Last name", {
       min: 1,
       max: 100,
       normalize: personnelName,
     }) ?? target.last_name;
+
+    const personnelId = optionalString(body, "personnelId", "Personnel ID", {
+      max: 100,
+      normalize: (value) => value.trim(),
+    }) ?? (body.personnelId === null ? null : (target as Record<string, unknown>).personnel_id as string | null | undefined);
+    const dateOfBirth = optionalString(body, "dateOfBirth", "Date of birth") ??
+      (body.dateOfBirth === null ? null : (target as Record<string, unknown>).date_of_birth as string | null | undefined);
+    const gender = optionalString(body, "gender", "Gender", { max: 50 }) ??
+      (body.gender === null ? null : (target as Record<string, unknown>).gender as string | null | undefined);
+    const civilStatus = optionalString(body, "civilStatus", "Civil status", { max: 50 }) ??
+      (body.civilStatus === null ? null : (target as Record<string, unknown>).civil_status as string | null | undefined);
+    const completeAddress = optionalString(body, "completeAddress", "Complete address", {
+      max: 500,
+      normalize: (value) => value.trim(),
+    }) ?? (body.completeAddress === null ? null : (target as Record<string, unknown>).complete_address as string | null | undefined);
+    const dateHired = optionalString(body, "dateHired", "Date hired") ??
+      (body.dateHired === null ? null : (target as Record<string, unknown>).date_hired as string | null | undefined);
+    const contractStatus = optionalString(body, "contractStatus", "Contract status", { max: 50 }) ??
+      (body.contractStatus === null ? null : (target as Record<string, unknown>).contract_status as string | null | undefined);
+    const licenseSecurityUrl = typeof body.licenseSecurityUrl === "string" ? body.licenseSecurityUrl :
+      (body.licenseSecurityUrl === null ? null : (target as Record<string, unknown>).license_security_url as string | null | undefined);
+    const licenseFirearmsUrl = typeof body.licenseFirearmsUrl === "string" ? body.licenseFirearmsUrl :
+      (body.licenseFirearmsUrl === null ? null : (target as Record<string, unknown>).license_firearms_url as string | null | undefined);
 
     const mobileNumber = body.mobileNumber === undefined ? target.mobile_number ?? null
       : philippineMobileNumber(body.mobileNumber);
@@ -331,7 +358,7 @@ Deno.serve((request) =>
       device_id: target.device_id,
       device_locked: target.device_locked,
     };
-    const profileUpdate = {
+    const profileUpdate: Record<string, unknown> = {
       username,
       email: authEmail,
       first_name: firstName,
@@ -345,13 +372,64 @@ Deno.serve((request) =>
       contract_start_date: contract.start,
       contract_end_date: contract.end,
       ...(resetDevice ? { device_id: null, device_locked: false } : {}),
+      ...(middleName !== undefined ? { middle_name: middleName } : {}),
+      ...(personnelId !== undefined ? { personnel_id: personnelId } : {}),
+      ...(dateOfBirth !== undefined ? { date_of_birth: dateOfBirth } : {}),
+      ...(gender !== undefined ? { gender } : {}),
+      ...(civilStatus !== undefined ? { civil_status: civilStatus } : {}),
+      ...(completeAddress !== undefined ? { complete_address: completeAddress } : {}),
+      ...(dateHired !== undefined ? { date_hired: dateHired } : {}),
+      ...(contractStatus !== undefined ? { contract_status: contractStatus } : {}),
+      ...(licenseSecurityUrl !== undefined ? { license_security_url: licenseSecurityUrl } : {}),
+      ...(licenseFirearmsUrl !== undefined ? { license_firearms_url: licenseFirearmsUrl } : {}),
     };
-    const { data: updatedProfile, error: profileError } = await service
+    let { data: updatedProfile, error: profileError } = await service
       .from("profiles")
       .update(profileUpdate)
       .eq("id", targetId)
       .select("id")
       .maybeSingle();
+
+    if (profileError && (profileError as { code?: string })?.code === "42703") {
+      const fallback = await service
+        .from("profiles")
+        .update({
+          username,
+          email: authEmail,
+          first_name: firstName,
+          middle_initial: middleInitial,
+          mobile_number: mobileNumber,
+          last_name: lastName,
+          role,
+          active,
+          organization_id: organizationId,
+          employment_category: employmentCategory,
+          contract_start_date: contract.start,
+          contract_end_date: contract.end,
+          ...(resetDevice ? { device_id: null, device_locked: false } : {}),
+        })
+        .eq("id", targetId)
+        .select("id")
+        .maybeSingle();
+      updatedProfile = fallback.data;
+      profileError = fallback.error;
+    }
+
+    if (role === "user" && employmentCategory === "contract" && contract.start && contract.end) {
+      try {
+        await service.from("guard_contract_history").insert({
+          guard_id: targetId,
+          contract_start_date: contract.start,
+          contract_end_date: contract.end,
+          contract_status: contractStatus || "Active",
+          renewed_at: new Date().toISOString(),
+          renewed_by: callerId,
+          remarks: "Contract updated via personnel account management",
+        });
+      } catch (_) {
+        // history recording is best effort
+      }
+    }
     if (profileError || !updatedProfile) {
       const businessMessage = databaseBusinessMessage(profileError);
       if (businessMessage) {

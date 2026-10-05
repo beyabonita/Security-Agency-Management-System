@@ -2843,17 +2843,27 @@ async function createGuardAccount() {
                     role,
                     firstName,
                     middleInitial: middleName ? middleName.charAt(0).toUpperCase() : "",
+                    middleName: middleName || null,
                     lastName,
                     mobileNumber: mobileNumber || null,
                     employmentCategory,
                     contractStartDate: contractStartDate || null,
-                    contractEndDate: contractEndDate || null
+                    contractEndDate: contractEndDate || null,
+                    personnelId: personnelId || null,
+                    dateOfBirth: dob || null,
+                    gender: gender || "Male",
+                    civilStatus: civilStatus || "Single",
+                    completeAddress: address || null,
+                    dateHired: dateHired || null,
+                    contractStatus: contractStatus || "Active",
+                    licenseSecurityUrl: secLicenseData || null,
+                    licenseFirearmsUrl: fireLicenseData || null
                 }
             });
             await edgeFunctionErrors.unwrap({ data, error }, 'Could not create the account.');
             if (data?.id) {
                 try {
-                    await appSupabase.from('profiles').update({
+                    const updateRes = await appSupabase.from('profiles').update({
                         mobile_number: mobileNumber || null,
                         personnel_id: personnelId || null,
                         middle_name: middleName || null,
@@ -2866,7 +2876,12 @@ async function createGuardAccount() {
                         license_security_url: secLicenseData,
                         license_firearms_url: fireLicenseData
                     }).eq('id', data.id);
-                } catch (_) {}
+                    if (updateRes?.error) {
+                        console.warn("Extended profile columns update status:", updateRes.error);
+                    }
+                } catch (err) {
+                    console.warn("Extended profile columns update warning:", err);
+                }
                 if (employmentCategory === 'contract' && contractStartDate && contractEndDate) {
                     try {
                         await appSupabase.from('guard_contract_history').insert({
@@ -3290,39 +3305,76 @@ async function savePersonnelEdit() {
                 action: "update",
                 userId: currentEditUid,
                 firstName,
+                middleName,
                 middleInitial: middleName ? middleName.charAt(0).toUpperCase() : "",
                 lastName,
                 email: normalizeUsername(email),
+                mobileNumber: mobileNumber || null,
+                personnelId: personnelId || null,
+                dateOfBirth,
+                gender,
+                civilStatus,
+                completeAddress: completeAddress || null,
+                dateHired,
                 employmentCategory,
+                contractStatus,
                 contractStartDate,
                 contractEndDate,
+                licenseSecurityUrl: editSecurityLicenseData,
+                licenseFirearmsUrl: editFirearmsLicenseData,
                 password: password || ""
             });
             
-            // Update extended profile columns directly in database
-            const updatePayload = {
-                first_name: firstName,
-                middle_name: middleName,
-                middle_initial: middleName ? middleName.charAt(0).toUpperCase() : "",
-                last_name: lastName,
-                mobile_number: mobileNumber || null,
-                personnel_id: personnelId || null,
-                date_of_birth: dateOfBirth,
-                gender,
-                civil_status: civilStatus,
-                complete_address: completeAddress || null,
-                date_hired: dateHired,
-                employment_category: employmentCategory,
-                contract_status: contractStatus,
-                contract_start_date: contractStartDate,
-                contract_end_date: contractEndDate,
-                license_security_url: editSecurityLicenseData,
-                license_firearms_url: editFirearmsLicenseData
-            };
-            
+            // Also invoke security definer RPC to guarantee database persistence
             try {
-                await appSupabase.from('profiles').update(updatePayload).eq('id', currentEditUid);
-            } catch (_) {}
+                if (typeof appSupabase?.rpc === 'function') {
+                    await appSupabase.rpc('update_personnel_profile', {
+                        p_user_id: currentEditUid,
+                        p_first_name: firstName,
+                        p_middle_name: middleName,
+                        p_middle_initial: middleName ? middleName.charAt(0).toUpperCase() : "",
+                        p_last_name: lastName,
+                        p_mobile_number: mobileNumber || null,
+                        p_personnel_id: personnelId || null,
+                        p_date_of_birth: dateOfBirth,
+                        p_gender: gender,
+                        p_civil_status: civilStatus,
+                        p_complete_address: completeAddress || null,
+                        p_date_hired: dateHired,
+                        p_employment_category: employmentCategory,
+                        p_contract_status: contractStatus,
+                        p_contract_start_date: contractStartDate,
+                        p_contract_end_date: contractEndDate,
+                        p_license_security_url: editSecurityLicenseData,
+                        p_license_firearms_url: editFirearmsLicenseData
+                    });
+                }
+            } catch (rpcErr) {
+                console.warn('RPC update skipped or not available:', rpcErr);
+            }
+            
+            // Immediately sync local in-memory cache so profile modal and views reflect changes instantly
+            if (personnelAccounts[currentEditUid]) {
+                const acc = personnelAccounts[currentEditUid];
+                acc.firstName = firstName;
+                acc.middleName = middleName;
+                acc.middleInitial = middleName ? middleName.charAt(0).toUpperCase() : "";
+                acc.lastName = lastName;
+                acc.email = normalizeUsername(email);
+                acc.mobileNumber = mobileNumber || null;
+                acc.personnelId = personnelId || null;
+                acc.dateOfBirth = dateOfBirth;
+                acc.gender = gender;
+                acc.civilStatus = civilStatus;
+                acc.completeAddress = completeAddress || null;
+                acc.dateHired = dateHired;
+                acc.employmentCategory = employmentCategory;
+                acc.contractStatus = contractStatus;
+                acc.contractStartDate = contractStartDate;
+                acc.contractEndDate = contractEndDate;
+                acc.licenseSecurityUrl = editSecurityLicenseData;
+                acc.licenseFirearmsUrl = editFirearmsLicenseData;
+            }
             
             if (employmentCategory === 'contract' && contractStartDate && contractEndDate) {
                 try {
