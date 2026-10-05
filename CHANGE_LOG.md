@@ -1,6 +1,22 @@
 # Project Change Log
 
-### [2026-10-05 21:20] - Fix: 413 "Request body is too large" & Automatic Client-Side Image Compression
+### [2026-10-05 21:30] - UI/UX: Replace Specific Personnel Names in Modal Placeholders with Generic Examples
+
+- **Scope & Objective**:
+  - Replaced specific personal names and phone numbers used in the Create and Edit Personnel modal placeholders (`Angel`, `Pajarillo`, `Samanion`, `09105187319`) with standard generic Philippine naming examples.
+- **Files Modified**:
+  - [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html):
+    - First Name placeholder: `e.g. Juan`
+    - Middle Name placeholder: `e.g. Dela Cruz`
+    - Last Name placeholder: `e.g. Santos`
+    - Mobile Number placeholder: `09171234567`
+- **Verification & Testing**:
+  - `npx playwright test personnel_profile.spec.js contract_personnel.spec.js`: All 7 tests passed.
+  - `node web/tests/google_icons_test.js`: Passed.
+
+---
+
+
 
 - **Scope & Objective**:
   - Fixed error `"Request body is too large. (413)"` when saving guard/inspector accounts with uploaded phone camera license photos (`ID.jpg` / `License to carry firearms.webp`).
