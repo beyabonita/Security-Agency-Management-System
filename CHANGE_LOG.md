@@ -1,6 +1,26 @@
 # Project Change Log
 
-### [2026-10-05 21:30] - UI/UX: Replace Specific Personnel Names in Modal Placeholders with Generic Examples
+### [2026-10-05 21:45] - Feature: Auto-Generated Personnel ID (`SEC-YYYY-001`)
+
+- **Scope & Objective**:
+  - Implemented auto-generation for Personnel ID formatted as `SEC-YYYY-000` (e.g., `SEC-2026-001`, `SEC-2026-002`, ...).
+  - Automatically scans existing records in `personnelAccounts` to find the highest number for the current year and increments sequentially with a 3-digit padded number.
+  - Automatically prefills the Personnel ID when opening the "Create Guard or Inspector" modal (`openPersonnelCreate`).
+  - Added an interactive **"Auto-generate"** button next to the Personnel ID label in both the Create and Edit modals to easily regenerate or calculate the next sequential ID.
+  - Automatically supplies the next ID if left blank on create or edit.
+- **Files Modified**:
+  - [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html):
+    - Added `generateNextPersonnelId()` function.
+    - Updated `openPersonnelCreate()` to prefill `newGuardPersonnelId`.
+    - Added "Auto-generate" action buttons to both Create and Edit modals.
+    - Updated `openEditPersonnelModal()` to fallback to `generateNextPersonnelId()` if the existing account lacks an ID.
+- **Verification & Testing**:
+  - `npx playwright test personnel_profile.spec.js contract_personnel.spec.js`: Passed (7/7 tests passed).
+  - `node web/tests/google_icons_test.js`: Passed (52 bundled symbols, 214 references).
+
+---
+
+
 
 - **Scope & Objective**:
   - Replaced specific personal names and phone numbers used in the Create and Edit Personnel modal placeholders (`Angel`, `Pajarillo`, `Samanion`, `09105187319`) with standard generic Philippine naming examples.

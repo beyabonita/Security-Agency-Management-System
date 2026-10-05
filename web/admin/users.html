@@ -906,7 +906,12 @@
             </select>
         </div>
         <div class="col-md-4">
-            <label class="form-label">PERSONNEL ID</label>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="form-label mb-0" for="newGuardPersonnelId">PERSONNEL ID</label>
+                <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" style="font-size:0.72rem; color:var(--sl-danger); font-weight:600;" onclick="regenerateNewGuardPersonnelId()" title="Regenerate Personnel ID">
+                    <span class="material-symbols-rounded align-middle" style="font-size:14px;" aria-hidden="true">refresh</span> Auto-generate
+                </button>
+            </div>
             <input type="text" id="newGuardPersonnelId" class="form-control" placeholder="e.g. SEC-2026-001">
         </div>
     </div>
@@ -1089,7 +1094,12 @@
     <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">person</span>Identification & Duty Category</div>
     <div class="row g-3">
         <div class="col-md-6">
-            <label class="form-label">PERSONNEL ID</label>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="form-label mb-0" for="editGuardPersonnelId">PERSONNEL ID</label>
+                <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" style="font-size:0.72rem; color:var(--sl-danger); font-weight:600;" onclick="regenerateEditGuardPersonnelId()" title="Generate next Personnel ID">
+                    <span class="material-symbols-rounded align-middle" style="font-size:14px;" aria-hidden="true">refresh</span> Auto-generate
+                </button>
+            </div>
             <input type="text" id="editGuardPersonnelId" class="form-control" placeholder="e.g. SEC-2026-001">
         </div>
         <div class="col-md-6">
@@ -2760,6 +2770,7 @@ function openPersonnelCreate() {
     document.getElementById("newGuardRole").disabled = false;
     document.getElementById("newGuardRole").value = "user";
     document.getElementById("createGuardError").innerText = "";
+    document.getElementById("newGuardPersonnelId").value = generateNextPersonnelId();
     updateCreateUserHint();
     resetPasswordVisibility('newGuardPassword', document.getElementById('newGuardPasswordToggle'));
     resetPasswordVisibility('newGuardPasswordConfirm', document.getElementById('newGuardPasswordConfirmToggle'));
@@ -2769,7 +2780,7 @@ function openPersonnelCreate() {
 async function createGuardAccount() {
     const role      = document.getElementById("newGuardRole").value;
     const employmentCategory = document.getElementById("newGuardEmploymentCategory").value;
-    const personnelId = document.getElementById("newGuardPersonnelId")?.value.trim() || "";
+    const personnelId = document.getElementById("newGuardPersonnelId")?.value.trim() || generateNextPersonnelId();
     const firstName = document.getElementById("newGuardFirstName").value.trim();
     const middleName = document.getElementById("newGuardMiddleName")?.value.trim() || "";
     const lastName  = document.getElementById("newGuardLastName").value.trim();
@@ -2994,6 +3005,41 @@ function fileToDataUrl(file) {
             reader.readAsDataURL(file);
         }
     });
+}
+
+function generateNextPersonnelId() {
+    const currentYear = new Date().getFullYear();
+    const prefix = `SEC-${currentYear}-`;
+    let maxNum = 0;
+    
+    if (typeof personnelAccounts === 'object' && personnelAccounts) {
+        Object.values(personnelAccounts).forEach(acc => {
+            const pid = acc?.personnelId || acc?.personnel_id;
+            if (pid && typeof pid === 'string') {
+                const match = pid.match(new RegExp(`^SEC-${currentYear}-(\\d+)`, 'i'));
+                if (match) {
+                    const num = parseInt(match[1], 10);
+                    if (!isNaN(num) && num > maxNum) {
+                        maxNum = num;
+                    }
+                }
+            }
+        });
+    }
+    
+    const nextNum = maxNum + 1;
+    const padded = String(nextNum).padStart(3, '0');
+    return `${prefix}${padded}`;
+}
+
+function regenerateNewGuardPersonnelId() {
+    const el = document.getElementById("newGuardPersonnelId");
+    if (el) el.value = generateNextPersonnelId();
+}
+
+function regenerateEditGuardPersonnelId() {
+    const el = document.getElementById("editGuardPersonnelId");
+    if (el) el.value = generateNextPersonnelId();
 }
 
 function calculateServiceDuration(dateHiredStr) {
@@ -3236,7 +3282,7 @@ function openEditPersonnelModal(uid) {
     editSecurityLicenseData = account.licenseSecurityUrl || null;
     editFirearmsLicenseData = account.licenseFirearmsUrl || null;
     
-    document.getElementById("editGuardPersonnelId").value = account.personnelId || "";
+    document.getElementById("editGuardPersonnelId").value = account.personnelId || generateNextPersonnelId();
     document.getElementById("editGuardFirstName").value = account.firstName || "";
     document.getElementById("editGuardMiddleName").value = account.middleName || account.middleInitial || "";
     document.getElementById("editGuardLastName").value = account.lastName || "";
@@ -3294,7 +3340,7 @@ async function savePersonnelEdit() {
     const lastName = document.getElementById("editGuardLastName").value.trim();
     const email = document.getElementById("editGuardEmail").value.trim();
     const mobileNumber = document.getElementById("editGuardMobileNumber").value.trim();
-    const personnelId = document.getElementById("editGuardPersonnelId").value.trim();
+    const personnelId = document.getElementById("editGuardPersonnelId").value.trim() || generateNextPersonnelId();
     const dateOfBirth = document.getElementById("editGuardDob").value || null;
     const gender = document.getElementById("editGuardGender").value;
     const civilStatus = document.getElementById("editGuardCivilStatus").value;
