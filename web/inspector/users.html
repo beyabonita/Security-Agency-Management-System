@@ -379,7 +379,7 @@ async function viewGuardSchedule(uid) {
 function loadGuards() {
     const refreshVersion = ++guardRefreshVersion;
     const fetchLiveLocations = window.appSupabase && typeof appSupabase.rpc === 'function'
-        ? appSupabase.rpc('live_guard_map_snapshot').catch(() => ({ data: { locations: [] } }))
+        ? Promise.resolve(appSupabase.rpc('live_guard_map_snapshot')).catch(() => ({ data: { locations: [] } }))
         : Promise.resolve({ data: { locations: [] } });
 
     return Promise.all([
