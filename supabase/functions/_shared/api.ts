@@ -16,7 +16,7 @@ export interface ApiResult {
   status?: number;
 }
 
-const MAX_JSON_BODY_BYTES = 32 * 1024;
+const MAX_JSON_BODY_BYTES = 512 * 1024;
 const DEFAULT_ALLOWED_ORIGINS = new Set([
   "https://www.tts-agency.site",
   "https://tts-agency.site",

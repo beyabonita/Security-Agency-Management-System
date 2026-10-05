@@ -1,6 +1,23 @@
 # Project Change Log
 
-### [2026-10-05 21:15] - Bugfix: Personnel Profile Edit Document Persistence & RPC Backend Security
+### [2026-10-05 21:20] - Fix: 413 "Request body is too large" & Automatic Client-Side Image Compression
+
+- **Scope & Objective**:
+  - Fixed error `"Request body is too large. (413)"` when saving guard/inspector accounts with uploaded phone camera license photos (`ID.jpg` / `License to carry firearms.webp`).
+  - Root Cause:
+    - Supabase Edge Functions enforce `MAX_JSON_BODY_BYTES = 32 * 1024` (32 KB limit).
+    - Uncompressed multi-megabyte photos converted to raw Base64 data URLs exceeded this threshold when sent in the Edge Function request body.
+  - Solution:
+    1. **Canvas Downscaling & Auto-Compression**: Updated `fileToDataUrl()` in [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html) to automatically downscale photos using an HTML5 `<canvas>` (max dimension 1280px, JPEG 0.82 quality). Large 5MB–10MB phone snapshots are converted into clear, high-definition ~80KB–120KB images.
+    2. **Edge Function Payload Segregation**: In `createGuardAccount()` and `savePersonnelEdit()`, license documents are no longer sent to Edge Functions (`admin-create-user` / `admin-manage-user`). Instead, they are passed directly to the Postgres RPC `update_personnel_profile`, which handles high-capacity data directly.
+    3. **Edge Functions Limit Raised**: Increased `MAX_JSON_BODY_BYTES` in [`supabase/functions/_shared/api.ts`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/functions/_shared/api.ts) to 512 KB as an additional safeguard.
+- **Verification & Testing**:
+  - `npx playwright test personnel_profile.spec.js contract_personnel.spec.js`: All 7 tests passed.
+  - `node web/tests/google_icons_test.js`: Passed.
+
+---
+
+
 
 - **Scope & Objective**:
   - Resolved issue where editing an existing guard or inspector account did not save or display uploaded license credentials (`license_security_url` and `license_firearms_url`) or extended profile attributes in the Personnel Profile modal.
