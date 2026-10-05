@@ -1,5 +1,27 @@
 # Project Change Log
 
+### [2026-10-05 22:45] - Feat: Continuous 24h Shift Gap Auto-Sync & "Auto-Fix Gap" Action
+
+- **Scope & Objective**:
+  - Automatically eliminate gaps and overlaps across all roster setups (2, 3, or more shifts) when editing shift hours in the *Edit Shift Times* modal.
+  - When changing Scheduled IN of any shift, automatically syncs the previous shift's Scheduled OUT to match it in real-time.
+  - When changing Scheduled OUT of any shift, automatically syncs the next shift's Scheduled IN to match it in real-time.
+  - Added an interactive **"Auto-fix gap"** action in both the modal header presets bar and directly inside the error banner to immediately snap all shift boundaries to continuous 24h coverage with one click.
+  - Added 3-shift presets (`6 AM – 2 PM – 10 PM`, `7 AM – 3 PM – 11 PM`, `8 AM – 4 PM – 12 AM`) when editing a 3-shift roster.
+- **Files Modified**:
+  - [`web/admin/js/shift-roster.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/shift-roster.js):
+    - Generalized boundary auto-syncing from `allStarts.length === 2` to any `n >= 2`.
+    - Added `autoFixRosterGaps()` function.
+    - Updated presets and error banner rendering to include "Auto-fix gap" buttons.
+  - [`web/tests/schedule_lifecycle.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/schedule_lifecycle.spec.js):
+    - Added automated test verifying 3-shift real-time boundary sync and gap elimination.
+- **Verification & Testing**:
+  - `npm --prefix web/tests run test:playwright -- --grep "automatically fixes the gap"`: Passed.
+  - `npm --prefix web/tests run test:playwright -- --grep "editing existing shift times"`: Passed.
+  - `node web/tests/google_icons_test.js`: Passed.
+
+---
+
 ### [2026-10-05 22:35] - Bugfix: Prevent "Edit Shift Times" from Polluting "Shifting Setup" Dropdown
 
 - **Scope & Objective**:

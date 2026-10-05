@@ -581,8 +581,54 @@
     });
   }
 
+  function autoFixRosterGaps() {
+    if (!rosterTimesInputs) return;
+    const allStarts = [...rosterTimesInputs.querySelectorAll('[data-start]')];
+    const allEnds = [...rosterTimesInputs.querySelectorAll('[data-end]')];
+    const n = allStarts.length;
+    if (n < 2) return;
+
+    for (let i = 0; i < n; i++) {
+      const nextIdx = (i + 1) % n;
+      if (allEnds[i] && allStarts[nextIdx]) {
+        if (i < n - 1) {
+          allStarts[nextIdx].value = allEnds[i].value;
+        } else {
+          allEnds[i].value = allStarts[0].value;
+        }
+      }
+    }
+    updateModalDurationBadges();
+    if (rosterTimesError) {
+      rosterTimesError.hidden = true;
+      rosterTimesError.innerHTML = '';
+    }
+    appDialog.toast('Shift gaps automatically aligned to 24h continuous coverage.', { tone: 'info' });
+  }
+
   function renderRosterTimesInputs(shifts) {
     if (!rosterTimesInputs) return;
+
+    const presetsContainer = document.getElementById('rosterTimesPresets');
+    if (presetsContainer) {
+      let presetsHtml = '<span class="small text-muted me-1">Quick presets:</span>';
+      if (shifts.length === 2) {
+        presetsHtml += `
+          <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn" data-preset="06:00-18:00">6 AM – 6 PM</button>
+          <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn" data-preset="07:00-19:00">7 AM – 7 PM</button>
+          <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn" data-preset="08:00-20:00">8 AM – 8 PM</button>
+        `;
+      } else if (shifts.length === 3) {
+        presetsHtml += `
+          <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn" data-preset="06:00-14:00-22:00">6 AM – 2 PM – 10 PM</button>
+          <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn" data-preset="07:00-15:00-23:00">7 AM – 3 PM – 11 PM</button>
+          <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn" data-preset="08:00-16:00-00:00">8 AM – 4 PM – 12 AM</button>
+        `;
+      }
+      presetsHtml += '<button type="button" id="autoFixGapsBtn" class="btn btn-xs btn-outline-primary ms-auto" title="Align all shift boundaries to eliminate gaps and overlaps">Auto-fix gap</button>';
+      presetsContainer.innerHTML = presetsHtml;
+    }
+
     rosterTimesInputs.innerHTML = shifts.map((shift, i) => {
       const shiftTitle = shifts.length === 2
         ? (i === 0 ? 'Shift 1 (Day Shift)' : 'Shift 2 (Night Shift)')
@@ -619,7 +665,7 @@
     }
     if (rosterTimesError) {
       rosterTimesError.hidden = true;
-      rosterTimesError.textContent = '';
+      rosterTimesError.innerHTML = '';
     }
 
     renderRosterTimesInputs(activeShifts);
@@ -650,7 +696,7 @@
     }
   });
 
-  // Auto-sync continuous 24h coverage for 2-shift rosters
+  // Auto-sync continuous 24h coverage for all shift rosters (2, 3, or more shifts)
   if (rosterTimesInputs) {
     rosterTimesInputs.addEventListener('input', e => {
       const input = e.target;
@@ -659,39 +705,56 @@
       const idx = box ? Number(box.dataset.shiftIdx) : -1;
       const allStarts = [...rosterTimesInputs.querySelectorAll('[data-start]')];
       const allEnds = [...rosterTimesInputs.querySelectorAll('[data-end]')];
+      const n = allStarts.length;
 
-      if (allStarts.length === 2) {
-        if (idx === 0) {
-          if (!isStart && allStarts[1]) allStarts[1].value = input.value;
-          if (isStart && allEnds[1]) allEnds[1].value = input.value;
-        } else if (idx === 1) {
-          if (isStart && allEnds[0]) allEnds[0].value = input.value;
-          if (!isStart && allStarts[0]) allStarts[0].value = input.value;
+      if (n >= 2 && idx >= 0 && input.value) {
+        if (isStart) {
+          // Scheduled IN of Shift idx changed -> previous shift's Scheduled OUT automatically updates to match it!
+          const prevIdx = (idx - 1 + n) % n;
+          if (allEnds[prevIdx]) allEnds[prevIdx].value = input.value;
+        } else {
+          // Scheduled OUT of Shift idx changed -> next shift's Scheduled IN automatically updates to match it!
+          const nextIdx = (idx + 1) % n;
+          if (allStarts[nextIdx]) allStarts[nextIdx].value = input.value;
         }
       }
 
       updateModalDurationBadges();
-      if (rosterTimesError) rosterTimesError.hidden = true;
+      if (rosterTimesError) {
+        rosterTimesError.hidden = true;
+        rosterTimesError.innerHTML = '';
+      }
     });
   }
 
-  // Preset buttons
-  document.querySelectorAll('.roster-preset-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const preset = btn.dataset.preset;
-      if (!preset || !rosterTimesInputs) return;
-      const [start, end] = preset.split('-');
+  // Preset buttons and auto-fix gaps
+  document.addEventListener('click', e => {
+    const presetBtn = e.target.closest('.roster-preset-btn');
+    if (presetBtn && rosterTimesInputs) {
+      const preset = presetBtn.dataset.preset;
+      if (!preset) return;
+      const times = preset.split('-');
       const allStarts = [...rosterTimesInputs.querySelectorAll('[data-start]')];
       const allEnds = [...rosterTimesInputs.querySelectorAll('[data-end]')];
-      if (allStarts.length >= 2) {
-        allStarts[0].value = start;
-        allEnds[0].value = end;
-        allStarts[1].value = end;
-        allEnds[1].value = start;
+      if (times.length === allStarts.length) {
+        for (let i = 0; i < times.length; i++) {
+          allStarts[i].value = times[i];
+          allEnds[i].value = times[(i + 1) % times.length];
+        }
         updateModalDurationBadges();
-        if (rosterTimesError) rosterTimesError.hidden = true;
+        if (rosterTimesError) {
+          rosterTimesError.hidden = true;
+          rosterTimesError.innerHTML = '';
+        }
       }
-    });
+      return;
+    }
+
+    const autoFixBtn = e.target.closest('#autoFixGapsBtn, #autoFixGapsInlineBtn');
+    if (autoFixBtn) {
+      e.preventDefault();
+      autoFixRosterGaps();
+    }
   });
 
   function formatTimeShort(val) {
@@ -718,7 +781,7 @@
       const validationError = RosterSetup.validate(newShifts);
       if (validationError) {
         if (rosterTimesError) {
-          rosterTimesError.textContent = validationError;
+          rosterTimesError.innerHTML = `<div class="d-flex justify-content-between align-items-center w-100 flex-wrap gap-2"><span>${escapeHtml(validationError)}</span><button type="button" id="autoFixGapsInlineBtn" class="btn btn-xs btn-outline-danger">Auto-fix gap</button></div>`;
           rosterTimesError.hidden = false;
         }
         return;

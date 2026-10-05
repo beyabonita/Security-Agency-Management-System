@@ -653,6 +653,27 @@ test('editing existing shift times updates the selected guard shifts preview and
   await expect(page.locator('#rosterPreview')).toContainText('8:00 PM – 8:00 AM (next day)');
 });
 
+test('editing shift times in 3-shift roster automatically fixes the gap on adjacent shift', async ({ page }) => {
+  await page.locator('#rosterSetup').selectOption('3');
+  await page.locator('#editRosterTimesBtn').click();
+  await expect(page.locator('#editRosterTimesModal')).toBeVisible();
+
+  // Change Shift 1 Scheduled IN to 09:01
+  await page.locator('#modalShiftStart0').fill('09:01');
+  // Shift 3 Scheduled OUT should automatically update to 09:01 to close the gap
+  await expect(page.locator('#modalShiftEnd2')).toHaveValue('09:01');
+
+  // Change Shift 1 Scheduled OUT to 16:30
+  await page.locator('#modalShiftEnd0').fill('16:30');
+  // Shift 2 Scheduled IN should automatically update to 16:30 to close the gap
+  await expect(page.locator('#modalShiftStart1')).toHaveValue('16:30');
+
+  // Click Save - no error because gaps are eliminated
+  await page.locator('#saveRosterTimesBtn').click();
+  await expect(page.locator('#editRosterTimesModal')).not.toBeVisible();
+  await expect(page.locator('#rosterPreview')).toContainText('9:01 AM – 4:30 PM');
+});
+
 test('selecting a guard for a second shift is prevented and resets the slot with warning', async ({ page }) => {
   await fillRoster(page);
   await expect(page.locator('#rosterGuard0')).toHaveValue('test-guard');
