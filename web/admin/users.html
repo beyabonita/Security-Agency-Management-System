@@ -3495,20 +3495,6 @@ async function savePersonnelEdit() {
                 acc.licenseFirearmsUrl = editFirearmsLicenseData;
             }
             
-            if (employmentCategory === 'contract' && contractStartDate && contractEndDate) {
-                try {
-                    await appSupabase.from('guard_contract_history').insert({
-                        guard_id: currentEditUid,
-                        contract_start_date: contractStartDate,
-                        contract_end_date: contractEndDate,
-                        contract_status: contractStatus || 'Active',
-                        renewed_at: new Date().toISOString(),
-                        renewed_by: auth.currentUser?.uid || null,
-                        remarks: 'Contract updated / renewed via personnel profile management'
-                    });
-                } catch (_) {}
-            }
-            
             await loadUsers();
             bootstrap.Modal.getOrCreateInstance(document.getElementById("editPersonnelModal")).hide();
             appDialog.toast("Personnel profile updated successfully.", { tone: "success" });
