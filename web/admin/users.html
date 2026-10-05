@@ -800,7 +800,6 @@
                     <th>Inspector</th>
                     <th>Actions</th>
                     <th class="text-center">DTR</th>
-                    <th class="text-center">Device</th>
                 </tr>
             </thead>
             <tbody id="guardTableBody">
@@ -814,7 +813,6 @@
                     <td><span class="ax-skeleton ax-skeleton-line" style="width:90px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-btn"></span></td>
                     <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:40px;"></span></td>
-                    <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:40px;"></span></td>
                 </tr>
                 <tr class="ax-skeleton-tr">
                     <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-avatar"></span><span class="ax-skeleton ax-skeleton-line" style="width:145px;"></span></div></td>
@@ -826,7 +824,6 @@
                     <td><span class="ax-skeleton ax-skeleton-line" style="width:85px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-btn"></span></td>
                     <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:40px;"></span></td>
-                    <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:40px;"></span></td>
                 </tr>
                 <tr class="ax-skeleton-tr">
                     <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-avatar"></span><span class="ax-skeleton ax-skeleton-line" style="width:115px;"></span></div></td>
@@ -837,7 +834,6 @@
                     <td><span class="ax-skeleton ax-skeleton-line" style="width:130px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-line" style="width:95px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-btn"></span></td>
-                    <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:40px;"></span></td>
                     <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:40px;"></span></td>
                 </tr>
             </tbody>
@@ -856,7 +852,6 @@
                                 <th>Personnel</th>
                                 <th>Status</th>
                                 <th>Actions</th>
-                                <th class="text-center">Device</th>
                             </tr>
                         </thead>
                         <tbody id="inspectorTableBody">
@@ -864,13 +859,11 @@
                                 <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-avatar"></span><span class="ax-skeleton ax-skeleton-line" style="width:130px;"></span></div></td>
                                 <td><span class="ax-skeleton ax-skeleton-pill" style="width:60px;"></span></td>
                                 <td><span class="ax-skeleton ax-skeleton-btn"></span></td>
-                                <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:40px;"></span></td>
                             </tr>
                             <tr class="ax-skeleton-tr">
                                 <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-avatar"></span><span class="ax-skeleton ax-skeleton-line" style="width:145px;"></span></div></td>
                                 <td><span class="ax-skeleton ax-skeleton-pill" style="width:60px;"></span></td>
                                 <td><span class="ax-skeleton ax-skeleton-btn"></span></td>
-                                <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:40px;"></span></td>
                             </tr>
                         </tbody>
                     </table>
@@ -1748,7 +1741,6 @@ function renderGuardRow(id, data, locationsById) {
         <td>${escapeHtml(inspector ? personnelDisplayName(inspector) : "Unassigned")}</td>
         <td>${actions}</td>
         <td class="text-center"><button type="button" class="action-btn btn-dtr" onclick="viewDTR('${id}')">View DTR</button></td>
-        <td class="text-center"><button type="button" class="action-btn btn-reset" onclick="resetDevice('${id}', this)">Reset</button></td>
     </tr>`;
 }
 
@@ -1763,7 +1755,6 @@ function renderInspectorRow(id, data) {
         <td>${renderPersonnelIdentity(id, data)}</td>
         <td>${renderPersonnelStatus(data)}</td>
         <td>${actions}</td>
-        <td class="text-center"><button type="button" class="action-btn btn-reset" onclick="resetDevice('${id}', this)">Reset</button></td>
     </tr>`;
 }
 

@@ -1,5 +1,26 @@
 # Project Change Log
 
+### [2026-10-06 04:36] - UI: Remove Device Column and Reset Device Access Buttons from Personnel Tables
+
+- **Scope & Objective**:
+  - Removed the `Device` column and individual `Reset` (reset device access) action buttons from both the Guard Personnel table and Inspector Personnel table in the Operations Head Personnel management console ([`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html)).
+- **Root Cause & Rationale**:
+  - The "Device" column with "Reset" action buttons in the Guard and Inspector tables was identified as obsolete/unwanted in the Operations Head personnel view per user request.
+- **Files Modified**:
+  - [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html):
+    - Removed `<th class="text-center">Device</th>` from the Guard personnel table header (`#guardTableBody`).
+    - Removed corresponding skeleton cells from the Guard table placeholder rows to maintain correct 9-column alignment.
+    - Removed the `<td class="text-center"><button class="action-btn btn-reset" ...>Reset</button></td>` cell from `renderGuardRow()`.
+    - Removed `<th class="text-center">Device</th>` from the Inspector personnel table header (`#inspectorTableBody`).
+    - Removed corresponding skeleton cells from the Inspector table placeholder rows to maintain correct 3-column alignment.
+    - Removed the `<td class="text-center"><button class="action-btn btn-reset" ...>Reset</button></td>` cell from `renderInspectorRow()`.
+    - Maintained `resetDevice()` in JavaScript scope so backend RPC/legacy bindings remain intact without ReferenceErrors.
+  - [`web/tests/responsive_shells.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/responsive_shells.spec.js):
+    - Updated Inspector table header assertion to check for `'Actions'` instead of the removed `'Device'` column.
+- **Verification & Testing**:
+  - Verified Playwright test `responsive_shells.spec.js` passed: `HR Personnel keeps DTR available for Guards only`.
+  - Confirmed column counts and skeleton loading state match rendered data rows.
+
 ### [2026-10-06 04:32] - Fix: Clear Uploaded Documents & License Previews When Opening Create Guard Modal
 
 - **Scope & Objective**:

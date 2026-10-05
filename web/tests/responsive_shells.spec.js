@@ -78,7 +78,7 @@ test('HR Personnel keeps DTR available for Guards only', async ({ page }) => {
   await expect(page.locator('[aria-labelledby="guardPersonnelHeading"] th').filter({ hasText: 'DTR' })).toHaveCount(1);
   await expect(page.locator('[aria-labelledby="inspectorPersonnelHeading"] th').filter({ hasText: 'DTR' })).toHaveCount(0);
   await expect(page.locator('[aria-labelledby="inspectorPersonnelHeading"] thead')).toContainText('Personnel');
-  await expect(page.locator('[aria-labelledby="inspectorPersonnelHeading"] thead')).toContainText('Device');
+  await expect(page.locator('[aria-labelledby="inspectorPersonnelHeading"] thead')).toContainText('Actions');
 });
 
 test('roster DTR preview fits phone and desktop in light and dark themes', async ({ page }, testInfo) => {
