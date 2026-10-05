@@ -156,7 +156,13 @@ Deno.serve((request) =>
       if(banError)backendFailure('Personnel access is disabled, but sign-in revocation needs a retry.','personnel_ban_failed',banError);
       return {data:{ok:true}};
     }
-    if(targetData.removed_at)reject(409,'This personnel account has been removed.','personnel_removed');
+    if (targetData.removed_at) {
+      // Operations Head is re-activating / editing a previously removed personnel account
+      const { error: unbanError } = await service.auth.admin.updateUserById(targetId, { ban_duration: 'none' });
+      if (unbanError) {
+        console.warn('Could not lift ban on personnel:', unbanError);
+      }
+    }
     const requestedRole = body.role === undefined ? target.role : body.role;
     if (!isAppRole(requestedRole)) {
       reject(400, "Choose a valid account role.", "invalid_role");
@@ -368,6 +374,7 @@ Deno.serve((request) =>
       role,
       active,
       organization_id: organizationId,
+      removed_at: null,
       employment_category: employmentCategory,
       contract_start_date: contract.start,
       contract_end_date: contract.end,

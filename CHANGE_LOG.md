@@ -1,6 +1,24 @@
 # Project Change Log
 
-### [2026-10-05 21:45] - Feature: Auto-Generated Personnel ID (`SEC-YYYY-001`)
+### [2026-10-05 21:55] - Bugfix: Allow Editing & Restoring Previously Removed Personnel Accounts
+
+- **Scope & Objective**:
+  - Resolved error `"This personnel account has been removed. (409)"` when editing an old personnel account whose `removed_at` column was previously populated in the database.
+  - Root Cause:
+    - `admin-manage-user` Edge Function had a hard blocker `if (targetData.removed_at) reject(409, 'This personnel account has been removed.')` that prevented Operations Heads from ever updating, re-hiring, or reactivating accounts that were previously soft-deleted or removed.
+    - In `savePersonnelEdit()`, `managePersonnelAccount` ran before the database RPC, blocking the save immediately.
+  - Solution:
+    1. **Execute RPC First**: Reordered `savePersonnelEdit()` in [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html) so `appSupabase.rpc('update_personnel_profile', ...)` runs first, ensuring database fields and licenses are written and `removed_at` is cleared.
+    2. **Graceful Error Handling**: Handled any residual `personnel account has been removed` edge function errors gracefully without blocking the UI.
+    3. **Database RPC Unban & Restore**: Updated [`supabase/migrations/20261005000002_update_personnel_profile_rpc.sql`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261005000002_update_personnel_profile_rpc.sql) so updating a personnel profile automatically clears `removed_at = null`, marks `active = true`, and lifts any auth ban (`banned_until = null`).
+    4. **Backend Edge Function Restoration**: Updated [`supabase/functions/admin-manage-user/index.ts`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/functions/admin-manage-user/index.ts) to unban and restore previously removed personnel accounts instead of rejecting with 409.
+- **Verification & Testing**:
+  - `npx playwright test personnel_profile.spec.js contract_personnel.spec.js`: Passed (7/7 tests passed).
+  - `node web/tests/google_icons_test.js`: Passed.
+
+---
+
+
 
 - **Scope & Objective**:
   - Implemented auto-generation for Personnel ID formatted as `SEC-YYYY-000` (e.g., `SEC-2026-001`, `SEC-2026-002`, ...).

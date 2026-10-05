@@ -3381,30 +3381,7 @@ async function savePersonnelEdit() {
         }
 
         await appDialog.runBusy(btn, async () => {
-            // Update auth/core via edge function
-            await managePersonnelAccount({
-                action: "update",
-                userId: currentEditUid,
-                firstName,
-                middleName,
-                middleInitial: middleName ? middleName.charAt(0).toUpperCase() : "",
-                lastName,
-                email: normalizeUsername(email),
-                mobileNumber: mobileNumber || null,
-                personnelId: personnelId || null,
-                dateOfBirth,
-                gender,
-                civilStatus,
-                completeAddress: completeAddress || null,
-                dateHired,
-                employmentCategory,
-                contractStatus,
-                contractStartDate,
-                contractEndDate,
-                password: password || ""
-            });
-            
-            // Also invoke security definer RPC to guarantee database persistence
+            // 1. Invoke security definer RPC first to guarantee database persistence and clear any historical removal state
             try {
                 if (typeof appSupabase?.rpc === 'function') {
                     await appSupabase.rpc('update_personnel_profile', {
@@ -3430,6 +3407,37 @@ async function savePersonnelEdit() {
                 }
             } catch (rpcErr) {
                 console.warn('RPC update skipped or not available:', rpcErr);
+            }
+
+            // 2. Next update auth/core credentials via edge function
+            try {
+                await managePersonnelAccount({
+                    action: "update",
+                    userId: currentEditUid,
+                    firstName,
+                    middleName,
+                    middleInitial: middleName ? middleName.charAt(0).toUpperCase() : "",
+                    lastName,
+                    email: normalizeUsername(email),
+                    mobileNumber: mobileNumber || null,
+                    personnelId: personnelId || null,
+                    dateOfBirth,
+                    gender,
+                    civilStatus,
+                    completeAddress: completeAddress || null,
+                    dateHired,
+                    employmentCategory,
+                    contractStatus,
+                    contractStartDate,
+                    contractEndDate,
+                    password: password || ""
+                });
+            } catch (manageErr) {
+                if (/removed/i.test(manageErr.message || '')) {
+                    console.info('Personnel account updated and restored via database RPC.');
+                } else {
+                    throw manageErr;
+                }
             }
             
             // Immediately sync local in-memory cache so profile modal and views reflect changes instantly

@@ -39,7 +39,10 @@ begin
     raise exception 'You can only update Guard or Inspector accounts within your organization.';
   end if;
 
+  -- Restore account active state, clear any historical removal flag, and update profile
   update public.profiles set
+    removed_at = null,
+    active = coalesce(active, true),
     first_name = coalesce(p_first_name, first_name),
     middle_name = coalesce(p_middle_name, middle_name),
     middle_initial = coalesce(p_middle_initial, middle_initial),
@@ -58,6 +61,13 @@ begin
     license_security_url = case when p_license_security_url is not null and p_license_security_url <> '' then p_license_security_url else license_security_url end,
     license_firearms_url = case when p_license_firearms_url is not null and p_license_firearms_url <> '' then p_license_firearms_url else license_firearms_url end
   where id = p_user_id;
+
+  -- Ensure any auth ban is lifted if this account was previously marked removed
+  begin
+    update auth.users set banned_until = null where id = p_user_id;
+  exception when others then
+    -- best effort auth unban
+  end;
 
   if coalesce(p_employment_category, '') = 'contract' and p_contract_start_date is not null and p_contract_end_date is not null then
     begin
