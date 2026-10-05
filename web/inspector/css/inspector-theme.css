@@ -376,7 +376,9 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 .ix-badge-off::before { background: #ef4444; }
 
 .ix-chip {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     background: var(--sl-red-soft);
     border: 1px solid var(--sl-line);
     color: var(--sl-danger);
@@ -385,6 +387,31 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
     font-size: 0.75rem;
     font-weight: 500;
     margin: 2px;
+    line-height: 1.3;
+}
+
+.ix-chip-active {
+    background: #dcfce7;
+    border-color: #86efac;
+    color: #15803d;
+}
+
+.ix-chip-waiting {
+    background: #fff7ed;
+    border-color: #fed7aa;
+    color: #c2410c;
+}
+
+[data-theme="dark"] .ix-chip-active {
+    background: rgba(22, 163, 74, 0.2);
+    border-color: rgba(34, 197, 94, 0.4);
+    color: #4ade80;
+}
+
+[data-theme="dark"] .ix-chip-waiting {
+    background: rgba(234, 88, 12, 0.2);
+    border-color: rgba(249, 115, 22, 0.4);
+    color: #fb923c;
 }
 
 .ix-btn {

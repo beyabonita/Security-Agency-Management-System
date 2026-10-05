@@ -134,3 +134,83 @@ test('Inspector reviews an assigned Guard incident through the secured RPC', asy
     },
   }]);
 });
+
+test('Inspector dashboard and My Guards show scheduled duty and distinguish awaiting clock-in from clocked-in', async ({ page }) => {
+  await teamMocks(page);
+  // Set time during duty-a (2026-09-06T02:00:00Z)
+  await page.clock.setFixedTime(new Date('2026-09-06T02:00:00Z'));
+
+  // 1. Visit dashboard when guard has not clocked in yet
+  await page.goto('/inspector/dashboard.html');
+  const roster = page.locator('#liveRosterList');
+  await expect(roster).toContainText('Assigned Guard');
+  await expect(roster).toContainText('Assigned post');
+  await expect(roster).toContainText('Awaiting Clock-In');
+  await expect(roster).toContainText('Awaiting Time In');
+
+  // 2. Visit My Guards when guard has not clocked in yet
+  await page.goto('/inspector/users.html');
+  const userTable = page.locator('#userTableBody');
+  await expect(userTable).toContainText('Assigned Guard');
+  await expect(userTable).toContainText('Assigned post (Scheduled · Awaiting Time In)');
+
+  // 3. Mock live clock-in for guard-a
+  await page.evaluate(() => {
+    window.appSupabase.rpc = async (name) => {
+      if (name === 'live_guard_map_snapshot') {
+        return {
+          data: {
+            server_now: new Date().toISOString(),
+            locations: [{
+              user_id: 'guard-a',
+              guard_name: 'Assigned Guard',
+              location_label: 'Assigned post',
+              client_name: 'Assigned post',
+              latitude: 14.5995,
+              longitude: 120.9842,
+              duty_start_at: '2026-09-06T00:00:00Z',
+              duty_end_at: '2026-09-06T09:00:00Z',
+              mobile_number: '09123456789'
+            }]
+          },
+          error: null
+        };
+      }
+      return { data: null, error: null };
+    };
+  });
+
+  // Re-check My Guards with live clock-in
+  await page.evaluate(() => loadGuards());
+  await expect(userTable).toContainText('Assigned post (Clocked in)');
+
+  // Re-check Dashboard with live clock-in
+  await page.goto('/inspector/dashboard.html');
+  await page.evaluate(() => {
+    window.appSupabase.rpc = async (name) => {
+      if (name === 'live_guard_map_snapshot') {
+        return {
+          data: {
+            server_now: new Date().toISOString(),
+            locations: [{
+              user_id: 'guard-a',
+              guard_name: 'Assigned Guard',
+              location_label: 'Assigned post',
+              client_name: 'Assigned post',
+              latitude: 14.5995,
+              longitude: 120.9842,
+              duty_start_at: '2026-09-06T00:00:00Z',
+              duty_end_at: '2026-09-06T09:00:00Z',
+              mobile_number: '09123456789'
+            }]
+          },
+          error: null
+        };
+      }
+      return { data: null, error: null };
+    };
+  });
+  await page.evaluate(() => loadDashboard());
+  await expect(page.locator('#liveRosterList')).toContainText('Live GPS');
+  await expect(page.locator('#liveRosterList')).toContainText('View on map');
+});

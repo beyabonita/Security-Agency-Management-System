@@ -1,6 +1,30 @@
 # Project Change Log
 
-### [2026-10-05 22:45] - Feat: Continuous 24h Shift Gap Auto-Sync & "Auto-Fix Gap" Action
+### [2026-10-05 23:20] - Fix: Synchronize Inspector Dashboard & My Guards On-Duty / Clock-In Status
+
+- **Scope & Objective**:
+  - Resolved discrepancy between Inspector Dashboard ("No Guards Currently On Duty") and My Guards (`(on duty)` badge) when guards have an active schedule window but haven't clocked in via the mobile app yet.
+  - Root Cause:
+    - `web/inspector/users.html` was marking guards as `(on duty)` purely based on current clock time falling within their scheduled shift (`now >= start && now <= end`), regardless of whether an open attendance session actually existed.
+    - `web/inspector/dashboard.html` only queried `live_guard_map_snapshot` RPC (which strictly filters for active open clock-ins in `attendance_sessions`), showing an empty table when guards were scheduled but awaiting mobile clock-in.
+  - Solution:
+    1. **Inspector Dashboard (`web/inspector/dashboard.html`)**:
+       - Updated `loadDashboard()` to combine live clock-ins from `live_guard_map_snapshot` with scheduled guards assigned to this inspector whose shifts are active right now (`now >= start && now <= end`).
+       - Clocked-in guards are rendered with `🟢 Live GPS` (or `🟡 Waiting GPS`) and `📍 View on map`.
+       - Scheduled guards awaiting clock-in are rendered with `⚪ Awaiting Clock-In`, direct phone contact (`📞 Call`), and status action `Awaiting Time In`.
+    2. **My Guards & DTR (`web/inspector/users.html`)**:
+       - Updated `loadGuards()` to fetch `live_guard_map_snapshot` and pass active session user IDs to `scheduleDutyLabel()`.
+       - If a guard is scheduled and clocked in: displays `📍 [Post] (Clocked in)` (`.ix-chip-active` green chip).
+       - If a guard is scheduled but has not clocked in yet: displays `⏳ [Post] (Scheduled · Awaiting Time In)` (`.ix-chip-waiting` warm amber chip).
+    3. **Inspector Theme (`web/inspector/css/inspector-theme.css`)**:
+       - Added `.ix-chip-active` and `.ix-chip-waiting` styling with full dark mode support.
+    4. **Automated Testing (`web/tests/inspector_team.spec.js`)**:
+       - Added comprehensive test verifying scheduled duty and distinguishing between "Awaiting Clock-In" and "Clocked In" across both the Inspector Dashboard and My Guards table.
+- **Verification & Testing**:
+  - `npm --prefix web/tests run test:playwright -- --grep "inspector"`: All 25 tests passed.
+  - `node web/tests/google_icons_test.js`: Passed (52 bundled symbols, 216 markup references).
+
+---
 
 - **Scope & Objective**:
   - Automatically eliminate gaps and overlaps across all roster setups (2, 3, or more shifts) when editing shift hours in the *Edit Shift Times* modal.

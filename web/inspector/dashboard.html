@@ -250,15 +250,15 @@ function formatShiftTime(start, end) {
     return sTime && eTime ? `${sTime} – ${eTime}` : sTime || '—';
 }
 
-function renderLiveRoster(locations) {
+function renderLiveRoster(rosterList) {
     const container = document.getElementById("liveRosterList");
     if (!container) return;
-    if (!locations.length) {
+    if (!rosterList.length) {
         container.innerHTML = `
             <div style="padding:32px 20px; text-align:center;">
                 <span class="material-symbols-rounded" style="font-size:40px; color:var(--ix-muted); margin-bottom:6px; display:inline-block;">event_busy</span>
-                <p style="margin:0; font-weight:700; font-size:0.95rem;">No Guards Currently On Duty</p>
-                <p style="margin:4px 0 0; font-size:0.82rem; color:var(--ix-muted);">There are no active guard clock-ins recorded for this shift.</p>
+                <p style="margin:0; font-weight:700; font-size:0.95rem;">No Guards Currently Scheduled or On Duty</p>
+                <p style="margin:4px 0 0; font-size:0.82rem; color:var(--ix-muted);">There are no assigned guards scheduled or clocked in for this shift right now.</p>
             </div>`;
         return;
     }
@@ -271,23 +271,30 @@ function renderLiveRoster(locations) {
                         <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Guard</th>
                         <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Assigned Post</th>
                         <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Shift Hours</th>
-                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">GPS Status</th>
+                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Status / GPS</th>
                         <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Contact</th>
-                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted); text-align:right;">Locate</th>
+                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted); text-align:right;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${locations.map(g => {
-                        const hasGps = Number.isFinite(g.latitude) && Number.isFinite(g.longitude);
-                        const gpsPill = hasGps
-                            ? '<span class="badge-status" style="background:#dcfce7; color:#15803d; font-weight:600;">🟢 Live GPS</span>'
-                            : '<span class="badge-status" style="background:#fef3c7; color:#b45309; font-weight:600;">🟡 Waiting GPS</span>';
+                    ${rosterList.map(g => {
+                        let statusPill = '';
+                        if (g.status === 'clocked_in') {
+                            statusPill = g.hasGps
+                                ? '<span class="badge-status" style="background:#dcfce7; color:#15803d; font-weight:600;">🟢 Live GPS</span>'
+                                : '<span class="badge-status" style="background:#fef3c7; color:#b45309; font-weight:600;">🟡 Waiting GPS</span>';
+                        } else {
+                            statusPill = '<span class="badge-status" style="background:#fff7ed; color:#c2410c; border:1px solid #fed7aa; font-weight:600;" title="Scheduled for this shift · Awaiting mobile clock-in">⚪ Awaiting Clock-In</span>';
+                        }
                         const postLabel = g.client_name || g.location_label || 'Assigned site';
                         const postAddress = g.location_address ? `<div style="font-size:0.76rem; color:var(--ax-muted);">${escapeHtml(g.location_address)}</div>` : '';
                         const shiftHours = formatShiftTime(g.duty_start_at, g.duty_end_at);
                         const phone = (g.mobile_number || g.contact_number || '').trim();
                         const phoneHtml = phone ? `<a href="tel:${escapeHtml(phone)}" style="color:var(--brand-primary,#b91c1c); text-decoration:none; font-weight:600;">📞 ${escapeHtml(phone)}</a>` : '<span style="color:var(--ax-muted);">—</span>';
                         const mapUrl = `live-tracking.html?guard=${encodeURIComponent(g.guard_name || '')}`;
+                        const actionHtml = g.canLocate
+                            ? `<a href="${mapUrl}" class="ax-btn" style="padding:5px 12px; font-size:0.78rem; text-decoration:none;">📍 View on map</a>`
+                            : `<span style="font-size:0.78rem; color:var(--ax-muted); font-style:italic; padding:5px 8px; display:inline-block;">Awaiting Time In</span>`;
 
                         return `<tr>
                             <td>
@@ -298,10 +305,10 @@ function renderLiveRoster(locations) {
                                 ${postAddress}
                             </td>
                             <td style="font-size:0.84rem; white-space:nowrap;">${escapeHtml(shiftHours)}</td>
-                            <td>${gpsPill}</td>
+                            <td>${statusPill}</td>
                             <td style="white-space:nowrap; font-size:0.84rem;">${phoneHtml}</td>
                             <td style="text-align:right; white-space:nowrap;">
-                                <a href="${mapUrl}" class="ax-btn" style="padding:5px 12px; font-size:0.78rem; text-decoration:none;">📍 View on map</a>
+                                ${actionHtml}
                             </td>
                         </tr>`;
                     }).join('')}
@@ -351,7 +358,18 @@ async function loadDashboard() {
         const assignedIds = new Set(guardSnapshot.docs.map(guard => guard.id));
         document.getElementById("totalGuards").innerText = assignedIds.size;
         let active = 0;
-        guardSnapshot.forEach(d => { if (d.data().active !== false) active++; });
+        const assignedGuards = new Map();
+        guardSnapshot.forEach(d => {
+            const u = d.data();
+            if (u.active !== false) active++;
+            const fullName = [u.firstName, u.middleInitial ? u.middleInitial + '.' : '', u.lastName].filter(Boolean).join(' ') || u.name || displayLoginId(u);
+            assignedGuards.set(d.id, {
+                id: d.id,
+                fullName,
+                phone: (u.contactNumber || u.mobileNumber || u.phone || '').trim(),
+                data: u
+            });
+        });
         document.getElementById("activeGuards").innerText = active;
         document.getElementById("activeGuardsLabel").innerText = assignedIds.size ? active + " currently active" : 'Operations Head has not assigned Guards to you yet.';
         document.getElementById("totalLocations").innerText = locationSnapshot.size;
@@ -380,7 +398,68 @@ async function loadDashboard() {
                 }
             } catch (_) {}
         }
-        renderLiveRoster(liveSnapshot.locations || []);
+
+        const now = new Date();
+        const rosterEntries = [];
+        const seenUserIds = new Set();
+
+        // 1. Clocked-in guards from live tracking snapshot
+        (liveSnapshot.locations || []).forEach(g => {
+            if (!g.user_id) return;
+            seenUserIds.add(g.user_id);
+            const guardInfo = assignedGuards.get(g.user_id);
+            const hasGps = Number.isFinite(g.latitude) && Number.isFinite(g.longitude);
+            rosterEntries.push({
+                user_id: g.user_id,
+                guard_name: g.guard_name || (guardInfo ? guardInfo.fullName : 'Guard'),
+                client_name: g.client_name || g.location_label || 'Assigned site',
+                location_label: g.location_label || 'Assigned site',
+                location_address: g.location_address || '',
+                duty_start_at: g.duty_start_at,
+                duty_end_at: g.duty_end_at,
+                status: 'clocked_in',
+                hasGps: hasGps,
+                mobile_number: (g.mobile_number || (guardInfo ? guardInfo.phone : '') || '').trim(),
+                canLocate: true,
+                order: hasGps ? 1 : 2
+            });
+        });
+
+        // 2. Scheduled guards assigned to this inspector whose shift is currently ongoing
+        (scheduleSnapshot.docs || []).forEach(doc => {
+            const s = doc.data();
+            const uid = s.userId;
+            if (!uid || !assignedGuards.has(uid) || seenUserIds.has(uid)) return;
+
+            const start = s.startAt && s.startAt.toDate ? s.startAt.toDate() : (s.startAt ? new Date(s.startAt) : null);
+            const end = s.endAt && s.endAt.toDate ? s.endAt.toDate() : (s.endAt ? new Date(s.endAt) : null);
+            if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) return;
+
+            const status = s.approval_status ?? s.approvalStatus;
+            if (status === 'cancelled' || status === 'draft' || s.markedDone === true || s.completedAt) return;
+
+            if (now >= start && now <= end) {
+                seenUserIds.add(uid);
+                const guardInfo = assignedGuards.get(uid);
+                rosterEntries.push({
+                    user_id: uid,
+                    guard_name: guardInfo ? guardInfo.fullName : 'Guard',
+                    client_name: s.locationLabel || 'Duty site',
+                    location_label: s.locationLabel || 'Duty site',
+                    location_address: s.locationAddress || '',
+                    duty_start_at: start,
+                    duty_end_at: end,
+                    status: 'awaiting_clock_in',
+                    hasGps: false,
+                    mobile_number: guardInfo ? guardInfo.phone : '',
+                    canLocate: false,
+                    order: 3
+                });
+            }
+        });
+
+        rosterEntries.sort((a, b) => a.order - b.order || (a.guard_name || '').localeCompare(b.guard_name || ''));
+        renderLiveRoster(rosterEntries);
     } catch (error) {
         if (window.appDialog) appDialog.toast('Some overview totals could not be loaded. Refresh to try again.', { tone: 'danger' });
     }

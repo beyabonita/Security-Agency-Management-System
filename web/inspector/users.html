@@ -232,24 +232,34 @@ auth.onAuthStateChanged(user => {
     });
 });
 
-function scheduleDutyLabel(uid, schedulesByUser) {
+function scheduleDutyLabel(uid, schedulesByUser, clockedInUserIds = new Set(), liveInfoByUser = new Map()) {
     const now = new Date();
     const list = (schedulesByUser[uid] || []).filter(schedule => isVisibleSchedule(schedule, now));
 
     const active = list.find(s => {
-        const start = s.startAt && s.startAt.toDate ? s.startAt.toDate() : null;
-        const end = s.endAt && s.endAt.toDate ? s.endAt.toDate() : null;
+        const start = s.startAt && s.startAt.toDate ? s.startAt.toDate() : (s.startAt ? new Date(s.startAt) : null);
+        const end = s.endAt && s.endAt.toDate ? s.endAt.toDate() : (s.endAt ? new Date(s.endAt) : null);
         return start && end && now >= start && now <= end;
     });
     if (active) {
         const label = active.locationLabel || "Duty site";
-        return `<span class="ix-chip"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">location_on</span>${escapeHtml(label)} (on duty)</span>`;
+        const isClockedIn = clockedInUserIds.has(uid);
+        if (isClockedIn) {
+            return `<span class="ix-chip ix-chip-active" title="Clocked in and on active duty"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">location_on</span>${escapeHtml(label)} (Clocked in)</span>`;
+        }
+        return `<span class="ix-chip ix-chip-waiting" title="Scheduled for this shift · Awaiting mobile clock-in"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">hourglass_empty</span>${escapeHtml(label)} (Scheduled · Awaiting Time In)</span>`;
+    }
+
+    if (clockedInUserIds.has(uid)) {
+        const live = liveInfoByUser.get(uid);
+        const label = live?.client_name || live?.location_label || "Duty site";
+        return `<span class="ix-chip ix-chip-active" title="Clocked in and on active duty"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">location_on</span>${escapeHtml(label)} (Clocked in)</span>`;
     }
 
     const upcoming = list
         .map(s => ({
             ...s,
-            start: s.startAt && s.startAt.toDate ? s.startAt.toDate() : null,
+            start: s.startAt && s.startAt.toDate ? s.startAt.toDate() : (s.startAt ? new Date(s.startAt) : null),
         }))
         .filter(s => s.start && s.start > now)
         .sort((a, b) => a.start - b.start)[0];
@@ -366,11 +376,20 @@ async function viewGuardSchedule(uid) {
 
 function loadGuards() {
     const refreshVersion = ++guardRefreshVersion;
+    const fetchLiveLocations = window.appSupabase && typeof appSupabase.rpc === 'function'
+        ? appSupabase.rpc('live_guard_map_snapshot').catch(() => ({ data: { locations: [] } }))
+        : Promise.resolve({ data: { locations: [] } });
+
     return Promise.all([
         db.collection("users").where("role", "==", "user").where('inspector_id', '==', inspectorUserId).get(),
         db.collection("schedules").get(),
-    ]).then(([userSnap, schedSnap]) => {
+        fetchLiveLocations
+    ]).then(([userSnap, schedSnap, liveRes]) => {
         if (refreshVersion !== guardRefreshVersion) return false;
+        const liveLocations = (liveRes && liveRes.data && Array.isArray(liveRes.data.locations)) ? liveRes.data.locations : [];
+        const clockedInUserIds = new Set(liveLocations.map(l => l.user_id));
+        const liveInfoByUser = new Map(liveLocations.map(l => [l.user_id, l]));
+
         const schedulesByUser = {};
         schedSnap.forEach(doc => {
             const s = doc.data();
@@ -393,7 +412,7 @@ function loadGuards() {
                 ? `<span class="ix-badge ix-badge-ok">Active</span>`
                 : `<span class="ix-badge ix-badge-off">Disabled</span>`;
 
-            const dutyHtml = scheduleDutyLabel(doc.id, schedulesByUser);
+            const dutyHtml = scheduleDutyLabel(doc.id, schedulesByUser, clockedInUserIds, liveInfoByUser);
 
             html += `
             <tr>
