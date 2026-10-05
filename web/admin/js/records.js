@@ -197,7 +197,11 @@
                 <td><span class="rec-badge ${empBadgeClass}">${escapeHtml(p.employmentStatus)}</span></td>
                 <td><span class="rec-badge ${contBadgeClass}">${escapeHtml(p.contractStatus)}</span></td>
                 <td>${escapeHtml(p.dateHired)}</td>
-                <td class="col-muted">${escapeHtml(p.dateEnded)}</td>
+                <td class="col-muted">${p.dateEnded
+                    ? (p.dateEndedExpired
+                        ? `<span class="rec-badge rec-badge-expired" style="font-size:0.7rem;">${escapeHtml(p.dateEnded)}</span>`
+                        : escapeHtml(p.dateEnded))
+                    : '<span class="rec-badge rec-badge-active" style="font-size:0.7rem;opacity:0.75;">Still Active</span>'}</td>
                 <td>${escapeHtml(p.assignedPost)}</td>
                 <td>${escapeHtml(p.shift)}</td>
             </tr>`;
@@ -491,7 +495,24 @@
                 const employmentStatus = p.removed_at ? 'Archived' : (p.active ? 'Active' : 'Inactive');
                 const contractStatus = p.contract_status || (p.active ? 'Active' : 'Expired');
                 const dateHired = formatDate(p.date_hired || p.created_at);
-                const dateEnded = p.removed_at ? formatDate(p.removed_at) : '—';
+
+                // Date Ended logic:
+                // 1. Archived guard → show removal date
+                // 2. Contract guard with past end date → show contract end date (expired)
+                // 3. Still active → null (renders as "Still Active" badge)
+                let dateEnded = null;
+                let dateEndedExpired = false;
+                if (p.removed_at) {
+                    dateEnded = formatDate(p.removed_at);
+                } else if (p.contract_end_date) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const contractEnd = new Date(p.contract_end_date);
+                    if (contractEnd < today) {
+                        dateEnded = formatDate(p.contract_end_date);
+                        dateEndedExpired = true;
+                    }
+                }
 
                 let assignedPost = 'Unassigned';
                 let locationId = '';
@@ -516,6 +537,7 @@
                     contractStatus,
                     dateHired,
                     dateEnded,
+                    dateEndedExpired,
                     assignedPost,
                     locationId,
                     shift,
