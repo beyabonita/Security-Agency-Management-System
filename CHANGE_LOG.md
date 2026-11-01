@@ -1,5 +1,26 @@
 # Project Change Log
 
+### [2026-11-01 12:56] - UI: Show Required-Field Badges, Red Borders, and Inline Format Errors Only on Validation Failure in Create Guard Modal
+
+- **Scope & Objective**:
+  - Updated the **Create Guard or Inspector** modal (`#createGuardModal` in [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html)) so `"Required"` pill badges, red input borders, and the top banner stay hidden initially and appear only when validation fails (on submit or `blur`), clearing in real time as fields are fixed and resetting cleanly when the modal closes or reopens.
+- **Files Modified**:
+  - [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html):
+    - Hid `#createGuardRequiredLegend` (`"Please fill out the required fields."`) and all `.badge-field-required` badges in `#createGuardModal` by default (`hidden`).
+    - Added `.is-field-invalid` red border styles and `.field-inline-error` field-level error message styles with full `html[data-theme="dark"]` dark mode support.
+    - Added `#newGuardUsernameError` and `#newGuardMobileNumberError` inline error containers directly beneath `Email (Login Username)` and `Phone / Contact Number` to validate email format and 11-digit `09XXXXXXXXX` phone format on `blur` and submit.
+    - Implemented `bindCreateGuardRealtimeValidation()`, `setCreateGuardRequiredState()`, `setCreateGuardInlineError()`, `syncCreateGuardLegendBanner()`, `clearCreateGuardValidationState()`, and `focusInvalidCreateField()` to:
+      - Show `"Required"` badge + red border when a required field is left empty on `blur` or on submit (`Account Role`, `Duty Category`, `Personnel ID`, `First Name`, `Last Name`, `Email`, plus `Contract Start`/`End` when `Contract` is chosen, and `Password`/`Confirm Password`).
+      - Auto-scroll smoothly (`scrollIntoView({ behavior: "smooth", block: "center" })`) and `.focus()` the first missing/invalid field on submit.
+      - Remove badges, red borders, inline errors, and the top banner immediately on `input`/`change` as the user fills in or fixes fields.
+      - Reset all validation indicators via `resetCreateGuardModal()` whenever the modal closes (`hidden.bs.modal`) or reopens (`openPersonnelCreate()`).
+  - [`web/tests/personnel_profile.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/personnel_profile.spec.js):
+    - Updated Playwright test coverage to verify clean initial state (no badges/banner), `blur` empty-field indicator, submit-time selective `"Required"` badges + red borders + top banner + focus on first missing field, inline Email and 11-digit `09...` Phone error messages, instant live clearing on input, and full reset on modal reopen.
+- **Verification & Testing**:
+  - Validated inline JavaScript syntax in `web/admin/users.html`: 0 errors.
+  - Verified bundled Material Symbols via `node web/tests/google_icons_test.js`: Passed.
+  - Ran Playwright test suites `personnel_profile.spec.js` and `contract_personnel.spec.js`: 9/9 passed.
+
 ### [2026-11-01 12:32] - UI: Add "Required" Pill Badges and Top Legend to Personnel Form Modals
 
 - **Scope & Objective**:

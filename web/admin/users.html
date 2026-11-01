@@ -504,6 +504,33 @@ html[data-theme="dark"] .form-required-legend {
     border-left-color: #ef4444;
     color: var(--sl-muted);
 }
+.badge-field-required[hidden],
+.form-required-legend[hidden],
+.field-inline-error[hidden] {
+    display: none !important;
+}
+.ax-modal .form-control.is-field-invalid,
+.ax-modal .form-select.is-field-invalid {
+    border-color: var(--sl-danger, #dc2626) !important;
+    background-color: rgba(220, 38, 38, 0.03);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+html[data-theme="dark"] .ax-modal .form-control.is-field-invalid,
+html[data-theme="dark"] .ax-modal .form-select.is-field-invalid {
+    border-color: #f87171 !important;
+    background-color: rgba(239, 68, 68, 0.08);
+    box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.18);
+}
+.field-inline-error {
+    margin-top: 5px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--sl-danger, #dc2626);
+    line-height: 1.35;
+}
+html[data-theme="dark"] .field-inline-error {
+    color: #fca5a5;
+}
 .form-control, .form-select {
     background: var(--sl-surface-muted); border: 1px solid var(--sl-line); color: var(--sl-ink);
     border-radius: 10px; padding: 10px 14px; font-size: 0.875rem;
@@ -1059,36 +1086,36 @@ html[data-theme="dark"] .form-required-legend {
 </div>
 <div class="modal-body">
     <p class="modal-guard-meta" id="createUserRoleHint">Creates login credentials and complete personnel file. Guards use the mobile app; inspectors and admins use the web panel.</p>
-    <div class="form-required-legend" id="createGuardRequiredLegend" role="note">
+    <div class="form-required-legend" id="createGuardRequiredLegend" role="alert" hidden>
         <span class="badge-field-required" aria-hidden="true">Required</span>
-        <span>Fields marked with this badge must be filled out before creating the account.</span>
+        <span id="createGuardRequiredLegendText">Please fill out the required fields.</span>
     </div>
     
     <!-- Account & Identification -->
     <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">person</span>Account & Identification</div>
     <div class="row g-3">
         <div class="col-md-4">
-            <label class="form-label" for="newGuardRole">ACCOUNT ROLE <span class="badge-field-required">Required</span></label>
-            <select id="newGuardRole" class="form-select" required onchange="updateCreateUserHint()">
+            <label class="form-label" for="newGuardRole">ACCOUNT ROLE <span class="badge-field-required" hidden>Required</span></label>
+            <select id="newGuardRole" class="form-select" aria-required="true" onchange="updateCreateUserHint()">
                 <option value="user">Guard — mobile attendance app</option>
                 <option value="inspector">Inspector — field review & approvals</option>
             </select>
         </div>
         <div class="col-md-4">
-            <label class="form-label" for="newGuardEmploymentCategory">DUTY CATEGORY <span class="badge-field-required">Required</span></label>
-            <select id="newGuardEmploymentCategory" class="form-select" required onchange="updateCreateUserHint()">
+            <label class="form-label" for="newGuardEmploymentCategory">DUTY CATEGORY <span class="badge-field-required" hidden>Required</span></label>
+            <select id="newGuardEmploymentCategory" class="form-select" aria-required="true" onchange="updateCreateUserHint()">
                 <option value="regular">Regular</option>
                 <option value="contract">Contract</option>
             </select>
         </div>
         <div class="col-md-4">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1">
-                <label class="form-label mb-0" for="newGuardPersonnelId">PERSONNEL ID <span class="badge-field-required">Required</span></label>
+                <label class="form-label mb-0" for="newGuardPersonnelId">PERSONNEL ID <span class="badge-field-required" hidden>Required</span></label>
                 <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" style="font-size:0.72rem; color:var(--sl-danger); font-weight:600;" onclick="regenerateNewGuardPersonnelId()" title="Regenerate Personnel ID">
                     <span class="material-symbols-rounded align-middle" style="font-size:14px;" aria-hidden="true">refresh</span> Auto-generate
                 </button>
             </div>
-            <input type="text" id="newGuardPersonnelId" class="form-control" placeholder="e.g. SEC-2026-001" required>
+            <input type="text" id="newGuardPersonnelId" class="form-control" placeholder="e.g. SEC-2026-001" aria-required="true">
         </div>
     </div>
 
@@ -1097,16 +1124,16 @@ html[data-theme="dark"] .form-required-legend {
     <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">person</span>Personal Information</div>
     <div class="row g-3">
         <div class="col-md-4">
-            <label class="form-label" for="newGuardFirstName">FIRST NAME <span class="badge-field-required">Required</span></label>
-            <input type="text" id="newGuardFirstName" class="form-control personnel-name-input" placeholder="e.g. Juan" required oninput="autoCapitalizeWords(this)">
+            <label class="form-label" for="newGuardFirstName">FIRST NAME <span class="badge-field-required" hidden>Required</span></label>
+            <input type="text" id="newGuardFirstName" class="form-control personnel-name-input" placeholder="e.g. Juan" aria-required="true" oninput="autoCapitalizeWords(this)">
         </div>
         <div class="col-md-4">
             <label class="form-label" for="newGuardMiddleName">MIDDLE NAME</label>
             <input type="text" id="newGuardMiddleName" class="form-control personnel-name-input" placeholder="e.g. Dela Cruz" oninput="autoCapitalizeWords(this)">
         </div>
         <div class="col-md-4">
-            <label class="form-label" for="newGuardLastName">LAST NAME <span class="badge-field-required">Required</span></label>
-            <input type="text" id="newGuardLastName" class="form-control personnel-name-input" placeholder="e.g. Santos" required oninput="autoCapitalizeWords(this)">
+            <label class="form-label" for="newGuardLastName">LAST NAME <span class="badge-field-required" hidden>Required</span></label>
+            <input type="text" id="newGuardLastName" class="form-control personnel-name-input" placeholder="e.g. Santos" aria-required="true" oninput="autoCapitalizeWords(this)">
         </div>
         <div class="col-md-4">
             <label class="form-label" for="newGuardDob">DATE OF BIRTH</label>
@@ -1134,13 +1161,15 @@ html[data-theme="dark"] .form-required-legend {
             <input type="text" id="newGuardAddress" class="form-control" placeholder="House/Lot, Street, Barangay, City/Municipality, Province">
         </div>
         <div class="col-md-6">
-            <label class="form-label" for="newGuardUsername">EMAIL (LOGIN USERNAME) <span class="badge-field-required">Required</span></label>
-            <input type="email" id="newGuardUsername" class="form-control" placeholder="name@gmail.com" autocomplete="off" required>
+            <label class="form-label" for="newGuardUsername">EMAIL (LOGIN USERNAME) <span class="badge-field-required" hidden>Required</span></label>
+            <input type="email" id="newGuardUsername" class="form-control" placeholder="name@gmail.com" autocomplete="off" aria-required="true" aria-describedby="newGuardUsernameError">
+            <div class="field-inline-error" id="newGuardUsernameError" role="alert" hidden></div>
             <div class="form-text" style="color:var(--sl-muted);font-size:0.75rem;">Use the person’s own email address.</div>
         </div>
         <div class="col-md-6">
             <label class="form-label" for="newGuardMobileNumber">PHONE / CONTACT NUMBER</label>
-            <input type="tel" id="newGuardMobileNumber" class="form-control" placeholder="09171234567" maxlength="11" autocomplete="tel">
+            <input type="tel" id="newGuardMobileNumber" class="form-control" placeholder="09171234567" maxlength="11" inputmode="numeric" autocomplete="tel" aria-describedby="newGuardMobileNumberError">
+            <div class="field-inline-error" id="newGuardMobileNumberError" role="alert" hidden></div>
             <div class="form-text" style="color:var(--sl-muted);font-size:0.75rem;">11-digit mobile starting with 09.</div>
         </div>
     </div>
@@ -1164,8 +1193,8 @@ html[data-theme="dark"] .form-required-legend {
         </div>
     </div>
     <div id="newGuardContractPeriod" class="row g-3 mt-1" hidden>
-        <div class="col-sm-6"><label class="form-label" for="newGuardContractStart">CONTRACT START <span class="badge-field-required">Required</span></label><input id="newGuardContractStart" type="date" class="form-control"></div>
-        <div class="col-sm-6"><label class="form-label" for="newGuardContractEnd">CONTRACT END <span class="badge-field-required">Required</span></label><input id="newGuardContractEnd" type="date" class="form-control"></div>
+        <div class="col-sm-6"><label class="form-label" for="newGuardContractStart">CONTRACT START <span class="badge-field-required" hidden>Required</span></label><input id="newGuardContractStart" type="date" class="form-control"></div>
+        <div class="col-sm-6"><label class="form-label" for="newGuardContractEnd">CONTRACT END <span class="badge-field-required" hidden>Required</span></label><input id="newGuardContractEnd" type="date" class="form-control"></div>
         <div class="col-12 form-text">Both dates are included. All duty periods must fit inside this contract.</div>
     </div>
 
@@ -1198,9 +1227,9 @@ html[data-theme="dark"] .form-required-legend {
     <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">lock</span>Password Credentials</div>
     <div class="row g-3">
         <div class="col-md-6">
-            <label class="form-label" for="newGuardPassword">PASSWORD <span class="badge-field-required">Required</span></label>
+            <label class="form-label" for="newGuardPassword">PASSWORD <span class="badge-field-required" hidden>Required</span></label>
             <div class="password-field-wrap">
-                <input type="password" id="newGuardPassword" class="form-control" autocomplete="new-password" minlength="8" placeholder="8+ characters: uppercase, lowercase, number, symbol" aria-describedby="newGuardPasswordHelp" required>
+                <input type="password" id="newGuardPassword" class="form-control" autocomplete="new-password" minlength="8" placeholder="8+ characters: uppercase, lowercase, number, symbol" aria-describedby="newGuardPasswordHelp" aria-required="true">
                 <button type="button" class="btn-toggle-password" id="newGuardPasswordToggle" onclick="togglePasswordVisibility('newGuardPassword', this)" aria-label="Show password" title="Show password" aria-controls="newGuardPassword" aria-pressed="false">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="m3 3 18 18" style="display:none"/></svg>
                 </button>
@@ -1208,9 +1237,9 @@ html[data-theme="dark"] .form-required-legend {
             <small id="newGuardPasswordHelp">At least 8 characters with upper, lower, number, and symbol.</small>
         </div>
         <div class="col-md-6">
-            <label class="form-label" for="newGuardPasswordConfirm">CONFIRM PASSWORD <span class="badge-field-required">Required</span></label>
+            <label class="form-label" for="newGuardPasswordConfirm">CONFIRM PASSWORD <span class="badge-field-required" hidden>Required</span></label>
             <div class="password-field-wrap">
-                <input type="password" id="newGuardPasswordConfirm" class="form-control" placeholder="Repeat password" required>
+                <input type="password" id="newGuardPasswordConfirm" class="form-control" placeholder="Repeat password" aria-required="true">
                 <button type="button" class="btn-toggle-password" id="newGuardPasswordConfirmToggle" onclick="togglePasswordVisibility('newGuardPasswordConfirm', this)" aria-label="Show password" title="Show password" aria-controls="newGuardPasswordConfirm" aria-pressed="false">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="m3 3 18 18" style="display:none"/></svg>
                 </button>
@@ -3071,18 +3100,142 @@ async function editPersonnel(uid, button) {
     openEditPersonnelModal(uid);
 }
 
+const CREATE_GUARD_REQUIRED_IDS = [
+    "newGuardRole",
+    "newGuardEmploymentCategory",
+    "newGuardPersonnelId",
+    "newGuardFirstName",
+    "newGuardLastName",
+    "newGuardUsername",
+    "newGuardContractStart",
+    "newGuardContractEnd",
+    "newGuardPassword",
+    "newGuardPasswordConfirm"
+];
+
+function isCreateGuardFieldApplicable(id) {
+    if (id === "newGuardContractStart" || id === "newGuardContractEnd") {
+        const role = document.getElementById("newGuardRole")?.value;
+        const cat = document.getElementById("newGuardEmploymentCategory")?.value;
+        return role === "user" && cat === "contract";
+    }
+    if (id === "newGuardEmploymentCategory") {
+        return !document.getElementById(id)?.disabled;
+    }
+    return true;
+}
+
+function getCreateGuardFieldBadge(id) {
+    return document.querySelector(`#createGuardModal label[for="${id}"] .badge-field-required`);
+}
+
+function getCreateGuardFieldRawValue(id) {
+    const el = document.getElementById(id);
+    if (!el) return "";
+    return (id === "newGuardPassword" || id === "newGuardPasswordConfirm")
+        ? el.value
+        : el.value.trim();
+}
+
+function setCreateGuardInlineError(errorId, inputEl, message) {
+    const errEl = document.getElementById(errorId);
+    if (errEl) {
+        errEl.textContent = message || "";
+        errEl.hidden = !message;
+    }
+    if (inputEl) {
+        if (message) {
+            inputEl.classList.add("is-field-invalid");
+            inputEl.setAttribute("aria-invalid", "true");
+        } else {
+            const badge = getCreateGuardFieldBadge(inputEl.id);
+            if (!badge || badge.hidden) {
+                inputEl.classList.remove("is-field-invalid");
+                inputEl.removeAttribute("aria-invalid");
+            }
+        }
+    }
+}
+
+function setCreateGuardRequiredState(id, isMissing) {
+    const inputEl = document.getElementById(id);
+    const badge = getCreateGuardFieldBadge(id);
+    if (badge) badge.hidden = !isMissing;
+    if (inputEl) {
+        if (isMissing) {
+            inputEl.classList.add("is-field-invalid");
+            inputEl.setAttribute("aria-invalid", "true");
+        } else {
+            const inlineErr =
+                id === "newGuardUsername" ? document.getElementById("newGuardUsernameError") :
+                id === "newGuardMobileNumber" ? document.getElementById("newGuardMobileNumberError") : null;
+            if (!inlineErr || inlineErr.hidden) {
+                inputEl.classList.remove("is-field-invalid");
+                inputEl.removeAttribute("aria-invalid");
+            }
+        }
+    }
+}
+
+function syncCreateGuardLegendBanner() {
+    const legend = document.getElementById("createGuardRequiredLegend");
+    if (!legend) return;
+    const anyBadgeVisible = CREATE_GUARD_REQUIRED_IDS.some(id => {
+        const badge = getCreateGuardFieldBadge(id);
+        return badge && !badge.hidden;
+    });
+    if (!anyBadgeVisible) {
+        legend.hidden = true;
+    }
+}
+
+function clearCreateGuardValidationState() {
+    const legend = document.getElementById("createGuardRequiredLegend");
+    if (legend) legend.hidden = true;
+    document.querySelectorAll("#createGuardModal .badge-field-required").forEach(badge => {
+        if (!badge.closest("#createGuardRequiredLegend")) badge.hidden = true;
+    });
+    document.querySelectorAll("#createGuardModal .form-control, #createGuardModal .form-select").forEach(el => {
+        el.classList.remove("is-field-invalid");
+        el.removeAttribute("aria-invalid");
+    });
+    setCreateGuardInlineError("newGuardUsernameError", null, "");
+    setCreateGuardInlineError("newGuardMobileNumberError", null, "");
+    const errEl = document.getElementById("createGuardError");
+    if (errEl) errEl.innerText = "";
+}
+
+function focusInvalidCreateField(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    try {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch (_) {}
+    try {
+        el.focus({ preventScroll: true });
+    } catch (_) {
+        try { el.focus(); } catch (__) {}
+    }
+}
+
 function updateCreateUserHint() {
     const role = document.getElementById("newGuardRole").value;
     const hint = document.getElementById("createUserRoleHint");
     const category = document.getElementById("newGuardEmploymentCategory");
     category.disabled = role !== "user";
-    if (role !== "user") category.value = "regular";
+    if (role !== "user") {
+        category.value = "regular";
+        setCreateGuardRequiredState("newGuardEmploymentCategory", false);
+    }
     const isContract = role === 'user' && category.value === 'contract';
     document.getElementById('newGuardContractPeriod').hidden = !isContract;
     ['newGuardContractStart', 'newGuardContractEnd'].forEach(id => {
-        document.getElementById(id).disabled = !isContract;
-        document.getElementById(id).required = isContract;
+        const el = document.getElementById(id);
+        el.disabled = !isContract;
+        el.setAttribute('aria-required', String(isContract));
+        if (!isContract) setCreateGuardRequiredState(id, false);
     });
+    syncCreateGuardLegendBanner();
     hint.innerText = role === "user"
         ? "Creates a Guard account for your organization. Guards use the mobile attendance app."
         : "Creates an Inspector account for your organization. Inspectors review Guard DTR, sites, alerts, and field activity.";
@@ -3203,6 +3356,7 @@ function resetCreateGuardModal() {
 
     resetPasswordVisibility('newGuardPassword', document.getElementById('newGuardPasswordToggle'));
     resetPasswordVisibility('newGuardPasswordConfirm', document.getElementById('newGuardPasswordConfirmToggle'));
+    clearCreateGuardValidationState();
     updateCreateUserHint();
 }
 
@@ -3211,7 +3365,96 @@ function openPersonnelCreate() {
     bootstrap.Modal.getOrCreateInstance(document.getElementById("createGuardModal")).show();
 }
 
-document.getElementById("createGuardModal")?.addEventListener("hidden.bs.modal", resetCreateGuardModal);
+(function bindCreateGuardRealtimeValidation() {
+    const modal = document.getElementById("createGuardModal");
+    if (!modal) return;
+    modal.addEventListener("hidden.bs.modal", resetCreateGuardModal);
+
+    modal.addEventListener("focusout", event => {
+        const target = event.target;
+        if (!target || !target.id) return;
+        // Skip blur validation when focus moves to modal close/cancel buttons
+        const nextTarget = event.relatedTarget;
+        if (nextTarget && (nextTarget.hasAttribute("data-bs-dismiss") || nextTarget.classList?.contains("btn-toggle-password"))) {
+            return;
+        }
+        if (CREATE_GUARD_REQUIRED_IDS.includes(target.id)) {
+            if (!isCreateGuardFieldApplicable(target.id)) return;
+            const val = getCreateGuardFieldRawValue(target.id);
+            if (!val) {
+                if (target.id === "newGuardUsername") {
+                    setCreateGuardInlineError("newGuardUsernameError", target, "");
+                }
+                setCreateGuardRequiredState(target.id, true);
+            } else {
+                setCreateGuardRequiredState(target.id, false);
+                syncCreateGuardLegendBanner();
+                if (target.id === "newGuardUsername") {
+                    const emailErr = validateEmail(val);
+                    setCreateGuardInlineError("newGuardUsernameError", target, emailErr || "");
+                }
+            }
+        } else if (target.id === "newGuardMobileNumber") {
+            const val = target.value.trim();
+            const phoneErr = val && !/^09[0-9]{9}$/.test(val)
+                ? "Please enter an 11-digit mobile number starting with 09 (e.g. 09171234567)."
+                : "";
+            setCreateGuardInlineError("newGuardMobileNumberError", target, phoneErr);
+        }
+    });
+
+    const handleLiveFieldChange = event => {
+        const target = event.target;
+        if (!target || !target.id) return;
+
+        if (target.id === "newGuardMobileNumber") {
+            const cleaned = target.value.replace(/[^0-9]/g, "").slice(0, 11);
+            if (target.value !== cleaned) target.value = cleaned;
+            const errEl = document.getElementById("newGuardMobileNumberError");
+            if (errEl && !errEl.hidden && (!cleaned || /^09[0-9]{9}$/.test(cleaned))) {
+                setCreateGuardInlineError("newGuardMobileNumberError", target, "");
+            }
+            return;
+        }
+
+        if (!CREATE_GUARD_REQUIRED_IDS.includes(target.id)) return;
+        const val = getCreateGuardFieldRawValue(target.id);
+        if (val) {
+            setCreateGuardRequiredState(target.id, false);
+            syncCreateGuardLegendBanner();
+        }
+        if (target.id === "newGuardUsername") {
+            const emailErrEl = document.getElementById("newGuardUsernameError");
+            if (emailErrEl && !emailErrEl.hidden && (!val || !validateEmail(val))) {
+                setCreateGuardInlineError("newGuardUsernameError", target, "");
+            }
+        } else if (target.id === "newGuardPassword" && val && !PasswordPolicy.error(val)) {
+            target.classList.remove("is-field-invalid");
+            target.removeAttribute("aria-invalid");
+            const cfEl = document.getElementById("newGuardPasswordConfirm");
+            if (cfEl && cfEl.value && cfEl.value === val) {
+                cfEl.classList.remove("is-field-invalid");
+                cfEl.removeAttribute("aria-invalid");
+            }
+        } else if (target.id === "newGuardPasswordConfirm" && val && val === document.getElementById("newGuardPassword")?.value) {
+            target.classList.remove("is-field-invalid");
+            target.removeAttribute("aria-invalid");
+        } else if (target.id === "newGuardContractStart" || target.id === "newGuardContractEnd") {
+            const s = document.getElementById("newGuardContractStart")?.value;
+            const e = document.getElementById("newGuardContractEnd")?.value;
+            if (s && e && !ContractPeriod.validate("contract", s, e)) {
+                ["newGuardContractStart", "newGuardContractEnd"].forEach(cid => {
+                    const cel = document.getElementById(cid);
+                    cel?.classList.remove("is-field-invalid");
+                    cel?.removeAttribute("aria-invalid");
+                });
+            }
+        }
+    };
+
+    modal.addEventListener("input", handleLiveFieldChange);
+    modal.addEventListener("change", handleLiveFieldChange);
+})();
 
 async function assertUniquePersonnelIdentifiers({ mobileNumber, personnelId, excludeUserId = null }) {
     const normMobile = String(mobileNumber || "").trim();
@@ -3301,29 +3544,90 @@ async function createGuardAccount() {
 
     const contractStartDate = document.getElementById('newGuardContractStart').value;
     const contractEndDate = document.getElementById('newGuardContractEnd').value;
-    const contractError = ContractPeriod.validate(role === 'user' ? employmentCategory : 'regular', contractStartDate, contractEndDate);
-    if (contractError) { errEl.innerText = contractError; return; }
 
-    if (!personnelId || !firstName || !lastName || !username || !password) {
-        errEl.innerText = "Please complete all required fields.";
+    const missingIds = [];
+    for (const id of CREATE_GUARD_REQUIRED_IDS) {
+        if (!isCreateGuardFieldApplicable(id)) {
+            setCreateGuardRequiredState(id, false);
+            continue;
+        }
+        const val = getCreateGuardFieldRawValue(id);
+        const isMissing = !val;
+        setCreateGuardRequiredState(id, isMissing);
+        if (isMissing) missingIds.push(id);
+    }
+
+    const legend = document.getElementById("createGuardRequiredLegend");
+    if (legend) legend.hidden = missingIds.length === 0;
+
+    const usernameErr = username ? validateEmail(username) : null;
+    setCreateGuardInlineError("newGuardUsernameError", document.getElementById("newGuardUsername"), usernameErr || "");
+
+    const mobileErr = mobileNumber && !/^09[0-9]{9}$/.test(mobileNumber)
+        ? "Please enter an 11-digit mobile number starting with 09 (e.g. 09171234567)."
+        : "";
+    setCreateGuardInlineError("newGuardMobileNumberError", document.getElementById("newGuardMobileNumber"), mobileErr);
+
+    const domOrderIds = [
+        "newGuardRole",
+        "newGuardEmploymentCategory",
+        "newGuardPersonnelId",
+        "newGuardFirstName",
+        "newGuardLastName",
+        "newGuardUsername",
+        "newGuardMobileNumber",
+        "newGuardContractStart",
+        "newGuardContractEnd",
+        "newGuardPassword",
+        "newGuardPasswordConfirm"
+    ];
+    const firstInvalidId = domOrderIds.find(id => {
+        const el = document.getElementById(id);
+        return el && !el.disabled && el.classList.contains("is-field-invalid");
+    });
+
+    const contractError = ContractPeriod.validate(role === 'user' ? employmentCategory : 'regular', contractStartDate, contractEndDate);
+    if (contractError) {
+        if (contractStartDate && contractEndDate) {
+            const endEl = document.getElementById('newGuardContractEnd');
+            endEl?.classList.add('is-field-invalid');
+            endEl?.setAttribute('aria-invalid', 'true');
+        }
+        errEl.innerText = contractError;
+        focusInvalidCreateField(firstInvalidId || (!contractStartDate ? 'newGuardContractStart' : 'newGuardContractEnd'));
         return;
     }
-    const usernameErr = validateEmail(username);
+
+    if (missingIds.length > 0) {
+        errEl.innerText = "Please complete all required fields.";
+        focusInvalidCreateField(firstInvalidId || missingIds[0]);
+        return;
+    }
     if (usernameErr) {
         errEl.innerText = usernameErr;
+        focusInvalidCreateField(firstInvalidId || "newGuardUsername");
         return;
     }
-    if (mobileNumber && !/^09[0-9]{9}$/.test(mobileNumber)) {
-        errEl.innerText = "Please enter an 11-digit mobile number starting with 09 (e.g. 09171234567).";
+    if (mobileErr) {
+        errEl.innerText = mobileErr;
+        focusInvalidCreateField(firstInvalidId || "newGuardMobileNumber");
         return;
     }
     const normalizedUsername = normalizeUsername(username);
     if (PasswordPolicy.error(password)) {
+        const pwEl = document.getElementById("newGuardPassword");
+        pwEl?.classList.add("is-field-invalid");
+        pwEl?.setAttribute("aria-invalid", "true");
         errEl.innerText = PasswordPolicy.error(password);
+        focusInvalidCreateField("newGuardPassword");
         return;
     }
     if (password !== confirm) {
+        const cfEl = document.getElementById("newGuardPasswordConfirm");
+        cfEl?.classList.add("is-field-invalid");
+        cfEl?.setAttribute("aria-invalid", "true");
         errEl.innerText = "Passwords do not match.";
+        focusInvalidCreateField("newGuardPasswordConfirm");
         return;
     }
 
@@ -3520,7 +3824,11 @@ function generateNextPersonnelId() {
 
 function regenerateNewGuardPersonnelId() {
     const el = document.getElementById("newGuardPersonnelId");
-    if (el) el.value = generateNextPersonnelId();
+    if (el) {
+        el.value = generateNextPersonnelId();
+        setCreateGuardRequiredState("newGuardPersonnelId", false);
+        syncCreateGuardLegendBanner();
+    }
 }
 
 function regenerateEditGuardPersonnelId() {

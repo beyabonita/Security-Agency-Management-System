@@ -596,11 +596,10 @@ test('prevents duplicate registration of an already registered mobile number or 
   await page.goto('/admin/users.html');
   await expect(page.locator('#guardPersonnelCount')).toHaveText('2');
 
-  // 1. Verify Required pill badges + top legend on Create Guard modal, then test duplicate mobile number
+  // 1. Initial state: no REQUIRED badges, no red borders, and top banner hidden
   await page.evaluate(() => openPersonnelCreate());
   await expect(page.locator('#createGuardModal')).toBeVisible();
-  await expect(page.locator('#createGuardRequiredLegend')).toBeVisible();
-  await expect(page.locator('#createGuardRequiredLegend')).toContainText('Fields marked with this badge must be filled out');
+  await expect(page.locator('#createGuardRequiredLegend')).toBeHidden();
   for (const id of [
     'newGuardRole',
     'newGuardEmploymentCategory',
@@ -611,25 +610,77 @@ test('prevents duplicate registration of an already registered mobile number or 
     'newGuardPassword',
     'newGuardPasswordConfirm'
   ]) {
-    await expect(page.locator(`label[for="${id}"] .badge-field-required`)).toHaveText('Required');
+    await expect(page.locator(`label[for="${id}"] .badge-field-required`)).toBeHidden();
+    await expect(page.locator(`#${id}`)).not.toHaveClass(/is-field-invalid/);
   }
-  await expect(page.locator('label[for="newGuardMobileNumber"] .badge-field-required')).toHaveCount(0);
-  await expect(page.locator('label[for="newGuardMobileNumber"]')).not.toContainText('*');
-  await expect(page.locator('label[for="newGuardMiddleName"] .badge-field-required')).toHaveCount(0);
 
-  // Verify Contract Start/End Required badges when Contract duty category is chosen
-  await page.locator('#newGuardEmploymentCategory').selectOption('contract');
-  await expect(page.locator('label[for="newGuardContractStart"] .badge-field-required')).toHaveText('Required');
-  await expect(page.locator('label[for="newGuardContractEnd"] .badge-field-required')).toHaveText('Required');
-  await page.locator('#newGuardEmploymentCategory').selectOption('regular');
+  // On blur: leaving a required field empty shows its REQUIRED badge + red border; typing clears it immediately
+  await page.locator('#newGuardFirstName').focus();
+  await page.locator('#newGuardMiddleName').focus();
+  await expect(page.locator('label[for="newGuardFirstName"] .badge-field-required')).toBeVisible();
+  await expect(page.locator('#newGuardFirstName')).toHaveClass(/is-field-invalid/);
+  await page.locator('#newGuardFirstName').fill('Temp');
+  await expect(page.locator('label[for="newGuardFirstName"] .badge-field-required')).toBeHidden();
+  await expect(page.locator('#newGuardFirstName')).not.toHaveClass(/is-field-invalid/);
 
+  // Reset when modal is reopened: goes back to clean initial state with no badges
+  await page.locator('#newGuardFirstName').fill('');
+  await page.locator('#newGuardMiddleName').focus();
+  await expect(page.locator('label[for="newGuardFirstName"] .badge-field-required')).toBeVisible();
+  await page.evaluate(() => openPersonnelCreate());
+  await expect(page.locator('#createGuardRequiredLegend')).toBeHidden();
+  await expect(page.locator('label[for="newGuardFirstName"] .badge-field-required')).toBeHidden();
+  await expect(page.locator('#newGuardFirstName')).not.toHaveClass(/is-field-invalid/);
+
+  // On submit with missing fields: show top banner + REQUIRED badge/red border ONLY on empty required fields, and focus first missing field
+  await page.locator('#createGuardBtn').click();
+  expect(await page.evaluate(() => window.createInvocations)).toBe(0);
+  await expect(page.locator('#createGuardRequiredLegend')).toBeVisible();
+  await expect(page.locator('#createGuardRequiredLegend')).toContainText('Please fill out the required fields.');
+  // Filled fields do NOT show REQUIRED badge
+  for (const filledId of ['newGuardRole', 'newGuardEmploymentCategory', 'newGuardPersonnelId']) {
+    await expect(page.locator(`label[for="${filledId}"] .badge-field-required`)).toBeHidden();
+    await expect(page.locator(`#${filledId}`)).not.toHaveClass(/is-field-invalid/);
+  }
+  // Empty required fields DO show REQUIRED badge and red border
+  for (const emptyId of ['newGuardFirstName', 'newGuardLastName', 'newGuardUsername', 'newGuardPassword', 'newGuardPasswordConfirm']) {
+    await expect(page.locator(`label[for="${emptyId}"] .badge-field-required`)).toBeVisible();
+    await expect(page.locator(`#${emptyId}`)).toHaveClass(/is-field-invalid/);
+  }
+  expect(await page.evaluate(() => document.activeElement?.id)).toBe('newGuardFirstName');
+
+  // Inline format validation under Email and 11-digit Phone starting with 09
+  await page.locator('#newGuardUsername').fill('not-an-email');
+  await page.locator('#newGuardMobileNumber').focus();
+  await expect(page.locator('label[for="newGuardUsername"] .badge-field-required')).toBeHidden();
+  await expect(page.locator('#newGuardUsernameError')).toBeVisible();
+  await expect(page.locator('#newGuardUsername')).toHaveClass(/is-field-invalid/);
+
+  await page.locator('#newGuardMobileNumber').fill('0812345');
+  await page.locator('#newGuardAddress').focus();
+  await expect(page.locator('#newGuardMobileNumberError')).toBeVisible();
+  await expect(page.locator('#newGuardMobileNumberError')).toContainText('11-digit mobile number starting with 09');
+  await expect(page.locator('#newGuardMobileNumber')).toHaveClass(/is-field-invalid/);
+
+  // Live fix clears badges, red borders, inline errors, and top banner immediately without clicking Create
   await page.locator('#newGuardFirstName').fill('Marco');
+  await expect(page.locator('label[for="newGuardFirstName"] .badge-field-required')).toBeHidden();
+  await expect(page.locator('#newGuardFirstName')).not.toHaveClass(/is-field-invalid/);
+
   await page.locator('#newGuardLastName').fill('Santos');
   await page.locator('#newGuardUsername').fill('marco.twentyagency@gmail.com');
+  await expect(page.locator('#newGuardUsernameError')).toBeHidden();
+  await expect(page.locator('#newGuardUsername')).not.toHaveClass(/is-field-invalid/);
+
   await page.locator('#newGuardMobileNumber').fill('09105187319');
+  await expect(page.locator('#newGuardMobileNumberError')).toBeHidden();
+  await expect(page.locator('#newGuardMobileNumber')).not.toHaveClass(/is-field-invalid/);
+
   await page.locator('#newGuardPersonnelId').fill('SEC-2026-0100');
   await page.locator('#newGuardPassword').fill('ValidPass123!');
   await page.locator('#newGuardPasswordConfirm').fill('ValidPass123!');
+  // All required fields are now filled: top banner hides automatically
+  await expect(page.locator('#createGuardRequiredLegend')).toBeHidden();
   await page.locator('#createGuardBtn').click();
 
   await expect(page.locator('#createGuardError')).toHaveText(
