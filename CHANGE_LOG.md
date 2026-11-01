@@ -1,5 +1,23 @@
 # Project Change Log
 
+### [2026-11-01 13:29] - UI: Redesign Operations Head Dashboard into Visual Infographics
+
+- **Scope & Objective**:
+  - Transformed the **Operations Head Console Dashboard** ([`web/admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html)) from plain HTML tables into a cohesive visual infographic dashboard across KPI cards, Client Deployment, Contract Status, Attendance Overview, Recent Incidents, and Incident Intelligence while preserving existing filters, responsive layouts, and full Light/Dark mode compatibility.
+- **Files Modified**:
+  - [`web/admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html):
+    - **KPI Infographic Strip (`.ig-kpi-grid`)**: Upgraded the 4 KPI cards (`Total guards`, `Deployed`, `Number of clients`, `Inspector`) with bundled Material Symbols icon badges, percentage/ratio pills (`% active`, `% deployed`, `1 : N guards`), proportional progress meters, and Regular/Contract/Standby/Scheduled breakdown captions.
+    - **Client Deployment Infographic (`#deploymentSummaryBanner` & `#deploymentInfographicList`)**: Replaced the plain 5-column HTML table with a top Day vs. Night shift balance banner (active sites, assigned slots, proportional Day/Night split bar) and a responsive 2-column grid of visual client deployment cards featuring stacked Day/Night horizontal bars, shift pills, and force-share percentages, driven in real time by `#deploymentSiteFilter`, `#deploymentShiftFilter`, and `#deploymentSearch`.
+    - **Contract Status & Attendance Overview Infographics (`renderDonut`)**: Upgraded `#contractDonut` and `#attendanceDonut` with labeled center totals (`Contracts`, `Scheduled`), proportional horizontal progress-bar legend rows (`%` pills + fill tracks), and summary footers for Regular Force/Renewal Attention and Check-in Rate/On-Time Arrivals.
+    - **Recent Incidents & Incident Intelligence Infographics (`#recentIncidentFeed` & `#incidentSummary`)**: Replaced the Recent Incidents table with color-coded visual incident cards (`[data-incident-id]`), added a multi-segment stacked status breakdown bar (`Under investigation`, `Escalated`, `Resolved`), and converted the 3 Top-5 leaderboards into proportional horizontal bar charts (`renderBarList`).
+    - Scoped all infographic CSS under `body[data-ax-page="dashboard"]` with full `html[data-theme="dark"]` contrast-verified variables so shared `admin-theme.css` pages (such as Inspector Dashboard) remain untouched.
+  - [`web/tests/admin_dashboard.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/admin_dashboard.spec.js):
+    - Updated Playwright test suite to assert zero plain `<table>` elements, KPI progress pills, Deployment Day/Night balance bar and filter interactivity, Contract & Attendance horizontal progress bars, Recent Incident infographic cards, Top-5 horizontal bar fills, mobile/desktop (`390px`/`1440px`) viewport containment, and WCAG `>= 4.5` dark-mode contrast.
+- **Verification & Testing**:
+  - Validated inline JavaScript syntax in `web/admin/dashboard.html`: 0 errors.
+  - Verified bundled Material Symbols via `node web/tests/google_icons_test.js`: Passed (52 bundled symbols, 238 markup references).
+  - Ran Playwright suites (`admin_dashboard.spec.js`, `dark_mode.spec.js` at `1440px`/`390px`, `responsive_shells.spec.js` mobile containment & drawer): Passed.
+
 ### [2026-11-01 12:56] - UI: Show Required-Field Badges, Red Borders, and Inline Format Errors Only on Validation Failure in Create Guard Modal
 
 - **Scope & Objective**:

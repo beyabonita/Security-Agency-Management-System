@@ -8,6 +8,931 @@
     <script src="../js/theme-preference.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/admin-theme.css" rel="stylesheet">
+    <style>
+        /* Operations Head Infographic Dashboard Styles */
+        body[data-ax-page="dashboard"] {
+            --ig-card-radius: 14px;
+            --ig-track: #f1e6e8;
+            --ig-donut-empty: #eadcdf;
+            --ig-day-accent: #d97706;
+            --ig-day-fill: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+            --ig-day-soft: #fffbeb;
+            --ig-day-border: #fde68a;
+            --ig-night-accent: #1d4ed8;
+            --ig-night-fill: linear-gradient(90deg, #2563eb 0%, #6366f1 100%);
+            --ig-night-soft: #eff6ff;
+            --ig-night-border: #bfdbfe;
+            --ig-emerald: #059669;
+            --ig-emerald-fill: #10b981;
+            --ig-emerald-soft: #ecfdf5;
+            --ig-amber: #b45309;
+            --ig-amber-fill: #f59e0b;
+            --ig-amber-soft: #fffbeb;
+            --ig-crimson: #b91c1c;
+            --ig-crimson-fill: #ef4444;
+            --ig-crimson-soft: #fef2f2;
+            --ig-subtle-bg: #fcf8f8;
+        }
+
+        html[data-theme="dark"] body[data-ax-page="dashboard"] {
+            --ig-track: #38262b;
+            --ig-donut-empty: #38262b;
+            --ig-day-accent: #fcd34d;
+            --ig-day-soft: rgba(245, 158, 11, 0.16);
+            --ig-day-border: rgba(251, 191, 36, 0.32);
+            --ig-night-accent: #93c5fd;
+            --ig-night-soft: rgba(59, 130, 246, 0.18);
+            --ig-night-border: rgba(147, 197, 253, 0.32);
+            --ig-emerald: #6ee7b7;
+            --ig-emerald-soft: rgba(16, 185, 129, 0.16);
+            --ig-amber: #fcd34d;
+            --ig-amber-soft: rgba(245, 158, 11, 0.16);
+            --ig-crimson: #fda4af;
+            --ig-crimson-soft: rgba(239, 68, 68, 0.18);
+            --ig-subtle-bg: #2a1d21;
+        }
+
+        /* 1. KPI Infographic Cards */
+        body[data-ax-page="dashboard"] .ig-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-card {
+            position: relative;
+            overflow: hidden;
+            background: var(--ax-surface);
+            border: 1px solid var(--ax-border);
+            border-top: 4px solid var(--ax-accent);
+            border-radius: var(--ig-card-radius);
+            padding: 18px 20px 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 4px 14px rgba(28, 25, 23, 0.04);
+            min-width: 0;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-card.is-emerald { border-top-color: #10b981; }
+        body[data-ax-page="dashboard"] .ig-kpi-card.is-amber { border-top-color: #f59e0b; }
+        body[data-ax-page="dashboard"] .ig-kpi-card.is-indigo { border-top-color: #3b82f6; }
+
+        body[data-ax-page="dashboard"] .ig-kpi-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--sl-red-soft);
+            color: var(--sl-danger);
+            flex-shrink: 0;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-card.is-emerald .ig-kpi-icon {
+            background: var(--ig-emerald-soft);
+            color: var(--ig-emerald);
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-card.is-amber .ig-kpi-icon {
+            background: var(--ig-amber-soft);
+            color: var(--ig-amber);
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-card.is-indigo .ig-kpi-icon {
+            background: var(--ig-night-soft);
+            color: var(--ig-night-accent);
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-icon .material-symbols-rounded {
+            font-size: 21px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 9px;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            background: var(--ig-subtle-bg);
+            border: 1px solid var(--ax-border);
+            color: var(--ax-text);
+            white-space: nowrap;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-main {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-main .ax-stat-num {
+            font-size: 2.15rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--ax-text);
+            line-height: 1;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-main .ax-stat-lbl {
+            margin-top: 4px;
+            font-size: 0.73rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: var(--ax-muted);
+            text-transform: uppercase;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-meter {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            margin-top: 2px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-meter-track {
+            width: 100%;
+            height: 7px;
+            border-radius: 999px;
+            background: var(--ig-track);
+            overflow: hidden;
+        }
+
+        body[data-ax-page="dashboard"] .ig-meter-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #dc2626 0%, #ef4444 100%);
+            transition: width 0.35s ease;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-card.is-emerald .ig-meter-fill {
+            background: linear-gradient(90deg, #059669 0%, #10b981 100%);
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-card.is-amber .ig-meter-fill {
+            background: linear-gradient(90deg, #d97706 0%, #f59e0b 100%);
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-card.is-indigo .ig-meter-fill {
+            background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 0.75rem;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-foot .ax-stat-hint {
+            margin: 0;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--ig-emerald);
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-submeta {
+            color: var(--ax-muted);
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        /* Section Containers & Headers */
+        body[data-ax-page="dashboard"] .dashboard-section,
+        body[data-ax-page="dashboard"] .dashboard-card {
+            border-radius: var(--ig-card-radius);
+            padding: 20px 22px;
+            box-shadow: 0 4px 14px rgba(28, 25, 23, 0.04);
+        }
+
+        body[data-ax-page="dashboard"] .ig-section-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        body[data-ax-page="dashboard"] .ig-section-badge {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--sl-red-soft);
+            color: var(--sl-danger);
+            flex-shrink: 0;
+        }
+
+        body[data-ax-page="dashboard"] .ig-section-badge .material-symbols-rounded {
+            font-size: 20px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-section-sub {
+            margin: 2px 0 0;
+            font-size: 0.78rem;
+            color: var(--ax-muted);
+            font-weight: 500;
+        }
+
+        /* 2. Client Deployment Infographic */
+        body[data-ax-page="dashboard"] .ig-deploy-summary {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 18px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            border-radius: 12px;
+            background: var(--ig-subtle-bg);
+            border: 1px solid var(--ax-border);
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-totals {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-stat strong {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--ax-text);
+            line-height: 1.1;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-stat span {
+            font-size: 0.68rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--ax-muted);
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-divider {
+            width: 1px;
+            height: 28px;
+            background: var(--ax-border);
+        }
+
+        body[data-ax-page="dashboard"] .ig-shift-balance {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        body[data-ax-page="dashboard"] .ig-shift-balance-labels {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--ax-muted);
+        }
+
+        body[data-ax-page="dashboard"] .ig-shift-balance-track {
+            display: flex;
+            width: 100%;
+            height: 10px;
+            border-radius: 999px;
+            background: var(--ig-track);
+            overflow: hidden;
+            gap: 2px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-shift-seg-day {
+            height: 100%;
+            background: var(--ig-day-fill);
+            border-radius: 999px 0 0 999px;
+            transition: width 0.35s ease;
+        }
+
+        body[data-ax-page="dashboard"] .ig-shift-seg-night {
+            height: 100%;
+            background: var(--ig-night-fill);
+            border-radius: 0 999px 999px 0;
+            transition: width 0.35s ease;
+        }
+
+        body[data-ax-page="dashboard"] .ig-shift-legend-pills {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        body[data-ax-page="dashboard"] .ig-shift-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        body[data-ax-page="dashboard"] .ig-shift-chip .material-symbols-rounded {
+            font-size: 14px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-shift-chip.is-day {
+            background: var(--ig-day-soft);
+            border: 1px solid var(--ig-day-border);
+            color: var(--ig-day-accent);
+        }
+
+        body[data-ax-page="dashboard"] .ig-shift-chip.is-night {
+            background: var(--ig-night-soft);
+            border: 1px solid var(--ig-night-border);
+            color: var(--ig-night-accent);
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-card {
+            background: var(--ax-surface);
+            border: 1px solid var(--ax-border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-width: 0;
+            transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-card:hover {
+            border-color: var(--sl-accent);
+            box-shadow: 0 6px 16px rgba(28, 25, 23, 0.06);
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-card-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-site {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-pin {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--sl-red-soft);
+            color: var(--sl-danger);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-pin .material-symbols-rounded {
+            font-size: 18px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-copy {
+            min-width: 0;
+            flex: 1;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-name {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--ax-text);
+            line-height: 1.3;
+            overflow-wrap: anywhere;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-addr {
+            margin: 2px 0 0;
+            font-size: 0.75rem;
+            color: var(--ax-muted);
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-total-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 54px;
+            padding: 5px 10px;
+            border-radius: 10px;
+            background: var(--ig-subtle-bg);
+            border: 1px solid var(--ax-border);
+            flex-shrink: 0;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-total-badge strong {
+            font-size: 1.08rem;
+            font-weight: 800;
+            color: var(--ax-text);
+            line-height: 1.05;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-total-badge span {
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--ax-muted);
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-bar-track {
+            width: 100%;
+            height: 9px;
+            border-radius: 999px;
+            background: var(--ig-track);
+            overflow: hidden;
+            display: flex;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-bar-group {
+            display: flex;
+            height: 100%;
+            border-radius: 999px;
+            overflow: hidden;
+            gap: 2px;
+            transition: width 0.35s ease;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-bar-day {
+            height: 100%;
+            background: var(--ig-day-fill);
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-bar-night {
+            height: 100%;
+            background: var(--ig-night-fill);
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-card-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-share {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--ax-muted);
+        }
+
+        /* 3. Donut + Progress-Bar Infographic Cards */
+        body[data-ax-page="dashboard"] .ig-donut-layout {
+            display: grid;
+            grid-template-columns: 152px minmax(0, 1fr);
+            align-items: center;
+            gap: 22px;
+            margin-top: 16px;
+            min-height: 176px;
+        }
+
+        body[data-ax-page="dashboard"] .dashboard-donut {
+            width: 148px;
+            height: 148px;
+            flex: 0 0 148px;
+            margin: 0 auto;
+            border-radius: 50%;
+            position: relative;
+            background: conic-gradient(var(--ig-donut-empty) 0deg 360deg);
+            box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+        }
+
+        body[data-ax-page="dashboard"] .dashboard-donut::after {
+            content: none;
+        }
+
+        body[data-ax-page="dashboard"] .ig-donut-hole {
+            position: absolute;
+            inset: 26px;
+            border-radius: 50%;
+            background: var(--ax-surface);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        body[data-ax-page="dashboard"] .ig-donut-hole strong {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--ax-text);
+            line-height: 1.05;
+        }
+
+        body[data-ax-page="dashboard"] .ig-donut-hole span {
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--ax-muted);
+            margin-top: 2px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-legend-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-width: 0;
+            width: 100%;
+        }
+
+        body[data-ax-page="dashboard"] .ig-legend-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-legend-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 0.8rem;
+        }
+
+        body[data-ax-page="dashboard"] .ig-legend-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--ax-text);
+            min-width: 0;
+        }
+
+        body[data-ax-page="dashboard"] .ig-legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        body[data-ax-page="dashboard"] .ig-legend-metrics {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        body[data-ax-page="dashboard"] .ig-legend-metrics strong {
+            font-weight: 800;
+            color: var(--ax-text);
+        }
+
+        body[data-ax-page="dashboard"] .ig-legend-pct {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--ax-muted);
+            background: var(--ig-subtle-bg);
+            border: 1px solid var(--ax-border);
+            border-radius: 999px;
+            padding: 1px 7px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-legend-track {
+            width: 100%;
+            height: 7px;
+            border-radius: 999px;
+            background: var(--ig-track);
+            overflow: hidden;
+        }
+
+        body[data-ax-page="dashboard"] .ig-legend-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.35s ease;
+        }
+
+        body[data-ax-page="dashboard"] .ig-card-footer {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--ax-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-size: 0.76rem;
+            color: var(--ax-muted);
+        }
+
+        body[data-ax-page="dashboard"] .ig-card-footer strong {
+            color: var(--ax-text);
+            font-weight: 700;
+        }
+
+        /* 4. Recent Incidents Visual Infographic Feed & Intelligence Bars */
+        body[data-ax-page="dashboard"] .ig-incident-feed {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-card {
+            background: var(--ig-subtle-bg);
+            border: 1px solid var(--ax-border);
+            border-left: 4px solid #f59e0b;
+            border-radius: 12px;
+            padding: 14px 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-card.is-escalated {
+            border-left-color: #ef4444;
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-card.is-resolved {
+            border-left-color: #10b981;
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-type {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--sl-red-soft);
+            color: var(--sl-danger);
+            flex-shrink: 0;
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-icon .material-symbols-rounded {
+            font-size: 17px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-title {
+            font-size: 0.86rem;
+            font-weight: 700;
+            color: var(--ax-text);
+            line-height: 1.25;
+            overflow-wrap: anywhere;
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            white-space: nowrap;
+            background: var(--ig-amber-soft);
+            color: var(--ig-amber);
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-status.is-escalated {
+            background: var(--ig-crimson-soft);
+            color: var(--ig-crimson);
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-status.is-resolved {
+            background: var(--ig-emerald-soft);
+            color: var(--ig-emerald);
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 0.74rem;
+            color: var(--ax-muted);
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-meta-item .material-symbols-rounded {
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        body[data-ax-page="dashboard"] .ig-incident-loc-text {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Stacked Status Breakdown Bar & Top-5 Horizontal Bar Charts */
+        body[data-ax-page="dashboard"] .ig-status-stack-wrap {
+            width: 100%;
+            margin-top: 4px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-status-stack-track {
+            display: flex;
+            width: 100%;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--ig-track);
+            overflow: hidden;
+            gap: 2px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-status-seg-inv { background: #f59e0b; height: 100%; }
+        body[data-ax-page="dashboard"] .ig-status-seg-esc { background: #ef4444; height: 100%; }
+        body[data-ax-page="dashboard"] .ig-status-seg-res { background: #10b981; height: 100%; }
+
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .incident-status-pill.investigation {
+            background: rgba(245, 158, 11, 0.18);
+            color: #fcd34d;
+        }
+
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .incident-status-pill.escalated {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fda4af;
+        }
+
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .incident-status-pill.resolved {
+            background: rgba(16, 185, 129, 0.18);
+            color: #6ee7b7;
+        }
+
+        body[data-ax-page="dashboard"] .incident-top5-item {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 6px;
+            padding: 8px 10px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-top5-row-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            width: 100%;
+        }
+
+        body[data-ax-page="dashboard"] .ig-rank-bar-track {
+            width: 100%;
+            height: 6px;
+            border-radius: 999px;
+            background: var(--ig-track);
+            overflow: hidden;
+        }
+
+        body[data-ax-page="dashboard"] .ig-rank-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #dc2626 0%, #f59e0b 100%);
+            transition: width 0.35s ease;
+        }
+
+        /* Empty States */
+        body[data-ax-page="dashboard"] .ig-empty-state {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 6px;
+            padding: 28px 18px;
+            border-radius: 12px;
+            border: 1px dashed var(--ax-border);
+            background: var(--ig-subtle-bg);
+            color: var(--ax-muted);
+            font-size: 0.84rem;
+            font-weight: 600;
+        }
+
+        body[data-ax-page="dashboard"] .ig-empty-state .material-symbols-rounded {
+            font-size: 26px;
+            color: var(--sl-danger);
+            opacity: 0.8;
+        }
+
+        /* Responsive Layout */
+        @media (max-width: 1180px) {
+            body[data-ax-page="dashboard"] .ig-kpi-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            body[data-ax-page="dashboard"] .ig-deploy-grid {
+                grid-template-columns: 1fr;
+            }
+            body[data-ax-page="dashboard"] .ig-deploy-summary {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 980px) {
+            body[data-ax-page="dashboard"] .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            body[data-ax-page="dashboard"] .incident-top5-grid {
+                grid-template-columns: 1fr;
+            }
+            body[data-ax-page="dashboard"] .dashboard-section-head {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            body[data-ax-page="dashboard"] .dashboard-filter-bar {
+                min-width: 0;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body[data-ax-page="dashboard"] .ig-kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            body[data-ax-page="dashboard"] .dashboard-section,
+            body[data-ax-page="dashboard"] .dashboard-card {
+                padding: 16px;
+            }
+            body[data-ax-page="dashboard"] .dashboard-filter-bar {
+                grid-template-columns: 1fr;
+            }
+            body[data-ax-page="dashboard"] .ig-donut-layout {
+                grid-template-columns: 1fr;
+                justify-items: center;
+                gap: 16px;
+            }
+            body[data-ax-page="dashboard"] .ig-incident-feed {
+                grid-template-columns: 1fr;
+            }
+            body[data-ax-page="dashboard"] .incident-summary {
+                padding: 14px;
+            }
+        }
+    </style>
 </head>
 <body class="admin-body" data-ax-page="dashboard">
 
@@ -52,31 +977,97 @@
 
         <main class="ax-content">
 
-            <div class="ax-stat-strip">
-                <div class="ax-stat-item">
-                    <div class="ax-stat-num" id="totalGuards"><span class="ax-skeleton ax-skeleton-stat"></span></div>
-                    <div class="ax-stat-lbl">Total guards</div>
-                    <div class="ax-stat-hint" id="activeGuards"><span class="ax-skeleton ax-skeleton-line" style="width:48px;height:12px;"></span></div>
+            <div class="ax-stat-strip ig-kpi-grid" aria-label="Key workforce metrics">
+                <div class="ig-kpi-card">
+                    <div class="ig-kpi-top">
+                        <span class="ig-kpi-icon" aria-hidden="true"><span class="material-symbols-rounded">groups</span></span>
+                        <span class="ig-kpi-pill" id="guardsPctPill">—</span>
+                    </div>
+                    <div class="ig-kpi-main">
+                        <div>
+                            <div class="ax-stat-num" id="totalGuards"><span class="ax-skeleton ax-skeleton-stat"></span></div>
+                            <div class="ax-stat-lbl">Total guards</div>
+                        </div>
+                    </div>
+                    <div class="ig-kpi-meter">
+                        <div class="ig-meter-track" aria-hidden="true"><div class="ig-meter-fill" id="guardsBarFill"></div></div>
+                        <div class="ig-kpi-foot">
+                            <div class="ax-stat-hint" id="activeGuards"><span class="ax-skeleton ax-skeleton-line" style="width:48px;height:12px;"></span></div>
+                            <span class="ig-kpi-submeta" id="guardsSplitMeta"></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="ax-stat-item">
-                    <div class="ax-stat-num" id="totalDeployed"><span class="ax-skeleton ax-skeleton-stat"></span></div>
-                    <div class="ax-stat-lbl">Deployed</div>
-                    <div class="ax-stat-hint" id="deployedHint"><span class="ax-skeleton ax-skeleton-line" style="width:48px;height:12px;"></span></div>
+
+                <div class="ig-kpi-card is-emerald">
+                    <div class="ig-kpi-top">
+                        <span class="ig-kpi-icon" aria-hidden="true"><span class="material-symbols-rounded">verified_user</span></span>
+                        <span class="ig-kpi-pill" id="deployedPctPill">—</span>
+                    </div>
+                    <div class="ig-kpi-main">
+                        <div>
+                            <div class="ax-stat-num" id="totalDeployed"><span class="ax-skeleton ax-skeleton-stat"></span></div>
+                            <div class="ax-stat-lbl">Deployed</div>
+                        </div>
+                    </div>
+                    <div class="ig-kpi-meter">
+                        <div class="ig-meter-track" aria-hidden="true"><div class="ig-meter-fill" id="deployedBarFill"></div></div>
+                        <div class="ig-kpi-foot">
+                            <div class="ax-stat-hint" id="deployedHint"><span class="ax-skeleton ax-skeleton-line" style="width:48px;height:12px;"></span></div>
+                            <span class="ig-kpi-submeta" id="deployedSplitMeta"></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="ax-stat-item">
-                    <div class="ax-stat-num" id="totalLocations"><span class="ax-skeleton ax-skeleton-stat"></span></div>
-                    <div class="ax-stat-lbl">Number of clients</div>
-                    <div class="ax-stat-hint" id="activeLocations"><span class="ax-skeleton ax-skeleton-line" style="width:48px;height:12px;"></span></div>
+
+                <div class="ig-kpi-card is-amber">
+                    <div class="ig-kpi-top">
+                        <span class="ig-kpi-icon" aria-hidden="true"><span class="material-symbols-rounded">business</span></span>
+                        <span class="ig-kpi-pill" id="locationsPctPill">—</span>
+                    </div>
+                    <div class="ig-kpi-main">
+                        <div>
+                            <div class="ax-stat-num" id="totalLocations"><span class="ax-skeleton ax-skeleton-stat"></span></div>
+                            <div class="ax-stat-lbl">Number of clients</div>
+                        </div>
+                    </div>
+                    <div class="ig-kpi-meter">
+                        <div class="ig-meter-track" aria-hidden="true"><div class="ig-meter-fill" id="locationsBarFill"></div></div>
+                        <div class="ig-kpi-foot">
+                            <div class="ax-stat-hint" id="activeLocations"><span class="ax-skeleton ax-skeleton-line" style="width:48px;height:12px;"></span></div>
+                            <span class="ig-kpi-submeta" id="locationsSplitMeta"></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="ax-stat-item">
-                    <div class="ax-stat-num" id="totalInspectors"><span class="ax-skeleton ax-skeleton-stat"></span></div>
-                    <div class="ax-stat-lbl">Inspector</div>
+
+                <div class="ig-kpi-card is-indigo">
+                    <div class="ig-kpi-top">
+                        <span class="ig-kpi-icon" aria-hidden="true"><span class="material-symbols-rounded">policy</span></span>
+                        <span class="ig-kpi-pill" id="inspectorPctPill">—</span>
+                    </div>
+                    <div class="ig-kpi-main">
+                        <div>
+                            <div class="ax-stat-num" id="totalInspectors"><span class="ax-skeleton ax-skeleton-stat"></span></div>
+                            <div class="ax-stat-lbl">Inspector</div>
+                        </div>
+                    </div>
+                    <div class="ig-kpi-meter">
+                        <div class="ig-meter-track" aria-hidden="true"><div class="ig-meter-fill" id="inspectorBarFill"></div></div>
+                        <div class="ig-kpi-foot">
+                            <div class="ax-stat-hint" id="inspectorHint">Field oversight</div>
+                            <span class="ig-kpi-submeta" id="inspectorSplitMeta"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <section class="dashboard-section" aria-labelledby="deploymentHeading">
                 <div class="dashboard-section-head">
-                    <h2 id="deploymentHeading">Deployment</h2>
+                    <div class="ig-section-title-group">
+                        <span class="ig-section-badge" aria-hidden="true"><span class="material-symbols-rounded">location_on</span></span>
+                        <div>
+                            <h2 id="deploymentHeading">Deployment</h2>
+                            <p class="ig-section-sub">Client post coverage &amp; day/night shift distribution</p>
+                        </div>
+                    </div>
                     <div class="dashboard-filter-bar" aria-label="Deployment filters">
                         <label>
                             <span>Site</span>
@@ -98,58 +1089,96 @@
                         </label>
                     </div>
                 </div>
-                <div class="dashboard-table-wrap">
-                    <table class="dashboard-table">
-                        <thead>
-                            <tr>
-                                <th>Client (Deployment sites)</th>
-                                <th>Location</th>
-                                <th>Day</th>
-                                <th>Night</th>
-                                <th>Total number of guards assigned</th>
-                            </tr>
-                        </thead>
-                        <tbody id="deploymentTableBody">
-                            <tr><td colspan="5"><span class="ax-skeleton ax-skeleton-line full"></span></td></tr>
-                        </tbody>
-                    </table>
+
+                <div class="ig-deploy-summary" id="deploymentSummaryBanner" aria-live="polite">
+                    <div class="ig-deploy-totals">
+                        <div class="ig-deploy-stat">
+                            <strong id="deploySiteCount">0</strong>
+                            <span>Active Sites</span>
+                        </div>
+                        <div class="ig-deploy-divider" aria-hidden="true"></div>
+                        <div class="ig-deploy-stat">
+                            <strong id="deployTotalAssigned">0</strong>
+                            <span>Assigned Slots</span>
+                        </div>
+                    </div>
+                    <div class="ig-shift-balance">
+                        <div class="ig-shift-balance-labels">
+                            <span id="deployDayPctLabel">Day shift 0%</span>
+                            <span id="deployNightPctLabel">Night shift 0%</span>
+                        </div>
+                        <div class="ig-shift-balance-track" aria-hidden="true">
+                            <div class="ig-shift-seg-day" id="deployDaySeg" style="width:50%"></div>
+                            <div class="ig-shift-seg-night" id="deployNightSeg" style="width:50%"></div>
+                        </div>
+                    </div>
+                    <div class="ig-shift-legend-pills">
+                        <span class="ig-shift-chip is-day"><span class="material-symbols-rounded" aria-hidden="true">light_mode</span> Day <strong id="deployDayTotal">0</strong></span>
+                        <span class="ig-shift-chip is-night"><span class="material-symbols-rounded" aria-hidden="true">dark_mode</span> Night <strong id="deployNightTotal">0</strong></span>
+                    </div>
+                </div>
+
+                <div class="ig-deploy-grid" id="deploymentInfographicList" aria-live="polite">
+                    <div class="ig-deploy-card"><span class="ax-skeleton ax-skeleton-line full"></span></div>
+                    <div class="ig-deploy-card"><span class="ax-skeleton ax-skeleton-line full"></span></div>
                 </div>
             </section>
 
             <div class="dashboard-grid">
                 <section class="dashboard-card" aria-labelledby="contractStatusHeading">
-                    <h2 id="contractStatusHeading">Contract status</h2>
-                    <div class="dashboard-donut-row">
-                        <div class="dashboard-donut" id="contractDonut" role="img" aria-label="Contract status chart"></div>
-                        <div class="dashboard-legend" id="contractLegend"></div>
+                    <div class="ig-section-title-group">
+                        <span class="ig-section-badge" aria-hidden="true"><span class="material-symbols-rounded">description</span></span>
+                        <div>
+                            <h2 id="contractStatusHeading">Contract status</h2>
+                            <p class="ig-section-sub">Contractual guard lifecycle &amp; renewal health</p>
+                        </div>
                     </div>
+                    <div class="ig-donut-layout">
+                        <div class="dashboard-donut" id="contractDonut" role="img" aria-label="Contract status chart">
+                            <div class="ig-donut-hole">
+                                <strong id="contractDonutTotal">0</strong>
+                                <span>Contracts</span>
+                            </div>
+                        </div>
+                        <div class="ig-legend-bars" id="contractLegend"></div>
+                    </div>
+                    <div class="ig-card-footer" id="contractMetaFooter"></div>
                 </section>
+
                 <section class="dashboard-card" aria-labelledby="attendanceOverviewHeading">
-                    <h2 id="attendanceOverviewHeading">Attendance overview</h2>
-                    <div class="dashboard-donut-row">
-                        <div class="dashboard-donut dashboard-donut-attendance" id="attendanceDonut" role="img" aria-label="Attendance overview chart"></div>
-                        <div class="dashboard-legend" id="attendanceLegend"></div>
+                    <div class="ig-section-title-group">
+                        <span class="ig-section-badge" aria-hidden="true"><span class="material-symbols-rounded">assignment_turned_in</span></span>
+                        <div>
+                            <h2 id="attendanceOverviewHeading">Attendance overview</h2>
+                            <p class="ig-section-sub">Today's scheduled post check-ins &amp; punctuality</p>
+                        </div>
                     </div>
+                    <div class="ig-donut-layout">
+                        <div class="dashboard-donut dashboard-donut-attendance" id="attendanceDonut" role="img" aria-label="Attendance overview chart">
+                            <div class="ig-donut-hole">
+                                <strong id="attendanceDonutTotal">0</strong>
+                                <span>Scheduled</span>
+                            </div>
+                        </div>
+                        <div class="ig-legend-bars" id="attendanceLegend"></div>
+                    </div>
+                    <div class="ig-card-footer" id="attendanceMetaFooter"></div>
                 </section>
             </div>
 
             <section class="dashboard-section" aria-labelledby="recentIncidentsHeading">
-                <h2 id="recentIncidentsHeading">Recent incidents</h2>
-                <div class="dashboard-table-wrap">
-                    <table class="dashboard-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>Location</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recentIncidentTableBody">
-                            <tr><td colspan="4"><span class="ax-skeleton ax-skeleton-line full"></span></td></tr>
-                        </tbody>
-                    </table>
+                <div class="ig-section-title-group">
+                    <span class="ig-section-badge" aria-hidden="true"><span class="material-symbols-rounded">emergency</span></span>
+                    <div>
+                        <h2 id="recentIncidentsHeading">Recent incidents</h2>
+                        <p class="ig-section-sub">Latest field dispatches &amp; operational intelligence</p>
+                    </div>
                 </div>
+
+                <div class="ig-incident-feed" id="recentIncidentFeed" aria-live="polite">
+                    <div class="ig-incident-card"><span class="ax-skeleton ax-skeleton-line full"></span></div>
+                </div>
+
                 <div class="incident-summary">
                     <div class="incident-summary-header">
                         <div>
@@ -190,7 +1219,6 @@ auth.onAuthStateChanged(async function(user) {
             window.location.href = "../staff/login.html";
             return;
         }
-        const d = doc.data();
         await loadDashboard();
         finishPageLoading();
     } catch (e) {
@@ -218,19 +1246,46 @@ async function loadDashboard() {
         const attendance = attendanceResult.data || [];
         const incidents = incidentsResult.data || [];
         const activeGuards = guards.filter(guard => guard.active !== false);
+        const activeInspectors = inspectors.filter(inspector => inspector.active !== false);
         const activeLocations = locations.filter(location => location.active !== false);
         const deployedIds = new Set(activeGuards.filter(guard => guard.assigned_location_id).map(guard => guard.id));
 
+        const contractGuardCount = activeGuards.filter(guard => guard.employment_category === 'contract').length;
+        const regularGuardCount = Math.max(0, activeGuards.length - contractGuardCount);
+        const guardsActivePct = guards.length ? Math.round((activeGuards.length / guards.length) * 100) : 0;
+        const deployedRatePct = activeGuards.length ? Math.round((deployedIds.size / activeGuards.length) * 100) : 0;
+        const standbyCount = Math.max(0, activeGuards.length - deployedIds.size);
+        const locationsActivePct = locations.length ? Math.round((activeLocations.length / locations.length) * 100) : 0;
+        const staffedLocationIds = new Set(schedules.map(schedule => schedule.location_id).filter(Boolean));
+        const inspectorActivePct = inspectors.length ? Math.round((activeInspectors.length / inspectors.length) * 100) : 0;
+        const guardRatio = activeInspectors.length ? Math.round(activeGuards.length / activeInspectors.length) : activeGuards.length;
+
         document.getElementById("totalGuards").innerText = guards.length;
         document.getElementById("activeGuards").innerText = activeGuards.length + " active";
-        document.getElementById("totalInspectors").innerText = inspectors.length;
-        document.getElementById("totalLocations").innerText = locations.length;
-        document.getElementById("activeLocations").innerText = activeLocations.length + " active";
+        document.getElementById("guardsPctPill").innerText = guardsActivePct + "% active";
+        document.getElementById("guardsBarFill").style.width = guardsActivePct + "%";
+        document.getElementById("guardsSplitMeta").innerText = regularGuardCount + " reg · " + contractGuardCount + " contract";
+
         document.getElementById("totalDeployed").innerText = deployedIds.size;
         document.getElementById("deployedHint").innerText = "Home post set";
+        document.getElementById("deployedPctPill").innerText = deployedRatePct + "% deployed";
+        document.getElementById("deployedBarFill").style.width = deployedRatePct + "%";
+        document.getElementById("deployedSplitMeta").innerText = standbyCount + " standby";
+
+        document.getElementById("totalLocations").innerText = locations.length;
+        document.getElementById("activeLocations").innerText = activeLocations.length + " active";
+        document.getElementById("locationsPctPill").innerText = locationsActivePct + "% active";
+        document.getElementById("locationsBarFill").style.width = locationsActivePct + "%";
+        document.getElementById("locationsSplitMeta").innerText = staffedLocationIds.size + " scheduled";
+
+        document.getElementById("totalInspectors").innerText = inspectors.length;
+        document.getElementById("inspectorHint").innerText = activeInspectors.length + " active";
+        document.getElementById("inspectorPctPill").innerText = activeInspectors.length ? ("1 : " + guardRatio + " guards") : "Unassigned";
+        document.getElementById("inspectorBarFill").style.width = inspectorActivePct + "%";
+        document.getElementById("inspectorSplitMeta").innerText = "Field patrol";
 
         populateDeploymentFilters(locations);
-        renderDeploymentTable(schedules, locations);
+        renderDeploymentInfographic(schedules, locations);
         renderContractStatus(guards);
         renderAttendanceOverview(schedules, attendance);
         renderRecentIncidents(incidents, profiles);
@@ -247,7 +1302,7 @@ function bindDashboardFilters(schedules, locations) {
     controls.forEach(control => {
         if (control.dataset.bound) return;
         control.dataset.bound = 'true';
-        control.addEventListener(control.tagName === 'INPUT' ? 'input' : 'change', () => renderDeploymentTable(schedules, locations));
+        control.addEventListener(control.tagName === 'INPUT' ? 'input' : 'change', () => renderDeploymentInfographic(schedules, locations));
     });
 }
 
@@ -260,12 +1315,13 @@ function populateDeploymentFilters(locations) {
     select.value = [...select.options].some(option => option.value === current) ? current : '';
 }
 
-function renderDeploymentTable(schedules, locations) {
+function renderDeploymentInfographic(schedules, locations) {
     const siteFilter = document.getElementById('deploymentSiteFilter').value;
     const shiftFilter = document.getElementById('deploymentShiftFilter').value;
     const search = document.getElementById('deploymentSearch').value.trim().toLowerCase();
     const locationById = new Map(locations.map(location => [location.id, location]));
     const grouped = new Map();
+
     schedules.forEach(schedule => {
         const locationId = schedule.location_id || '';
         const location = locationById.get(locationId) || {};
@@ -280,35 +1336,110 @@ function renderDeploymentTable(schedules, locations) {
         if (!grouped.has(key)) grouped.set(key, { siteName, address, day: new Set(), night: new Set() });
         grouped.get(key)[shift].add(schedule.user_id || schedule.guard_name || schedule.id);
     });
-    const rows = [...grouped.values()].sort((a, b) => a.siteName.localeCompare(b.siteName));
-    document.getElementById('deploymentTableBody').innerHTML = rows.length ? rows.map(row => {
+
+    const rows = [...grouped.values()].sort((a, b) => {
+        const totalDiff = (b.day.size + b.night.size) - (a.day.size + a.night.size);
+        return totalDiff !== 0 ? totalDiff : a.siteName.localeCompare(b.siteName);
+    });
+
+    let totalDay = 0;
+    let totalNight = 0;
+    let maxSiteTotal = 1;
+    rows.forEach(row => {
         const day = row.day.size;
         const night = row.night.size;
-        return '<tr>' +
-            '<td>' + escapeHtml(row.siteName) + '</td>' +
-            '<td>' + escapeHtml(row.address) + '</td>' +
-            '<td>' + day + '</td>' +
-            '<td>' + night + '</td>' +
-            '<td>' + (day + night) + '</td>' +
-        '</tr>';
-    }).join('') : '<tr><td colspan="5" class="empty-state">No deployment records match the filters.</td></tr>';
+        totalDay += day;
+        totalNight += night;
+        if (day + night > maxSiteTotal) maxSiteTotal = day + night;
+    });
+    const grandTotal = totalDay + totalNight;
+    const dayPct = grandTotal ? Math.round((totalDay / grandTotal) * 100) : 0;
+    const nightPct = grandTotal ? (100 - dayPct) : 0;
+
+    document.getElementById('deploySiteCount').innerText = rows.length;
+    document.getElementById('deployTotalAssigned').innerText = grandTotal;
+    document.getElementById('deployDayTotal').innerText = totalDay;
+    document.getElementById('deployNightTotal').innerText = totalNight;
+    document.getElementById('deployDayPctLabel').innerText = 'Day shift ' + dayPct + '%';
+    document.getElementById('deployNightPctLabel').innerText = 'Night shift ' + nightPct + '%';
+    document.getElementById('deployDaySeg').style.width = (grandTotal ? dayPct : 0) + '%';
+    document.getElementById('deployNightSeg').style.width = (grandTotal ? nightPct : 0) + '%';
+
+    const container = document.getElementById('deploymentInfographicList');
+    if (!rows.length) {
+        container.innerHTML =
+            '<div class="ig-empty-state">' +
+                '<span class="material-symbols-rounded" aria-hidden="true">filter_alt</span>' +
+                '<span>No deployment records match the filters.</span>' +
+            '</div>';
+        return;
+    }
+
+    container.innerHTML = rows.map(row => {
+        const day = row.day.size;
+        const night = row.night.size;
+        const siteTotal = day + night;
+        const scalePct = Math.max(12, Math.round((siteTotal / maxSiteTotal) * 100));
+        const dayShare = siteTotal ? Math.round((day / siteTotal) * 100) : 0;
+        const nightShare = siteTotal ? (100 - dayShare) : 0;
+        const forceSharePct = grandTotal ? Math.round((siteTotal / grandTotal) * 100) : 0;
+
+        return '<article class="ig-deploy-card">' +
+            '<div class="ig-deploy-card-head">' +
+                '<div class="ig-deploy-site">' +
+                    '<span class="ig-deploy-pin" aria-hidden="true"><span class="material-symbols-rounded">location_on</span></span>' +
+                    '<div class="ig-deploy-copy">' +
+                        '<h3 class="ig-deploy-name">' + escapeHtml(row.siteName) + '</h3>' +
+                        '<p class="ig-deploy-addr" title="' + escapeHtml(row.address) + '">' + escapeHtml(row.address) + '</p>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="ig-deploy-total-badge" aria-label="Total guards assigned: ' + siteTotal + '">' +
+                    '<strong>' + siteTotal + '</strong>' +
+                    '<span>' + (siteTotal === 1 ? 'Guard' : 'Guards') + '</span>' +
+                '</div>' +
+            '</div>' +
+            '<div class="ig-deploy-bar-track" aria-hidden="true">' +
+                '<div class="ig-deploy-bar-group" style="width:' + scalePct + '%">' +
+                    (day > 0 ? '<div class="ig-deploy-bar-day" style="width:' + dayShare + '%"></div>' : '') +
+                    (night > 0 ? '<div class="ig-deploy-bar-night" style="width:' + nightShare + '%"></div>' : '') +
+                '</div>' +
+            '</div>' +
+            '<div class="ig-deploy-card-foot">' +
+                '<div class="ig-shift-legend-pills">' +
+                    '<span class="ig-shift-chip is-day"><span class="material-symbols-rounded" aria-hidden="true">light_mode</span> Day <strong>' + day + '</strong></span>' +
+                    '<span class="ig-shift-chip is-night"><span class="material-symbols-rounded" aria-hidden="true">dark_mode</span> Night <strong>' + night + '</strong></span>' +
+                '</div>' +
+                '<span class="ig-deploy-share">' + forceSharePct + '% of deployment</span>' +
+            '</div>' +
+        '</article>';
+    }).join('');
 }
 
 function renderContractStatus(guards) {
     const today = localDateString(new Date());
     const soon = addDays(today, 30);
     const counts = { expiring: 0, expired: 0, active: 0 };
-    guards.filter(guard => guard.active !== false && guard.employment_category === 'contract').forEach(guard => {
+    const activeForce = guards.filter(guard => guard.active !== false);
+    const contractGuards = activeForce.filter(guard => guard.employment_category === 'contract');
+    const regularCount = Math.max(0, activeForce.length - contractGuards.length);
+
+    contractGuards.forEach(guard => {
         const end = guard.contract_end_date;
         if (!end || end < today) counts.expired++;
         else if (end <= soon) counts.expiring++;
         else counts.active++;
     });
+
     renderDonut('contractDonut', 'contractLegend', [
-        { label: 'Expiring Soon', value: counts.expiring, color: '#f8bfa9' },
-        { label: 'Expired', value: counts.expired, color: '#f97316' },
-        { label: 'Active Contract', value: counts.active, color: '#92400e' },
-    ]);
+        { label: 'Active Contract', value: counts.active, color: '#10b981' },
+        { label: 'Expiring Soon', value: counts.expiring, color: '#f59e0b' },
+        { label: 'Expired', value: counts.expired, color: '#ef4444' },
+    ], 'contractDonutTotal');
+
+    const renewalRisk = counts.expiring + counts.expired;
+    document.getElementById('contractMetaFooter').innerHTML =
+        '<span>Regular force: <strong>' + regularCount + '</strong></span>' +
+        '<span>Needs renewal attention: <strong>' + renewalRisk + '</strong></span>';
 }
 
 function renderAttendanceOverview(schedules, attendance) {
@@ -324,29 +1455,76 @@ function renderAttendanceOverview(schedules, attendance) {
         if (new Date(session.clock_in_at).getTime() > new Date(session.scheduled_start_at || schedule.start_at).getTime() + 5 * 60000) late++;
     });
     const absent = Math.max(0, todaySchedules.length - present);
+    const onTime = Math.max(0, present - late);
+    const attendanceRate = todaySchedules.length ? Math.round((present / todaySchedules.length) * 100) : 0;
+
     renderDonut('attendanceDonut', 'attendanceLegend', [
-        { label: 'Present', value: present, color: '#fde3b3' },
-        { label: 'Absent', value: absent, color: '#f5b400' },
-        { label: 'Late', value: late, color: '#5b3412' },
-    ]);
+        { label: 'Present', value: present, color: '#10b981' },
+        { label: 'Late', value: late, color: '#f59e0b' },
+        { label: 'Absent', value: absent, color: '#ef4444' },
+    ], 'attendanceDonutTotal', todaySchedules.length);
+
+    document.getElementById('attendanceMetaFooter').innerHTML =
+        '<span>Check-in rate: <strong>' + attendanceRate + '%</strong></span>' +
+        '<span>On-time arrivals: <strong>' + onTime + '</strong> of <strong>' + todaySchedules.length + '</strong></span>';
 }
 
 let currentIncidentDays = 7;
 let dashboardIncidents = [];
 let dashboardProfiles = [];
 
+function incidentIconName(category) {
+    if (category === 'fire') return 'emergency';
+    if (category === 'medical') return 'health_and_safety';
+    if (category === 'crime' || category === 'disturbance') return 'warning';
+    return 'error';
+}
+
+function incidentStatusToneClass(statusLabel) {
+    if (statusLabel === 'Resolved') return 'is-resolved';
+    if (statusLabel === 'Escalated') return 'is-escalated';
+    return 'is-investigation';
+}
+
 function renderRecentIncidents(incidents, profiles = []) {
     dashboardIncidents = incidents;
     dashboardProfiles = profiles;
     const recent = incidents.slice(0, 5);
-    document.getElementById('recentIncidentTableBody').innerHTML = recent.length ? recent.map(incident => (
-        '<tr data-incident-id="' + escapeHtml(incident.id) + '">' +
-            '<td>' + escapeHtml(formatDashboardDate(incident.captured_at || incident.created_at)) + '</td>' +
-            '<td>' + escapeHtml(incidentCategory(incident.category)) + '</td>' +
-            '<td>' + (incident.location_label ? escapeHtml(incident.location_label) : '<em class="text-muted">No location on record</em>') + '</td>' +
-            '<td>' + escapeHtml(incidentStatus(incident.status)) + '</td>' +
-        '</tr>'
-    )).join('') : '<tr><td colspan="4" class="empty-state">No recent incidents.</td></tr>';
+    const feed = document.getElementById('recentIncidentFeed');
+
+    feed.innerHTML = recent.length ? recent.map(incident => {
+        const statusLabel = incidentStatus(incident.status);
+        const toneClass = incidentStatusToneClass(statusLabel);
+        const iconName = incidentIconName(incident.category);
+        const locationText = incident.location_label
+            ? escapeHtml(incident.location_label)
+            : '<em>No location on record</em>';
+
+        return '<article class="ig-incident-card ' + toneClass + '" data-incident-id="' + escapeHtml(incident.id) + '">' +
+            '<div class="ig-incident-card-top">' +
+                '<div class="ig-incident-type">' +
+                    '<span class="ig-incident-icon" aria-hidden="true"><span class="material-symbols-rounded">' + iconName + '</span></span>' +
+                    '<span class="ig-incident-title">' + escapeHtml(incidentCategory(incident.category)) + '</span>' +
+                '</div>' +
+                '<span class="ig-incident-status ' + toneClass + '">' + escapeHtml(statusLabel) + '</span>' +
+            '</div>' +
+            '<div class="ig-incident-meta">' +
+                '<span class="ig-incident-meta-item" title="' + escapeHtml(incident.location_label || 'No location on record') + '">' +
+                    '<span class="material-symbols-rounded" aria-hidden="true">location_on</span>' +
+                    '<span class="ig-incident-loc-text">' + locationText + '</span>' +
+                '</span>' +
+                '<span class="ig-incident-meta-item">' +
+                    '<span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>' +
+                    '<span>' + escapeHtml(formatDashboardDate(incident.captured_at || incident.created_at)) + '</span>' +
+                '</span>' +
+            '</div>' +
+        '</article>';
+    }).join('') : (
+        '<div class="ig-empty-state">' +
+            '<span class="material-symbols-rounded" aria-hidden="true">check_circle</span>' +
+            '<span>No recent incidents.</span>' +
+        '</div>'
+    );
 
     bindIncidentTimeFilters();
     renderIncidentIntelligence(currentIncidentDays);
@@ -424,7 +1602,8 @@ function renderIncidentIntelligence(days) {
         .slice(0, 5)
         .map(([uid, count]) => {
             const name = guardNameById.get(uid) || 'Guard';
-            return { name, count };
+            const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+            return { name, count, pct };
         });
 
     const topCategories = Object.entries(categoryCounts)
@@ -432,38 +1611,61 @@ function renderIncidentIntelligence(days) {
         .slice(0, 5)
         .map(([name, count]) => {
             const rate = total > 0 ? Math.round((count / total) * 100) : 0;
-            return { name, count, rate };
+            return { name, count, rate, pct: rate };
         });
 
     const periodLabel = days === 7 ? 'past 7 days' : days === 30 ? 'past 30 days' : days === 365 ? 'past year' : 'all time';
+    const invCount = statusCounts['Under investigation'] || 0;
+    const escCount = statusCounts.Escalated || 0;
+    const resCount = statusCounts.Resolved || 0;
+    const statusTotal = invCount + escCount + resCount;
+    const invPct = statusTotal ? Math.round((invCount / statusTotal) * 100) : 0;
+    const escPct = statusTotal ? Math.round((escCount / statusTotal) * 100) : 0;
+    const resPct = statusTotal ? Math.max(0, 100 - invPct - escPct) : 0;
 
-    function renderList(items, badgeFn, emptyText) {
+    function renderBarList(items, badgeFn, emptyText) {
         if (!items.length) {
             return `<li class="incident-top5-empty">${escapeHtml(emptyText)}</li>`;
         }
-        return items.map((item, idx) => `
+        const maxCount = Math.max(1, ...items.map(item => item.count || 0));
+        return items.map((item, idx) => {
+            const barWidth = Math.max(10, Math.round(((item.count || 0) / maxCount) * 100));
+            return `
             <li class="incident-top5-item">
-                <div class="incident-top5-item-left">
-                    <span class="incident-top5-rank">${idx + 1}</span>
-                    <div class="incident-top5-info">
-                        <span class="incident-top5-name" title="${escapeHtml(item.rawName || item.name)}">${escapeHtml(item.displayName || item.name)}</span>
-                        ${item.sub ? `<span class="incident-top5-sub">${escapeHtml(item.sub)}</span>` : ''}
+                <div class="ig-top5-row-top">
+                    <div class="incident-top5-item-left">
+                        <span class="incident-top5-rank">${idx + 1}</span>
+                        <div class="incident-top5-info">
+                            <span class="incident-top5-name" title="${escapeHtml(item.rawName || item.name)}">${escapeHtml(item.displayName || item.name)}</span>
+                            ${item.sub ? `<span class="incident-top5-sub">${escapeHtml(item.sub)}</span>` : ''}
+                        </div>
                     </div>
+                    <span class="incident-top5-badge">${badgeFn(item)}</span>
                 </div>
-                <span class="incident-top5-badge">${badgeFn(item)}</span>
+                <div class="ig-rank-bar-track" aria-hidden="true">
+                    <div class="ig-rank-bar-fill" style="width:${barWidth}%"></div>
+                </div>
             </li>
-        `).join('');
+            `;
+        }).join('');
     }
 
     container.innerHTML = `
         <div class="incident-status-summary-bar">
             <span class="incident-status-summary-label">Status breakdown (${total})</span>
             <div class="incident-status-badges">
-                <span class="incident-status-pill investigation">● Under investigation: <strong>${statusCounts['Under investigation'] || 0}</strong></span>
-                <span class="incident-status-pill escalated">● Escalated: <strong>${statusCounts.Escalated || 0}</strong></span>
-                <span class="incident-status-pill resolved">● Resolved: <strong>${statusCounts.Resolved || 0}</strong></span>
+                <span class="incident-status-pill investigation">● Under investigation: <strong>${invCount}</strong></span>
+                <span class="incident-status-pill escalated">● Escalated: <strong>${escCount}</strong></span>
+                <span class="incident-status-pill resolved">● Resolved: <strong>${resCount}</strong></span>
             </div>
             <span class="incident-status-period">Filtered for ${periodLabel}</span>
+            <div class="ig-status-stack-wrap" aria-hidden="true">
+                <div class="ig-status-stack-track">
+                    ${invPct > 0 ? `<div class="ig-status-seg-inv" style="width:${invPct}%"></div>` : ''}
+                    ${escPct > 0 ? `<div class="ig-status-seg-esc" style="width:${escPct}%"></div>` : ''}
+                    ${resPct > 0 ? `<div class="ig-status-seg-res" style="width:${resPct}%"></div>` : ''}
+                </div>
+            </div>
         </div>
 
         <div class="incident-top5-grid">
@@ -473,7 +1675,7 @@ function renderIncidentIntelligence(days) {
                     <h4>Highest incident area (Top 5)</h4>
                 </div>
                 <ol class="incident-top5-list">
-                    ${renderList(topLocations, item => `${item.count} report${item.count === 1 ? '' : 's'} (${item.pct}%)`, 'No reports in ' + periodLabel)}
+                    ${renderBarList(topLocations, item => `${item.count} report${item.count === 1 ? '' : 's'} (${item.pct}%)`, 'No reports in ' + periodLabel)}
                 </ol>
             </div>
 
@@ -483,7 +1685,7 @@ function renderIncidentIntelligence(days) {
                     <h4>Top reporting guard (Top 5)</h4>
                 </div>
                 <ol class="incident-top5-list">
-                    ${renderList(topGuards, item => `${item.count} filed`, 'No submissions in ' + periodLabel)}
+                    ${renderBarList(topGuards, item => `${item.count} filed`, 'No submissions in ' + periodLabel)}
                 </ol>
             </div>
 
@@ -493,28 +1695,48 @@ function renderIncidentIntelligence(days) {
                     <h4>Top incident rate &amp; types (Top 5)</h4>
                 </div>
                 <ol class="incident-top5-list">
-                    ${renderList(topCategories, item => `${item.count} (${item.rate}%)`, 'No incidents recorded')}
+                    ${renderBarList(topCategories, item => `${item.count} (${item.rate}%)`, 'No incidents recorded')}
                 </ol>
             </div>
         </div>
     `;
 }
 
-function renderDonut(chartId, legendId, segments) {
-    const total = segments.reduce((sum, segment) => sum + segment.value, 0);
+function renderDonut(chartId, legendId, segments, centerTotalId, explicitCenterTotal) {
+    const segmentSum = segments.reduce((sum, segment) => sum + segment.value, 0);
+    const displayTotal = typeof explicitCenterTotal === 'number' ? explicitCenterTotal : segmentSum;
     let cursor = 0;
-    const stops = total ? segments.map(segment => {
+    const stops = segmentSum ? segments.map(segment => {
         const start = cursor;
-        cursor += (segment.value / total) * 360;
+        cursor += (segment.value / segmentSum) * 360;
         return segment.color + ' ' + start.toFixed(2) + 'deg ' + cursor.toFixed(2) + 'deg';
-    }).join(', ') : '#e5e7eb 0deg 360deg';
+    }).join(', ') : 'var(--ig-donut-empty) 0deg 360deg';
+
     const chart = document.getElementById(chartId);
     chart.style.background = 'conic-gradient(' + stops + ')';
-    chart.dataset.total = total;
+    chart.dataset.total = displayTotal;
     chart.setAttribute('aria-label', segments.map(segment => segment.label + ': ' + segment.value).join(', '));
-    document.getElementById(legendId).innerHTML = segments.map(segment =>
-        '<span><i style="background:' + segment.color + '"></i>' + escapeHtml(segment.label) + ' <strong>' + segment.value + '</strong></span>'
-    ).join('');
+
+    if (centerTotalId) {
+        const centerEl = document.getElementById(centerTotalId);
+        if (centerEl) centerEl.innerText = displayTotal;
+    }
+
+    const denom = displayTotal > 0 ? displayTotal : (segmentSum > 0 ? segmentSum : 1);
+    document.getElementById(legendId).innerHTML = segments.map(segment => {
+        const pct = (displayTotal > 0 || segmentSum > 0)
+            ? Math.min(100, Math.round((segment.value / denom) * 100))
+            : 0;
+        return '<div class="ig-legend-row">' +
+            '<div class="ig-legend-top">' +
+                '<span class="ig-legend-label"><i class="ig-legend-dot" style="background:' + segment.color + '"></i>' + escapeHtml(segment.label) + '</span>' +
+                '<span class="ig-legend-metrics"><strong>' + segment.value + '</strong><span class="ig-legend-pct">' + pct + '%</span></span>' +
+            '</div>' +
+            '<div class="ig-legend-track" aria-hidden="true">' +
+                '<div class="ig-legend-fill" style="width:' + pct + '%;background:' + segment.color + '"></div>' +
+            '</div>' +
+        '</div>';
+    }).join('');
 }
 
 function dashboardShiftKind(startAt) {
