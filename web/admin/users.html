@@ -66,8 +66,8 @@
     box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.15);
 }
 .personnel-filter-reset {
-    height: 32px;
-    width: 32px;
+    height: 42px;
+    width: 42px;
     padding: 0;
     display: inline-flex;
     align-items: center;
@@ -75,13 +75,149 @@
     background: var(--sl-surface);
     border: 1px solid var(--sl-line);
     color: var(--sl-muted);
-    border-radius: 8px;
+    border-radius: 10px;
     transition: all 0.15s ease;
 }
 .personnel-filter-reset:hover {
     color: var(--sl-danger);
     border-color: var(--sl-danger);
     background: var(--sl-red-soft);
+}
+html[data-theme="dark"] .personnel-filter-reset {
+    background: #2a1d21;
+    border-color: #493337;
+    color: #d1b5ba;
+}
+html[data-theme="dark"] .personnel-filter-reset:hover {
+    color: var(--sl-danger);
+    border-color: #fb7185;
+    background: var(--sl-red-soft);
+}
+.personnel-search-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 265px;
+    max-width: 100%;
+}
+.personnel-search-icon {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 17px;
+    color: var(--sl-muted);
+    pointer-events: none;
+    z-index: 2;
+    transition: color 0.15s ease;
+}
+.personnel-search-wrap:focus-within .personnel-search-icon {
+    color: var(--sl-danger);
+}
+.personnel-search-input {
+    width: 100%;
+    height: 42px;
+    min-height: 42px;
+    padding: 8px 34px 8px 35px !important;
+    font-size: 0.84rem;
+    font-weight: 500;
+    border-radius: 10px;
+    transform: none !important;
+}
+.personnel-search-clear {
+    position: absolute;
+    right: 7px;
+    top: 0;
+    bottom: 0;
+    margin-block: auto;
+    width: 26px;
+    height: 26px;
+    min-height: 26px !important;
+    max-height: 26px !important;
+    padding: 0 !important;
+    border: none !important;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--sl-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transform: none !important;
+    transition: color 0.15s ease, background-color 0.15s ease;
+    z-index: 2;
+}
+.personnel-search-clear[hidden] {
+    display: none !important;
+}
+.personnel-search-clear .material-symbols-rounded {
+    font-size: 16px;
+    line-height: 1;
+    pointer-events: none;
+}
+.personnel-search-clear:hover {
+    color: var(--sl-danger);
+    background-color: var(--sl-red-soft);
+}
+.personnel-search-clear:focus-visible {
+    outline: 2px solid var(--sl-danger);
+    outline-offset: 1px;
+    color: var(--sl-danger);
+}
+.personnel-empty-state {
+    text-align: center;
+    padding: 42px 20px !important;
+}
+.personnel-empty-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+.personnel-empty-icon {
+    font-size: 28px;
+    color: var(--sl-muted);
+    opacity: 0.75;
+}
+.personnel-empty-title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--sl-ink);
+}
+.personnel-empty-sub {
+    font-size: 0.8rem;
+    color: var(--sl-muted);
+}
+.personnel-empty-reset {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-left: 4px;
+    color: var(--sl-danger);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.personnel-empty-reset:hover {
+    opacity: 0.85;
+}
+@media (max-width: 640px) {
+    .personnel-table-filters {
+        width: 100%;
+    }
+    .personnel-search-wrap {
+        width: 100%;
+        flex: 1 1 100%;
+    }
+    .personnel-table-filters .personnel-filter-group {
+        flex: 1 1 130px;
+        min-width: 0;
+    }
+    .personnel-table-filters .personnel-filter-select {
+        width: 100%;
+        min-width: 0;
+    }
 }
 
 .user-table { width: 100%; border-collapse: separate; border-spacing: 0; }
@@ -763,6 +899,14 @@
                         <span class="personnel-table-count" id="guardPersonnelCount">0</span>
                     </div>
                     <div class="personnel-table-filters d-flex align-items-center gap-2 flex-wrap">
+                        <div class="personnel-search-wrap">
+                            <label for="guardSearchInput" class="visually-hidden">Search guard personnel</label>
+                            <span class="material-symbols-rounded personnel-search-icon" aria-hidden="true">search</span>
+                            <input type="text" id="guardSearchInput" class="form-control form-control-sm personnel-search-input" placeholder="Search name, ID, or email..." autocomplete="off" spellcheck="false" oninput="handleGuardSearchInput()" aria-label="Search guard personnel">
+                            <button type="button" class="personnel-search-clear" id="guardSearchClearBtn" onclick="clearGuardSearch()" title="Clear search" aria-label="Clear search" hidden>
+                                <span class="material-symbols-rounded" aria-hidden="true">close</span>
+                            </button>
+                        </div>
                         <div class="personnel-filter-group">
                             <label for="guardStatusFilter" class="visually-hidden">Status</label>
                             <select id="guardStatusFilter" class="form-select form-select-sm personnel-filter-select" onchange="applyGuardFilters()" aria-label="Filter guards by status">
@@ -1410,9 +1554,11 @@ let currentDTRData       = [];
 let currentDTRUid        = null;
 let personnelAccounts    = {};
 let personnelLocationsById = {};
+let personnelLocationDetailsById = {};
 let allGuards              = [];
 let guardSchedulesByUserId = {};
 let guardHistoryShiftByUserId = {};
+let guardSearchDebounceTimer = null;
 
 function getGuardContractStatus(data, today) {
     if (data.employmentCategory !== 'contract') return 'regular';
@@ -1472,12 +1618,88 @@ function resolveGuardShift(guardId, data) {
     return 'Day Shift';
 }
 
+function handleGuardSearchInput() {
+    const searchEl = document.getElementById("guardSearchInput");
+    const clearBtn = document.getElementById("guardSearchClearBtn");
+    if (clearBtn && searchEl) {
+        clearBtn.hidden = searchEl.value.length === 0;
+    }
+    if (guardSearchDebounceTimer) {
+        clearTimeout(guardSearchDebounceTimer);
+    }
+    guardSearchDebounceTimer = setTimeout(() => {
+        guardSearchDebounceTimer = null;
+        applyGuardFilters();
+    }, 300);
+}
+
+function clearGuardSearch() {
+    if (guardSearchDebounceTimer) {
+        clearTimeout(guardSearchDebounceTimer);
+        guardSearchDebounceTimer = null;
+    }
+    const searchEl = document.getElementById("guardSearchInput");
+    const clearBtn = document.getElementById("guardSearchClearBtn");
+    if (searchEl) {
+        searchEl.value = "";
+        searchEl.focus();
+    }
+    if (clearBtn) clearBtn.hidden = true;
+    applyGuardFilters();
+}
+
+function matchesGuardSearch(data, searchQuery) {
+    if (!searchQuery) return true;
+
+    const middle = data.middleName
+        ? (data.middleName.trim().length === 1 ? data.middleName.trim() + "." : data.middleName.trim())
+        : (data.middleInitial ? data.middleInitial.replace(/\.+$/, "") + "." : "");
+    const displayFullName = [data.firstName || "", middle, data.lastName || ""].filter(Boolean).join(" ").trim() || (data.name || "");
+    const fullMiddleName = [data.firstName || "", data.middleName || "", data.lastName || ""].filter(Boolean).join(" ").trim();
+    const firstLastName = [data.firstName || "", data.lastName || ""].filter(Boolean).join(" ").trim();
+    const rawName = String(data.name || "").trim();
+
+    const secId = String(data.personnelId || data.personnel_id || "").trim();
+
+    const rawEmail = String(data.email || "").trim();
+    const emailField = rawEmail && (typeof AUTH_EMAIL_DOMAIN === "undefined" || !rawEmail.toLowerCase().endsWith("@" + AUTH_EMAIL_DOMAIN))
+        ? "@" + rawEmail
+        : "";
+
+    const locId = data.assignedLocationId || data.assigned_location_id || "";
+    const locDetails = (locId && personnelLocationDetailsById && personnelLocationDetailsById[locId]) || {};
+    const postLabel = locId ? (locDetails.label || (personnelLocationsById && personnelLocationsById[locId]) || "") : "";
+    const postAddress = locId ? (locDetails.address || "") : "";
+
+    const candidates = [
+        displayFullName,
+        fullMiddleName,
+        firstLastName,
+        rawName,
+        secId,
+        emailField,
+        postLabel,
+        postAddress
+    ];
+
+    return candidates.some(field => field && field.replace(/\s+/g, " ").toLowerCase().includes(searchQuery));
+}
+
 function applyGuardFilters() {
     const statusFilter = document.getElementById("guardStatusFilter")?.value || "all";
     const categoryFilter = document.getElementById("guardCategoryFilter")?.value || "all";
+    const searchRaw = document.getElementById("guardSearchInput")?.value || "";
+    const searchQuery = searchRaw.trim().replace(/\s+/g, " ").toLowerCase();
+    const hasActiveFilter = statusFilter !== "all" || categoryFilter !== "all" || searchQuery.length > 0;
+
+    const clearBtn = document.getElementById("guardSearchClearBtn");
+    if (clearBtn) {
+        clearBtn.hidden = searchRaw.length === 0;
+    }
+
     const resetBtn = document.getElementById("guardFilterResetBtn");
     if (resetBtn) {
-        resetBtn.style.display = (statusFilter !== "all" || categoryFilter !== "all") ? "inline-flex" : "none";
+        resetBtn.style.display = hasActiveFilter ? "inline-flex" : "none";
     }
 
     const today = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
@@ -1500,6 +1722,8 @@ function applyGuardFilters() {
             if (contractStatus !== 'contract_expired') return false;
         }
 
+        if (searchQuery && !matchesGuardSearch(data, searchQuery)) return false;
+
         return true;
     });
 
@@ -1516,21 +1740,40 @@ function applyGuardFilters() {
 
     const countEl = document.getElementById("guardPersonnelCount");
     if (countEl) {
-        countEl.textContent = (statusFilter === "all" && categoryFilter === "all")
-            ? allGuards.length
-            : `${filtered.length} of ${allGuards.length}`;
+        countEl.textContent = String(filtered.length);
+        countEl.title = hasActiveFilter
+            ? `${filtered.length} of ${allGuards.length} guard personnel`
+            : `${allGuards.length} guard personnel`;
     }
 
     const guardRows = filtered.map(({ id, data }) => renderGuardRow(id, data, personnelLocationsById)).join("");
     document.getElementById("guardTableBody").innerHTML = guardRows ||
-        `<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--sl-muted);">No guards match the selected filters. <a href="javascript:void(0)" onclick="resetGuardFilters()" style="color:var(--sl-danger);text-decoration:underline;margin-left:6px;">Reset filters</a></td></tr>`;
+        `<tr>
+            <td colspan="9" class="personnel-empty-state">
+                <div class="personnel-empty-inner">
+                    <span class="material-symbols-rounded personnel-empty-icon" aria-hidden="true">group_off</span>
+                    <div class="personnel-empty-title">No personnel found</div>
+                    ${hasActiveFilter
+                        ? `<div class="personnel-empty-sub">No guard records match your current search or filters.<button type="button" class="personnel-empty-reset" onclick="resetGuardFilters()">Reset filters</button></div>`
+                        : `<div class="personnel-empty-sub">Add a guard account to see personnel records here.</div>`}
+                </div>
+            </td>
+        </tr>`;
 }
 
 function resetGuardFilters() {
+    if (guardSearchDebounceTimer) {
+        clearTimeout(guardSearchDebounceTimer);
+        guardSearchDebounceTimer = null;
+    }
     const statusEl = document.getElementById("guardStatusFilter");
     const catEl = document.getElementById("guardCategoryFilter");
+    const searchEl = document.getElementById("guardSearchInput");
+    const clearBtn = document.getElementById("guardSearchClearBtn");
     if (statusEl) statusEl.value = "all";
     if (catEl) catEl.value = "all";
+    if (searchEl) searchEl.value = "";
+    if (clearBtn) clearBtn.hidden = true;
     applyGuardFilters();
 }
 

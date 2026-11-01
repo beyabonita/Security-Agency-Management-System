@@ -311,3 +311,136 @@ test('clicking personnel name opens rich profile card modal with personal and em
   await expect(fireImg).toBeVisible();
   await expect(fireImg).toHaveAttribute('src', 'data:image/png;base64,UPDATED_FIREARMS_LICENSE');
 });
+
+test('guard personnel search input filters with debounce, combines with dropdowns, updates count badge, clears, and stays responsive in dark mode', async ({ page }) => {
+  await page.route('https://cdn.jsdelivr.net/npm/@supabase/**', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('https://cdnjs.cloudflare.com/**', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('**/notification-center.js', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('**/supabase-firebase-bridge.js', route => route.fulfill({
+    contentType: 'text/javascript',
+    body: `
+      const profiles = [
+        { id: 'admin-1', role: 'admin', active: true, firstName: 'Nicor', lastName: 'Bea' },
+        {
+          id: 'g-1', role: 'user', active: true,
+          firstName: 'Trix', middleInitial: 'E', lastName: 'Aguilar',
+          personnelId: 'SEC-2026-089', email: 'trixx.twentyagency@gmail.com',
+          employmentCategory: 'contract', contractStartDate: '2026-01-01', contractEndDate: '2027-04-06',
+          assignedLocationId: null
+        },
+        {
+          id: 'g-2', role: 'user', active: true,
+          firstName: 'Mia', middleInitial: 'P', lastName: 'Allyssa',
+          personnelId: 'SEC-2026-071', email: 'allyssa.twentyagency@gmail.com',
+          employmentCategory: 'contract', contractStartDate: '2026-01-01', contractEndDate: '2026-02-01',
+          assignedLocationId: 'loc-chmsu'
+        },
+        {
+          id: 'g-3', role: 'user', active: false,
+          firstName: 'Juanito', middleName: 'Golez', lastName: 'Damasco',
+          personnelId: 'SEC-2026-090', email: 'juanito.twentyagency@gmail.com',
+          employmentCategory: 'regular',
+          assignedLocationId: 'loc-sm'
+        }
+      ];
+      const locations = [
+        { id: 'loc-chmsu', label: 'Carlos Hilado Memorial State University - Talisay', address: 'Mabini Street, Talisay, Negros Occidental' },
+        { id: 'loc-sm', label: 'SM City Bacolod', address: 'Reclamation Area, Bacolod City' }
+      ];
+      const snapshot = (items) => ({
+        size: items.length,
+        forEach(cb) { items.forEach(item => cb({ id: item.id, exists: true, data: () => item })); }
+      });
+      window.firebase = {
+        auth: () => ({ onAuthStateChanged: cb => setTimeout(() => cb({ uid: 'admin-1' }), 0), signOut: async () => {} }),
+        firestore: () => ({
+          collection: () => ({
+            get: async () => snapshot(profiles),
+            doc: id => ({ get: async () => ({ exists: true, data: () => profiles.find(p => p.id === id) || {} }) })
+          })
+        })
+      };
+      window.appSupabase = {
+        from: table => ({
+          select: () => {
+            const data = table === 'locations' ? locations : [];
+            return {
+              order: async () => ({ data, error: null }),
+              then: resolve => resolve({ data, error: null })
+            };
+          }
+        })
+      };
+    `
+  }));
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/admin/users.html');
+  await expect(page.locator('#guardPersonnelCount')).toHaveText('3');
+
+  const searchInput = page.locator('#guardSearchInput');
+  const clearBtn = page.locator('#guardSearchClearBtn');
+  await expect(searchInput).toBeVisible();
+  await expect(searchInput).toHaveAttribute('placeholder', 'Search name, ID, or email...');
+  await expect(clearBtn).toBeHidden();
+
+  // Partial case-insensitive match by Full Name (debounced ~300ms)
+  await searchInput.fill('trix aguilar');
+  await expect(clearBtn).toBeVisible();
+  await expect(page.locator('#guardPersonnelCount')).toHaveText('1');
+  await expect(page.locator('#guardTableBody tr')).toHaveCount(1);
+  await expect(page.locator('#guardTableBody')).toContainText('Trix E. Aguilar');
+
+  // Match by SEC ID
+  await searchInput.fill('sec-2026-071');
+  await expect(page.locator('#guardPersonnelCount')).toHaveText('1');
+  await expect(page.locator('#guardTableBody')).toContainText('Mia P. Allyssa');
+
+  // Match by Email
+  await searchInput.fill('JUANITO.TWENTYAGENCY');
+  await expect(page.locator('#guardPersonnelCount')).toHaveText('1');
+  await expect(page.locator('#guardTableBody')).toContainText('Juanito Golez Damasco');
+
+  // Match by Assigned Post
+  await searchInput.fill('carlos hilado');
+  await expect(page.locator('#guardPersonnelCount')).toHaveText('1');
+  await expect(page.locator('#guardTableBody')).toContainText('Mia P. Allyssa');
+
+  // Clear (X) button restores all results immediately
+  await clearBtn.click();
+  await expect(searchInput).toHaveValue('');
+  await expect(clearBtn).toBeHidden();
+  await expect(page.locator('#guardPersonnelCount')).toHaveText('3');
+  await expect(page.locator('#guardTableBody tr')).toHaveCount(3);
+
+  // Combines with Status and Category filters
+  await page.locator('#guardStatusFilter').selectOption('active');
+  await searchInput.fill('twentyagency');
+  await expect(page.locator('#guardPersonnelCount')).toHaveText('2');
+  await page.locator('#guardCategoryFilter').selectOption('contract_active');
+  await expect(page.locator('#guardPersonnelCount')).toHaveText('1');
+  await expect(page.locator('#guardTableBody')).toContainText('Trix E. Aguilar');
+
+  // Empty state when nothing matches
+  await searchInput.fill('nonexistent-guard-xyz');
+  await expect(page.locator('#guardPersonnelCount')).toHaveText('0');
+  await expect(page.locator('#guardTableBody')).toContainText('No personnel found');
+
+  // Reset filters clears search + dropdowns
+  await page.locator('#guardFilterResetBtn').click();
+  await expect(searchInput).toHaveValue('');
+  await expect(page.locator('#guardStatusFilter')).toHaveValue('all');
+  await expect(page.locator('#guardCategoryFilter')).toHaveValue('all');
+  await expect(page.locator('#guardPersonnelCount')).toHaveText('3');
+
+  // Dark mode + mobile responsiveness (390px)
+  await page.evaluate(() => window.sentinelTheme?.set('dark'));
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await page.setViewportSize({ width: 390, height: 844 });
+  const overflow = await page.evaluate(() => ({
+    viewport: document.documentElement.clientWidth,
+    scroll: document.documentElement.scrollWidth
+  }));
+  expect(overflow.scroll).toBeLessThanOrEqual(overflow.viewport + 1);
+  await expect(searchInput).toBeVisible();
+});

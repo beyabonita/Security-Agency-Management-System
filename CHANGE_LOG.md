@@ -1,5 +1,24 @@
 # Project Change Log
 
+### [2026-11-01 11:28] - Feat: Add Guard Personnel Search Input to Operations Head Console
+
+- **Scope & Objective**:
+  - Added a real-time, debounced search input to the Guard Personnel toolbar on the Operations Head Personnel page ([`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html)) next to the "All Status" and "All Categories" dropdown filters.
+- **Files Modified**:
+  - [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html):
+    - Added `.personnel-search-wrap`, `#guardSearchInput` (`placeholder="Search name, ID, or email..."`), leading `search` icon, and inline `#guardSearchClearBtn` (`close` `X` button) inside `.personnel-table-filters`.
+    - Implemented `handleGuardSearchInput()` with a `300ms` debounce timer (`guardSearchDebounceTimer`) and `clearGuardSearch()` for instant clearing and focus retention.
+    - Implemented `matchesGuardSearch(data, searchQuery)` for case-insensitive, partial matching against full name (with/without middle name/initial), SEC ID (`personnelId`), email, and assigned post (company label and address).
+    - Combined search filtering with `#guardStatusFilter` and `#guardCategoryFilter` in `applyGuardFilters()`, updating `#guardPersonnelCount` to display the number of matching results and rendering a `"No personnel found"` empty state with a `"Reset filters"` action when nothing matches.
+    - Styled toolbar controls for consistent `10px` border radius, `Inter` font, red accent focus/hover states, dark mode (`html[data-theme="dark"]`), and mobile responsiveness (`@media (max-width: 640px)`).
+  - [`web/tests/personnel_profile.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/personnel_profile.spec.js):
+    - Added Playwright test covering search debounce, full name / SEC ID / email / assigned post matching, clear (`X`) button, combined Status + Category filters, count badge updates, `"No personnel found"` empty state, dark mode, and mobile viewport containment (`390px`).
+- **Verification & Testing**:
+  - Validated inline JavaScript syntax in `web/admin/users.html`: 0 errors.
+  - Verified bundled Material Symbols via `node web/tests/google_icons_test.js`: Passed (52 bundled symbols, 221 markup references).
+- **Pending / Next Steps**:
+  - Commit and push to `origin/main` when ready to deploy to the live hosted Vercel portal (`tts-agency.site`).
+
 ### [2026-10-06 04:36] - UI: Remove Device Column and Reset Device Access Buttons from Personnel Tables
 
 - **Scope & Objective**:
