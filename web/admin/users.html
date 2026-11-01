@@ -470,7 +470,40 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
 .page-title { font-size: 1.35rem; font-weight: 700; color: var(--sl-ink); }
 .page-sub { font-size: 0.875rem; color: var(--sl-muted); margin-top: 4px; }
 
-.form-label { color: var(--sl-muted); font-size: 0.8rem; font-weight: 600; }
+.form-label {
+    color: var(--sl-muted); font-size: 0.8rem; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.badge-field-required {
+    display: inline-flex; align-items: center;
+    padding: 1px 7px; border-radius: 999px;
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase; line-height: 1.45;
+    color: var(--sl-danger, #dc2626);
+    background: var(--sl-red-soft, rgba(220, 38, 38, 0.1));
+    border: 1px solid rgba(220, 38, 38, 0.24);
+    white-space: nowrap;
+}
+.form-required-legend {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 8px 12px; margin-bottom: 14px;
+    border-radius: 10px;
+    background: var(--sl-surface-muted, #f8fafc);
+    border: 1px solid var(--sl-line, #e2e8f0);
+    border-left: 3px solid var(--sl-danger, #dc2626);
+    color: var(--sl-muted); font-size: 0.76rem; font-weight: 500; line-height: 1.4;
+}
+html[data-theme="dark"] .badge-field-required {
+    color: #fca5a5;
+    background: rgba(239, 68, 68, 0.18);
+    border-color: rgba(248, 113, 113, 0.34);
+}
+html[data-theme="dark"] .form-required-legend {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--sl-line, rgba(255, 255, 255, 0.12));
+    border-left-color: #ef4444;
+    color: var(--sl-muted);
+}
 .form-control, .form-select {
     background: var(--sl-surface-muted); border: 1px solid var(--sl-line); color: var(--sl-ink);
     border-radius: 10px; padding: 10px 14px; font-size: 0.875rem;
@@ -1026,32 +1059,36 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
 </div>
 <div class="modal-body">
     <p class="modal-guard-meta" id="createUserRoleHint">Creates login credentials and complete personnel file. Guards use the mobile app; inspectors and admins use the web panel.</p>
+    <div class="form-required-legend" id="createGuardRequiredLegend" role="note">
+        <span class="badge-field-required" aria-hidden="true">Required</span>
+        <span>Fields marked with this badge must be filled out before creating the account.</span>
+    </div>
     
     <!-- Account & Identification -->
     <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">person</span>Account & Identification</div>
     <div class="row g-3">
         <div class="col-md-4">
-            <label class="form-label">ACCOUNT ROLE</label>
-            <select id="newGuardRole" class="form-select" onchange="updateCreateUserHint()">
+            <label class="form-label" for="newGuardRole">ACCOUNT ROLE <span class="badge-field-required">Required</span></label>
+            <select id="newGuardRole" class="form-select" required onchange="updateCreateUserHint()">
                 <option value="user">Guard — mobile attendance app</option>
                 <option value="inspector">Inspector — field review & approvals</option>
             </select>
         </div>
         <div class="col-md-4">
-            <label class="form-label">DUTY CATEGORY</label>
-            <select id="newGuardEmploymentCategory" class="form-select" onchange="updateCreateUserHint()">
+            <label class="form-label" for="newGuardEmploymentCategory">DUTY CATEGORY <span class="badge-field-required">Required</span></label>
+            <select id="newGuardEmploymentCategory" class="form-select" required onchange="updateCreateUserHint()">
                 <option value="regular">Regular</option>
                 <option value="contract">Contract</option>
             </select>
         </div>
         <div class="col-md-4">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <label class="form-label mb-0" for="newGuardPersonnelId">PERSONNEL ID</label>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1">
+                <label class="form-label mb-0" for="newGuardPersonnelId">PERSONNEL ID <span class="badge-field-required">Required</span></label>
                 <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" style="font-size:0.72rem; color:var(--sl-danger); font-weight:600;" onclick="regenerateNewGuardPersonnelId()" title="Regenerate Personnel ID">
                     <span class="material-symbols-rounded align-middle" style="font-size:14px;" aria-hidden="true">refresh</span> Auto-generate
                 </button>
             </div>
-            <input type="text" id="newGuardPersonnelId" class="form-control" placeholder="e.g. SEC-2026-001">
+            <input type="text" id="newGuardPersonnelId" class="form-control" placeholder="e.g. SEC-2026-001" required>
         </div>
     </div>
 
@@ -1060,23 +1097,23 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
     <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">person</span>Personal Information</div>
     <div class="row g-3">
         <div class="col-md-4">
-            <label class="form-label">FIRST NAME *</label>
-            <input type="text" id="newGuardFirstName" class="form-control personnel-name-input" placeholder="e.g. Juan" oninput="autoCapitalizeWords(this)">
+            <label class="form-label" for="newGuardFirstName">FIRST NAME <span class="badge-field-required">Required</span></label>
+            <input type="text" id="newGuardFirstName" class="form-control personnel-name-input" placeholder="e.g. Juan" required oninput="autoCapitalizeWords(this)">
         </div>
         <div class="col-md-4">
-            <label class="form-label">MIDDLE NAME</label>
+            <label class="form-label" for="newGuardMiddleName">MIDDLE NAME</label>
             <input type="text" id="newGuardMiddleName" class="form-control personnel-name-input" placeholder="e.g. Dela Cruz" oninput="autoCapitalizeWords(this)">
         </div>
         <div class="col-md-4">
-            <label class="form-label">LAST NAME *</label>
-            <input type="text" id="newGuardLastName" class="form-control personnel-name-input" placeholder="e.g. Santos" oninput="autoCapitalizeWords(this)">
+            <label class="form-label" for="newGuardLastName">LAST NAME <span class="badge-field-required">Required</span></label>
+            <input type="text" id="newGuardLastName" class="form-control personnel-name-input" placeholder="e.g. Santos" required oninput="autoCapitalizeWords(this)">
         </div>
         <div class="col-md-4">
-            <label class="form-label">DATE OF BIRTH</label>
+            <label class="form-label" for="newGuardDob">DATE OF BIRTH</label>
             <input type="date" id="newGuardDob" class="form-control">
         </div>
         <div class="col-md-4">
-            <label class="form-label">GENDER</label>
+            <label class="form-label" for="newGuardGender">GENDER</label>
             <select id="newGuardGender" class="form-select">
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -1084,7 +1121,7 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
             </select>
         </div>
         <div class="col-md-4">
-            <label class="form-label">CIVIL STATUS</label>
+            <label class="form-label" for="newGuardCivilStatus">CIVIL STATUS</label>
             <select id="newGuardCivilStatus" class="form-select">
                 <option value="Single">Single</option>
                 <option value="Married">Married</option>
@@ -1093,16 +1130,16 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
             </select>
         </div>
         <div class="col-12">
-            <label class="form-label">COMPLETE ADDRESS</label>
+            <label class="form-label" for="newGuardAddress">COMPLETE ADDRESS</label>
             <input type="text" id="newGuardAddress" class="form-control" placeholder="House/Lot, Street, Barangay, City/Municipality, Province">
         </div>
         <div class="col-md-6">
-            <label class="form-label">EMAIL (LOGIN USERNAME) *</label>
-            <input type="email" id="newGuardUsername" class="form-control" placeholder="name@gmail.com" autocomplete="off">
+            <label class="form-label" for="newGuardUsername">EMAIL (LOGIN USERNAME) <span class="badge-field-required">Required</span></label>
+            <input type="email" id="newGuardUsername" class="form-control" placeholder="name@gmail.com" autocomplete="off" required>
             <div class="form-text" style="color:var(--sl-muted);font-size:0.75rem;">Use the person’s own email address.</div>
         </div>
         <div class="col-md-6">
-            <label class="form-label">PHONE / CONTACT NUMBER *</label>
+            <label class="form-label" for="newGuardMobileNumber">PHONE / CONTACT NUMBER</label>
             <input type="tel" id="newGuardMobileNumber" class="form-control" placeholder="09171234567" maxlength="11" autocomplete="tel">
             <div class="form-text" style="color:var(--sl-muted);font-size:0.75rem;">11-digit mobile starting with 09.</div>
         </div>
@@ -1113,11 +1150,11 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
     <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">business</span>Employment Details</div>
     <div class="row g-3">
         <div class="col-md-6">
-            <label class="form-label">DATE HIRED</label>
+            <label class="form-label" for="newGuardDateHired">DATE HIRED</label>
             <input type="date" id="newGuardDateHired" class="form-control">
         </div>
         <div class="col-md-6">
-            <label class="form-label">CONTRACT / EMPLOYMENT STATUS</label>
+            <label class="form-label" for="newGuardContractStatus">CONTRACT / EMPLOYMENT STATUS</label>
             <select id="newGuardContractStatus" class="form-select">
                 <option value="Active">Active</option>
                 <option value="Probationary">Probationary</option>
@@ -1127,8 +1164,8 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
         </div>
     </div>
     <div id="newGuardContractPeriod" class="row g-3 mt-1" hidden>
-        <div class="col-sm-6"><label class="form-label" for="newGuardContractStart">Contract start</label><input id="newGuardContractStart" type="date" class="form-control"></div>
-        <div class="col-sm-6"><label class="form-label" for="newGuardContractEnd">Contract end</label><input id="newGuardContractEnd" type="date" class="form-control"></div>
+        <div class="col-sm-6"><label class="form-label" for="newGuardContractStart">CONTRACT START <span class="badge-field-required">Required</span></label><input id="newGuardContractStart" type="date" class="form-control"></div>
+        <div class="col-sm-6"><label class="form-label" for="newGuardContractEnd">CONTRACT END <span class="badge-field-required">Required</span></label><input id="newGuardContractEnd" type="date" class="form-control"></div>
         <div class="col-12 form-text">Both dates are included. All duty periods must fit inside this contract.</div>
     </div>
 
@@ -1161,9 +1198,9 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
     <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">lock</span>Password Credentials</div>
     <div class="row g-3">
         <div class="col-md-6">
-            <label class="form-label">PASSWORD *</label>
+            <label class="form-label" for="newGuardPassword">PASSWORD <span class="badge-field-required">Required</span></label>
             <div class="password-field-wrap">
-                <input type="password" id="newGuardPassword" class="form-control" autocomplete="new-password" minlength="8" placeholder="8+ characters: uppercase, lowercase, number, symbol" aria-describedby="newGuardPasswordHelp">
+                <input type="password" id="newGuardPassword" class="form-control" autocomplete="new-password" minlength="8" placeholder="8+ characters: uppercase, lowercase, number, symbol" aria-describedby="newGuardPasswordHelp" required>
                 <button type="button" class="btn-toggle-password" id="newGuardPasswordToggle" onclick="togglePasswordVisibility('newGuardPassword', this)" aria-label="Show password" title="Show password" aria-controls="newGuardPassword" aria-pressed="false">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="m3 3 18 18" style="display:none"/></svg>
                 </button>
@@ -1171,9 +1208,9 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
             <small id="newGuardPasswordHelp">At least 8 characters with upper, lower, number, and symbol.</small>
         </div>
         <div class="col-md-6">
-            <label class="form-label">CONFIRM PASSWORD *</label>
+            <label class="form-label" for="newGuardPasswordConfirm">CONFIRM PASSWORD <span class="badge-field-required">Required</span></label>
             <div class="password-field-wrap">
-                <input type="password" id="newGuardPasswordConfirm" class="form-control" placeholder="Repeat password">
+                <input type="password" id="newGuardPasswordConfirm" class="form-control" placeholder="Repeat password" required>
                 <button type="button" class="btn-toggle-password" id="newGuardPasswordConfirmToggle" onclick="togglePasswordVisibility('newGuardPasswordConfirm', this)" aria-label="Show password" title="Show password" aria-controls="newGuardPasswordConfirm" aria-pressed="false">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/><path class="eye-slash" d="m3 3 18 18" style="display:none"/></svg>
                 </button>
@@ -1229,21 +1266,25 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
     <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
 </div>
 <div class="modal-body">
+    <div class="form-required-legend" id="editGuardRequiredLegend" role="note">
+        <span class="badge-field-required" aria-hidden="true">Required</span>
+        <span>Fields marked with this badge must be filled out before saving changes.</span>
+    </div>
     <!-- Identification & Core -->
     <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">person</span>Identification & Duty Category</div>
     <div class="row g-3">
         <div class="col-md-6">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <label class="form-label mb-0" for="editGuardPersonnelId">PERSONNEL ID</label>
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1">
+                <label class="form-label mb-0" for="editGuardPersonnelId">PERSONNEL ID <span class="badge-field-required">Required</span></label>
                 <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" style="font-size:0.72rem; color:var(--sl-danger); font-weight:600;" onclick="regenerateEditGuardPersonnelId()" title="Generate next Personnel ID">
                     <span class="material-symbols-rounded align-middle" style="font-size:14px;" aria-hidden="true">refresh</span> Auto-generate
                 </button>
             </div>
-            <input type="text" id="editGuardPersonnelId" class="form-control" placeholder="e.g. SEC-2026-001">
+            <input type="text" id="editGuardPersonnelId" class="form-control" placeholder="e.g. SEC-2026-001" required>
         </div>
         <div class="col-md-6">
-            <label class="form-label">DUTY CATEGORY</label>
-            <select id="editGuardEmploymentCategory" class="form-select" onchange="toggleEditContractFields()">
+            <label class="form-label" for="editGuardEmploymentCategory">DUTY CATEGORY <span class="badge-field-required">Required</span></label>
+            <select id="editGuardEmploymentCategory" class="form-select" required onchange="toggleEditContractFields()">
                 <option value="regular">Regular</option>
                 <option value="contract">Contract</option>
             </select>
@@ -1255,23 +1296,23 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
     <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">person</span>Personal Information</div>
     <div class="row g-3">
         <div class="col-md-4">
-            <label class="form-label">FIRST NAME *</label>
-            <input type="text" id="editGuardFirstName" class="form-control personnel-name-input" placeholder="e.g. Juan" oninput="autoCapitalizeWords(this)">
+            <label class="form-label" for="editGuardFirstName">FIRST NAME <span class="badge-field-required">Required</span></label>
+            <input type="text" id="editGuardFirstName" class="form-control personnel-name-input" placeholder="e.g. Juan" required oninput="autoCapitalizeWords(this)">
         </div>
         <div class="col-md-4">
-            <label class="form-label">MIDDLE NAME</label>
+            <label class="form-label" for="editGuardMiddleName">MIDDLE NAME</label>
             <input type="text" id="editGuardMiddleName" class="form-control personnel-name-input" placeholder="e.g. Dela Cruz" oninput="autoCapitalizeWords(this)">
         </div>
         <div class="col-md-4">
-            <label class="form-label">LAST NAME *</label>
-            <input type="text" id="editGuardLastName" class="form-control personnel-name-input" placeholder="e.g. Santos" oninput="autoCapitalizeWords(this)">
+            <label class="form-label" for="editGuardLastName">LAST NAME <span class="badge-field-required">Required</span></label>
+            <input type="text" id="editGuardLastName" class="form-control personnel-name-input" placeholder="e.g. Santos" required oninput="autoCapitalizeWords(this)">
         </div>
         <div class="col-md-4">
-            <label class="form-label">DATE OF BIRTH</label>
+            <label class="form-label" for="editGuardDob">DATE OF BIRTH</label>
             <input type="date" id="editGuardDob" class="form-control">
         </div>
         <div class="col-md-4">
-            <label class="form-label">GENDER</label>
+            <label class="form-label" for="editGuardGender">GENDER</label>
             <select id="editGuardGender" class="form-select">
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
@@ -1279,7 +1320,7 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
             </select>
         </div>
         <div class="col-md-4">
-            <label class="form-label">CIVIL STATUS</label>
+            <label class="form-label" for="editGuardCivilStatus">CIVIL STATUS</label>
             <select id="editGuardCivilStatus" class="form-select">
                 <option value="Single">Single</option>
                 <option value="Married">Married</option>
@@ -1288,15 +1329,15 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
             </select>
         </div>
         <div class="col-12">
-            <label class="form-label">COMPLETE ADDRESS</label>
+            <label class="form-label" for="editGuardAddress">COMPLETE ADDRESS</label>
             <input type="text" id="editGuardAddress" class="form-control" placeholder="House/Lot, Street, Barangay, City, Province">
         </div>
         <div class="col-md-6">
-            <label class="form-label">EMAIL (LOGIN USERNAME) *</label>
-            <input type="email" id="editGuardEmail" class="form-control">
+            <label class="form-label" for="editGuardEmail">EMAIL (LOGIN USERNAME) <span class="badge-field-required">Required</span></label>
+            <input type="email" id="editGuardEmail" class="form-control" required>
         </div>
         <div class="col-md-6">
-            <label class="form-label">CONTACT / MOBILE NUMBER</label>
+            <label class="form-label" for="editGuardMobileNumber">CONTACT / MOBILE NUMBER</label>
             <input type="tel" id="editGuardMobileNumber" class="form-control" placeholder="09171234567" maxlength="11">
         </div>
     </div>
@@ -1306,11 +1347,11 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
     <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">business</span>Employment Details</div>
     <div class="row g-3">
         <div class="col-md-6">
-            <label class="form-label">DATE HIRED</label>
+            <label class="form-label" for="editGuardDateHired">DATE HIRED</label>
             <input type="date" id="editGuardDateHired" class="form-control">
         </div>
         <div class="col-md-6">
-            <label class="form-label">CONTRACT / EMPLOYMENT STATUS</label>
+            <label class="form-label" for="editGuardContractStatus">CONTRACT / EMPLOYMENT STATUS</label>
             <select id="editGuardContractStatus" class="form-select">
                 <option value="Active">Active</option>
                 <option value="Probationary">Probationary</option>
@@ -1320,8 +1361,8 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
         </div>
     </div>
     <div id="editGuardContractRow" class="row g-3 mt-1" hidden>
-        <div class="col-sm-6"><label class="form-label">Contract start</label><input id="editGuardContractStart" name="contractStartDate" type="date" class="form-control"></div>
-        <div class="col-sm-6"><label class="form-label">Contract end</label><input id="editGuardContractEnd" name="contractEndDate" type="date" class="form-control"></div>
+        <div class="col-sm-6"><label class="form-label" for="editGuardContractStart">CONTRACT START <span class="badge-field-required">Required</span></label><input id="editGuardContractStart" name="contractStartDate" type="date" class="form-control"></div>
+        <div class="col-sm-6"><label class="form-label" for="editGuardContractEnd">CONTRACT END <span class="badge-field-required">Required</span></label><input id="editGuardContractEnd" name="contractEndDate" type="date" class="form-control"></div>
     </div>
 
     <!-- License Uploads -->
@@ -3238,7 +3279,8 @@ async function assertUniquePersonnelIdentifiers({ mobileNumber, personnelId, exc
 async function createGuardAccount() {
     const role      = document.getElementById("newGuardRole").value;
     const employmentCategory = document.getElementById("newGuardEmploymentCategory").value;
-    const personnelId = document.getElementById("newGuardPersonnelId")?.value.trim() || generateNextPersonnelId();
+    const pidInput  = document.getElementById("newGuardPersonnelId");
+    const personnelId = pidInput ? pidInput.value.trim() : generateNextPersonnelId();
     const firstName = document.getElementById("newGuardFirstName").value.trim();
     const middleName = document.getElementById("newGuardMiddleName")?.value.trim() || "";
     const lastName  = document.getElementById("newGuardLastName").value.trim();
@@ -3262,7 +3304,7 @@ async function createGuardAccount() {
     const contractError = ContractPeriod.validate(role === 'user' ? employmentCategory : 'regular', contractStartDate, contractEndDate);
     if (contractError) { errEl.innerText = contractError; return; }
 
-    if (!firstName || !lastName || !username || !password) {
+    if (!personnelId || !firstName || !lastName || !username || !password) {
         errEl.innerText = "Please complete all required fields.";
         return;
     }
@@ -3514,7 +3556,15 @@ function calculateServiceDuration(dateHiredStr) {
 
 function toggleEditContractFields() {
     const cat = document.getElementById("editGuardEmploymentCategory").value;
-    document.getElementById("editGuardContractRow").hidden = cat !== "contract";
+    const isContract = cat === "contract";
+    document.getElementById("editGuardContractRow").hidden = !isContract;
+    ["editGuardContractStart", "editGuardContractEnd"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.disabled = !isContract;
+            el.required = isContract;
+        }
+    });
 }
 
 function openPersonnelProfile(uid) {
@@ -3737,15 +3787,17 @@ function openEditPersonnelModal(uid) {
     document.getElementById("editGuardCivilStatus").value = account.civilStatus || "Single";
     document.getElementById("editGuardAddress").value = account.completeAddress || "";
     document.getElementById("editGuardDateHired").value = account.dateHired || "";
-    document.getElementById("editGuardEmploymentCategory").value = account.employmentCategory || "regular";
+    const isInspector = account.role === "inspector";
+    const editCategoryEl = document.getElementById("editGuardEmploymentCategory");
+    editCategoryEl.disabled = isInspector;
+    editCategoryEl.value = isInspector ? "regular" : (account.employmentCategory || "regular");
     document.getElementById("editGuardContractStatus").value = account.contractStatus || "Active";
     document.getElementById("editGuardContractStart").value = account.contractStartDate || "";
     document.getElementById("editGuardContractEnd").value = account.contractEndDate || "";
     document.getElementById("editGuardPassword").value = "";
     document.getElementById("editGuardError").innerText = "";
     
-    const isContract = account.employmentCategory === "contract";
-    document.getElementById("editGuardContractRow").hidden = !isContract;
+    toggleEditContractFields();
     
     // Reset file inputs and set existing previews
     document.getElementById("editGuardLicenseSecurity").value = "";
@@ -3784,7 +3836,8 @@ async function savePersonnelEdit() {
     const lastName = document.getElementById("editGuardLastName").value.trim();
     const email = document.getElementById("editGuardEmail").value.trim();
     const mobileNumber = document.getElementById("editGuardMobileNumber").value.trim();
-    const personnelId = document.getElementById("editGuardPersonnelId").value.trim() || generateNextPersonnelId();
+    const editPidInput = document.getElementById("editGuardPersonnelId");
+    const personnelId = editPidInput ? editPidInput.value.trim() : generateNextPersonnelId();
     const dateOfBirth = document.getElementById("editGuardDob").value || null;
     const gender = document.getElementById("editGuardGender").value;
     const civilStatus = document.getElementById("editGuardCivilStatus").value;
@@ -3796,8 +3849,8 @@ async function savePersonnelEdit() {
     const contractEndDate = document.getElementById("editGuardContractEnd").value || null;
     const password = document.getElementById("editGuardPassword").value;
     
-    if (!firstName || !lastName || !email) {
-        errEl.innerText = "First name, last name, and email are required.";
+    if (!personnelId || !firstName || !lastName || !email) {
+        errEl.innerText = "First name, last name, email, and Personnel ID are required.";
         return;
     }
     const emailErr = validateEmail(email);

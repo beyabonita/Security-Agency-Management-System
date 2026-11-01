@@ -1,5 +1,22 @@
 # Project Change Log
 
+### [2026-11-01 12:32] - UI: Add "Required" Pill Badges and Top Legend to Personnel Form Modals
+
+- **Scope & Objective**:
+  - Added clear `"Required"` pill badges next to required field labels and a top required-fields legend banner in both the **Create Guard or Inspector** (`#createGuardModal`) and **Edit Personnel Profile** (`#editPersonnelModal`) modals on the Operations Head Personnel page ([`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html)).
+- **Files Modified**:
+  - [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html):
+    - Added `.badge-field-required` pill badge and `.form-required-legend` top callout styles matching the console's red accent palette (`--sl-danger` / `--sl-red-soft`), border radius, typography, and `html[data-theme="dark"]` dark mode theme.
+    - Added `#createGuardRequiredLegend` and `.badge-field-required` badges (plus `for` label bindings and `required` attributes) to core required fields in `#createGuardModal`: `Account Role`, `Duty Category`, `Personnel ID`, `First Name`, `Last Name`, `Email (Login Username)`, `Password`, `Confirm Password`, and `Contract Start` / `Contract End` (when `Contract` duty category is selected). Removed the misleading `*` from optional `Phone / Contact Number`.
+    - Added `#editGuardRequiredLegend` and `.badge-field-required` badges to core required fields in `#editPersonnelModal`: `Personnel ID`, `Duty Category`, `First Name`, `Last Name`, `Email (Login Username)`, and `Contract Start` / `Contract End` (when `Contract` duty category is selected).
+    - Updated `createGuardAccount()`, `openEditPersonnelModal()`, `toggleEditContractFields()`, and `savePersonnelEdit()` so manually clearing `Personnel ID` triggers required-field validation and contract date `required`/`disabled` attributes stay synchronized with the selected duty category.
+  - [`web/tests/personnel_profile.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/personnel_profile.spec.js):
+    - Added automated Playwright assertions verifying visibility of the top legend and `"Required"` pill badges on all core required fields (including conditional `Contract Start`/`End` fields) and absence of required indicators on optional fields across both modals.
+- **Verification & Testing**:
+  - Validated inline JavaScript syntax in `web/admin/users.html`: 0 errors.
+  - Verified bundled Material Symbols via `node web/tests/google_icons_test.js`: Passed.
+  - Ran Playwright test suites `personnel_profile.spec.js` and `contract_personnel.spec.js`: 9/9 passed.
+
 ### [2026-11-01 11:52] - Feat: Prevent Duplicate Registration of Mobile Numbers and Personnel IDs
 
 - **Scope & Objective**:

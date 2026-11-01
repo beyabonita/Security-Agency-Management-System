@@ -596,9 +596,33 @@ test('prevents duplicate registration of an already registered mobile number or 
   await page.goto('/admin/users.html');
   await expect(page.locator('#guardPersonnelCount')).toHaveText('2');
 
-  // 1. Attempt to register a new Guard with an already-registered mobile number
+  // 1. Verify Required pill badges + top legend on Create Guard modal, then test duplicate mobile number
   await page.evaluate(() => openPersonnelCreate());
   await expect(page.locator('#createGuardModal')).toBeVisible();
+  await expect(page.locator('#createGuardRequiredLegend')).toBeVisible();
+  await expect(page.locator('#createGuardRequiredLegend')).toContainText('Fields marked with this badge must be filled out');
+  for (const id of [
+    'newGuardRole',
+    'newGuardEmploymentCategory',
+    'newGuardPersonnelId',
+    'newGuardFirstName',
+    'newGuardLastName',
+    'newGuardUsername',
+    'newGuardPassword',
+    'newGuardPasswordConfirm'
+  ]) {
+    await expect(page.locator(`label[for="${id}"] .badge-field-required`)).toHaveText('Required');
+  }
+  await expect(page.locator('label[for="newGuardMobileNumber"] .badge-field-required')).toHaveCount(0);
+  await expect(page.locator('label[for="newGuardMobileNumber"]')).not.toContainText('*');
+  await expect(page.locator('label[for="newGuardMiddleName"] .badge-field-required')).toHaveCount(0);
+
+  // Verify Contract Start/End Required badges when Contract duty category is chosen
+  await page.locator('#newGuardEmploymentCategory').selectOption('contract');
+  await expect(page.locator('label[for="newGuardContractStart"] .badge-field-required')).toHaveText('Required');
+  await expect(page.locator('label[for="newGuardContractEnd"] .badge-field-required')).toHaveText('Required');
+  await page.locator('#newGuardEmploymentCategory').selectOption('regular');
+
   await page.locator('#newGuardFirstName').fill('Marco');
   await page.locator('#newGuardLastName').fill('Santos');
   await page.locator('#newGuardUsername').fill('marco.twentyagency@gmail.com');
@@ -629,9 +653,21 @@ test('prevents duplicate registration of an already registered mobile number or 
   expect(await page.evaluate(() => window.createInvocations)).toBe(1);
   await expect(page.locator('#guardPersonnelCount')).toHaveText('3');
 
-  // 4. Editing guard-2 to use guard-1's mobile number is blocked
+  // 4. Verify Required pill badges + top legend on Edit Personnel modal, and editing guard-2 to use guard-1's mobile number is blocked
   await page.evaluate(() => openEditPersonnelModal('guard-2'));
   await expect(page.locator('#editPersonnelModal')).toBeVisible();
+  await expect(page.locator('#editGuardRequiredLegend')).toBeVisible();
+  for (const id of [
+    'editGuardPersonnelId',
+    'editGuardEmploymentCategory',
+    'editGuardFirstName',
+    'editGuardLastName',
+    'editGuardEmail'
+  ]) {
+    await expect(page.locator(`label[for="${id}"] .badge-field-required`)).toHaveText('Required');
+  }
+  await expect(page.locator('label[for="editGuardMobileNumber"] .badge-field-required')).toHaveCount(0);
+  await expect(page.locator('#editPersonnelModal input#editGuardPassword')).toBeVisible();
   await page.locator('#editGuardMobileNumber').fill('09105187319');
   await page.locator('#editGuardSaveBtn').click();
 
