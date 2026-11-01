@@ -3172,6 +3172,69 @@ function openPersonnelCreate() {
 
 document.getElementById("createGuardModal")?.addEventListener("hidden.bs.modal", resetCreateGuardModal);
 
+async function assertUniquePersonnelIdentifiers({ mobileNumber, personnelId, excludeUserId = null }) {
+    const normMobile = String(mobileNumber || "").trim();
+    const normPid = String(personnelId || "").trim().toUpperCase();
+
+    for (const [uid, acc] of Object.entries(personnelAccounts || {})) {
+        if (excludeUserId && uid === excludeUserId) continue;
+        const accMobile = String(acc?.mobileNumber || acc?.mobile_number || "").trim();
+        if (normMobile && accMobile && accMobile === normMobile) {
+            throw new Error("This mobile number is already registered to another personnel record.");
+        }
+        const accPid = String(acc?.personnelId || acc?.personnel_id || "").trim().toUpperCase();
+        if (normPid && accPid && accPid === normPid) {
+            throw new Error("This Personnel ID is already registered to another personnel record.");
+        }
+    }
+
+    if (typeof appSupabase?.from !== "function") return;
+
+    if (normMobile) {
+        let mobileConflict = false;
+        try {
+            const baseQuery = appSupabase.from("profiles").select("id, mobile_number");
+            if (baseQuery && typeof baseQuery.eq === "function") {
+                let q = baseQuery.eq("mobile_number", normMobile);
+                if (typeof q.limit === "function") q = q.limit(5);
+                const { data } = await q;
+                if (Array.isArray(data) && data.some(r => r && r.id !== excludeUserId && String(r.mobile_number || "").trim() === normMobile)) {
+                    mobileConflict = true;
+                }
+            }
+        } catch (_) {}
+        if (mobileConflict) {
+            throw new Error("This mobile number is already registered to another personnel record.");
+        }
+    }
+
+    if (normPid) {
+        let pidConflict = false;
+        try {
+            const escapedPid = normPid.replace(/[%_\\]/g, "\\$&");
+            const baseQuery = appSupabase.from("profiles").select("id, personnel_id");
+            if (baseQuery && typeof baseQuery.ilike === "function") {
+                let q = baseQuery.ilike("personnel_id", escapedPid);
+                if (typeof q.limit === "function") q = q.limit(5);
+                const { data } = await q;
+                if (Array.isArray(data) && data.some(r => r && r.id !== excludeUserId && String(r.personnel_id || "").trim().toUpperCase() === normPid)) {
+                    pidConflict = true;
+                }
+            } else if (baseQuery && typeof baseQuery.eq === "function") {
+                let q = baseQuery.eq("personnel_id", String(personnelId || "").trim());
+                if (typeof q.limit === "function") q = q.limit(5);
+                const { data } = await q;
+                if (Array.isArray(data) && data.some(r => r && r.id !== excludeUserId && String(r.personnel_id || "").trim().toUpperCase() === normPid)) {
+                    pidConflict = true;
+                }
+            }
+        } catch (_) {}
+        if (pidConflict) {
+            throw new Error("This Personnel ID is already registered to another personnel record.");
+        }
+    }
+}
+
 async function createGuardAccount() {
     const role      = document.getElementById("newGuardRole").value;
     const employmentCategory = document.getElementById("newGuardEmploymentCategory").value;
@@ -3231,6 +3294,7 @@ async function createGuardAccount() {
         if (fireInput?.files?.[0]) fireLicenseData = await fileToDataUrl(fireInput.files[0]);
 
         await appDialog.runBusy(btn, async () => {
+            await assertUniquePersonnelIdentifiers({ mobileNumber, personnelId });
             const dup = await db.collection("users")
                 .where("email", "==", normalizedUsername).limit(1).get();
             if (!dup.empty) throw new Error("That email address is already in use.");
@@ -3761,10 +3825,17 @@ async function savePersonnelEdit() {
         }
 
         await appDialog.runBusy(btn, async () => {
+            await assertUniquePersonnelIdentifiers({
+                mobileNumber,
+                personnelId,
+                excludeUserId: currentEditUid
+            });
+
             // 1. Invoke security definer RPC first to guarantee database persistence and clear any historical removal state
+            let rpcBusinessErr = null;
             try {
                 if (typeof appSupabase?.rpc === 'function') {
-                    await appSupabase.rpc('update_personnel_profile', {
+                    const rpcRes = await appSupabase.rpc('update_personnel_profile', {
                         p_user_id: currentEditUid,
                         p_first_name: firstName,
                         p_middle_name: middleName,
@@ -3784,10 +3855,23 @@ async function savePersonnelEdit() {
                         p_license_security_url: editSecurityLicenseData,
                         p_license_firearms_url: editFirearmsLicenseData
                     });
+                    if (rpcRes?.error) {
+                        const msg = rpcRes.error.message || '';
+                        if (rpcRes.error.code === '23505' || /already registered|already in use/i.test(msg)) {
+                            rpcBusinessErr = new Error(msg || 'Duplicate personnel identifier detected.');
+                        } else {
+                            console.warn('RPC update returned warning:', rpcRes.error);
+                        }
+                    }
                 }
             } catch (rpcErr) {
-                console.warn('RPC update skipped or not available:', rpcErr);
+                if (rpcErr?.code === '23505' || /already registered|already in use/i.test(rpcErr?.message || '')) {
+                    rpcBusinessErr = rpcErr;
+                } else {
+                    console.warn('RPC update skipped or not available:', rpcErr);
+                }
             }
+            if (rpcBusinessErr) throw rpcBusinessErr;
 
             // 2. Next update auth/core credentials via edge function
             try {

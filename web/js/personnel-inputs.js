@@ -1,7 +1,7 @@
 (function(){
   const names='input[id$="FirstName"],input[id$="LastName"],input[id$="MiddleInitial"],input[name="firstName"],input[name="lastName"],input[name="middleInitial"],#first,#last';
   document.addEventListener('input',event=>{
-    if(event.target.matches('#newGuardMobileNumber,input[name="mobileNumber"]')) {
+    if(event.target.matches('#newGuardMobileNumber,#editGuardMobileNumber,input[name="mobileNumber"]')) {
       event.target.value=event.target.value.replace(/[^0-9]/g,'').slice(0,11);
       return;
     }

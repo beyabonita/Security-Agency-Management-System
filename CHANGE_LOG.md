@@ -1,5 +1,35 @@
 # Project Change Log
 
+### [2026-11-01 11:52] - Feat: Prevent Duplicate Registration of Mobile Numbers and Personnel IDs
+
+- **Scope & Objective**:
+  - Prevented duplicate registration and reassignment of already-registered mobile numbers (`09XXXXXXXXX`, `mobile_number`) and Personnel IDs (`SEC-YYYY-NNN`, `personnel_id`, case-insensitive) across Frontend UI, Supabase Edge Functions, and PostgreSQL Database triggers/RPCs to eliminate personnel record discrepancies.
+- **Files Modified**:
+  - [`supabase/migrations/20261101000000_prevent_duplicate_personnel_numbers.sql`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261101000000_prevent_duplicate_personnel_numbers.sql) *(New)*:
+    - Added `public.enforce_unique_personnel_identifiers()` and `trg_enforce_unique_personnel_identifiers` (`BEFORE INSERT OR UPDATE OF mobile_number, personnel_id ON public.profiles`) to normalize whitespace/empty strings and raise `23505` if `mobile_number` or case-insensitive `personnel_id` conflicts with another profile.
+    - Conditionally added partial unique indexes (`profiles_mobile_number_unique_idx`, `profiles_personnel_id_unique_idx`) when no legacy duplicate values exist.
+    - Updated `public.update_personnel_profile(...)` RPC to validate uniqueness of `p_mobile_number` and `p_personnel_id` (excluding `p_user_id`) and support clearing `mobile_number` cleanly.
+  - [`supabase/functions/_shared/accounts.ts`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/functions/_shared/accounts.ts):
+    - Updated `databaseBusinessMessage()` to map PostgreSQL `23505` errors on `mobile_number` and `personnel_id` to user-facing `409` messages (`"This mobile number is already registered to another personnel record."` / `"This Personnel ID is already registered to another personnel record."`).
+  - [`supabase/functions/admin-create-user/index.ts`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/functions/admin-create-user/index.ts):
+    - Added pre-creation availability checks on `profiles` for both `mobile_number` and case-insensitive `personnel_id` before creating a Supabase Auth user, returning `409` (`mobile_number_in_use` / `personnel_id_in_use`).
+    - Added `databaseBusinessMessage(profileError)` handling after rollback so concurrent race conditions surface `409` instead of `500`.
+  - [`supabase/functions/admin-manage-user/index.ts`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/functions/admin-manage-user/index.ts):
+    - Allowed `mobileNumber: null | ""` to clear `mobile_number` without failing format validation, and added pre-update uniqueness checks against other profiles (`.neq("id", targetId)`) whenever `mobileNumber` or `personnelId` is changed.
+  - [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html):
+    - Added `assertUniquePersonnelIdentifiers({ mobileNumber, personnelId, excludeUserId })` checking both in-memory `personnelAccounts` and `profiles` in Supabase, invoked in `createGuardAccount()` and `savePersonnelEdit()`.
+    - Updated `savePersonnelEdit()` to inspect `rpcRes?.error` from `update_personnel_profile` and throw on `23505` / duplicate messages instead of swallowing them.
+  - [`web/js/personnel-inputs.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/personnel-inputs.js):
+    - Extended live numeric 11-digit input sanitization to `#editGuardMobileNumber`.
+  - [`web/tests/personnel_profile.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/personnel_profile.spec.js):
+    - Added automated Playwright test coverage verifying duplicate mobile number and case-insensitive Personnel ID rejection on both Create and Edit flows, while allowing a personnel record to retain its own identifiers on Edit.
+    - Added `window.applyAdminRoleNavigation` stub to the search toolbar test mock.
+- **Verification & Testing**:
+  - Validated inline JavaScript syntax in `web/admin/users.html` and `web/js/personnel-inputs.js`: 0 errors.
+  - Ran `node supabase/tests/edge_function_authorization_test.js`, `node web/tests/password_policy_test.js`, and `node web/tests/google_icons_test.js`: Passed.
+  - Ran Playwright suites `personnel_profile.spec.js` and `contract_personnel.spec.js`: 9/9 passed.
+  - Deployed migration `20261101000000_prevent_duplicate_personnel_numbers.sql` via `npx supabase db push --yes` and deployed `admin-create-user` + `admin-manage-user` Edge Functions to remote Supabase project `syyofdcynuzgergqlaqj`.
+
 ### [2026-11-01 11:28] - Feat: Add Guard Personnel Search Input to Operations Head Console
 
 - **Scope & Objective**:

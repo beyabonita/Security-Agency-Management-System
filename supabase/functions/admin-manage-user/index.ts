@@ -319,8 +319,68 @@ Deno.serve((request) =>
     const licenseFirearmsUrl = typeof body.licenseFirearmsUrl === "string" ? body.licenseFirearmsUrl :
       (body.licenseFirearmsUrl === null ? null : target.license_firearms_url);
 
-    const mobileNumber = body.mobileNumber === undefined ? target.mobile_number ?? null
+    const mobileNumber = body.mobileNumber === undefined
+      ? target.mobile_number ?? null
+      : body.mobileNumber === null || body.mobileNumber === ""
+      ? null
       : philippineMobileNumber(body.mobileNumber);
+
+    if (mobileNumber && mobileNumber !== (target.mobile_number ?? null)) {
+      const { data: dupMobile, error: dupMobileError } = await service
+        .from("profiles")
+        .select("id")
+        .eq("mobile_number", mobileNumber)
+        .neq("id", targetId)
+        .limit(1);
+      if (
+        dupMobileError &&
+        (dupMobileError as { code?: string })?.code !== "42703"
+      ) {
+        backendFailure(
+          "The mobile number availability check could not be completed.",
+          "mobile_check_failed",
+          dupMobileError,
+        );
+      }
+      if (dupMobile && dupMobile.length > 0) {
+        reject(
+          409,
+          "This mobile number is already registered to another personnel record.",
+          "mobile_number_in_use",
+        );
+      }
+    }
+
+    if (
+      personnelId &&
+      personnelId.trim().toUpperCase() !==
+        (target.personnel_id ?? "").trim().toUpperCase()
+    ) {
+      const escapedPid = personnelId.trim().replace(/([\\%_])/g, "\\$1");
+      const { data: dupPid, error: dupPidError } = await service
+        .from("profiles")
+        .select("id")
+        .ilike("personnel_id", escapedPid)
+        .neq("id", targetId)
+        .limit(1);
+      if (
+        dupPidError &&
+        (dupPidError as { code?: string })?.code !== "42703"
+      ) {
+        backendFailure(
+          "The Personnel ID availability check could not be completed.",
+          "personnel_id_check_failed",
+          dupPidError,
+        );
+      }
+      if (dupPid && dupPid.length > 0) {
+        reject(
+          409,
+          "This Personnel ID is already registered to another personnel record.",
+          "personnel_id_in_use",
+        );
+      }
+    }
     const employmentValue = body.employmentCategory === undefined
       ? target.employment_category
       : body.employmentCategory;

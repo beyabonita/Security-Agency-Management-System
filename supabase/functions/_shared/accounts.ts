@@ -194,7 +194,15 @@ export function databaseBusinessMessage(
   const allowedMessages = [
     "Reassign or clear all Guard Inspector assignments before disabling, moving, or changing this Inspector.",
     "The last active IT Admin must remain active and keep the IT Admin role.",
+    "This mobile number is already registered to another personnel record.",
+    "This Personnel ID is already registered to another personnel record.",
   ];
+  if (code === "23505" && /mobile_number|mobile number/i.test(message)) {
+    return "This mobile number is already registered to another personnel record.";
+  }
+  if (code === "23505" && /personnel_id|personnel id/i.test(message)) {
+    return "This Personnel ID is already registered to another personnel record.";
+  }
   if (code === "23505" && /email|username/i.test(message)) {
     return "That email address is already in use.";
   }

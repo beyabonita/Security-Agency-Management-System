@@ -371,6 +371,7 @@ test('guard personnel search input filters with debounce, combines with dropdown
           }
         })
       };
+      window.applyAdminRoleNavigation = () => {};
     `
   }));
 
@@ -443,4 +444,214 @@ test('guard personnel search input filters with debounce, combines with dropdown
   }));
   expect(overflow.scroll).toBeLessThanOrEqual(overflow.viewport + 1);
   await expect(searchInput).toBeVisible();
+});
+
+test('prevents duplicate registration of an already registered mobile number or Personnel ID on create and edit', async ({ page }) => {
+  await page.route('https://cdn.jsdelivr.net/npm/@supabase/**', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('https://cdnjs.cloudflare.com/**', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('**/notification-center.js', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('**/supabase-firebase-bridge.js', route => route.fulfill({
+    contentType: 'text/javascript',
+    body: `
+      const rows = {
+        profiles: [
+          { id: 'admin-1', role: 'admin', active: true, first_name: 'Admin', last_name: 'User', email: 'admin@twentyagency.com' },
+          {
+            id: 'guard-1', role: 'user', active: true,
+            first_name: 'Angel', middle_name: 'Pajarillo', last_name: 'Samanion',
+            personnel_id: 'SEC-2026-0042', email: 'angel.twentyagency@gmail.com',
+            mobile_number: '09105187319', employment_category: 'regular', contract_status: 'Active'
+          },
+          {
+            id: 'guard-2', role: 'user', active: true,
+            first_name: 'Carlo', middle_name: 'Reyes', last_name: 'Diaz',
+            personnel_id: 'SEC-2026-0043', email: 'carlo.twentyagency@gmail.com',
+            mobile_number: '09171234567', employment_category: 'regular', contract_status: 'Active'
+          }
+        ],
+        locations: []
+      };
+
+      const toClient = (r) => ({
+        ...r,
+        firstName: r.first_name,
+        middleName: r.middle_name,
+        lastName: r.last_name,
+        personnelId: r.personnel_id,
+        mobileNumber: r.mobile_number,
+        employmentCategory: r.employment_category,
+        contractStatus: r.contract_status
+      });
+
+      const snapshot = (items) => ({
+        empty: items.length === 0,
+        size: items.length,
+        docs: items.map(r => ({ id: r.id, exists: true, data: () => toClient(r) })),
+        forEach(cb) { this.docs.forEach(cb); }
+      });
+
+      window.createInvocations = 0;
+      window.manageInvocations = 0;
+
+      window.firebase = {
+        auth: () => ({
+          currentUser: { uid: 'admin-1' },
+          onAuthStateChanged: cb => setTimeout(() => cb({ uid: 'admin-1', email: 'admin@twentyagency.com' }), 0),
+          signOut: async () => {}
+        }),
+        firestore: () => ({
+          collection: () => ({
+            get: async () => snapshot(rows.profiles),
+            where: (field, _op, val) => ({
+              limit: () => ({
+                get: async () => snapshot(rows.profiles.filter(p => String(p[field] || '').toLowerCase() === String(val || '').toLowerCase()))
+              })
+            }),
+            doc: id => ({
+              get: async () => ({ exists: true, data: () => toClient(rows.profiles.find(p => p.id === id) || {}) })
+            })
+          })
+        })
+      };
+
+      window.appSupabase = {
+        from: table => ({
+          select: () => ({
+            eq: (field, val) => ({
+              limit: async () => ({ data: (rows[table] || []).filter(r => r[field] === val), error: null }),
+              then: resolve => resolve({ data: (rows[table] || []).filter(r => r[field] === val), error: null })
+            }),
+            ilike: (field, val) => ({
+              limit: async () => ({ data: (rows[table] || []).filter(r => String(r[field] || '').toLowerCase() === String(val || '').toLowerCase()), error: null })
+            }),
+            order: async () => ({ data: rows[table] || [], error: null }),
+            then: resolve => resolve({ data: rows[table] || [], error: null })
+          })
+        }),
+        auth: { getSession: async () => ({ data: { session: { access_token: 'mock-token' } } }) },
+        functions: {
+          invoke: async (name, opts) => {
+            if (name === 'admin-create-user') {
+              window.createInvocations += 1;
+              const b = opts.body;
+              const created = {
+                id: 'guard-' + (rows.profiles.length + 1),
+                role: b.role,
+                active: true,
+                first_name: b.firstName,
+                middle_name: b.middleName,
+                last_name: b.lastName,
+                personnel_id: b.personnelId,
+                email: b.email,
+                mobile_number: b.mobileNumber,
+                employment_category: b.employmentCategory || 'regular',
+                contract_status: b.contractStatus || 'Active'
+              };
+              rows.profiles.push(created);
+              return { data: { id: created.id }, error: null };
+            }
+            if (name === 'admin-manage-user') {
+              window.manageInvocations += 1;
+              const b = opts.body;
+              const target = rows.profiles.find(p => p.id === b.userId);
+              if (target) {
+                target.first_name = b.firstName;
+                target.last_name = b.lastName;
+                target.mobile_number = b.mobileNumber;
+                target.personnel_id = b.personnelId;
+              }
+              return { data: { ok: true }, error: null };
+            }
+            return { data: {}, error: null };
+          }
+        },
+        rpc: async () => ({ data: null, error: null })
+      };
+
+      window.applyAdminRoleNavigation = () => {};
+      window.finishPageLoading = () => {
+        const loader = document.getElementById('loadingScreen');
+        if (loader) loader.style.display = 'none';
+      };
+      if (!window.bootstrap) {
+        const modalRegistry = new WeakMap();
+        class MockModal {
+          constructor(el) { this.el = el; }
+          show() { if (this.el) { this.el.classList.add('show'); this.el.style.display = 'block'; } }
+          hide() { if (this.el) { this.el.classList.remove('show'); this.el.style.display = 'none'; } }
+          static getOrCreateInstance(el) {
+            if (!modalRegistry.has(el)) modalRegistry.set(el, new MockModal(el));
+            return modalRegistry.get(el);
+          }
+        }
+        window.bootstrap = { Modal: MockModal };
+      }
+      window.appDialog = {
+        toast: (m) => { window.lastToast = m; },
+        runBusy: async (_btn, fn) => { await fn(); }
+      };
+    `
+  }));
+
+  await page.goto('/admin/users.html');
+  await expect(page.locator('#guardPersonnelCount')).toHaveText('2');
+
+  // 1. Attempt to register a new Guard with an already-registered mobile number
+  await page.evaluate(() => openPersonnelCreate());
+  await expect(page.locator('#createGuardModal')).toBeVisible();
+  await page.locator('#newGuardFirstName').fill('Marco');
+  await page.locator('#newGuardLastName').fill('Santos');
+  await page.locator('#newGuardUsername').fill('marco.twentyagency@gmail.com');
+  await page.locator('#newGuardMobileNumber').fill('09105187319');
+  await page.locator('#newGuardPersonnelId').fill('SEC-2026-0100');
+  await page.locator('#newGuardPassword').fill('ValidPass123!');
+  await page.locator('#newGuardPasswordConfirm').fill('ValidPass123!');
+  await page.locator('#createGuardBtn').click();
+
+  await expect(page.locator('#createGuardError')).toHaveText(
+    'This mobile number is already registered to another personnel record.'
+  );
+  expect(await page.evaluate(() => window.createInvocations)).toBe(0);
+
+  // 2. Attempt to register with a unique mobile number, but an already-registered Personnel ID (case-insensitive)
+  await page.locator('#newGuardMobileNumber').fill('09189998888');
+  await page.locator('#newGuardPersonnelId').fill('sec-2026-0042');
+  await page.locator('#createGuardBtn').click();
+
+  await expect(page.locator('#createGuardError')).toHaveText(
+    'This Personnel ID is already registered to another personnel record.'
+  );
+  expect(await page.evaluate(() => window.createInvocations)).toBe(0);
+
+  // 3. Unique mobile number and Personnel ID succeeds
+  await page.locator('#newGuardPersonnelId').fill('SEC-2026-0100');
+  await page.locator('#createGuardBtn').click();
+  expect(await page.evaluate(() => window.createInvocations)).toBe(1);
+  await expect(page.locator('#guardPersonnelCount')).toHaveText('3');
+
+  // 4. Editing guard-2 to use guard-1's mobile number is blocked
+  await page.evaluate(() => openEditPersonnelModal('guard-2'));
+  await expect(page.locator('#editPersonnelModal')).toBeVisible();
+  await page.locator('#editGuardMobileNumber').fill('09105187319');
+  await page.locator('#editGuardSaveBtn').click();
+
+  await expect(page.locator('#editGuardError')).toHaveText(
+    'This mobile number is already registered to another personnel record.'
+  );
+  expect(await page.evaluate(() => window.manageInvocations)).toBe(0);
+
+  // 5. Editing guard-2 to use guard-1's Personnel ID is blocked
+  await page.locator('#editGuardMobileNumber').fill('09171234567');
+  await page.locator('#editGuardPersonnelId').fill('SEC-2026-0042');
+  await page.locator('#editGuardSaveBtn').click();
+
+  await expect(page.locator('#editGuardError')).toHaveText(
+    'This Personnel ID is already registered to another personnel record.'
+  );
+  expect(await page.evaluate(() => window.manageInvocations)).toBe(0);
+
+  // 6. Keeping guard-2's own mobile number and Personnel ID saves cleanly without false duplicate error
+  await page.locator('#editGuardPersonnelId').fill('SEC-2026-0043');
+  await page.locator('#editGuardSaveBtn').click();
+  expect(await page.evaluate(() => window.manageInvocations)).toBe(1);
 });

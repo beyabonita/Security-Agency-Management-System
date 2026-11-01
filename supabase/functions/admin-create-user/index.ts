@@ -11,6 +11,7 @@ import {
   APP_ROLES,
   authProviderMessage,
   beneficiaryOrganizationId,
+  databaseBusinessMessage,
   emailValid,
   FIELD_ROLES,
   isAppRole,
@@ -158,6 +159,66 @@ Deno.serve((request) =>
       reject(409, "That email address is already in use.", "email_in_use");
     }
 
+    const middleName = optionalString(body, "middleName", "Middle name", {
+      max: 100,
+      normalize: (value) => value.trim(),
+    }) ?? null;
+    const personnelId = optionalString(body, "personnelId", "Personnel ID", {
+      max: 100,
+      normalize: (value) => value.trim(),
+    }) ?? null;
+
+    if (mobileNumber) {
+      const { data: dupMobile, error: dupMobileError } = await service
+        .from("profiles")
+        .select("id")
+        .eq("mobile_number", mobileNumber)
+        .limit(1);
+      if (
+        dupMobileError &&
+        (dupMobileError as { code?: string })?.code !== "42703"
+      ) {
+        backendFailure(
+          "The mobile number availability check could not be completed.",
+          "mobile_check_failed",
+          dupMobileError,
+        );
+      }
+      if (dupMobile && dupMobile.length > 0) {
+        reject(
+          409,
+          "This mobile number is already registered to another personnel record.",
+          "mobile_number_in_use",
+        );
+      }
+    }
+
+    if (personnelId) {
+      const escapedPid = personnelId.replace(/([\\%_])/g, "\\$1");
+      const { data: dupPid, error: dupPidError } = await service
+        .from("profiles")
+        .select("id")
+        .ilike("personnel_id", escapedPid)
+        .limit(1);
+      if (
+        dupPidError &&
+        (dupPidError as { code?: string })?.code !== "42703"
+      ) {
+        backendFailure(
+          "The Personnel ID availability check could not be completed.",
+          "personnel_id_check_failed",
+          dupPidError,
+        );
+      }
+      if (dupPid && dupPid.length > 0) {
+        reject(
+          409,
+          "This Personnel ID is already registered to another personnel record.",
+          "personnel_id_in_use",
+        );
+      }
+    }
+
     const { data: authData, error: authError } = await service.auth.admin
       .createUser({
         email: authEmail,
@@ -178,15 +239,8 @@ Deno.serve((request) =>
       );
     }
 
-    const middleName = optionalString(body, "middleName", "Middle name", {
-      max: 100,
-      normalize: (value) => value.trim(),
-    }) ?? null;
-    const personnelId = optionalString(body, "personnelId", "Personnel ID", {
-      max: 100,
-      normalize: (value) => value.trim(),
-    }) ?? null;
-    const dateOfBirth = optionalString(body, "dateOfBirth", "Date of birth") ?? null;
+    const dateOfBirth = optionalString(body, "dateOfBirth", "Date of birth") ??
+      null;
     const gender = optionalString(body, "gender", "Gender", { max: 50 }) ?? "Male";
     const civilStatus = optionalString(body, "civilStatus", "Civil status", { max: 50 }) ?? "Single";
     const completeAddress = optionalString(body, "completeAddress", "Complete address", {
@@ -256,6 +310,17 @@ Deno.serve((request) =>
           targetId,
           error: rollbackError.message,
         });
+      }
+      const businessMessage = !rollbackError
+        ? databaseBusinessMessage(profileError)
+        : undefined;
+      if (businessMessage) {
+        throw new ApiError(
+          409,
+          businessMessage,
+          "profile_create_rejected",
+          { cause: profileError },
+        );
       }
       backendFailure(
         rollbackError
