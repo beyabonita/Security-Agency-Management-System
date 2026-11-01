@@ -718,10 +718,53 @@ html[data-theme="dark"] .field-inline-error {
 .profile-modal-avatar {
     width: 60px; height: 60px; border-radius: 50%;
     background: linear-gradient(135deg, #dc2626, #991b1b);
-    color: #fff; font-size: 1.5rem; font-weight: 700;
+    color: #fff; font-size: 1.4rem; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.3);
-    flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+    flex-shrink: 0; position: relative; overflow: hidden;
+    user-select: none;
+}
+.profile-modal-avatar .personnel-avatar-img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; border-radius: 50%;
+    display: block;
+}
+.personnel-identity-wrap {
+    display: flex; align-items: center; gap: 11px;
+}
+.personnel-row-avatar {
+    width: 36px; height: 36px; font-size: 0.82rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+.edit-profile-photo-panel {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    padding: 14px 16px; border-radius: 12px;
+    background: var(--sl-surface-muted); border: 1px solid var(--sl-line);
+    margin-bottom: 14px;
+}
+.edit-profile-photo-actions {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.btn-photo-upload {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--sl-surface); color: var(--sl-ink);
+    border: 1px solid var(--sl-line); border-radius: 8px;
+    padding: 6px 12px; font-size: 0.78rem; font-weight: 700;
+    cursor: pointer; transition: border-color 0.15s ease, color 0.15s ease;
+}
+.btn-photo-upload:hover {
+    border-color: var(--sl-danger); color: var(--sl-danger);
+}
+.btn-photo-remove {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(220, 38, 38, 0.08); color: var(--sl-danger);
+    border: 1px solid rgba(220, 38, 38, 0.25); border-radius: 8px;
+    padding: 6px 12px; font-size: 0.78rem; font-weight: 700;
+    cursor: pointer; transition: background 0.15s ease;
+}
+.btn-photo-remove:hover {
+    background: rgba(220, 38, 38, 0.15);
 }
 .profile-section-card {
     background: var(--sl-surface);
@@ -1322,7 +1365,25 @@ html[data-theme="dark"] .field-inline-error {
 
     <!-- Personal Information -->
     <div class="form-section-divider"></div>
-    <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">person</span>Personal Information</div>
+    <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">person</span>Personal Information &amp; Profile Photo</div>
+    <div class="edit-profile-photo-panel">
+        <div id="editGuardPhotoAvatarMount"></div>
+        <div style="flex:1;min-width:210px;">
+            <div style="font-size:0.82rem;font-weight:700;color:var(--sl-ink);margin-bottom:3px;">Profile Photo</div>
+            <div style="font-size:0.75rem;color:var(--sl-muted);margin-bottom:8px;">Shared across the Guard mobile app, Personnel Record Profile, and Live Guard Map (JPG/PNG, max 2 MB, 400×400).</div>
+            <input type="file" id="editGuardProfilePhotoInput" accept="image/jpeg,image/png" hidden onchange="handleEditGuardPhotoSelected(this)">
+            <div class="edit-profile-photo-actions">
+                <button type="button" class="btn-photo-upload" id="editGuardReplacePhotoBtn" onclick="document.getElementById('editGuardProfilePhotoInput').click()">
+                    <span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">person</span>
+                    <span id="editGuardReplacePhotoLabel">Upload Photo</span>
+                </button>
+                <button type="button" class="btn-photo-remove" id="editGuardRemovePhotoBtn" hidden onclick="markEditGuardPhotoForRemoval()">
+                    <span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">delete</span>
+                    Remove Photo
+                </button>
+            </div>
+        </div>
+    </div>
     <div class="row g-3">
         <div class="col-md-4">
             <label class="form-label" for="editGuardFirstName">FIRST NAME <span class="badge-field-required">Required</span></label>
@@ -1368,6 +1429,10 @@ html[data-theme="dark"] .field-inline-error {
         <div class="col-md-6">
             <label class="form-label" for="editGuardMobileNumber">CONTACT / MOBILE NUMBER</label>
             <input type="tel" id="editGuardMobileNumber" class="form-control" placeholder="09171234567" maxlength="11">
+        </div>
+        <div class="col-12">
+            <label class="form-label" for="editGuardEmergencyContact">EMERGENCY CONTACT</label>
+            <input type="text" id="editGuardEmergencyContact" class="form-control" placeholder="e.g. Maria Santos (Spouse) — 09181234567" maxlength="300">
         </div>
     </div>
 
@@ -1856,6 +1921,142 @@ function personnelDisplayName(account) {
         || account.name || displayLoginId(account) || "Guard";
 }
 
+const PERSONNEL_AVATAR_PALETTE = [
+    '#b91c1c', '#9f1239', '#0f766e', '#1d4ed8',
+    '#6d28d9', '#b45309', '#15803d', '#334155'
+];
+
+function personnelAvatarColor(seed) {
+    const str = String(seed || '').trim().toLowerCase();
+    if (!str) return PERSONNEL_AVATAR_PALETTE[0];
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash * 31) + str.charCodeAt(i)) & 0x7fffffff;
+    }
+    return PERSONNEL_AVATAR_PALETTE[hash % PERSONNEL_AVATAR_PALETTE.length];
+}
+
+function personnelInitials(account) {
+    if (!account) return 'SG';
+    const first = String(account.firstName || account.first_name || '').trim();
+    const last = String(account.lastName || account.last_name || '').trim();
+    if (first || last) {
+        const a = first ? first[0] : '';
+        const b = last ? last[0] : (first.length > 1 ? first[1] : '');
+        const pair = (a + b).toUpperCase();
+        if (pair) return pair;
+    }
+    const name = personnelDisplayName(account).trim();
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return 'SG';
+}
+
+function personnelPhotoUrl(account) {
+    if (!account) return '';
+    return String(account.profilePhotoUrl || account.profile_photo_url || '').trim();
+}
+
+function renderPersonnelAvatar(uid, account, sizePx = 60, extraClass = '') {
+    const initials = personnelInitials(account);
+    const seed = uid || account?.id || account?.email || personnelDisplayName(account);
+    const bg = personnelAvatarColor(seed);
+    const photoUrl = personnelPhotoUrl(account);
+    const fullName = personnelDisplayName(account);
+    const fontSize = Math.max(12, Math.round(sizePx * 0.36));
+    const cls = ['profile-modal-avatar', extraClass].filter(Boolean).join(' ');
+    const imgHtml = photoUrl
+        ? `<img src="${escapeHtml(photoUrl)}" alt="${escapeHtml(fullName)}" class="personnel-avatar-img" onerror="this.remove()" />`
+        : '';
+    return `<div class="${cls}" style="width:${sizePx}px;height:${sizePx}px;font-size:${fontSize}px;background:${bg};" data-avatar-uid="${escapeHtml(uid || '')}"><span>${escapeHtml(initials)}</span>${imgHtml}</div>`;
+}
+
+let personnelRealtimeChannel = null;
+
+function mapRealtimeProfileRow(row) {
+    if (!row || typeof row !== 'object') return {};
+    return {
+        ...row,
+        firstName: row.first_name ?? row.firstName ?? '',
+        middleName: row.middle_name ?? row.middleName ?? null,
+        middleInitial: row.middle_initial ?? row.middleInitial ?? '',
+        lastName: row.last_name ?? row.lastName ?? '',
+        personnelId: row.personnel_id ?? row.personnelId ?? null,
+        mobileNumber: row.mobile_number ?? row.mobileNumber ?? null,
+        completeAddress: row.complete_address ?? row.completeAddress ?? null,
+        emergencyContact: row.emergency_contact ?? row.emergencyContact ?? null,
+        profilePhotoUrl: 'profile_photo_url' in row ? row.profile_photo_url : (row.profilePhotoUrl ?? null),
+        dateOfBirth: row.date_of_birth ?? row.dateOfBirth ?? null,
+        gender: row.gender ?? null,
+        civilStatus: row.civil_status ?? row.civilStatus ?? null,
+        dateHired: row.date_hired ?? row.dateHired ?? null,
+        employmentCategory: row.employment_category ?? row.employmentCategory ?? 'regular',
+        contractStatus: row.contract_status ?? row.contractStatus ?? null,
+        contractStartDate: row.contract_start_date ?? row.contractStartDate ?? null,
+        contractEndDate: row.contract_end_date ?? row.contractEndDate ?? null,
+        assignedLocationId: 'assigned_location_id' in row ? row.assigned_location_id : row.assignedLocationId,
+        inspectorId: 'inspector_id' in row ? row.inspector_id : row.inspectorId,
+        licenseSecurityUrl: row.license_security_url ?? row.licenseSecurityUrl ?? null,
+        licenseFirearmsUrl: row.license_firearms_url ?? row.licenseFirearmsUrl ?? null,
+        removedAt: 'removed_at' in row ? row.removed_at : row.removedAt,
+    };
+}
+
+function applyRealtimePersonnelProfileChange(payload) {
+    const row = payload?.new || payload;
+    const uid = row?.id ? String(row.id) : '';
+    if (!uid) return;
+    const mapped = mapRealtimeProfileRow(row);
+    personnelAccounts[uid] = {
+        ...(personnelAccounts[uid] || {}),
+        ...mapped,
+    };
+
+    const updatedAccount = personnelAccounts[uid];
+    if (updatedAccount.role === 'user') {
+        const idx = allGuards.findIndex(g => g.id === uid);
+        if (idx >= 0) {
+            allGuards[idx] = { id: uid, data: updatedAccount };
+        } else {
+            allGuards.push({ id: uid, data: updatedAccount });
+        }
+        applyGuardFilters();
+    } else if (updatedAccount.role === 'inspector') {
+        const inspectors = Object.entries(personnelAccounts)
+            .filter(([, acc]) => acc?.role === 'inspector')
+            .map(([id, data]) => ({ id, data }));
+        const countEl = document.getElementById("inspectorPersonnelCount");
+        if (countEl) countEl.textContent = inspectors.length;
+        const tbody = document.getElementById("inspectorTableBody");
+        if (tbody) {
+            tbody.innerHTML = inspectors.map(({ id, data }) => renderInspectorRow(id, data)).join("") ||
+                `<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--sl-muted);">No inspector personnel found.</td></tr>`;
+        }
+    }
+
+    const profileModalEl = document.getElementById("personnelProfileModal");
+    if (currentProfileUid === uid && profileModalEl && profileModalEl.classList.contains("show")) {
+        renderPersonnelProfileBody(uid);
+    }
+}
+window.__applyRealtimePersonnelProfileChange = applyRealtimePersonnelProfileChange;
+
+function ensurePersonnelRealtimeSubscription() {
+    if (personnelRealtimeChannel || typeof window.appSupabase?.channel !== 'function') return;
+    try {
+        personnelRealtimeChannel = appSupabase
+            .channel('admin-personnel-profiles-live')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, payload => {
+                if (payload?.eventType === 'DELETE') return;
+                applyRealtimePersonnelProfileChange(payload);
+            })
+            .subscribe();
+    } catch (err) {
+        console.warn('Realtime profile channel unavailable:', err);
+    }
+}
+
 auth.onAuthStateChanged(user => {
     if (!user) { window.location.href = "../staff/login.html"; return; }
     db.collection("users").doc(user.uid).get().then(doc => {
@@ -1864,6 +2065,7 @@ auth.onAuthStateChanged(user => {
         } else {
             const d = doc.data();
             applyAdminRoleNavigation(d.role);
+            ensurePersonnelRealtimeSubscription();
             loadUsers();
         }
     });
@@ -1945,12 +2147,17 @@ async function loadUsers() {
 function renderPersonnelIdentity(id, data) {
     const fullName = personnelDisplayName(data);
     const pid = data.personnelId ? `<span class="badge-personnel-id">${escapeHtml(data.personnelId)}</span>` : '';
-    return `<div class="user-name">
-        <button type="button" class="personnel-name-link" onclick="openPersonnelProfile('${id}')" title="Click to view full personnel record">
-            ${escapeHtml(fullName)}
-        </button>
-    </div>
-    <div class="user-email">${pid}@${escapeHtml(displayLoginId(data))}</div>`;
+    return `<div class="personnel-identity-wrap">
+        ${renderPersonnelAvatar(id, data, 36, 'personnel-row-avatar')}
+        <div>
+            <div class="user-name">
+                <button type="button" class="personnel-name-link" onclick="openPersonnelProfile('${id}')" title="Click to view full personnel record">
+                    ${escapeHtml(fullName)}
+                </button>
+            </div>
+            <div class="user-email">${pid}@${escapeHtml(displayLoginId(data))}</div>
+        </div>
+    </div>`;
 }
 
 function renderPersonnelStatus(data) {
@@ -2305,7 +2512,12 @@ async function viewAssignmentHistory(guardId) {
 
     // Update Header
     document.getElementById('assignmentHistoryGuardName').textContent = fullName;
-    document.getElementById('historyGuardAvatar').textContent = initials.toUpperCase();
+    const histAvatarEl = document.getElementById('historyGuardAvatar');
+    if (histAvatarEl) {
+        histAvatarEl.style.background = personnelAvatarColor(guardId || fullName);
+        const histPhoto = personnelPhotoUrl(account);
+        histAvatarEl.innerHTML = `<span>${escapeHtml(personnelInitials(account))}</span>${histPhoto ? `<img src="${escapeHtml(histPhoto)}" alt="${escapeHtml(fullName)}" class="personnel-avatar-img" onerror="this.remove()" />` : ''}`;
+    }
     document.getElementById('historyGuardCategoryBadge').textContent = category;
     document.getElementById('historyGuardStatusBadge').textContent = statusText;
     document.getElementById('historyGuardStatusBadge').className = statusClass;
@@ -3875,11 +4087,96 @@ function toggleEditContractFields() {
     });
 }
 
-function openPersonnelProfile(uid) {
+let editGuardPendingPhotoBase64 = null;
+let editGuardPhotoPendingRemove = false;
+let editGuardCurrentPhotoUrl = null;
+
+function renderEditGuardPhotoPreview() {
+    const mount = document.getElementById("editGuardPhotoAvatarMount");
+    const removeBtn = document.getElementById("editGuardRemovePhotoBtn");
+    const replaceLabel = document.getElementById("editGuardReplacePhotoLabel");
+    if (!mount) return;
+    const baseAcc = currentEditUid ? (personnelAccounts[currentEditUid] || {}) : {};
+    const firstName = document.getElementById("editGuardFirstName")?.value.trim() || baseAcc.firstName || "";
+    const lastName = document.getElementById("editGuardLastName")?.value.trim() || baseAcc.lastName || "";
+    const previewUrl = editGuardPhotoPendingRemove
+        ? null
+        : (editGuardPendingPhotoBase64 || editGuardCurrentPhotoUrl || null);
+    mount.innerHTML = renderPersonnelAvatar(currentEditUid, {
+        ...baseAcc,
+        firstName,
+        lastName,
+        profilePhotoUrl: previewUrl,
+    }, 60);
+    const hasPhoto = Boolean(previewUrl);
+    if (removeBtn) removeBtn.hidden = !hasPhoto;
+    if (replaceLabel) replaceLabel.textContent = hasPhoto ? "Replace Photo" : "Upload Photo";
+}
+
+function cropFileToSquare400Jpeg(file) {
+    return new Promise((resolve, reject) => {
+        if (!file) return resolve(null);
+        if (file.size > 2 * 1024 * 1024) {
+            return reject(new Error("Profile photo must be 2 MB or smaller."));
+        }
+        const mime = (file.type || "").toLowerCase();
+        const lowerName = (file.name || "").toLowerCase();
+        const validMime = mime === "image/jpeg" || mime === "image/png" ||
+            (!mime && /\.(jpe?g|png)$/i.test(lowerName));
+        if (!validMime) {
+            return reject(new Error("Only JPG and PNG images are allowed for profile photos."));
+        }
+        const reader = new FileReader();
+        reader.onload = e => {
+            const img = new Image();
+            img.onload = () => {
+                const side = Math.min(img.width, img.height);
+                const sx = Math.floor((img.width - side) / 2);
+                const sy = Math.floor((img.height - side) / 2);
+                const canvas = document.createElement("canvas");
+                canvas.width = 400;
+                canvas.height = 400;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, sx, sy, side, side, 0, 0, 400, 400);
+                resolve(canvas.toDataURL("image/jpeg", 0.88));
+            };
+            img.onerror = () => reject(new Error("Could not decode image file. Choose a valid JPG or PNG."));
+            img.src = e.target.result;
+        };
+        reader.onerror = () => reject(new Error("Could not read selected photo."));
+        reader.readAsDataURL(file);
+    });
+}
+
+async function handleEditGuardPhotoSelected(input) {
+    const errEl = document.getElementById("editGuardError");
+    if (errEl) errEl.innerText = "";
+    const file = input?.files?.[0];
+    if (!file) return;
+    try {
+        const croppedDataUrl = await cropFileToSquare400Jpeg(file);
+        editGuardPendingPhotoBase64 = croppedDataUrl;
+        editGuardPhotoPendingRemove = false;
+        renderEditGuardPhotoPreview();
+    } catch (err) {
+        input.value = "";
+        if (errEl) errEl.innerText = err.message || "Invalid profile photo.";
+        appDialog.toast(err.message || "Invalid profile photo.", { tone: "danger" });
+    }
+}
+
+function markEditGuardPhotoForRemoval() {
+    editGuardPendingPhotoBase64 = null;
+    editGuardPhotoPendingRemove = true;
+    const input = document.getElementById("editGuardProfilePhotoInput");
+    if (input) input.value = "";
+    renderEditGuardPhotoPreview();
+}
+
+function renderPersonnelProfileBody(uid) {
     const account = personnelAccounts[uid];
     if (!account) return;
-    currentProfileUid = uid;
-    
+
     const fullName = personnelDisplayName(account);
     const roleLabel = account.role === "inspector" ? "Inspector" : "Guard";
     const category = account.employmentCategory === "contract" ? "Contract" : "Regular";
@@ -3890,11 +4187,10 @@ function openPersonnelProfile(uid) {
     const assignedLocation = account.assignedLocationId ? (personnelLocationsById[account.assignedLocationId] || "Assigned post unavailable") : "Not assigned";
     const inspectorAccount = account.inspectorId ? personnelAccounts[account.inspectorId] : null;
     const inspectorName = inspectorAccount ? personnelDisplayName(inspectorAccount) : "Unassigned";
-    
-    const initials = (account.firstName?.[0] || "") + (account.lastName?.[0] || "");
+
     const dobFormatted = account.dateOfBirth ? new Date(account.dateOfBirth).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : "—";
     const dateHiredFormatted = account.dateHired ? new Date(account.dateHired).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : "—";
-    
+
     let ageText = "";
     if (account.dateOfBirth) {
         const birthDate = new Date(account.dateOfBirth);
@@ -3905,7 +4201,7 @@ function openPersonnelProfile(uid) {
             ageText = ` (${age} yrs old)`;
         }
     }
-    
+
     const securityLicenseHtml = account.licenseSecurityUrl
         ? `<div class="profile-license-card">
              <div class="profile-data-label">License to Exercise Security Profession (LESP)</div>
@@ -3940,9 +4236,13 @@ function openPersonnelProfile(uid) {
              <div style="padding:24px 10px; color:var(--sl-muted); font-size:0.85rem;">No firearm authorization uploaded.</div>
            </div>`;
 
+    const addressDisplay = account.completeAddress || account.complete_address || '—';
+    const mobileDisplay = account.mobileNumber || account.mobile_number || '—';
+    const emergencyDisplay = account.emergencyContact || account.emergency_contact || '—';
+
     document.getElementById("personnelProfileBody").innerHTML = `
         <div class="profile-modal-banner">
-            <div class="profile-modal-avatar">${escapeHtml(initials.toUpperCase() || 'P')}</div>
+            ${renderPersonnelAvatar(uid, account, 60)}
             <div style="flex:1;">
                 <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;">
                     <h4 style="margin:0;font-weight:700;color:var(--sl-ink);font-size:1.25rem;">${escapeHtml(fullName)}</h4>
@@ -3979,13 +4279,17 @@ function openPersonnelProfile(uid) {
                     <span class="profile-data-label">Civil Status</span>
                     <span class="profile-data-value">${escapeHtml(account.civilStatus || '—')}</span>
                 </div>
-                <div class="profile-data-item" style="grid-column: 1 / -1;">
+                <div class="profile-data-item" style="grid-column: 1 / -1;" data-profile-field="complete_address">
                     <span class="profile-data-label">Complete Address</span>
-                    <span class="profile-data-value">${escapeHtml(account.completeAddress || '—')}</span>
+                    <span class="profile-data-value">${escapeHtml(addressDisplay)}</span>
                 </div>
-                <div class="profile-data-item">
+                <div class="profile-data-item" data-profile-field="mobile_number">
                     <span class="profile-data-label">Contact / Mobile Number</span>
-                    <span class="profile-data-value">${escapeHtml(account.mobileNumber || '—')}</span>
+                    <span class="profile-data-value">${escapeHtml(mobileDisplay)}</span>
+                </div>
+                <div class="profile-data-item" data-profile-field="emergency_contact">
+                    <span class="profile-data-label">Emergency Contact</span>
+                    <span class="profile-data-value">${escapeHtml(emergencyDisplay)}</span>
                 </div>
                 <div class="profile-data-item">
                     <span class="profile-data-label">Email Address</span>
@@ -4056,6 +4360,13 @@ function openPersonnelProfile(uid) {
             </div>
         </div>
     `;
+}
+
+function openPersonnelProfile(uid) {
+    const account = personnelAccounts[uid];
+    if (!account) return;
+    currentProfileUid = uid;
+    renderPersonnelProfileBody(uid);
 
     document.getElementById("profileModalEditBtn").onclick = () => {
         bootstrap.Modal.getOrCreateInstance(document.getElementById("personnelProfileModal")).hide();
@@ -4083,6 +4394,11 @@ function openEditPersonnelModal(uid) {
     currentEditUid = uid;
     editSecurityLicenseData = account.licenseSecurityUrl || null;
     editFirearmsLicenseData = account.licenseFirearmsUrl || null;
+    editGuardPendingPhotoBase64 = null;
+    editGuardPhotoPendingRemove = false;
+    editGuardCurrentPhotoUrl = personnelPhotoUrl(account) || null;
+    const photoInputEl = document.getElementById("editGuardProfilePhotoInput");
+    if (photoInputEl) photoInputEl.value = "";
     
     document.getElementById("editGuardPersonnelId").value = account.personnelId || generateNextPersonnelId();
     document.getElementById("editGuardFirstName").value = account.firstName || "";
@@ -4090,6 +4406,8 @@ function openEditPersonnelModal(uid) {
     document.getElementById("editGuardLastName").value = account.lastName || "";
     document.getElementById("editGuardEmail").value = editableEmail(account);
     document.getElementById("editGuardMobileNumber").value = account.mobileNumber || "";
+    const editEmergEl = document.getElementById("editGuardEmergencyContact");
+    if (editEmergEl) editEmergEl.value = account.emergencyContact || account.emergency_contact || "";
     document.getElementById("editGuardDob").value = account.dateOfBirth || "";
     document.getElementById("editGuardGender").value = account.gender || "Male";
     document.getElementById("editGuardCivilStatus").value = account.civilStatus || "Single";
@@ -4106,6 +4424,7 @@ function openEditPersonnelModal(uid) {
     document.getElementById("editGuardError").innerText = "";
     
     toggleEditContractFields();
+    renderEditGuardPhotoPreview();
     
     // Reset file inputs and set existing previews
     document.getElementById("editGuardLicenseSecurity").value = "";
@@ -4144,6 +4463,7 @@ async function savePersonnelEdit() {
     const lastName = document.getElementById("editGuardLastName").value.trim();
     const email = document.getElementById("editGuardEmail").value.trim();
     const mobileNumber = document.getElementById("editGuardMobileNumber").value.trim();
+    const emergencyContact = (document.getElementById("editGuardEmergencyContact")?.value || "").trim();
     const editPidInput = document.getElementById("editGuardPersonnelId");
     const personnelId = editPidInput ? editPidInput.value.trim() : generateNextPersonnelId();
     const dateOfBirth = document.getElementById("editGuardDob").value || null;
@@ -4192,6 +4512,35 @@ async function savePersonnelEdit() {
                 excludeUserId: currentEditUid
             });
 
+            let resolvedPhotoUrl = editGuardCurrentPhotoUrl;
+            let photoSyncedViaEdge = false;
+            if (editGuardPhotoPendingRemove || editGuardPendingPhotoBase64) {
+                if (typeof appSupabase?.functions?.invoke === 'function') {
+                    const photoBody = editGuardPhotoPendingRemove
+                        ? { action: 'remove', targetUserId: currentEditUid }
+                        : {
+                            action: 'upload',
+                            targetUserId: currentEditUid,
+                            photoBase64: editGuardPendingPhotoBase64,
+                            mimeType: 'image/jpeg'
+                        };
+                    const photoRes = await appSupabase.functions.invoke('profile-photo', { body: photoBody });
+                    if (photoRes?.error) {
+                        await edgeFunctionErrors.unwrap(photoRes, 'Could not update profile photo.');
+                    }
+                    if (photoRes?.data && 'profilePhotoUrl' in photoRes.data) {
+                        resolvedPhotoUrl = photoRes.data.profilePhotoUrl;
+                        photoSyncedViaEdge = true;
+                    } else if (editGuardPhotoPendingRemove) {
+                        resolvedPhotoUrl = null;
+                    } else if (editGuardPendingPhotoBase64) {
+                        resolvedPhotoUrl = editGuardPendingPhotoBase64;
+                    }
+                } else {
+                    resolvedPhotoUrl = editGuardPhotoPendingRemove ? null : editGuardPendingPhotoBase64;
+                }
+            }
+
             // 1. Invoke security definer RPC first to guarantee database persistence and clear any historical removal state
             let rpcBusinessErr = null;
             try {
@@ -4208,13 +4557,16 @@ async function savePersonnelEdit() {
                         p_gender: gender,
                         p_civil_status: civilStatus,
                         p_complete_address: completeAddress || null,
+                        p_emergency_contact: emergencyContact,
                         p_date_hired: dateHired,
                         p_employment_category: employmentCategory,
                         p_contract_status: contractStatus,
                         p_contract_start_date: contractStartDate,
                         p_contract_end_date: contractEndDate,
                         p_license_security_url: editSecurityLicenseData,
-                        p_license_firearms_url: editFirearmsLicenseData
+                        p_license_firearms_url: editFirearmsLicenseData,
+                        p_profile_photo_url: (!photoSyncedViaEdge && resolvedPhotoUrl) ? resolvedPhotoUrl : null,
+                        p_clear_profile_photo: Boolean(editGuardPhotoPendingRemove && !photoSyncedViaEdge)
                     });
                     if (rpcRes?.error) {
                         const msg = rpcRes.error.message || '';
@@ -4250,6 +4602,8 @@ async function savePersonnelEdit() {
                     gender,
                     civilStatus,
                     completeAddress: completeAddress || null,
+                    emergencyContact: emergencyContact || null,
+                    profilePhotoUrl: resolvedPhotoUrl ?? null,
                     dateHired,
                     employmentCategory,
                     contractStatus,
@@ -4279,6 +4633,8 @@ async function savePersonnelEdit() {
                 acc.gender = gender;
                 acc.civilStatus = civilStatus;
                 acc.completeAddress = completeAddress || null;
+                acc.emergencyContact = emergencyContact || null;
+                acc.profilePhotoUrl = resolvedPhotoUrl ?? null;
                 acc.dateHired = dateHired;
                 acc.employmentCategory = employmentCategory;
                 acc.contractStatus = contractStatus;

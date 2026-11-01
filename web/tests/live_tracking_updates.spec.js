@@ -59,6 +59,8 @@ async function openTracking(page,{animate=false,serverOffset=0}={}) {
       }),
       tileLayer:()=>({addTo,on(){return this;}}),
       layerGroup:()=>({addTo,removeLayer(marker){marker.removed=true;marker.popupOpen=false;}}),
+      divIcon:(options)=>({...options}),
+      marker:(center,options)=>{const marker=shape(center,options);window.markers.push(marker);return marker;},
       circleMarker:(center,options)=>{const marker=shape(center,options);window.markers.push(marker);return marker;},
       circle:(center,options)=>{const circle=shape(center,options);window.circles.push(circle);return circle;}
     };
@@ -395,4 +397,131 @@ test('guard information formats name, client, location, contact number, and stat
   expect(popupText).toContain('Contact Number: 09123456789');
   expect(popupText).toContain('Status: Live');
 });
+
+test('profile photo renders in circular map marker, sidebar card, and popup with green/amber/gray rings, ±100 m circle, initials fallback, and live updates without closing open popup',async({page})=>{
+  const samplePhoto='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jvXkAAAAASUVORK5CYII=';
+  await openTracking(page);
+
+  // 1. Guard with no photo initially -> shows colored initials everywhere + green ring + ±100 m accuracy circle
+  await page.evaluate(()=>{
+    window.locations=[
+      {
+        user_id:'guard-photo-test',
+        first_name:'Tomas',
+        last_name:'Aquino',
+        guard_name:'Tomas Aquino',
+        location_label:'Balboa · Camia Street, Bacolod',
+        mobile_number:'09171112222',
+        profile_photo_url:null,
+        latitude:14.6,
+        longitude:120.98,
+        accuracy_meters:100,
+        captured_at:new Date(Date.now()-20000).toISOString(),
+        received_at:new Date(Date.now()-20000).toISOString(),
+        duty_end_at:new Date(Date.now()+3600000).toISOString()
+      },
+      {
+        user_id:'guard-offline-test',
+        first_name:'Rico',
+        last_name:'Dizon',
+        guard_name:'Rico Dizon',
+        location_label:'Main Post · Lacson St',
+        mobile_number:'09183334444',
+        profile_photo_url:null,
+        latitude:null,
+        longitude:null,
+        accuracy_meters:null,
+        captured_at:null,
+        received_at:null,
+        duty_end_at:new Date(Date.now()+3600000).toISOString()
+      }
+    ];
+    window.broadcast({});
+  });
+  await page.clock.runFor(1000);
+
+  const liveCard=page.locator('.tracking-guard').nth(0);
+  const waitingCard=page.locator('.tracking-guard').nth(1);
+  await expect(liveCard.locator('.tracking-list-avatar')).toHaveAttribute('data-ring','green');
+  await expect(liveCard.locator('.tracking-avatar-initials')).toHaveText('TA');
+  await expect(liveCard.locator('.tracking-avatar-img')).toBeHidden();
+  await expect(waitingCard.locator('.tracking-list-avatar')).toHaveAttribute('data-ring','gray');
+  await expect(waitingCard.locator('.tracking-avatar-initials')).toHaveText('RD');
+
+  // Open popup on Tomas Aquino
+  await liveCard.click();
+  const initialMarkerState=await page.evaluate(()=>{
+    const m=window.markers.find(item=>!item.removed);
+    const c=window.circles.find(item=>!item.removed);
+    const iconEl=m.options.icon.html;
+    const popupAvatar=m.popup.querySelector('.tracking-popup-avatar');
+    return {
+      popupOpen:m.popupOpen,
+      circleRadius:c.options.radius,
+      markerRing:iconEl.dataset.ring,
+      markerInitials:iconEl.querySelector('.tracking-avatar-initials').textContent,
+      markerImgHidden:iconEl.querySelector('.tracking-avatar-img').hidden,
+      markerBg:iconEl.style.backgroundColor,
+      popupRing:popupAvatar.dataset.ring,
+      popupImgHidden:popupAvatar.querySelector('.tracking-avatar-img').hidden
+    };
+  });
+  expect(initialMarkerState).toMatchObject({
+    popupOpen:true,
+    circleRadius:100,
+    markerRing:'green',
+    markerInitials:'TA',
+    markerImgHidden:true,
+    popupRing:'green',
+    popupImgHidden:true
+  });
+  expect(initialMarkerState.markerBg).toBeTruthy();
+
+  // 2. Guard uploads a profile photo & updates contact number in mobile app + ages > 5 minutes -> amber ring, photo visible everywhere, open popup NEVER closes!
+  await page.evaluate(photo=>{
+    window.beforeMarkerRef=window.markers.find(item=>!item.removed);
+    Object.assign(window.locations[0],{
+      profile_photo_url:photo,
+      mobile_number:'09998887777',
+      captured_at:new Date(Date.now()-330000).toISOString(),
+      received_at:new Date(Date.now()-330000).toISOString()
+    });
+    window.broadcast({});
+  },samplePhoto);
+  await page.clock.runFor(1000);
+
+  await expect(liveCard.locator('.tracking-list-avatar')).toHaveAttribute('data-ring','amber');
+  await expect(liveCard.locator('.tracking-avatar-img')).toHaveAttribute('src',samplePhoto);
+  await expect(liveCard).toContainText('Contact Number: 09998887777');
+
+  const updatedMarkerState=await page.evaluate(()=>{
+    const m=window.markers.find(item=>!item.removed);
+    const c=window.circles.find(item=>!item.removed);
+    const iconEl=m.options.icon.html;
+    const popupAvatar=m.popup.querySelector('.tracking-popup-avatar');
+    return {
+      sameMarker:m===window.beforeMarkerRef,
+      popupStillOpen:m.popupOpen,
+      circleRadius:c.options.radius,
+      markerRing:iconEl.dataset.ring,
+      markerImgSrc:iconEl.querySelector('.tracking-avatar-img').getAttribute('src'),
+      markerImgHidden:iconEl.querySelector('.tracking-avatar-img').hidden,
+      popupRing:popupAvatar.dataset.ring,
+      popupImgSrc:popupAvatar.querySelector('.tracking-avatar-img').getAttribute('src'),
+      popupText:m.popup.textContent
+    };
+  });
+  expect(updatedMarkerState).toMatchObject({
+    sameMarker:true,
+    popupStillOpen:true,
+    circleRadius:100,
+    markerRing:'amber',
+    markerImgSrc:samplePhoto,
+    markerImgHidden:false,
+    popupRing:'amber',
+    popupImgSrc:samplePhoto
+  });
+  expect(updatedMarkerState.popupText).toContain('Contact Number: 09998887777');
+});
+
 

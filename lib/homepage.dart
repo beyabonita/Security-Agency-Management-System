@@ -12,6 +12,7 @@ import 'package:flutter_application_1/services/notification_service.dart';
 import 'package:flutter_application_1/services/schedule_service.dart';
 import 'package:flutter_application_1/services/user_profile_service.dart';
 import 'package:flutter_application_1/incident_report.dart';
+import 'package:flutter_application_1/guard_profile.dart';
 import 'package:flutter_application_1/duty_requests.dart';
 import 'package:flutter_application_1/theme/app_colors.dart';
 import 'package:flutter_application_1/time_logs.dart';
@@ -286,6 +287,18 @@ class _HomePageState extends State<HomePage> {
                         employmentCategory:
                             profile?['employment_category']?.toString() ??
                             'regular',
+                        profilePhotoUrl:
+                            profile?['profile_photo_url']?.toString(),
+                        initials: UserProfileService.initialsFor(
+                          profile,
+                          fallbackName: displayName,
+                        ),
+                        avatarSeed: user.id,
+                        onOpenProfile: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const GuardProfileScreen(),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -401,101 +414,142 @@ class _StatusCard extends StatelessWidget {
     required this.isActive,
     required this.employmentCategory,
     required this.contract,
+    required this.profilePhotoUrl,
+    required this.initials,
+    required this.avatarSeed,
+    required this.onOpenProfile,
   });
   final String displayName;
   final bool isActive;
   final String employmentCategory;
   final ContractPeriod contract;
+  final String? profilePhotoUrl;
+  final String initials;
+  final String avatarSeed;
+  final VoidCallback onOpenProfile;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isActive
-              ? [const Color(0xFFDC2626), const Color(0xFFB91C1C)]
-              : [const Color(0xFF374151), const Color(0xFF1F2937)],
-        ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onOpenProfile,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color:
-                (isActive ? const Color(0xFFDC2626) : const Color(0xFF374151))
-                    .withValues(alpha: 0.3),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(14),
+        child: Ink(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: isActive
+                  ? [const Color(0xFFDC2626), const Color(0xFFB91C1C)]
+                  : [const Color(0xFF374151), const Color(0xFF1F2937)],
             ),
-            child: Icon(
-              isActive ? Icons.shield_rounded : Icons.block_rounded,
-              color: Colors.white,
-              size: 26,
-            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color:
+                    (isActive
+                            ? const Color(0xFFDC2626)
+                            : const Color(0xFF374151))
+                        .withValues(alpha: 0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  displayName,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Row(
+          child: Row(
+            children: [
+              GuardAvatarCircle(
+                photoUrl: profilePhotoUrl,
+                initials: initials,
+                seed: avatarSeed,
+                size: 52,
+                ringColor: Colors.white.withValues(alpha: 0.72),
+                ringWidth: 2,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: isActive
-                            ? const Color(0xFF4ADE80)
-                            : const Color(0xFFF87171),
-                        shape: BoxShape.circle,
+                    Text(
+                      displayName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        isActive
-                            ? '${employmentCategory == 'contract' ? 'Contract' : 'Regular'} Guard'
-                            : 'Account Disabled',
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.82),
-                          fontSize: 13,
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: isActive
+                                ? const Color(0xFF4ADE80)
+                                : const Color(0xFFF87171),
+                            shape: BoxShape.circle,
+                          ),
                         ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            isActive
+                                ? '${employmentCategory == 'contract' ? 'Contract' : 'Regular'} Guard'
+                                : 'Account Disabled',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.82),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      contract.label(DateTime.now()),
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 7,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.28),
+                  ),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.person_rounded, color: Colors.white, size: 15),
+                    SizedBox(width: 4),
+                    Text(
+                      'Profile',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  contract.label(DateTime.now()),
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

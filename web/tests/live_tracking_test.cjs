@@ -1,5 +1,5 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
-const {classify,visible,createServerClock}=require('../js/live-tracking-model.js');
+const {classify,markerRing,visible,createServerClock}=require('../js/live-tracking-model.js');
 const now=Date.parse('2026-09-07T12:00:00Z');
 const row={guard_name:'Ana <script>',location_label:'Main gate',latitude:14.6,longitude:120.98,
  accuracy_meters:10,captured_at:new Date(now-30000).toISOString(),received_at:new Date(now-20000).toISOString(),duty_end_at:new Date(now+3600000).toISOString()};
@@ -23,4 +23,16 @@ test('114 m fix stays visible and is explicitly approximate',()=>{
  assert.equal(location.accuracy_meters,114);
  assert.equal(classify(row,now).approximate,false);
  assert.equal(classify({...row,accuracy_meters:500},now).approximate,true);
+});
+test('markerRing maps <=5m to green, >5m to amber, and waiting/offline to gray',()=>{
+ const liveRow=classify({...row,captured_at:new Date(now-120000).toISOString()},now);
+ assert.equal(liveRow.ring,'green');
+ assert.equal(markerRing(liveRow),'green');
+ const overFiveMin=classify({...row,captured_at:new Date(now-305000).toISOString(),received_at:new Date(now-305000).toISOString()},now);
+ assert.equal(overFiveMin.ring,'amber');
+ assert.equal(markerRing(overFiveMin),'amber');
+ const waitingRow=classify({...row,latitude:null,longitude:null,accuracy_meters:null,captured_at:null,received_at:null},now);
+ assert.equal(waitingRow.ring,'gray');
+ assert.equal(markerRing(waitingRow),'gray');
+ assert.equal(markerRing({...liveRow,offline:true}),'gray');
 });

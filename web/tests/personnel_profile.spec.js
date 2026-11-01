@@ -316,6 +316,28 @@ test('guard personnel search input filters with debounce, combines with dropdown
   await page.route('https://cdn.jsdelivr.net/npm/@supabase/**', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
   await page.route('https://cdnjs.cloudflare.com/**', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
   await page.route('**/notification-center.js', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('**/platform-configuration.js', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('**/admin-shell.js', route => route.fulfill({
+    contentType: 'text/javascript',
+    body: `
+      window.applyAdminRoleNavigation = () => {};
+      window.finishPageLoading = () => {
+        const loader = document.getElementById('loadingScreen');
+        if (loader) loader.style.display = 'none';
+      };
+      class MockModal {
+        constructor(el) { this.el = el; }
+        show() { if (this.el) { this.el.classList.add('show'); this.el.style.display = 'block'; } }
+        hide() { if (this.el) { this.el.classList.remove('show'); this.el.style.display = 'none'; } }
+        static getOrCreateInstance(el) { return new MockModal(el); }
+      }
+      window.bootstrap = { Modal: MockModal };
+      window.appDialog = {
+        toast: (m) => { window.lastToast = m; },
+        runBusy: async (btn, fn) => { await fn(); }
+      };
+    `
+  }));
   await page.route('**/supabase-firebase-bridge.js', route => route.fulfill({
     contentType: 'text/javascript',
     body: `
@@ -450,6 +472,28 @@ test('prevents duplicate registration of an already registered mobile number or 
   await page.route('https://cdn.jsdelivr.net/npm/@supabase/**', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
   await page.route('https://cdnjs.cloudflare.com/**', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
   await page.route('**/notification-center.js', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('**/platform-configuration.js', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('**/admin-shell.js', route => route.fulfill({
+    contentType: 'text/javascript',
+    body: `
+      window.applyAdminRoleNavigation = () => {};
+      window.finishPageLoading = () => {
+        const loader = document.getElementById('loadingScreen');
+        if (loader) loader.style.display = 'none';
+      };
+      class MockModal {
+        constructor(el) { this.el = el; }
+        show() { if (this.el) { this.el.classList.add('show'); this.el.style.display = 'block'; } }
+        hide() { if (this.el) { this.el.classList.remove('show'); this.el.style.display = 'none'; } }
+        static getOrCreateInstance(el) { return new MockModal(el); }
+      }
+      window.bootstrap = { Modal: MockModal };
+      window.appDialog = {
+        toast: (m) => { window.lastToast = m; },
+        runBusy: async (btn, fn) => { await fn(); }
+      };
+    `
+  }));
   await page.route('**/supabase-firebase-bridge.js', route => route.fulfill({
     contentType: 'text/javascript',
     body: `
@@ -741,4 +785,246 @@ test('prevents duplicate registration of an already registered mobile number or 
   await page.locator('#editGuardPersonnelId').fill('SEC-2026-0043');
   await page.locator('#editGuardSaveBtn').click();
   expect(await page.evaluate(() => window.manageInvocations)).toBe(1);
+});
+
+test('guard profile customization syncs live to Personnel Record Profile without refresh and Operations Head can remove/replace photo', async ({ page }) => {
+  const samplePhoto = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jvXkAAAAASUVORK5CYII=';
+
+  await page.route('https://cdn.jsdelivr.net/npm/@supabase/**', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('https://cdnjs.cloudflare.com/**', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('**/notification-center.js', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('**/platform-configuration.js', route => route.fulfill({ contentType: 'text/javascript', body: '' }));
+  await page.route('**/admin-shell.js', route => route.fulfill({
+    contentType: 'text/javascript',
+    body: `
+      window.applyAdminRoleNavigation = () => {};
+      window.finishPageLoading = () => {
+        const loader = document.getElementById('loadingScreen');
+        if (loader) loader.style.display = 'none';
+      };
+      class MockModal {
+        constructor(el) { this.el = el; }
+        show() { if (this.el) { this.el.classList.add('show'); this.el.style.display = 'block'; } }
+        hide() { if (this.el) { this.el.classList.remove('show'); this.el.style.display = 'none'; } }
+        static getOrCreateInstance(el) { return new MockModal(el); }
+      }
+      window.bootstrap = { Modal: MockModal };
+      window.appDialog = {
+        toast: (m) => { window.lastToast = m; },
+        runBusy: async (btn, fn) => { await fn(); }
+      };
+    `
+  }));
+  await page.route('**/supabase-firebase-bridge.js', route => route.fulfill({
+    contentType: 'text/javascript',
+    body: `
+      window.photoEdgeCalls = [];
+      const rows = {
+        profiles: [
+          { id: 'admin-1', role: 'admin', active: true, first_name: 'Admin', last_name: 'User' },
+          {
+            id: 'guard-ta',
+            first_name: 'Tomas',
+            last_name: 'Aquino',
+            personnel_id: 'SEC-2026-0099',
+            email: 'tomas.aquino@gmail.com',
+            mobile_number: '09171234567',
+            complete_address: 'Old Address, Bacolod City',
+            emergency_contact: 'Juan Aquino (Brother) — 09180001111',
+            profile_photo_url: null,
+            role: 'user',
+            active: true,
+            employment_category: 'regular',
+            contract_status: 'Active'
+          }
+        ],
+        locations: [],
+        guard_assignment_history: [],
+        guard_contract_history: [],
+        schedules: []
+      };
+
+      function mapRow(row) {
+        return {
+          ...row,
+          firstName: row.first_name,
+          middleName: row.middle_name,
+          lastName: row.last_name,
+          personnelId: row.personnel_id,
+          mobileNumber: row.mobile_number,
+          completeAddress: row.complete_address,
+          emergencyContact: row.emergency_contact,
+          profilePhotoUrl: row.profile_photo_url,
+          employmentCategory: row.employment_category,
+          contractStatus: row.contract_status
+        };
+      }
+
+      function snapshot(data) {
+        return {
+          size: data.length,
+          docs: data.map(r => ({ id: r.id, exists: true, data: () => mapRow(r) })),
+          forEach(fn) { this.docs.forEach(fn); }
+        };
+      }
+
+      function query(table) {
+        const source = table === 'users' ? 'profiles' : table;
+        const api = {
+          select() { return api; },
+          order() {
+            return {
+              limit() { return Promise.resolve({ data: rows[source] || [], error: null }); },
+              then(resolve) { return resolve({ data: rows[source] || [], error: null }); }
+            };
+          },
+          eq(field, value) {
+            const filtered = (rows[source] || []).filter(r => r[field] === value);
+            return {
+              neq(f2, v2) {
+                const sub = filtered.filter(r => r[f2] !== v2);
+                return { limit: async () => ({ data: sub, error: null }), then: res => res({ data: sub, error: null }) };
+              },
+              single: async () => ({ data: filtered[0] || null, error: null }),
+              maybeSingle: async () => ({ data: filtered[0] || null, error: null }),
+              get: async () => snapshot(filtered),
+              order() {
+                return {
+                  limit() { return Promise.resolve({ data: filtered, error: null }); },
+                  then(resolve) { return resolve({ data: filtered, error: null }); }
+                };
+              },
+              then(resolve) { return resolve({ data: filtered, error: null }); }
+            };
+          },
+          ilike() {
+            return {
+              neq() {
+                return { limit: async () => ({ data: [], error: null }) };
+              }
+            };
+          },
+          async get() { return snapshot(rows[source] || []); },
+          doc(id) {
+            return {
+              get: async () => {
+                const found = (rows[source] || []).find(r => r.id === id);
+                return { id, exists: !!found, data: () => found ? mapRow(found) : undefined };
+              }
+            };
+          },
+          then(resolve) { return resolve({ data: rows[source] || [], error: null }); }
+        };
+        return api;
+      }
+
+      window.appSupabase = {
+        auth: {
+          getSession: async () => ({ data: { session: null } }),
+          getUser: async () => ({ data: { user: { id: 'admin-1', email: 'admin@twentyagency.com' } }, error: null })
+        },
+        channel(name) {
+          return {
+            on(type, filter, cb) {
+              window.realtimeProfileCallback = cb;
+              return this;
+            },
+            subscribe() { return this; }
+          };
+        },
+        from: table => query(table),
+        rpc: async () => ({ data: null, error: null }),
+        functions: {
+          invoke: async (fnName, opts) => {
+            if (fnName === 'profile-photo') {
+              window.photoEdgeCalls.push(opts.body);
+              const g = rows.profiles.find(p => p.id === opts.body.targetUserId);
+              if (opts.body.action === 'remove') {
+                if (g) g.profile_photo_url = null;
+                return { data: { ok: true, profilePhotoUrl: null }, error: null };
+              }
+              if (g) g.profile_photo_url = opts.body.photoBase64;
+              return { data: { ok: true, profilePhotoUrl: opts.body.photoBase64 }, error: null };
+            }
+            if (fnName === 'admin-manage-user') {
+              const b = opts?.body || {};
+              const g = rows.profiles.find(p => p.id === b.userId);
+              if (g) {
+                g.mobile_number = b.mobileNumber;
+                g.complete_address = b.completeAddress;
+                g.emergency_contact = b.emergencyContact;
+              }
+              return { data: { ok: true }, error: null };
+            }
+            return { data: { ok: true }, error: null };
+          }
+        }
+      };
+
+      window.firebase = {
+        auth: () => ({
+          currentUser: { uid: 'admin-1', email: 'admin@twentyagency.com' },
+          onAuthStateChanged: cb => setTimeout(() => cb({ uid: 'admin-1', email: 'admin@twentyagency.com' }), 0),
+          signOut: async () => {}
+        }),
+        firestore: () => ({
+          collection: table => query(table)
+        })
+      };
+    `,
+  }));
+
+  await page.goto('/admin/users.html');
+  await expect(page.locator('#guardTableBody tr')).toHaveCount(1);
+
+  // 1. Guard with no photo shows colored initials ("TA") in table row and Personnel Record Profile modal
+  await page.locator('.personnel-name-link', { hasText: 'Tomas Aquino' }).click();
+  await expect(page.locator('#personnelProfileModal')).toBeVisible();
+  const modalAvatar = page.locator('#personnelProfileBody .profile-modal-avatar');
+  await expect(modalAvatar).toContainText('TA');
+  await expect(modalAvatar.locator('img.personnel-avatar-img')).toHaveCount(0);
+  await expect(page.locator('[data-profile-field="mobile_number"] .profile-data-value')).toHaveText('09171234567');
+  await expect(page.locator('[data-profile-field="complete_address"] .profile-data-value')).toHaveText('Old Address, Bacolod City');
+  await expect(page.locator('[data-profile-field="emergency_contact"] .profile-data-value')).toHaveText('Juan Aquino (Brother) — 09180001111');
+
+  // 2. Simulate live Realtime update from Guard mobile app while modal is open (NO page refresh!)
+  await page.evaluate(photo => {
+    window.realtimeProfileCallback({
+      eventType: 'UPDATE',
+      new: {
+        id: 'guard-ta',
+        role: 'user',
+        active: true,
+        first_name: 'Tomas',
+        last_name: 'Aquino',
+        personnel_id: 'SEC-2026-0099',
+        email: 'tomas.aquino@gmail.com',
+        mobile_number: '09995554444',
+        complete_address: 'Lot 8 Blk 3, Brgy. Villamonte, Bacolod City',
+        emergency_contact: 'Maria Aquino (Spouse) — 09201112222',
+        profile_photo_url: photo,
+        employment_category: 'regular',
+        contract_status: 'Active'
+      }
+    });
+  }, samplePhoto);
+
+  // Photo replaces "TA" avatar and updated contact number, address, and emergency contact appear immediately!
+  await expect(modalAvatar.locator('img.personnel-avatar-img')).toHaveAttribute('src', samplePhoto);
+  await expect(page.locator('[data-profile-field="mobile_number"] .profile-data-value')).toHaveText('09995554444');
+  await expect(page.locator('[data-profile-field="complete_address"] .profile-data-value')).toHaveText('Lot 8 Blk 3, Brgy. Villamonte, Bacolod City');
+  await expect(page.locator('[data-profile-field="emergency_contact"] .profile-data-value')).toHaveText('Maria Aquino (Spouse) — 09201112222');
+
+  // 3. Operations Head opens Edit Profile and removes the guard's photo
+  await page.locator('#profileModalEditBtn').click();
+  await expect(page.locator('#editPersonnelModal')).toBeVisible();
+  await expect(page.locator('#editGuardRemovePhotoBtn')).toBeVisible();
+  await page.locator('#editGuardRemovePhotoBtn').click();
+  await expect(page.locator('#editGuardRemovePhotoBtn')).toBeHidden();
+  await page.locator('#editGuardSaveBtn').click();
+
+  expect(await page.evaluate(() => window.photoEdgeCalls)).toEqual([
+    { action: 'remove', targetUserId: 'guard-ta' }
+  ]);
+  await expect(page.locator('#guardTableBody .personnel-row-avatar img.personnel-avatar-img')).toHaveCount(0);
 });

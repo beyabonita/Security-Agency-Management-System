@@ -6,12 +6,87 @@
   const entries=new Map();
   const serverClock=window.LiveTrackingModel.createServerClock();
   const reconcileMs=30000, realtimeBatchMs=1000, retryMs=500, requestTimeoutMs=10000;
+  const AVATAR_PALETTE=['#b91c1c','#9f1239','#0f766e','#1d4ed8','#6d28d9','#b45309','#15803d','#334155'];
+  const RING_HEX={green:'#16a34a',amber:'#f59e0b',gray:'#6b7280'};
   let rows=[],map,layer,channel,timer,ageTimer,refreshTimer,client,authSubscription,stopped=false,loading=false,refreshAgain=false,connected=false,hasFit=false;
   let requestController,retryTimer,retryResolve,requestGeneration=0;
   let interrupted=false,lastAuthorizedAt=0,accessExpiryTimer;
   const empty=document.createElement('p'); empty.className='tracking-empty';
   empty.textContent='No matching guards are currently on duty.';
+
   function setText(element,value) { if(element.textContent!==value)element.textContent=value; }
+
+  function avatarColor(seed) {
+    const text=String(seed||'').trim().toLowerCase();
+    if(!text)return AVATAR_PALETTE[0];
+    let hash=0;
+    for(let i=0;i<text.length;i++)hash=((hash*31)+text.charCodeAt(i))&0x7fffffff;
+    return AVATAR_PALETTE[hash%AVATAR_PALETTE.length];
+  }
+
+  function guardInitials(row) {
+    const first=String(row?.first_name||'').trim();
+    const last=String(row?.last_name||'').trim();
+    if(first||last) {
+      const a=first?first[0]:'';
+      const b=last?last[0]:(first.length>1?first[1]:'');
+      const pair=(a+b).replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+      if(pair)return pair;
+    }
+    const words=String(row?.guard_name||'').trim().split(/\s+/)
+      .map(w=>w.replace(/[^A-Za-z0-9]/g,'')).filter(Boolean);
+    if(words.length>=2)return (words[0][0]+words[words.length-1][0]).toUpperCase();
+    if(words.length===1)return words[0].slice(0,2).toUpperCase();
+    return 'SG';
+  }
+
+  function safePhotoUrl(raw) {
+    const value=String(raw||'').trim();
+    if(!value)return '';
+    if(/^data:image\/(?:jpeg|jpg|png);base64,[A-Za-z0-9+/=]+$/i.test(value))return value;
+    try {
+      const parsed=new URL(value,window.location.href);
+      if(parsed.protocol==='https:'||parsed.protocol==='http:')return parsed.href;
+    } catch(_) {}
+    return '';
+  }
+
+  function createAvatarDom(extraClass='') {
+    const root=document.createElement('span');
+    root.className='tracking-avatar'+(extraClass?' '+extraClass:'')+' ring-green';
+    const initials=document.createElement('span');
+    initials.className='tracking-avatar-initials';
+    const img=document.createElement('img');
+    img.className='tracking-avatar-img';
+    img.alt='';
+    img.hidden=true;
+    img.addEventListener('error',()=>{img.hidden=true;});
+    img.addEventListener('load',()=>{if(img.getAttribute('src'))img.hidden=false;});
+    root.append(initials,img);
+    return {root,initials,img,extraClass,photoUrl:''};
+  }
+
+  function syncAvatarDom(avatarObj,row,ring) {
+    if(!avatarObj)return;
+    const nextClass='tracking-avatar'+(avatarObj.extraClass?' '+avatarObj.extraClass:'')+' ring-'+ring;
+    if(avatarObj.root.className!==nextClass)avatarObj.root.className=nextClass;
+    avatarObj.root.dataset.ring=ring;
+    const bg=avatarColor(row.user_id||row.guard_name);
+    if(avatarObj.bg!==bg){avatarObj.bg=bg;avatarObj.root.style.backgroundColor=bg;}
+    setText(avatarObj.initials,guardInitials(row));
+    const url=safePhotoUrl(row.profile_photo_url||row.profilePhotoUrl);
+    if(avatarObj.photoUrl!==url) {
+      avatarObj.photoUrl=url;
+      if(url) {
+        avatarObj.img.src=url;
+        avatarObj.img.hidden=false;
+      } else {
+        avatarObj.img.removeAttribute('src');
+        avatarObj.img.hidden=true;
+      }
+    }
+  }
+
   function parseGuardLocation(row) {
     let client = (row.client_name || '').trim();
     let address = (row.location_address || '').trim();
@@ -32,6 +107,7 @@
       location: address || rawLabel || '—'
     };
   }
+
   function createInfoRow(labelText, extraClass='') {
     const row = document.createElement('div');
     row.className = 'tracking-info-item' + (extraClass ? ' ' + extraClass : '');
@@ -43,7 +119,9 @@
     row.append(label, val);
     return { row, label, val };
   }
+
   function clear(message) { clearTimeout(accessExpiryTimer);rows=[]; render(); status.textContent=message; }
+
   function render() {
     const visible=window.LiveTrackingModel.visible(rows,search.value,serverClock.now())
       .map(row=>interrupted&&row.state!=='waiting'?{...row,state:'stale'}:row);
@@ -60,43 +138,71 @@
     if(visible.length)empty.remove();
     else if(!empty.parentNode)list.append(empty);
     visible.forEach((row,index)=>{
-      const color=row.state==='live'&&!row.approximate?'#137c52':'#a66210';
+      const ring=window.LiveTrackingModel.markerRing
+        ? window.LiveTrackingModel.markerRing(row,{offline:row.offline===true||row.state==='offline'||row.state==='waiting'})
+        : (row.state==='waiting'?'gray':(row.ageSeconds>300?'amber':'green'));
+      const color=row.state==='live'&&!row.approximate?'#137c52':(ring==='gray'?'#6b7280':'#a66210');
+      const ringHex=RING_HEX[ring]||RING_HEX.green;
       let entry=entries.get(row.user_id);
       if(!entry) {
         const item=document.createElement('button'); item.type='button'; item.className='tracking-guard';
+        const itemHead=document.createElement('div'); itemHead.className='tracking-guard-head';
+        const listAvatar=createAvatarDom('tracking-list-avatar');
         const name=document.createElement('strong'); name.className='tracking-guard-name';
+        itemHead.append(listAvatar.root,name);
         const clientRow=createInfoRow('Client (Name of the Company):');
         const locRow=createInfoRow('Location:');
         const contactRow=createInfoRow('Contact Number:');
         const statusRow=createInfoRow('Status:', 'tracking-status-row');
         const detail=statusRow.val;
         const waitingNote=document.createElement('span'); waitingNote.className='tracking-waiting-note';
-        item.append(name,clientRow.row,locRow.row,contactRow.row,statusRow.row,waitingNote);
+        item.append(itemHead,clientRow.row,locRow.row,contactRow.row,statusRow.row,waitingNote);
 
         const popup=document.createElement('div'); popup.className='tracking-popup-card';
+        const popupHead=document.createElement('div'); popupHead.className='tracking-popup-head';
+        const popupAvatar=createAvatarDom('tracking-popup-avatar');
         const title=document.createElement('strong'); title.className='tracking-popup-title';
+        popupHead.append(popupAvatar.root,title);
         const popupClientRow=createInfoRow('Client (Name of the Company):');
         const popupLocRow=createInfoRow('Location:');
         const popupContactRow=createInfoRow('Contact Number:');
         const popupStatusRow=createInfoRow('Status:', 'tracking-status-row');
         const popupDetail=popupStatusRow.val;
         const popupWaitingNote=document.createElement('span'); popupWaitingNote.className='tracking-waiting-note';
-        popup.append(title,popupClientRow.row,popupLocRow.row,popupContactRow.row,popupStatusRow.row,popupWaitingNote);
+        popup.append(popupHead,popupClientRow.row,popupLocRow.row,popupContactRow.row,popupStatusRow.row,popupWaitingNote);
 
-        entry={item,name,clientRow,locRow,contactRow,statusRow,detail,waitingNote,
-               popup,title,popupClientRow,popupLocRow,popupContactRow,popupStatusRow,popupDetail,popupWaitingNote};
+        entry={item,listAvatar,name,clientRow,locRow,contactRow,statusRow,detail,waitingNote,
+               popup,popupAvatar,title,popupClientRow,popupLocRow,popupContactRow,popupStatusRow,popupDetail,popupWaitingNote,
+               markerAvatar:null};
         entries.set(row.user_id,entry);
       }
       if(map && row.state!=='waiting' && !entry.marker) {
           entry.circle=L.circle([row.latitude,row.longitude],{radius:row.accuracy_meters,color,weight:1,fillOpacity:0.08}).addTo(layer);
-          // Updating the existing popup content must not pan the map on every GPS update.
-          entry.marker=L.circleMarker([row.latitude,row.longitude],{radius:8,color,fillColor:color,fillOpacity:0.85}).addTo(layer).bindPopup(entry.popup,{autoPan:false});
+          // Circular photo / colored-initials marker replacing the plain dot, keeping open popups mounted on update.
+          if(typeof L.marker==='function' && typeof L.divIcon==='function') {
+            entry.markerAvatar=createAvatarDom('tracking-map-marker-avatar');
+            syncAvatarDom(entry.markerAvatar,row,ring);
+            const icon=L.divIcon({
+              className:'tracking-avatar-marker-shell',
+              html:entry.markerAvatar.root,
+              iconSize:[42,42],
+              iconAnchor:[21,21],
+              popupAnchor:[0,-22]
+            });
+            entry.marker=L.marker([row.latitude,row.longitude],{icon,color,ringColor:ringHex}).addTo(layer).bindPopup(entry.popup,{autoPan:false});
+          } else {
+            entry.marker=L.circleMarker([row.latitude,row.longitude],{radius:8,color,fillColor:color,fillOpacity:0.85}).addTo(layer).bindPopup(entry.popup,{autoPan:false});
+          }
           entry.motion=window.LiveMarkerMotion?.create({marker:entry.marker,circle:entry.circle});
-          entry.item.onclick=()=>{map.setView([entry.row.latitude,entry.row.longitude],16);entry.marker.openPopup();};
+          entry.item.onclick=()=>{
+            if(entry.row.state==='waiting'||entry.row.state==='offline')return;
+            map.setView([entry.row.latitude,entry.row.longitude],16);
+            entry.marker.openPopup();
+          };
       }
       if(row.state==='waiting' && entry.marker) {
         entry.motion?.stop();layer.removeLayer(entry.marker);layer.removeLayer(entry.circle);
-        entry.marker=null;entry.circle=null;entry.motion=null;entry.item.onclick=null;
+        entry.marker=null;entry.circle=null;entry.markerAvatar=null;entry.motion=null;entry.item.onclick=null;
       }
       entry.item.disabled=row.state==='waiting';
       const previous=entry.row;
@@ -110,11 +216,17 @@
         }
       }
       if(previous&&previous.accuracy_meters!==row.accuracy_meters)entry.circle?.setRadius(row.accuracy_meters);
-      if(previous&&entry.color!==color) {
-        entry.marker?.setStyle({color,fillColor:color});
+      if(previous&&(entry.color!==color||entry.ring!==ring)) {
+        if(entry.marker?.options){entry.marker.options.color=color;entry.marker.options.ringColor=ringHex;}
+        if(typeof entry.marker?.setStyle==='function')entry.marker.setStyle({color,fillColor:color});
         entry.circle?.setStyle({color});
       }
-      entry.row=row; entry.color=color;
+      entry.row=row; entry.color=color; entry.ring=ring;
+
+      syncAvatarDom(entry.listAvatar,row,ring);
+      syncAvatarDom(entry.popupAvatar,row,ring);
+      if(entry.markerAvatar)syncAvatarDom(entry.markerAvatar,row,ring);
+
       const parsedLoc=parseGuardLocation(row);
       const contactNumber=(row.mobile_number||row.contact_number||'').trim()||'—';
 
@@ -123,8 +235,12 @@
       setText(entry.locRow.val,parsedLoc.location);
       setText(entry.contactRow.val,contactNumber);
 
-      const detailClass=`tracking-${row.state}`;
-      const statusText=row.state==='waiting'?'On duty · Waiting for GPS':`${row.state==='live'?'Live':'Last known location'}${row.approximate?' · Approximate':''} · ${row.ageSeconds}s ago · ±${Math.round(row.accuracy_meters)} m`;
+      const detailClass=row.state==='offline'?'tracking-offline':`tracking-${row.state}`;
+      const statusText=row.state==='waiting'
+        ? 'On duty · Waiting for GPS'
+        : row.state==='offline'
+        ? 'Offline'
+        : `${row.state==='live'?'Live':'Last known location'}${row.approximate?' · Approximate':''} · ${row.ageSeconds}s ago · ±${Math.round(row.accuracy_meters)} m`;
 
       if(entry.detail.className!==`tracking-info-val ${detailClass}`)entry.detail.className=`tracking-info-val ${detailClass}`;
       setText(entry.detail,statusText);
@@ -273,14 +389,14 @@
       tick++;
       serverClock.sync(new Date().toISOString());
       rows=[
-        {guard_name:'Demo guard A',location_label:'Balboa · Eroreco - Queen of Mercy Hospital Turning Point, Camia Street, Bacolod',mobile_number:'09171234561'},
-        {guard_name:'Demo guard B',location_label:'Jollibee Main · Lacson Street, Bacolod, Negros Occidental',mobile_number:'09181234562'},
-        {guard_name:'Demo guard C',location_label:'SM City Bacolod · Reclamation Area, Bacolod, Negros Occidental',mobile_number:'09191234563'}
+        {guard_name:'Demo guard A',location_label:'Balboa · Eroreco - Queen of Mercy Hospital Turning Point, Camia Street, Bacolod',mobile_number:'09171234561',ageMs:0},
+        {guard_name:'Demo guard B',location_label:'Jollibee Main · Lacson Street, Bacolod, Negros Occidental',mobile_number:'09181234562',ageMs:45000},
+        {guard_name:'Demo guard C',location_label:'SM City Bacolod · Reclamation Area, Bacolod, Negros Occidental',mobile_number:'09191234563',ageMs:360000}
       ].map((demo,i)=>({
         user_id:String(i),guard_name:demo.guard_name,location_label:demo.location_label,mobile_number:demo.mobile_number,
         latitude:14.5995+i*0.007+Math.sin(tick/4+i)*0.001,longitude:120.9842+i*0.009,
-        accuracy_meters:15+i*10,captured_at:new Date(Date.now()-(i===2?180000:0)).toISOString(),
-        received_at:new Date(Date.now()-(i===2?180000:0)).toISOString(),duty_end_at:new Date(Date.now()+3600000).toISOString()
+        accuracy_meters:100,captured_at:new Date(Date.now()-demo.ageMs).toISOString(),
+        received_at:new Date(Date.now()-demo.ageMs).toISOString(),duty_end_at:new Date(Date.now()+3600000).toISOString()
       }));
       render();status.textContent='Local simulation running · no real GPS or database connection.';
     };

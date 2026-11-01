@@ -35,6 +35,8 @@ export interface ManagedProfile extends CallerProfile {
   gender?: string | null;
   civil_status?: string | null;
   complete_address?: string | null;
+  emergency_contact?: string | null;
+  profile_photo_url?: string | null;
   date_hired?: string | null;
   contract_status?: string | null;
   license_security_url?: string | null;

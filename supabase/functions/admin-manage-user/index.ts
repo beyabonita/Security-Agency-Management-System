@@ -73,7 +73,7 @@ Deno.serve((request) =>
     const { data: targetData, error: targetError } = await service
       .from("profiles")
       .select(
-        "id,username,email,first_name,middle_initial,middle_name,last_name,mobile_number,role,active,organization_id,employment_category,contract_start_date,contract_end_date,device_id,device_locked,removed_at,personnel_id,date_of_birth,gender,civil_status,complete_address,date_hired,contract_status,license_security_url,license_firearms_url",
+        "id,username,email,first_name,middle_initial,middle_name,last_name,mobile_number,role,active,organization_id,employment_category,contract_start_date,contract_end_date,device_id,device_locked,removed_at,personnel_id,date_of_birth,gender,civil_status,complete_address,emergency_contact,profile_photo_url,date_hired,contract_status,license_security_url,license_firearms_url",
       )
       .eq("id", targetId)
       .maybeSingle();
@@ -310,6 +310,13 @@ Deno.serve((request) =>
       max: 500,
       normalize: (value) => value.trim(),
     }) ?? (body.completeAddress === null ? null : target.complete_address);
+    const emergencyContact = optionalString(body, "emergencyContact", "Emergency contact", {
+      max: 300,
+      normalize: (value) => value.trim(),
+    }) ?? (body.emergencyContact === null ? null : target.emergency_contact);
+    const profilePhotoUrl = typeof body.profilePhotoUrl === "string"
+      ? (body.profilePhotoUrl.trim() || null)
+      : (body.profilePhotoUrl === null ? null : target.profile_photo_url);
     const dateHired = optionalString(body, "dateHired", "Date hired") ??
       (body.dateHired === null ? null : target.date_hired);
     const contractStatus = optionalString(body, "contractStatus", "Contract status", { max: 50 }) ??
@@ -439,6 +446,8 @@ Deno.serve((request) =>
       gender: target.gender ?? null,
       civil_status: target.civil_status ?? null,
       complete_address: target.complete_address ?? null,
+      emergency_contact: target.emergency_contact ?? null,
+      profile_photo_url: target.profile_photo_url ?? null,
       date_hired: target.date_hired ?? null,
       contract_status: target.contract_status ?? null,
       license_security_url: target.license_security_url ?? null,
@@ -465,6 +474,8 @@ Deno.serve((request) =>
       ...(gender !== undefined ? { gender } : {}),
       ...(civilStatus !== undefined ? { civil_status: civilStatus } : {}),
       ...(completeAddress !== undefined ? { complete_address: completeAddress } : {}),
+      ...(emergencyContact !== undefined ? { emergency_contact: emergencyContact } : {}),
+      ...(profilePhotoUrl !== undefined ? { profile_photo_url: profilePhotoUrl } : {}),
       ...(dateHired !== undefined ? { date_hired: dateHired } : {}),
       ...(contractStatus !== undefined ? { contract_status: contractStatus } : {}),
       ...(licenseSecurityUrl !== undefined ? { license_security_url: licenseSecurityUrl } : {}),
