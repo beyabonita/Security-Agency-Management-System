@@ -1,5 +1,19 @@
 # Project Change Log
 
+### [2026-11-01 14:04] - Fix: Allow Clocked-In Guards to Send Emergency Alerts (`is_on_active_shift` Open Status Bug)
+
+- **Scope & Objective**:
+  - Fixed the `PostgrestException: You must be clocked-in on an active shift to file an incident report.` (`P0001`) error blocking clocked-in guards from sending Emergency Alerts on the mobile app, and cleaned up raw `PostgrestException(...)` error formatting in the Flutter UI.
+- **Root Cause**:
+  - [`public.attendance_sessions`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20260822000007_add_schedule_attendance_sessions.sql#L20) stores active clocked-in sessions with `status = 'open'` (`check (status in ('open', 'closed', 'missed_timeout'))`), whereas [`public.is_on_active_shift()`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261006000001_restrict_incident_to_active_shift.sql#L20) checked `s.status in ('clocked_in', 'active', 'pending_timeout', 'pending_review')`, omitting `'open'` and causing `is_on_active_shift()` to always return `false`.
+- **Files Modified / Created**:
+  - [`supabase/migrations/20261101000001_fix_is_on_active_shift_open_status.sql`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261101000001_fix_is_on_active_shift_open_status.sql) *(New)*:
+    - Updated `public.is_on_active_shift()` to include `'open'` in `s.status in ('open', 'clocked_in', 'active', 'pending_timeout', 'pending_review')` while requiring `s.clock_in_at is not null` and `s.clock_out_at is null` for the caller's `user_id` and `organization_id`, keeping off-duty guards blocked while allowing actively clocked-in guards to submit Emergency Alerts.
+  - [`lib/incident_report.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/incident_report.dart):
+    - Updated `_submit()` catch handler to extract `e.message` on `PostgrestException` / `StorageException` (plus clean messages for `AuthException` and `TimeoutException`) instead of displaying the raw `PostgrestException(...)` string.
+- **Verification & Deployment**:
+  - Applied migration `20261101000001_fix_is_on_active_shift_open_status.sql` directly to the linked production Supabase database via `npx supabase db push --yes` (`Finished supabase db push.`), making the fix immediately active for installed mobile apps without reinstalling the APK.
+
 ### [2026-11-01 13:29] - UI: Redesign Operations Head Dashboard into Visual Infographics
 
 - **Scope & Objective**:

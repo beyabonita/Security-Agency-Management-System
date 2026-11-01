@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:flutter_application_1/services/incident_service.dart';
 import 'package:flutter_application_1/theme/app_colors.dart';
@@ -136,9 +138,18 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
       Navigator.of(context).pop();
     } catch (e) {
       if (!mounted) return;
+      final message = e is PostgrestException
+          ? e.message
+          : e is StorageException
+          ? e.message
+          : e is AuthException
+          ? 'Your session expired. Please sign in again.'
+          : e is TimeoutException
+          ? 'Sending took too long. Check your connection and try again.'
+          : e.toString().replaceFirst('Exception: ', '');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          content: Text(message),
           backgroundColor: AppColors.error,
         ),
       );
