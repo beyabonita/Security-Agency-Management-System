@@ -21,7 +21,9 @@ import 'package:flutter_application_1/widgets/guard_ui.dart';
 import 'package:flutter_application_1/widgets/attendance_punch_action.dart';
 import 'package:flutter_application_1/widgets/attendance_actual_times.dart';
 import 'package:flutter_application_1/models/contract_period.dart';
+import 'package:flutter_application_1/services/device_verification_service.dart';
 import 'package:flutter_application_1/services/user_profile_service.dart';
+import 'package:flutter_application_1/widgets/attendance_face_capture_dialog.dart';
 
 /// Public, no-key tile source used by the Guard attendance map.
 ///
@@ -50,6 +52,8 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
   String? _locationError;
   String? _matchedSiteLabel;
   double? _accuracyMeters;
+  double? _distanceToNearestMeters;
+  DeviceVerificationResult? _deviceVerification;
   DateTime? _positionCapturedAt;
   List<GeofenceSite> _sites = [];
   Map<String, dynamic>? _activeSchedule;
@@ -88,6 +92,7 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
     }
     _loadAssignedSites();
     _initLocation();
+    unawaited(_verifyDevice());
     _gpsRefreshTimer = Timer.periodic(const Duration(seconds: 10), (_) {
       if (WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed &&
           _punchingAction == null) {
@@ -160,9 +165,14 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
           sites,
         );
         final nearest = GeofenceService.nearestSite(_currentPosition!, sites);
+        final distMeters = GeofenceService.distanceMetersToNearestSite(
+          _currentPosition!,
+          sites,
+        );
         setState(() {
           withinAllowedArea = inside;
           _matchedSiteLabel = inside ? nearest?.label : null;
+          _distanceToNearestMeters = distMeters;
         });
       }
       if (sites.isEmpty && mounted) {
@@ -299,12 +309,17 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
           activeSites.isNotEmpty &&
           GeofenceService.isWithinAnySite(current, activeSites);
       final nearest = GeofenceService.nearestSite(current, activeSites);
+      final distMeters = GeofenceService.distanceMetersToNearestSite(
+        current,
+        activeSites,
+      );
       if (!mounted) return null;
       setState(() {
         locationGranted = true;
         _currentPosition = current;
         withinAllowedArea = activeSites.isNotEmpty && inside;
         _matchedSiteLabel = inside ? nearest?.label : null;
+        _distanceToNearestMeters = distMeters;
         _accuracyMeters = position.accuracy;
         _positionCapturedAt = position.timestamp;
         _locationError = integrityError;
@@ -410,20 +425,72 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
       }
       final current = LatLng(position.latitude, position.longitude);
       final inside = GeofenceService.isWithinAnySite(current, activeSites);
-      if (!inside) {
+      final distMeters = GeofenceService.distanceMetersToNearestSite(
+        current,
+        activeSites,
+      );
+      final nearestSite = GeofenceService.nearestSite(current, activeSites);
+
+      final devCheck = await _verifyDevice();
+      if (!mounted) return;
+      if (!devCheck.verified) {
         _showSnack(
-          'You must be within the geofence of your scheduled duty post to record attendance.',
+          devCheck.message ??
+              'Device mismatch: Please use your registered mobile phone or ask your Operations Head to reset your device binding.',
           isError: true,
         );
         return;
       }
-      final recordedSession = await AttendanceService.recordEvent(
+
+      if (!inside) {
+        await _promptForceAttendance(
+          action: action,
+          position: position,
+          nearestSite: nearestSite,
+          distanceMeters: distMeters,
+          openSession: openSession,
+          claimOvertime: claimOvertime,
+          deviceVerification: devCheck,
+        );
+        return;
+      }
+
+      String? facePhotoDataUrl;
+      if (action == 'clock_in') {
+        facePhotoDataUrl = await captureAttendanceFaceVerification(
+          context,
+          latitude: position.latitude,
+          longitude: position.longitude,
+          accuracyMeters: position.accuracy,
+          locationLabel: nearestSite?.label ?? _matchedSiteLabel,
+          deviceLabel: '${devCheck.deviceInfo} (${devCheck.deviceId})',
+          actionLabel: 'Time In Face Verification',
+        );
+        if (!mounted || facePhotoDataUrl == null) {
+          _showSnack(
+            'Live geotagged face verification photo is required to Time In.',
+            isError: true,
+          );
+          return;
+        }
+      }
+
+      var recordedSession = await AttendanceService.recordEvent(
         action: action,
         sessionId: openSession?.id,
         claimOvertime: claimOvertime,
         latitude: position.latitude,
         longitude: position.longitude,
       );
+      try {
+        recordedSession = await AttendanceService.attachVerificationMetadata(
+          sessionId: recordedSession.id,
+          deviceId: devCheck.deviceId,
+          deviceInfo: devCheck.deviceInfo,
+          facePhotoDataUrl: facePhotoDataUrl,
+          distanceFromPostMeters: distMeters,
+        );
+      } catch (_) {}
       _attendance.accept(recordedSession);
       widget.onAttendanceRecorded?.call();
       if (!mounted) return;
@@ -461,6 +528,159 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
         _attendance.refresh();
       }
     }
+  }
+
+  Future<DeviceVerificationResult> _verifyDevice({bool forceRefresh = false}) async {
+    final res = await DeviceVerificationService.verifyCurrentDevice(
+      forceRefresh: forceRefresh,
+    );
+    if (mounted) {
+      setState(() => _deviceVerification = res);
+    }
+    return res;
+  }
+
+  Future<void> _promptForceAttendance({
+    required String action,
+    required Position position,
+    required GeofenceSite? nearestSite,
+    required double? distanceMeters,
+    required AttendanceSession? openSession,
+    required bool? claimOvertime,
+    required DeviceVerificationResult deviceVerification,
+  }) async {
+    final siteLabel = nearestSite?.label ?? 'Scheduled Duty Post';
+    final distText = distanceMeters != null
+        ? '${distanceMeters.round()} m away from $siteLabel'
+        : 'Outside $siteLabel geofence';
+
+    if (action == 'clock_out' && openSession != null) {
+      final confirmOut = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Outside Location Time Out'),
+          content: Text(
+            'You are currently $distText.\n\n'
+            'Submit this Time Out subject to Operations Head Force Attendance review?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+              child: const Text('Submit Force Time Out'),
+            ),
+          ],
+        ),
+      );
+      if (confirmOut != true || !mounted) return;
+      final session = await AttendanceService.requestForceAttendanceClockOut(
+        sessionId: openSession.id,
+        latitude: position.latitude,
+        longitude: position.longitude,
+        claimOvertime: claimOvertime,
+      );
+      _attendance.accept(session);
+      widget.onAttendanceRecorded?.call();
+      if (!mounted) return;
+      _showSnack(
+        'Outside-location Time Out recorded and sent to Operations Head for approval.',
+        isError: false,
+      );
+      setState(() => _activeSchedule = null);
+      await _loadAssignedSites();
+      return;
+    }
+
+    final reasonController = TextEditingController(
+      text: 'Seminar / Off-Site Assignment',
+    );
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Force Attendance (Outside Post)'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Dual-Point Proximity Check: $distText.\n\n'
+              'You can still Time In outside your designated post (e.g., Seminar, Training, or Roving Duty) subject to Operations Head Force Attendance approval.',
+              style: const TextStyle(fontSize: 13),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: reasonController,
+              maxLines: 2,
+              decoration: const InputDecoration(
+                labelText: 'Reason for Outside-Post Time In *',
+                hintText: 'e.g., Agency Seminar, Roving Post, Client Errand',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(null),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () =>
+                Navigator.of(ctx).pop(reasonController.text.trim()),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+            child: const Text('Continue to Face Capture'),
+          ),
+        ],
+      ),
+    );
+    reasonController.dispose();
+    if (reason == null || reason.length < 5 || !mounted) {
+      if (reason != null && reason.length < 5) {
+        _showSnack(
+          'Please enter a reason of at least 5 characters for Force Attendance.',
+          isError: true,
+        );
+      }
+      return;
+    }
+
+    final facePhotoDataUrl = await captureAttendanceFaceVerification(
+      context,
+      latitude: position.latitude,
+      longitude: position.longitude,
+      accuracyMeters: position.accuracy,
+      locationLabel: '$siteLabel (FORCE ATTENDANCE - ${distanceMeters?.round() ?? 0}m)',
+      deviceLabel: '${deviceVerification.deviceInfo} (${deviceVerification.deviceId})',
+      actionLabel: 'Force Attendance Face Verification',
+    );
+    if (!mounted || facePhotoDataUrl == null) {
+      _showSnack(
+        'Geotagged face verification photo is required for Force Attendance.',
+        isError: true,
+      );
+      return;
+    }
+
+    final recorded = await AttendanceService.requestForceAttendanceClockIn(
+      latitude: position.latitude,
+      longitude: position.longitude,
+      reason: reason,
+      deviceId: deviceVerification.deviceId,
+      deviceInfo: deviceVerification.deviceInfo,
+      facePhotoDataUrl: facePhotoDataUrl,
+    );
+    _attendance.accept(recorded);
+    widget.onAttendanceRecorded?.call();
+    if (!mounted) return;
+    _showSnack(
+      'Force Attendance Time In recorded (Pending Operations Head approval).',
+      isError: false,
+    );
+    await _loadAssignedSites();
   }
 
   void _showSnack(String msg, {required bool isError}) {
@@ -577,8 +797,8 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
                             : _sites.isEmpty
                             ? 'No active duty site right now'
                             : withinAllowedArea
-                            ? 'Within ${_matchedSiteLabel ?? "your duty site"}'
-                            : 'Outside your scheduled duty location',
+                            ? 'Within ${_matchedSiteLabel ?? "your duty site"}${_distanceToNearestMeters != null ? " (${_distanceToNearestMeters!.round()} m from post center)" : ""}'
+                            : 'Outside scheduled post${_distanceToNearestMeters != null ? " (${_distanceToNearestMeters!.round()} m away)" : ""} — Force Attendance available',
                         color: statusColor,
                         icon: _sites.isEmpty
                             ? Icons.event_busy_outlined
@@ -586,6 +806,56 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
                             ? Icons.location_on_rounded
                             : Icons.location_off_outlined,
                       ),
+                    if (_deviceVerification != null) ...[
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: (_deviceVerification!.verified
+                                  ? AppColors.of(context).success
+                                  : AppColors.of(context).error)
+                              .withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: (_deviceVerification!.verified
+                                    ? AppColors.of(context).success
+                                    : AppColors.of(context).error)
+                                .withValues(alpha: 0.25),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              _deviceVerification!.verified
+                                  ? Icons.phonelink_lock_rounded
+                                  : Icons.phonelink_erase_rounded,
+                              size: 16,
+                              color: _deviceVerification!.verified
+                                  ? AppColors.of(context).success
+                                  : AppColors.of(context).error,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _deviceVerification!.verified
+                                    ? 'Verified Device: ${_deviceVerification!.deviceInfo} (${_deviceVerification!.deviceId})'
+                                    : (_deviceVerification!.message ??
+                                          'Unrecognized Device (${_deviceVerification!.deviceId})'),
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.of(context).text,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
 
                     // ── Error ─────────────────────────────────────────
                     if (_locationError != null) ...[
@@ -741,6 +1011,16 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
                                 onPressed: _attendance.refresh,
                                 child: const Text('Retry attendance'),
                               ),
+                            if (openSession != null &&
+                                openSession.forceAttendancePending) ...[
+                              GuardStatusBanner(
+                                message:
+                                    'Force Attendance Pending: Waiting for Operations Head approval (${openSession.forceAttendanceReason ?? "Outside post"}).',
+                                color: AppColors.of(context).warning,
+                                icon: Icons.pending_actions_rounded,
+                              ),
+                              const SizedBox(height: 10),
+                            ],
                             AttendancePunchAction(
                               hasOpenDuty: openSession != null,
                               loading: _attendance.initialLoading,

@@ -17,6 +17,15 @@ class AttendanceSession {
     this.clockOutLocationStatus,
     this.timeoutSubmittedAt,
     this.overtimeRequested,
+    this.forceAttendanceRequested = false,
+    this.forceAttendanceReason,
+    this.forceAttendanceStatus,
+    this.distanceFromPostMeters,
+    this.dualPointDistanceMeters,
+    this.deviceId,
+    this.deviceInfo,
+    this.deviceVerified,
+    this.clockInFacePhoto,
   });
 
   final String id;
@@ -34,8 +43,21 @@ class AttendanceSession {
   final String? clockOutLocationStatus;
   final DateTime? timeoutSubmittedAt;
   final bool? overtimeRequested;
+  final bool forceAttendanceRequested;
+  final String? forceAttendanceReason;
+  final String? forceAttendanceStatus;
+  final double? distanceFromPostMeters;
+  final double? dualPointDistanceMeters;
+  final String? deviceId;
+  final String? deviceInfo;
+  final bool? deviceVerified;
+  final String? clockInFacePhoto;
+
   bool get overtimeApprovalPending =>
       overtimeRequested == true && needsTimeoutReview;
+
+  bool get forceAttendancePending =>
+      forceAttendanceRequested && forceAttendanceStatus == 'pending';
 
   bool get needsTimeoutReview =>
       clockOutAt != null &&
@@ -122,6 +144,17 @@ class AttendanceSession {
       clockOutLocationStatus: row['clock_out_location_status']?.toString(),
       timeoutSubmittedAt: parseOptional('timeout_submitted_at'),
       overtimeRequested: row['overtime_requested'] as bool?,
+      forceAttendanceRequested: row['force_attendance_requested'] == true,
+      forceAttendanceReason: row['force_attendance_reason']?.toString(),
+      forceAttendanceStatus: row['force_attendance_status']?.toString(),
+      distanceFromPostMeters: (row['distance_from_post_meters'] as num?)
+          ?.toDouble(),
+      dualPointDistanceMeters: (row['dual_point_distance_meters'] as num?)
+          ?.toDouble(),
+      deviceId: row['device_id']?.toString(),
+      deviceInfo: row['device_info']?.toString(),
+      deviceVerified: row['device_verified'] as bool?,
+      clockInFacePhoto: row['clock_in_face_photo']?.toString(),
     );
   }
 }

@@ -11,23 +11,23 @@
 | **#1** | 🟢 Low | Search box in Personnel interface (Guards + Field Inspectors) under Operations Head | ✅ Completed | **✅ PUSHED** | `99a139b` (`origin/main`) |
 | **#2** | ✅ Pre-existing | Prevent duplicate registration of an already registered mobile number | ✅ Already Implemented | **✅ PUSHED** | `50eb288` (`origin/main`) |
 | **#3** | 🟢 Low | Upfront required field indicators (`*`, legend, & required badges) across forms | ✅ Completed | **✅ PUSHED** | `99a139b` (`origin/main`) |
-| **#4** | 🟡 Medium | Dual-point proximity/distance check between locations for seminar or attendance | ⏳ Pending | **—** | Not started |
-| **#5** | 🟠 High | Allow time-in outside designated location subject to Operations Head force attendance approval | ⏳ Pending | **—** | Not started |
-| **#6** | 🔴 High | Live face capture feature + device cellular/hardware ID verification on mobile app | ⏳ Pending | **—** | Not started |
-| **#7** | 🟠 High | Capture and verify user's device information in the mobile app | ⏳ Pending | **—** | Not started |
-| **#8** | 🟡 Medium | Geotagging watermark overlay on captured evidence photos to verify guard location | ⏳ Pending | **—** | Not started |
-| **#9** | 🟠 High | Custom client-specific shift time schedules within the same shift category | ✅ Completed | **✅ PUSHED** | `origin/main` (Batch 2) |
-| **#10** | 🟠 High | Enhance automated personnel deployment (auto-assign guards to open slots) | ✅ Completed | **✅ PUSHED** | `origin/main` (Batch 2) |
+| **#4** | 🟡 Medium | Dual-point proximity/distance check between locations for seminar or attendance | ✅ Completed | **✅ PUSHED** | `origin/main` + Supabase DB (Batch 3) |
+| **#5** | 🟠 High | Allow time-in outside designated location subject to Operations Head force attendance approval | ✅ Completed | **✅ PUSHED** | `origin/main` + Supabase DB (Batch 3) |
+| **#6** | 🔴 High | Live face capture feature + device cellular/hardware ID verification on mobile app | ✅ Completed | **✅ PUSHED** | `origin/main` + Supabase DB (Batch 3) |
+| **#7** | 🟠 High | Capture and verify user's device information in the mobile app | ✅ Completed | **✅ PUSHED** | `origin/main` + Supabase DB (Batch 3) |
+| **#8** | 🟡 Medium | Geotagging watermark overlay on captured evidence photos to verify guard location | ✅ Completed | **✅ PUSHED** | `origin/main` (Batch 3) |
+| **#9** | 🟠 High | Custom client-specific shift time schedules within the same shift category | ✅ Completed | **✅ PUSHED** | `564fefa` (`origin/main`) |
+| **#10** | 🟠 High | Enhance automated personnel deployment (auto-assign guards to open slots) | ✅ Completed | **✅ PUSHED** | `564fefa` (`origin/main`) |
 | **#11** | 🟢 Low | Rename `"Duty Request"` to specify `"Absence Request"`, `"Shift Swap Request"`, and `"Overtime Request"` | ✅ Completed | **✅ PUSHED** | `99a139b` (`origin/main`) |
 | **#12** | 🟢 Low | Dashboard Calendar View (Present, Absent, Shift Change, Company/Location assignments, & Incidents) | ✅ Completed | **✅ PUSHED** | `99a139b` (`origin/main`) |
 | **#13** | 🟢 Low | Interactive & clickable dashboard elements with detailed drill-down modal | ✅ Completed | **✅ PUSHED** | `99a139b` (`origin/main`) |
 | **#14** | 🟢 Low | Click location marker on map $\rightarrow$ zoom in & display assigned guard profiles (e.g., CHMSU) | ✅ Completed | **✅ PUSHED** | `99a139b` (`origin/main`) |
-| **#15** | 🟡 Medium | Store and view guard location history (`guard_location_history` breadcrumb trail) | ✅ Completed | **✅ PUSHED** | `origin/main` + Supabase DB |
+| **#15** | 🟡 Medium | Store and view guard location history (`guard_location_history` breadcrumb trail) | ✅ Completed | **✅ PUSHED** | `564fefa` (`origin/main` + Supabase DB) |
 | **#16** | 🟢 Low | Change the term `"Live Guard Map"` to `"Guard Tracker"` | ✅ Completed | **✅ PUSHED** | `99a139b` (`origin/main`) |
 | **#17** | ✅ Pre-existing | Automatically remove guard name from live map when shift ends | ✅ Already Implemented | **✅ PUSHED** | `50eb288` (`origin/main`) |
-| **#18** | 🟡 Medium | Bundled Deployment view (company/site expandable bundles instead of flat static list) | ✅ Completed | **✅ PUSHED** | `origin/main` (Batch 2) |
+| **#18** | 🟡 Medium | Bundled Deployment view (company/site expandable bundles instead of flat static list) | ✅ Completed | **✅ PUSHED** | `564fefa` (`origin/main`) |
 | **#19** | ✅ Pre-existing | Make the dashboard infographics | ✅ Already Implemented | **✅ PUSHED** | `50eb288` (`origin/main`) |
-| **#20** | 🔴 High | Mobile app security hardening & fully functional automated features | ⏳ Pending | **—** | Not started |
+| **#20** | 🔴 High | Mobile app security hardening & fully functional automated features | ✅ Completed | **✅ PUSHED** | `origin/main` + Supabase DB (Batch 3) |
 
 ### 2. File-Level Change & Push Tracker
 
@@ -62,11 +62,37 @@
 | [`web/inspector/locations.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/locations.html) | #16, #18 | Added expandable Company Deployment Bundles (`#inspectorLocationBundles`, `renderInspectorBundles`) | **✅ PUSHED** | `origin/main` (Batch 2) |
 | [`web/js/live-tracking.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/live-tracking.js) | #14, #15 | Added `guardHistoryMap`, `recordGuardHistoryPoint()`, `openGuardLocationHistory()`, and map breadcrumb polyline trail (`historyLayer`) | **✅ PUSHED** | `origin/main` (Batch 2) |
 | [`web/css/live-tracking.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/css/live-tracking.css) | #14, #15 | Added `.tracking-history-panel`, `.tracking-history-list`, and `.tracking-history-item` styles | **✅ PUSHED** | `origin/main` (Batch 2) |
-| [`CHANGE_LOG.md`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/CHANGE_LOG.md) | All | Added live System Revision & Git Push Status Ledger + Batch 2 entry | **✅ PUSHED** | `origin/main` (Batch 2) |
+| [`CHANGE_LOG.md`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/CHANGE_LOG.md) | All | Added live System Revision & Git Push Status Ledger + Batch 2 & Batch 3 entries | **✅ PUSHED** | `origin/main` |
+| [`supabase/migrations/20261104000002_force_attendance_and_device_verification.sql`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261104000002_force_attendance_and_device_verification.sql) | #4, #5, #6, #7, #20 | Added Force Attendance columns/RPCs (`request_force_attendance_clock_in`, `request_force_attendance_clock_out`, `decide_force_attendance`), Dual-Point Proximity metrics, and Device Binding (`bind_or_verify_guard_device`, `reset_guard_registered_device`, `attach_attendance_verification_metadata`) | **✅ PUSHED** | `origin/main` + Supabase DB |
+| [`lib/services/geotag_watermark_service.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/services/geotag_watermark_service.dart) | #8, #20 | Added tamper-evident Geotagging & Timestamp (PHT) watermark banner stamped onto incident evidence and attendance face photos | **✅ PUSHED** | `origin/main` (Batch 3) |
+| [`lib/services/device_verification_service.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/services/device_verification_service.dart) | #6, #7, #20 | Added persistent mobile/cellular device hardware ID binding and verification against `public.profiles.registered_device_id` | **✅ PUSHED** | `origin/main` (Batch 3) |
+| [`lib/widgets/attendance_face_capture_dialog.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/widgets/attendance_face_capture_dialog.dart) | #6, #8, #20 | Added live front-camera face verification sheet with embedded GPS geotag & device watermark before Time In | **✅ PUSHED** | `origin/main` (Batch 3) |
+| [`lib/incident_report.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/incident_report.dart) | #8 | Automatically stamps GPS coordinates & PHT timestamp watermark onto captured incident evidence photos | **✅ PUSHED** | `origin/main` (Batch 3) |
+| [`lib/services/geofence_service.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/services/geofence_service.dart) | #4 | Added `distanceMetersBetweenPoints()` and `distanceMetersToNearestSite()` dual-point proximity calculations | **✅ PUSHED** | `origin/main` (Batch 3) |
+| [`lib/models/attendance_session.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/models/attendance_session.dart) | #4, #5, #6, #7, #20 | Added Force Attendance status/reason, Dual-Point distance, Device ID/Info, and Face Photo fields | **✅ PUSHED** | `origin/main` (Batch 3) |
+| [`lib/services/attendance_service.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/services/attendance_service.dart) | #4, #5, #6, #7, #20 | Added `attachVerificationMetadata()`, `requestForceAttendanceClockIn()`, and `requestForceAttendanceClockOut()` | **✅ PUSHED** | `origin/main` (Batch 3) |
+| [`lib/attendance.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/attendance.dart) | #4, #5, #6, #7, #8, #20 | Integrated live device verification banner, dual-point proximity distance display, live geotagged face capture on Time In, and Force Attendance workflow outside post | **✅ PUSHED** | `origin/main` (Batch 3) |
+| [`web/admin/records.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/records.html) & [`web/admin/js/records.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/records.js) | #4, #5, #6, #7, #20 | Added Registered Device column + Reset binding button in Personnel Masterlist and Force Attendance / Proximity / Face Verification Approval Queue in Attendance Records | **✅ PUSHED** | `origin/main` (Batch 3) |
 | [`supabase/migrations/20261101000001_fix_is_on_active_shift_open_status.sql`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261101000001_fix_is_on_active_shift_open_status.sql) | Pre-existing | Trailing newline diff in working tree (migration itself already pushed in `749125e`) | **⏳ NOT PUSHED** *(1-line whitespace)* | Local working tree |
 | [`web/tests/admin_dashboard.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/admin_dashboard.spec.js) | Pre-existing | Local test adjustment in working tree from earlier session | **⏳ NOT PUSHED** | Local working tree |
 
 ---
+
+### [2026-11-04 00:34] - Feat: System Revision Batch 3 — Geotagging Watermark, Dual-Point Proximity, Force Attendance Outside Post, Live Face Capture & Device ID Verification (#4, #5, #6, #7, #8, #20) — [✅ PUSHED: `origin/main` + Supabase DB]
+
+- **Scope & Objective**:
+  - Completed the remaining 6 items of the 20-point System Revision sheet (**#4**, **#5**, **#6**, **#7**, **#8**, **#20**) across the Flutter Mobile App, Operations Head Web Console, and Production Supabase Database (`syyofdcynuzgergqlaqj`).
+- **Files Modified / Created**:
+  - [`supabase/migrations/20261104000002_force_attendance_and_device_verification.sql`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261104000002_force_attendance_and_device_verification.sql) *(New — ✅ PUSHED to `origin/main` & Supabase DB)*:
+    - Added `registered_device_id`, `registered_device_info`, and `registered_device_at` to `public.profiles`.
+    - Added `force_attendance_requested`, `force_attendance_reason`, `force_attendance_status`, `distance_from_post_meters`, `dual_point_distance_meters`, `device_id`, `device_info`, `device_verified`, and `clock_in_face_photo` to `public.attendance_sessions`.
+    - Created RPCs `bind_or_verify_guard_device`, `reset_guard_registered_device`, `attach_attendance_verification_metadata`, `request_force_attendance_clock_in`, `request_force_attendance_clock_out`, and `decide_force_attendance`.
+  - [`lib/services/geotag_watermark_service.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/services/geotag_watermark_service.dart), [`lib/services/device_verification_service.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/services/device_verification_service.dart), & [`lib/widgets/attendance_face_capture_dialog.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/widgets/attendance_face_capture_dialog.dart) *(New — ✅ PUSHED)*:
+    - Implemented tamper-evident Geotagging & PHT Timestamp watermarks (#8), persistent cellular/mobile device ID binding (#6, #7), and live front-camera face verification capture (#6, #20).
+  - [`lib/incident_report.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/incident_report.dart), [`lib/attendance.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/attendance.dart), [`lib/services/geofence_service.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/services/geofence_service.dart), [`lib/services/attendance_service.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/services/attendance_service.dart), & [`lib/models/attendance_session.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/models/attendance_session.dart) *(✅ PUSHED)*:
+    - Added automatic geotag watermarking on incident photos (#8), dual-point proximity distance checks (#4), outside-post Force Attendance Time-In/Time-Out (#5), and live face + device binding verification (#6, #7, #20).
+  - [`web/admin/records.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/records.html) & [`web/admin/js/records.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/records.js) *(✅ PUSHED)*:
+    - Added Registered Device binding status & reset controls in Personnel Masterlist (#7) and the **Force Attendance, Proximity & Face/Device Verification Queue** (`#forceAttendanceQueueCard`) with Approve/Reject actions and geotagged face photo viewer in Monthly Attendance Summary (#4, #5, #6, #20).
 
 ### [2026-11-04 00:14] - Feat: System Revision Batch 2 — Bundled Deployments, Automated Deployment, Custom Client Hours & Guard Location History (#9, #10, #15, #18) — [✅ PUSHED: `origin/main` + Supabase DB]
 

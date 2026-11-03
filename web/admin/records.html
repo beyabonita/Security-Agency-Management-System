@@ -156,10 +156,11 @@
                                         <th>Date of Employment Ended</th>
                                         <th>Client Assigned Post</th>
                                         <th>Shift</th>
+                                        <th>Registered Device</th>
                                     </tr>
                                 </thead>
                                 <tbody id="pmTableBody">
-                                    <tr><td colspan="11" class="records-empty"><span class="material-symbols-rounded">hourglass_empty</span><p>Loading records…</p></td></tr>
+                                    <tr><td colspan="12" class="records-empty"><span class="material-symbols-rounded">hourglass_empty</span><p>Loading records…</p></td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -313,6 +314,38 @@
                                         <span class="material-symbols-rounded">restart_alt</span> Reset
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Force Attendance & Biometric/Proximity Verification Queue (#4, #5, #6, #7, #20) -->
+                        <div class="records-filter-box" id="forceAttendanceQueueCard" style="margin-bottom:18px; border-left:4px solid #dc2626;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span class="material-symbols-rounded" style="color:#dc2626; font-size:20px;" aria-hidden="true">verified_user</span>
+                                    <strong style="font-size:14px;">Force Attendance (Outside Post), Proximity &amp; Face/Device Verification Log</strong>
+                                    <span class="records-count-badge" id="forceAttCount">0 records</span>
+                                </div>
+                                <div style="font-size:12px; color:#64748b;">
+                                    Review Seminar / Off-Site Time-Ins, Dual-Point GPS Distance, Registered Device IDs, and Geotagged Face Photos
+                                </div>
+                            </div>
+                            <div class="records-table-wrap">
+                                <table class="records-table" id="forceAttTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Guard &amp; Post</th>
+                                            <th>Duty Date &amp; Time In/Out</th>
+                                            <th>Dual-Point Proximity</th>
+                                            <th>Device Verification</th>
+                                            <th>Face Photo (Geotagged)</th>
+                                            <th>Force Attendance Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="forceAttTableBody">
+                                        <tr><td colspan="7" class="records-empty"><span class="material-symbols-rounded">check_circle</span><p>No outside-post or recent verification sessions yet.</p></td></tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 

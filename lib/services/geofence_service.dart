@@ -46,4 +46,20 @@ class GeofenceService {
     }
     return nearest;
   }
+
+  /// Calculates the distance in meters between two GPS coordinates (Item #4).
+  static double distanceMetersBetweenPoints(LatLng a, LatLng b) {
+    const distance = Distance();
+    return distance.as(LengthUnit.Meter, a, b);
+  }
+
+  /// Calculates the distance in meters from [position] to the nearest site center.
+  static double? distanceMetersToNearestSite(
+    LatLng position,
+    List<GeofenceSite> sites,
+  ) {
+    final nearest = nearestSite(position, sites);
+    if (nearest == null) return null;
+    return distanceMetersBetweenPoints(position, nearest.point);
+  }
 }

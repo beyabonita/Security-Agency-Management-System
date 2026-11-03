@@ -179,7 +179,7 @@
         if (countBadge) countBadge.textContent = `${data.length} records`;
 
         if (!data.length) {
-            tbody.innerHTML = `<tr><td colspan="11" class="records-empty"><span class="material-symbols-rounded">group_off</span><p>No matching personnel records found.</p></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="12" class="records-empty"><span class="material-symbols-rounded">group_off</span><p>No matching personnel records found.</p></td></tr>`;
             return;
         }
 
@@ -187,6 +187,15 @@
             const empBadgeClass = p.employmentStatus === 'Active' ? 'rec-badge-active' : (p.employmentStatus === 'Archived' || p.employmentStatus === 'Resigned' ? 'rec-badge-resigned' : 'rec-badge-expired');
             const contBadgeClass = p.contractStatus === 'Active' ? 'rec-badge-active' : (p.contractStatus === 'Pending' ? 'rec-badge-pending' : 'rec-badge-expired');
             const dutyClass = p.dutyCategory.toLowerCase() === 'regular' ? 'rec-badge-regular' : 'rec-badge-reliever';
+            const deviceHtml = p.registeredDeviceId
+                ? `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                     <span class="rec-badge rec-badge-active" style="font-size:0.68rem;" title="${escapeHtml(p.registeredDeviceInfo || '')}">
+                       <span class="material-symbols-rounded" style="font-size:12px;vertical-align:-2px;">smartphone</span>
+                       ${escapeHtml(p.registeredDeviceId)}
+                     </span>
+                     <button type="button" class="records-btn-reset" style="padding:2px 6px;font-size:10px;" onclick="window.resetGuardDeviceBinding('${p.id}', '${escapeHtml(p.fullName)}')" title="Reset bound phone if guard changed device">Reset</button>
+                   </div>`
+                : '<span class="col-muted" style="font-size:0.75rem;">Not bound yet</span>';
 
             return `<tr${p.isArchived ? ' class="opacity-75"' : ''}>
                 <td class="col-id">${escapeHtml(p.personnelId)}</td>
@@ -204,6 +213,7 @@
                     : '<span class="rec-badge rec-badge-active" style="font-size:0.7rem;opacity:0.75;">Still Active</span>'}</td>
                 <td>${escapeHtml(p.assignedPost)}</td>
                 <td>${escapeHtml(p.shift)}</td>
+                <td>${deviceHtml}</td>
             </tr>`;
         }).join('');
     }
@@ -415,7 +425,175 @@
         });
 
         renderAttendanceTable(filtered);
+        renderForceAttendanceVerificationQueue(month, year, personnelId, locationId);
     }
+
+    function haversineMeters(lat1, lon1, lat2, lon2) {
+        if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) return null;
+        const R = 6371000;
+        const toRad = d => (Number(d) * Math.PI) / 180;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+        return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+    }
+
+    function renderForceAttendanceVerificationQueue(month, year, personnelId, locationId) {
+        const tbody = document.getElementById('forceAttTableBody');
+        const countBadge = document.getElementById('forceAttCount');
+        if (!tbody) return;
+
+        const targetPrefix = `${year}-${month}`;
+        const matchingSessions = (allSessions || []).filter(s => {
+            const dutyPrefix = (s.duty_date || s.clock_in_at || '').slice(0, 7);
+            if (dutyPrefix && dutyPrefix !== targetPrefix && !s.force_attendance_requested) return false;
+            if (personnelId && s.user_id !== personnelId) return false;
+            if (locationId && s.location_id !== locationId) return false;
+            return s.force_attendance_requested || s.clock_in_face_photo || s.device_id || s.distance_from_post_meters != null || s.clock_in_latitude != null;
+        }).sort((a, b) => new Date(b.clock_in_at || 0) - new Date(a.clock_in_at || 0)).slice(0, 25);
+
+        if (countBadge) countBadge.textContent = `${matchingSessions.length} sessions`;
+
+        if (!matchingSessions.length) {
+            tbody.innerHTML = `<tr><td colspan="7" class="records-empty"><span class="material-symbols-rounded">check_circle</span><p>No Force Attendance or proximity verification sessions for this filter.</p></td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = matchingSessions.map(sess => {
+            const guard = allPersonnel.find(p => p.id === sess.user_id);
+            const guardName = guard ? guard.fullName : 'Guard';
+            const postObj = allLocations.find(l => l.id === sess.location_id);
+            const postName = (sess.location_label || postObj?.label || 'Assigned Post').split(' · ')[0];
+
+            const distPost = sess.distance_from_post_meters != null
+                ? Math.round(Number(sess.distance_from_post_meters))
+                : (postObj ? haversineMeters(postObj.latitude, postObj.longitude, sess.clock_in_latitude, sess.clock_in_longitude) : null);
+
+            const dualDist = sess.dual_point_distance_meters != null
+                ? Math.round(Number(sess.dual_point_distance_meters))
+                : haversineMeters(sess.clock_in_latitude, sess.clock_in_longitude, sess.clock_out_latitude, sess.clock_out_longitude);
+
+            const proximityHtml = `
+                <div style="font-size:11.5px; line-height:1.35;">
+                    <div><strong>Post Offset:</strong> ${distPost != null ? `${distPost} m` : 'In Geofence'}</div>
+                    <div style="color:#64748b;"><strong>In↔Out Drift:</strong> ${dualDist != null ? `${dualDist} m` : '—'}</div>
+                </div>`;
+
+            const devId = sess.device_id || guard?.registeredDeviceId || '';
+            const devInfo = sess.device_info || guard?.registeredDeviceInfo || '';
+            const devVerified = sess.device_verified !== false;
+            const deviceHtml = devId
+                ? `<span class="rec-badge ${devVerified ? 'rec-badge-active' : 'rec-badge-expired'}" style="font-size:0.68rem;" title="${escapeHtml(devInfo)}">
+                     <span class="material-symbols-rounded" style="font-size:12px;vertical-align:-2px;">smartphone</span>
+                     ${escapeHtml(devId)}
+                   </span>`
+                : '<span class="col-muted" style="font-size:11px;">Standard Mobile</span>';
+
+            const faceHtml = sess.clock_in_face_photo
+                ? `<button type="button" class="records-btn-export" style="padding:3px 8px;font-size:11px;" onclick="window.previewAttendanceFacePhoto('${sess.id}')">
+                     <span class="material-symbols-rounded" style="font-size:13px;">person</span> View Geotagged Face
+                   </button>`
+                : '<span class="col-muted" style="font-size:11px;">Verified on Device</span>';
+
+            let statusHtml = '<span class="rec-badge rec-badge-active">Within Geofence</span>';
+            if (sess.force_attendance_requested) {
+                const st = (sess.force_attendance_status || 'pending').toLowerCase();
+                const badgeCls = st === 'approved' ? 'rec-badge-active' : (st === 'rejected' ? 'rec-badge-expired' : 'rec-badge-pending');
+                statusHtml = `<div><span class="rec-badge ${badgeCls}">Force: ${escapeHtml(st.toUpperCase())}</span></div>
+                    ${sess.force_attendance_reason ? `<div style="font-size:11px;color:#64748b;margin-top:2px;">Reason: ${escapeHtml(sess.force_attendance_reason)}</div>` : ''}`;
+            }
+
+            const canDecide = sess.force_attendance_requested && (sess.force_attendance_status || 'pending') === 'pending';
+            const actionsHtml = canDecide
+                ? `<div style="display:flex;gap:6px;">
+                     <button type="button" class="records-btn-apply" style="padding:4px 8px;font-size:11px;background:#16a34a;" onclick="window.decideForceAttendanceSession('${sess.id}', 'approved')">Approve</button>
+                     <button type="button" class="records-btn-reset" style="padding:4px 8px;font-size:11px;color:#dc2626;border-color:#dc2626;" onclick="window.decideForceAttendanceSession('${sess.id}', 'rejected')">Reject</button>
+                   </div>`
+                : '<span class="col-muted" style="font-size:11px;">—</span>';
+
+            return `<tr>
+                <td>
+                    <div class="col-primary">${escapeHtml(guardName)}</div>
+                    <div style="font-size:11px;color:#64748b;">${escapeHtml(postName)}</div>
+                </td>
+                <td style="font-size:12px;">
+                    <div>${escapeHtml(formatDate(sess.duty_date || sess.clock_in_at))}</div>
+                    <div style="color:#64748b;">In: ${escapeHtml(formatTime(sess.clock_in_at) || '—')} • Out: ${escapeHtml(formatTime(sess.clock_out_at) || 'Open')}</div>
+                </td>
+                <td>${proximityHtml}</td>
+                <td>${deviceHtml}</td>
+                <td>${faceHtml}</td>
+                <td>${statusHtml}</td>
+                <td>${actionsHtml}</td>
+            </tr>`;
+        }).join('');
+    }
+
+    window.decideForceAttendanceSession = async function(sessionId, decision) {
+        if (!client || !sessionId) return;
+        const note = window.prompt(
+            decision === 'approved'
+                ? 'Optional approval note for this Force Attendance (e.g. Verified Seminar / Off-Site Duty):'
+                : 'Reason for rejecting this Force Attendance:',
+            decision === 'approved' ? 'Approved by Operations Head' : ''
+        );
+        if (note === null) return;
+        try {
+            const { error } = await client.rpc('decide_force_attendance', {
+                p_session_id: sessionId,
+                p_decision: decision,
+                p_note: note
+            });
+            if (error) throw error;
+            const sess = allSessions.find(s => s.id === sessionId);
+            if (sess) {
+                sess.force_attendance_status = decision;
+                sess.force_attendance_review_note = note;
+            }
+            applyAttendanceFilter();
+            if (window.appDialog?.toast) {
+                window.appDialog.toast(`Force Attendance ${decision}.`, { tone: decision === 'approved' ? 'success' : 'warning' });
+            }
+        } catch (err) {
+            alert(err?.message || 'Could not update Force Attendance status.');
+        }
+    };
+
+    window.previewAttendanceFacePhoto = function(sessionId) {
+        const sess = allSessions.find(s => s.id === sessionId);
+        if (!sess || !sess.clock_in_face_photo) return;
+        const w = window.open('', '_blank', 'width=540,height=640');
+        if (!w) return;
+        w.document.write(`<!DOCTYPE html><html><head><title>Geotagged Attendance Face Photo</title></head>
+            <body style="margin:0;background:#0f172a;color:#f8fafc;font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:16px;box-sizing:border-box;">
+                <h3 style="margin:0 0 10px;font-size:15px;">Geotagged Face &amp; Device Verification</h3>
+                <img src="${sess.clock_in_face_photo}" alt="Geotagged Face Verification" style="max-width:100%;max-height:78vh;border-radius:12px;border:2px solid #dc2626;" />
+                <p style="margin:10px 0 0;font-size:12px;color:#94a3b8;">Device: ${escapeHtml(sess.device_info || '')} (${escapeHtml(sess.device_id || 'Bound')})</p>
+            </body></html>`);
+        w.document.close();
+    };
+
+    window.resetGuardDeviceBinding = async function(guardId, guardName) {
+        if (!client || !guardId) return;
+        const ok = confirm(`Reset the registered mobile phone binding for ${guardName}? Their next login/punch will bind their new phone.`);
+        if (!ok) return;
+        try {
+            const { error } = await client.rpc('reset_guard_registered_device', { p_guard_id: guardId });
+            if (error) throw error;
+            const p = allPersonnel.find(item => item.id === guardId);
+            if (p) {
+                p.registeredDeviceId = null;
+                p.registeredDeviceInfo = null;
+            }
+            applyPersonnelFilter();
+            if (window.appDialog?.toast) {
+                window.appDialog.toast(`Device binding reset for ${guardName}.`, { tone: 'success' });
+            }
+        } catch (err) {
+            alert(err?.message || 'Could not reset device binding.');
+        }
+    };
 
     function resetAttendanceFilter() {
         const now = new Date();
@@ -543,6 +721,8 @@
                     assignedPost,
                     locationId,
                     shift,
+                    registeredDeviceId: p.registered_device_id || null,
+                    registeredDeviceInfo: p.registered_device_info || null,
                     isArchived: !!p.removed_at
                 };
             });

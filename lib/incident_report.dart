@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:flutter_application_1/services/geotag_watermark_service.dart';
 import 'package:flutter_application_1/services/incident_service.dart';
 import 'package:flutter_application_1/theme/app_colors.dart';
 import 'package:flutter_application_1/widgets/incident_in_app_camera.dart';
@@ -63,12 +64,21 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
 
   void _onPhotoCaptured(Uint8List bytes) {
     if (!mounted || _submitting || bytes.isEmpty) return;
+    final capturedAt = DateTime.now().toUtc();
+    final watermarked = GeotagWatermarkService.applyGeotagWatermark(
+      bytes,
+      latitude: _latitude,
+      longitude: _longitude,
+      tagLabel:
+          'INCIDENT EVIDENCE (${(IncidentService.categories[_category] ?? _category).toUpperCase()})',
+      capturedAt: capturedAt,
+    );
     setState(() {
-      _photoBytes = bytes;
+      _photoBytes = watermarked;
       _videoBytes = null;
       _videoDurationSeconds = null;
       _videoContentType = null;
-      _evidenceCapturedAt = DateTime.now().toUtc();
+      _evidenceCapturedAt = capturedAt;
     });
   }
 

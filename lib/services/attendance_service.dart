@@ -185,6 +185,81 @@ class AttendanceService {
     return session;
   }
 
+  /// Attaches live face photo, device info, and dual-point proximity metrics to an attendance session (#4, #6, #7, #20).
+  static Future<AttendanceSession> attachVerificationMetadata({
+    required String sessionId,
+    String? deviceId,
+    String? deviceInfo,
+    String? facePhotoDataUrl,
+    double? distanceFromPostMeters,
+  }) async {
+    final row = await Supabase.instance.client
+        .rpc(
+          'attach_attendance_verification_metadata',
+          params: {
+            'p_session_id': sessionId,
+            'p_device_id': deviceId,
+            'p_device_info': deviceInfo,
+            'p_face_photo': facePhotoDataUrl,
+            'p_distance_from_post_meters': distanceFromPostMeters,
+          },
+        )
+        .timeout(const Duration(seconds: 15));
+    final session = _sessionFrom(row);
+    _recorded.add(session);
+    return session;
+  }
+
+  /// Records a Force Attendance Time-In when the guard is outside their scheduled post geofence (#5).
+  static Future<AttendanceSession> requestForceAttendanceClockIn({
+    required double latitude,
+    required double longitude,
+    required String reason,
+    String? deviceId,
+    String? deviceInfo,
+    String? facePhotoDataUrl,
+  }) async {
+    final row = await Supabase.instance.client
+        .rpc(
+          'request_force_attendance_clock_in',
+          params: {
+            'p_latitude': latitude,
+            'p_longitude': longitude,
+            'p_reason': reason,
+            'p_device_id': deviceId,
+            'p_device_info': deviceInfo,
+            'p_face_photo': facePhotoDataUrl,
+          },
+        )
+        .timeout(const Duration(seconds: 20));
+    final session = _sessionFrom(row);
+    _recorded.add(session);
+    return session;
+  }
+
+  /// Records a Force Attendance Time-Out when the guard is outside the geofence (#5).
+  static Future<AttendanceSession> requestForceAttendanceClockOut({
+    required String sessionId,
+    required double latitude,
+    required double longitude,
+    bool? claimOvertime,
+  }) async {
+    final row = await Supabase.instance.client
+        .rpc(
+          'request_force_attendance_clock_out',
+          params: {
+            'p_session_id': sessionId,
+            'p_latitude': latitude,
+            'p_longitude': longitude,
+            'p_claim_overtime': claimOvertime,
+          },
+        )
+        .timeout(const Duration(seconds: 20));
+    final session = _sessionFrom(row);
+    _recorded.add(session);
+    return session;
+  }
+
   static String formatTime(DateTime? date) {
     if (date == null) return '—';
     final hour = date.hour;
