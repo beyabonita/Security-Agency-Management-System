@@ -54,7 +54,7 @@
 | [`lib/services/duty_request_service.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/services/duty_request_service.dart) | #11 | Added `overtime` request handling in `submitDutyRequest()` with `[Overtime Request]` tagging | **✅ PUSHED** | `99a139b` (`origin/main`) |
 | [`web/js/live-tracking.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/live-tracking.js) | #14 | Added `siteLayer` location markers, `#trackingSiteChips` bar, zoom-in (`zoom: 17`), and `#locationGuardsPanel` guard profiles drawer | **✅ PUSHED** | `99a139b` (`origin/main`) |
 | [`web/css/live-tracking.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/css/live-tracking.css) | #14 | Added styling for location map markers, quick-jump chips, and slide-over assigned guard profile drawer | **✅ PUSHED** | `99a139b` (`origin/main`) |
-| [`web/admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html) | #12, #13 | Added interactive Attendance & Duty Operations Calendar (`#dashboardCalendarSection`) and clickable element Drill-Down Modal (`#dashboardDrilldownModal`) | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html) | #12, #13, #19 | Added interactive Attendance & Duty Operations Calendar (`#dashboardCalendarSection`), clickable element Drill-Down Modal (`#dashboardDrilldownModal`), and reorganized the 5-tier executive infographic layout | **✅ PUSHED** | `origin/main` |
 | [`supabase/migrations/20261104000001_guard_location_history.sql`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261104000001_guard_location_history.sql) | #15 | Added `public.guard_location_history` table, trigger `trg_record_guard_location_history`, and RPC `get_guard_location_history` | **✅ PUSHED** | `origin/main` + Supabase DB |
 | [`web/admin/css/dtr-scheduling.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/dtr-scheduling.css) | #10, #18 | Added styles for Automated Deployment toolbar and Company/Site Deployment Bundles | **✅ PUSHED** | `origin/main` (Batch 2) |
 | [`web/admin/schedule.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/schedule.html) | #3, #9, #10, #18 | Added `#autoDeployToolbar`, `#bundledDeploymentsContainer` (`renderBundledDeployments`), and `#flexibleClientHoursMode` client business-hours switch | **✅ PUSHED** | `origin/main` (Batch 2) |
@@ -78,6 +78,17 @@
 | [`web/tests/admin_dashboard.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/admin_dashboard.spec.js) | Pre-existing | Local test adjustment in working tree from earlier session | **⏳ NOT PUSHED** | Local working tree |
 
 ---
+
+### [2026-11-04 02:50] - Style & UX: Reorganize Operations Head Dashboard Infographics Layout (#12, #13, #19) — [✅ PUSHED: `origin/main`]
+
+- **Scope & Objective**:
+  - Reorganized and cleaned up the visual hierarchy, card alignment, spacing, and CSS structure of the Operations Head Dashboard Infographics in [`web/admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html).
+- **Changes Applied**:
+  - [`web/admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html) *(✅ PUSHED)*:
+    1. **5-Tier Executive Infographic Hierarchy**: Re-ordered sections so **Workforce Lifecycle (`Contract status`) & Daily Attendance Overview (`Attendance overview`)** donuts sit directly below the 4-card **Executive KPI Strip** above the fold, followed by **Client Deployment Coverage**, **Attendance & Duty Operations Calendar**, and **Incident Intelligence & Latest Field Dispatches**.
+    2. **Donut & Legend Card Alignment**: Explicitly disabled `.dashboard-donut::after` (`content: none !important; display: none !important;`) so it no longer overlaps `.ig-donut-hole`, added framed `.ig-donut-layout` containers and individual `.ig-legend-row` cards, and pinned `.ig-card-footer` with `margin-top: auto` for equal-height side-by-side cards.
+    3. **Calendar & Deployment Grid Cleanup**: Defined `--ig-card-bg` for light/dark themes, added an inline calendar legend key (`P: Present`, `A: Absent`, `SC: Shift Change`, `INC: Incident`), formatted `.ig-cal-badges` as a 2×2 micro-grid so day cells stay uniform, and added a bounded scroll container (`max-height: 460px`) for `#deploymentInfographicList`.
+    4. **Unified Incident Intelligence & Dispatches Section**: Moved `#incidentTimeFilter` into the section header, structured `.incident-status-summary-bar` with a dedicated `.ig-status-bar-top` row above the full-width stacked progress bar, and placed `#recentIncidentFeed` inside a clearly labeled **Latest Field Dispatches** subpanel.
 
 ### [2026-11-04 02:38] - Fix: Batch 3 Hardening — Force Attendance SQL Constraint, Admin Schedule Completion & Records UI Compatibility (#4, #5, #6, #7, #20) — [✅ PUSHED: `origin/main` + Supabase DB]
 

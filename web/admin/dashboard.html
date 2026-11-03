@@ -12,6 +12,7 @@
         /* Operations Head Infographic Dashboard Styles */
         body[data-ax-page="dashboard"] {
             --ig-card-radius: 14px;
+            --ig-card-bg: var(--ax-surface, #ffffff);
             --ig-track: #f1e6e8;
             --ig-donut-empty: #eadcdf;
             --ig-day-accent: #d97706;
@@ -35,6 +36,7 @@
         }
 
         html[data-theme="dark"] body[data-ax-page="dashboard"] {
+            --ig-card-bg: var(--ax-surface, #1f171a);
             --ig-track: #38262b;
             --ig-donut-empty: #38262b;
             --ig-day-accent: #fcd34d;
@@ -50,6 +52,20 @@
             --ig-crimson: #fda4af;
             --ig-crimson-soft: rgba(239, 68, 68, 0.18);
             --ig-subtle-bg: #2a1d21;
+        }
+
+        body[data-ax-page="dashboard"] .ax-content {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+            max-width: 1480px;
+            margin: 0 auto;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-grid,
+        body[data-ax-page="dashboard"] .dashboard-grid,
+        body[data-ax-page="dashboard"] .dashboard-section {
+            margin-bottom: 0 !important;
         }
 
         /* 1. KPI Infographic Cards */
@@ -217,9 +233,35 @@
         /* Section Containers & Headers */
         body[data-ax-page="dashboard"] .dashboard-section,
         body[data-ax-page="dashboard"] .dashboard-card {
+            background: var(--ax-surface);
+            border: 1px solid var(--ax-border);
             border-radius: var(--ig-card-radius);
-            padding: 20px 22px;
+            padding: 22px 24px;
             box-shadow: 0 4px 14px rgba(28, 25, 23, 0.04);
+        }
+
+        body[data-ax-page="dashboard"] .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        body[data-ax-page="dashboard"] .dashboard-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-width: 0;
+        }
+
+        body[data-ax-page="dashboard"] .dashboard-section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding-bottom: 16px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid var(--ax-border);
         }
 
         body[data-ax-page="dashboard"] .ig-section-title-group {
@@ -230,8 +272,8 @@
         }
 
         body[data-ax-page="dashboard"] .ig-section-badge {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             border-radius: 10px;
             display: inline-flex;
             align-items: center;
@@ -255,11 +297,11 @@
         /* 2. Client Deployment Infographic */
         body[data-ax-page="dashboard"] .ig-deploy-summary {
             display: grid;
-            grid-template-columns: auto 1fr auto;
+            grid-template-columns: auto minmax(220px, 1fr) auto;
             align-items: center;
-            gap: 18px;
-            padding: 14px 16px;
-            margin-bottom: 16px;
+            gap: 22px;
+            padding: 14px 18px;
+            margin-bottom: 18px;
             border-radius: 12px;
             background: var(--ig-subtle-bg);
             border: 1px solid var(--ax-border);
@@ -268,7 +310,7 @@
         body[data-ax-page="dashboard"] .ig-deploy-totals {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 16px;
             flex-wrap: wrap;
         }
 
@@ -279,10 +321,11 @@
         }
 
         body[data-ax-page="dashboard"] .ig-deploy-stat strong {
-            font-size: 1.15rem;
+            font-size: 1.25rem;
             font-weight: 800;
             color: var(--ax-text);
             line-height: 1.1;
+            font-variant-numeric: tabular-nums;
         }
 
         body[data-ax-page="dashboard"] .ig-deploy-stat span {
@@ -295,7 +338,7 @@
 
         body[data-ax-page="dashboard"] .ig-deploy-divider {
             width: 1px;
-            height: 28px;
+            height: 30px;
             background: var(--ax-border);
         }
 
@@ -376,18 +419,22 @@
 
         body[data-ax-page="dashboard"] .ig-deploy-grid {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 14px;
+            max-height: 460px;
+            overflow-y: auto;
+            padding-right: 2px;
         }
 
         body[data-ax-page="dashboard"] .ig-deploy-card {
-            background: var(--ax-surface);
+            background: var(--ig-subtle-bg);
             border: 1px solid var(--ax-border);
             border-radius: 12px;
-            padding: 14px 16px;
+            padding: 15px 16px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            justify-content: space-between;
+            gap: 12px;
             min-width: 0;
             transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
         }
@@ -413,9 +460,9 @@
         }
 
         body[data-ax-page="dashboard"] .ig-deploy-pin {
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
             background: var(--sl-red-soft);
             color: var(--sl-danger);
             display: inline-flex;
@@ -440,7 +487,9 @@
             font-weight: 700;
             color: var(--ax-text);
             line-height: 1.3;
-            overflow-wrap: anywhere;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         body[data-ax-page="dashboard"] .ig-deploy-addr {
@@ -448,10 +497,9 @@
             font-size: 0.75rem;
             color: var(--ax-muted);
             line-height: 1.35;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
             overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         body[data-ax-page="dashboard"] .ig-deploy-total-badge {
@@ -459,10 +507,10 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-width: 54px;
+            min-width: 56px;
             padding: 5px 10px;
             border-radius: 10px;
-            background: var(--ig-subtle-bg);
+            background: var(--ax-surface);
             border: 1px solid var(--ax-border);
             flex-shrink: 0;
         }
@@ -472,6 +520,7 @@
             font-weight: 800;
             color: var(--ax-text);
             line-height: 1.05;
+            font-variant-numeric: tabular-nums;
         }
 
         body[data-ax-page="dashboard"] .ig-deploy-total-badge span {
@@ -484,7 +533,7 @@
 
         body[data-ax-page="dashboard"] .ig-deploy-bar-track {
             width: 100%;
-            height: 9px;
+            height: 8px;
             border-radius: 999px;
             background: var(--ig-track);
             overflow: hidden;
@@ -527,17 +576,21 @@
         /* 3. Donut + Progress-Bar Infographic Cards */
         body[data-ax-page="dashboard"] .ig-donut-layout {
             display: grid;
-            grid-template-columns: 152px minmax(0, 1fr);
+            grid-template-columns: 148px minmax(0, 1fr);
             align-items: center;
-            gap: 22px;
-            margin-top: 16px;
+            gap: 24px;
+            margin: 18px 0 14px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            background: var(--ig-subtle-bg);
+            border: 1px solid var(--ax-border);
             min-height: 176px;
         }
 
         body[data-ax-page="dashboard"] .dashboard-donut {
-            width: 148px;
-            height: 148px;
-            flex: 0 0 148px;
+            width: 144px;
+            height: 144px;
+            flex: 0 0 144px;
             margin: 0 auto;
             border-radius: 50%;
             position: relative;
@@ -546,12 +599,13 @@
         }
 
         body[data-ax-page="dashboard"] .dashboard-donut::after {
-            content: none;
+            content: none !important;
+            display: none !important;
         }
 
         body[data-ax-page="dashboard"] .ig-donut-hole {
             position: absolute;
-            inset: 26px;
+            inset: 24px;
             border-radius: 50%;
             background: var(--ax-surface);
             display: flex;
@@ -568,6 +622,7 @@
             font-weight: 800;
             color: var(--ax-text);
             line-height: 1.05;
+            font-variant-numeric: tabular-nums;
         }
 
         body[data-ax-page="dashboard"] .ig-donut-hole span {
@@ -582,7 +637,7 @@
         body[data-ax-page="dashboard"] .ig-legend-bars {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             min-width: 0;
             width: 100%;
         }
@@ -591,6 +646,10 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
+            padding: 6px 8px;
+            border-radius: 8px;
+            background: var(--ax-surface);
+            border: 1px solid var(--ax-border);
         }
 
         body[data-ax-page="dashboard"] .ig-legend-top {
@@ -627,6 +686,7 @@
         body[data-ax-page="dashboard"] .ig-legend-metrics strong {
             font-weight: 800;
             color: var(--ax-text);
+            font-variant-numeric: tabular-nums;
         }
 
         body[data-ax-page="dashboard"] .ig-legend-pct {
@@ -641,7 +701,7 @@
 
         body[data-ax-page="dashboard"] .ig-legend-track {
             width: 100%;
-            height: 7px;
+            height: 6px;
             border-radius: 999px;
             background: var(--ig-track);
             overflow: hidden;
@@ -654,7 +714,7 @@
         }
 
         body[data-ax-page="dashboard"] .ig-card-footer {
-            margin-top: 16px;
+            margin-top: auto;
             padding-top: 12px;
             border-top: 1px dashed var(--ax-border);
             display: flex;
@@ -672,11 +732,34 @@
         }
 
         /* 4. Recent Incidents Visual Infographic Feed & Intelligence Bars */
+        body[data-ax-page="dashboard"] .ig-incident-subpanel {
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px solid var(--ax-border);
+        }
+
+        body[data-ax-page="dashboard"] .ig-subpanel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-subpanel-title {
+            margin: 0;
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--ax-muted);
+        }
+
         body[data-ax-page="dashboard"] .ig-incident-feed {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 12px;
-            margin-top: 16px;
+            margin-top: 0;
         }
 
         body[data-ax-page="dashboard"] .ig-incident-card {
@@ -790,9 +873,37 @@
         }
 
         /* Stacked Status Breakdown Bar & Top-5 Horizontal Bar Charts */
+        body[data-ax-page="dashboard"] .incident-summary {
+            margin-top: 0;
+            padding: 18px;
+            border: 1px solid var(--ax-border);
+            border-radius: 12px;
+            background: var(--ig-subtle-bg);
+        }
+
+        body[data-ax-page="dashboard"] .incident-status-summary-bar {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
+            padding: 14px 16px;
+            background: var(--ax-surface);
+            border: 1px solid var(--ax-border);
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-status-bar-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
         body[data-ax-page="dashboard"] .ig-status-stack-wrap {
             width: 100%;
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
         body[data-ax-page="dashboard"] .ig-status-stack-track {
@@ -904,15 +1015,17 @@
             display: grid;
             grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
             gap: 18px;
-            margin-top: 14px;
+            align-items: stretch;
         }
         body[data-ax-page="dashboard"] .ig-cal-box,
         body[data-ax-page="dashboard"] .ig-cal-detail-box {
-            background: var(--ig-card-bg);
+            background: var(--ig-subtle-bg);
             border: 1px solid var(--ax-border);
             border-radius: 14px;
-            padding: 16px;
+            padding: 16px 18px;
             min-width: 0;
+            display: flex;
+            flex-direction: column;
         }
         body[data-ax-page="dashboard"] .ig-cal-nav {
             display: flex;
@@ -921,12 +1034,20 @@
             flex-wrap: wrap;
             gap: 8px;
             margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--ax-border);
         }
         body[data-ax-page="dashboard"] .ig-cal-month-title {
             font-size: 0.98rem;
             font-weight: 800;
             color: var(--ax-text);
             margin: 0;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-legend-inline {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
         }
         body[data-ax-page="dashboard"] .ig-cal-nav-btns {
             display: flex;
@@ -935,7 +1056,7 @@
         }
         body[data-ax-page="dashboard"] .ig-cal-btn {
             border: 1px solid var(--ax-border);
-            background: var(--ig-subtle-bg);
+            background: var(--ax-surface);
             color: var(--ax-text);
             border-radius: 8px;
             padding: 5px 10px;
@@ -969,7 +1090,7 @@
             padding: 6px;
             border-radius: 10px;
             border: 1px solid var(--ax-border);
-            background: var(--ig-subtle-bg);
+            background: var(--ax-surface);
             color: var(--ax-text);
             cursor: pointer;
             text-align: left;
@@ -978,7 +1099,9 @@
             transition: border-color 0.15s ease, background 0.15s ease;
         }
         body[data-ax-page="dashboard"] .ig-cal-cell.is-outside {
-            opacity: 0.42;
+            opacity: 0.38;
+            background: transparent;
+            border-style: dashed;
             cursor: default;
         }
         body[data-ax-page="dashboard"] .ig-cal-cell.is-today {
@@ -995,8 +1118,8 @@
             line-height: 1;
         }
         body[data-ax-page="dashboard"] .ig-cal-badges {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 3px;
             width: 100%;
             margin-top: 4px;
@@ -1004,15 +1127,17 @@
         body[data-ax-page="dashboard"] .ig-cal-mini-pill {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             padding: 1px 4px;
             border-radius: 4px;
-            font-size: 0.62rem;
+            font-size: 0.6rem;
             font-weight: 800;
-            line-height: 1.2;
+            line-height: 1.25;
             max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            font-variant-numeric: tabular-nums;
         }
         body[data-ax-page="dashboard"] .ig-cal-mini-pill.is-present {
             background: rgba(16, 185, 129, 0.16);
@@ -1050,24 +1175,25 @@
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 8px;
-            margin: 10px 0 14px;
+            margin: 12px 0 14px;
         }
         body[data-ax-page="dashboard"] .ig-cal-stat-box {
-            padding: 8px 10px;
+            padding: 9px 10px;
             border-radius: 10px;
             border: 1px solid var(--ax-border);
-            background: var(--ig-subtle-bg);
+            background: var(--ax-surface);
             display: flex;
             flex-direction: column;
             gap: 2px;
         }
         body[data-ax-page="dashboard"] .ig-cal-stat-box strong {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 800;
             color: var(--ax-text);
+            font-variant-numeric: tabular-nums;
         }
         body[data-ax-page="dashboard"] .ig-cal-stat-box span {
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             font-weight: 700;
             color: var(--ax-muted);
             text-transform: uppercase;
@@ -1076,25 +1202,26 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-height: 320px;
+            max-height: 310px;
             overflow-y: auto;
+            flex: 1;
         }
         body[data-ax-page="dashboard"] .ig-cal-detail-item {
             padding: 10px 12px;
             border-radius: 10px;
             border: 1px solid var(--ax-border);
-            background: var(--ig-subtle-bg);
+            background: var(--ax-surface);
             display: flex;
             flex-direction: column;
             gap: 4px;
         }
         body[data-ax-page="dashboard"] .ig-cal-detail-subhead {
-            font-size: 0.74rem;
+            font-size: 0.72rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.04em;
             color: var(--ax-muted);
-            margin: 10px 0 6px;
+            margin: 8px 0 4px;
         }
 
         /* Dashboard Drill-Down Modal (Item #13) */
@@ -1290,6 +1417,7 @@
 
         <main class="ax-content">
 
+            <!-- 1. Executive Workforce KPI Strip -->
             <div class="ax-stat-strip ig-kpi-grid" aria-label="Key workforce metrics">
                 <div class="ig-kpi-card ig-clickable" role="button" tabindex="0" data-drilldown="kpi-guards" aria-label="View detailed total guards information">
                     <div class="ig-kpi-top">
@@ -1372,6 +1500,50 @@
                 </div>
             </div>
 
+            <!-- 2. Workforce Lifecycle & Daily Attendance Overview -->
+            <div class="dashboard-grid">
+                <section class="dashboard-card" aria-labelledby="contractStatusHeading">
+                    <div class="ig-section-title-group">
+                        <span class="ig-section-badge" aria-hidden="true"><span class="material-symbols-rounded">description</span></span>
+                        <div>
+                            <h2 id="contractStatusHeading">Contract status</h2>
+                            <p class="ig-section-sub">Contractual guard lifecycle &amp; renewal health</p>
+                        </div>
+                    </div>
+                    <div class="ig-donut-layout">
+                        <div class="dashboard-donut" id="contractDonut" role="img" aria-label="Contract status chart">
+                            <div class="ig-donut-hole">
+                                <strong id="contractDonutTotal">0</strong>
+                                <span>Contracts</span>
+                            </div>
+                        </div>
+                        <div class="ig-legend-bars" id="contractLegend"></div>
+                    </div>
+                    <div class="ig-card-footer" id="contractMetaFooter"></div>
+                </section>
+
+                <section class="dashboard-card" aria-labelledby="attendanceOverviewHeading">
+                    <div class="ig-section-title-group">
+                        <span class="ig-section-badge" aria-hidden="true"><span class="material-symbols-rounded">assignment_turned_in</span></span>
+                        <div>
+                            <h2 id="attendanceOverviewHeading">Attendance overview</h2>
+                            <p class="ig-section-sub">Today's scheduled post check-ins &amp; punctuality</p>
+                        </div>
+                    </div>
+                    <div class="ig-donut-layout">
+                        <div class="dashboard-donut dashboard-donut-attendance" id="attendanceDonut" role="img" aria-label="Attendance overview chart">
+                            <div class="ig-donut-hole">
+                                <strong id="attendanceDonutTotal">0</strong>
+                                <span>Scheduled</span>
+                            </div>
+                        </div>
+                        <div class="ig-legend-bars" id="attendanceLegend"></div>
+                    </div>
+                    <div class="ig-card-footer" id="attendanceMetaFooter"></div>
+                </section>
+            </div>
+
+            <!-- 3. Client Deployment Coverage -->
             <section class="dashboard-section" aria-labelledby="deploymentHeading">
                 <div class="dashboard-section-head">
                     <div class="ig-section-title-group">
@@ -1437,48 +1609,7 @@
                 </div>
             </section>
 
-            <div class="dashboard-grid">
-                <section class="dashboard-card" aria-labelledby="contractStatusHeading">
-                    <div class="ig-section-title-group">
-                        <span class="ig-section-badge" aria-hidden="true"><span class="material-symbols-rounded">description</span></span>
-                        <div>
-                            <h2 id="contractStatusHeading">Contract status</h2>
-                            <p class="ig-section-sub">Contractual guard lifecycle &amp; renewal health</p>
-                        </div>
-                    </div>
-                    <div class="ig-donut-layout">
-                        <div class="dashboard-donut" id="contractDonut" role="img" aria-label="Contract status chart">
-                            <div class="ig-donut-hole">
-                                <strong id="contractDonutTotal">0</strong>
-                                <span>Contracts</span>
-                            </div>
-                        </div>
-                        <div class="ig-legend-bars" id="contractLegend"></div>
-                    </div>
-                    <div class="ig-card-footer" id="contractMetaFooter"></div>
-                </section>
-
-                <section class="dashboard-card" aria-labelledby="attendanceOverviewHeading">
-                    <div class="ig-section-title-group">
-                        <span class="ig-section-badge" aria-hidden="true"><span class="material-symbols-rounded">assignment_turned_in</span></span>
-                        <div>
-                            <h2 id="attendanceOverviewHeading">Attendance overview</h2>
-                            <p class="ig-section-sub">Today's scheduled post check-ins &amp; punctuality</p>
-                        </div>
-                    </div>
-                    <div class="ig-donut-layout">
-                        <div class="dashboard-donut dashboard-donut-attendance" id="attendanceDonut" role="img" aria-label="Attendance overview chart">
-                            <div class="ig-donut-hole">
-                                <strong id="attendanceDonutTotal">0</strong>
-                                <span>Scheduled</span>
-                            </div>
-                        </div>
-                        <div class="ig-legend-bars" id="attendanceLegend"></div>
-                    </div>
-                    <div class="ig-card-footer" id="attendanceMetaFooter"></div>
-                </section>
-            </div>
-
+            <!-- 4. Attendance & Duty Operations Calendar -->
             <section class="dashboard-section" id="dashboardCalendarSection" aria-labelledby="operationsCalendarHeading">
                 <div class="dashboard-section-head">
                     <div class="ig-section-title-group">
@@ -1505,7 +1636,15 @@
                 <div class="ig-cal-layout">
                     <div class="ig-cal-box">
                         <div class="ig-cal-nav">
-                            <h3 class="ig-cal-month-title" id="calendarMonthLabel">Month</h3>
+                            <div>
+                                <h3 class="ig-cal-month-title" id="calendarMonthLabel">Month</h3>
+                                <div class="ig-cal-legend-inline" aria-hidden="true">
+                                    <span class="ig-cal-mini-pill is-present">P: Present</span>
+                                    <span class="ig-cal-mini-pill is-absent">A: Absent</span>
+                                    <span class="ig-cal-mini-pill is-swap">SC: Shift Change</span>
+                                    <span class="ig-cal-mini-pill is-incident">INC: Incident</span>
+                                </div>
+                            </div>
                             <div class="ig-cal-nav-btns">
                                 <button type="button" class="ig-cal-btn" id="calPrevBtn">Prev</button>
                                 <button type="button" class="ig-cal-btn" id="calTodayBtn">Today</button>
@@ -1549,33 +1688,36 @@
                 </div>
             </section>
 
+            <!-- 5. Incident Intelligence & Recent Dispatches -->
             <section class="dashboard-section" aria-labelledby="recentIncidentsHeading">
-                <div class="ig-section-title-group">
-                    <span class="ig-section-badge" aria-hidden="true"><span class="material-symbols-rounded">emergency</span></span>
-                    <div>
-                        <h2 id="recentIncidentsHeading">Recent incidents</h2>
-                        <p class="ig-section-sub">Latest field dispatches &amp; operational intelligence</p>
+                <div class="dashboard-section-head">
+                    <div class="ig-section-title-group">
+                        <span class="ig-section-badge" aria-hidden="true"><span class="material-symbols-rounded">emergency</span></span>
+                        <div>
+                            <h2 id="recentIncidentsHeading">Recent incidents</h2>
+                            <p class="ig-section-sub">Incident intelligence rankings, status distribution &amp; latest field dispatches</p>
+                        </div>
                     </div>
-                </div>
-
-                <div class="ig-incident-feed" id="recentIncidentFeed" aria-live="polite">
-                    <div class="ig-incident-card"><span class="ax-skeleton ax-skeleton-line full"></span></div>
+                    <div class="incident-time-filter" id="incidentTimeFilter" role="group" aria-label="Incident Timeframe Filter">
+                        <button type="button" class="incident-filter-btn" data-days="0">All</button>
+                        <button type="button" class="incident-filter-btn" data-days="365">Year</button>
+                        <button type="button" class="incident-filter-btn" data-days="30">Month</button>
+                        <button type="button" class="incident-filter-btn is-active" data-days="7">Week</button>
+                    </div>
                 </div>
 
                 <div class="incident-summary">
-                    <div class="incident-summary-header">
-                        <div>
-                            <h3>Incident intelligence summary</h3>
-                            <span class="incident-summary-sub">Insights by period, area risk, top reporter, and status</span>
-                        </div>
-                        <div class="incident-time-filter" id="incidentTimeFilter" role="group" aria-label="Incident Timeframe Filter">
-                            <button type="button" class="incident-filter-btn" data-days="0">All</button>
-                            <button type="button" class="incident-filter-btn" data-days="365">Year</button>
-                            <button type="button" class="incident-filter-btn" data-days="30">Month</button>
-                            <button type="button" class="incident-filter-btn is-active" data-days="7">Week</button>
-                        </div>
-                    </div>
                     <div id="incidentSummary"></div>
+                </div>
+
+                <div class="ig-incident-subpanel">
+                    <div class="ig-subpanel-head">
+                        <h3 class="ig-subpanel-title">Latest Field Dispatches</h3>
+                        <span class="ig-click-hint">Click any dispatch card to inspect</span>
+                    </div>
+                    <div class="ig-incident-feed" id="recentIncidentFeed" aria-live="polite">
+                        <div class="ig-incident-card"><span class="ax-skeleton ax-skeleton-line full"></span></div>
+                    </div>
                 </div>
             </section>
         </main>
@@ -2070,13 +2212,17 @@ function renderIncidentIntelligence(days) {
 
     container.innerHTML = `
         <div class="incident-status-summary-bar">
-            <span class="incident-status-summary-label">Status breakdown (${total})</span>
-            <div class="incident-status-badges">
-                <span class="incident-status-pill investigation">● Under investigation: <strong>${invCount}</strong></span>
-                <span class="incident-status-pill escalated">● Escalated: <strong>${escCount}</strong></span>
-                <span class="incident-status-pill resolved">● Resolved: <strong>${resCount}</strong></span>
+            <div class="ig-status-bar-top">
+                <div>
+                    <span class="incident-status-summary-label">Status breakdown (${total})</span>
+                    <span class="incident-status-period" style="margin-left:8px;">· Filtered for ${periodLabel}</span>
+                </div>
+                <div class="incident-status-badges">
+                    <span class="incident-status-pill investigation">● Under investigation: <strong>${invCount}</strong></span>
+                    <span class="incident-status-pill escalated">● Escalated: <strong>${escCount}</strong></span>
+                    <span class="incident-status-pill resolved">● Resolved: <strong>${resCount}</strong></span>
+                </div>
             </div>
-            <span class="incident-status-period">Filtered for ${periodLabel}</span>
             <div class="ig-status-stack-wrap" aria-hidden="true">
                 <div class="ig-status-stack-track">
                     ${invPct > 0 ? `<div class="ig-status-seg-inv" style="width:${invPct}%"></div>` : ''}
