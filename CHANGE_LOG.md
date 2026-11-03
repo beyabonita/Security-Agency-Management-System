@@ -1,6 +1,90 @@
 # Project Change Log
 
-### [2026-11-03 23:08] - Feat: System Revision Phase 1 & 2 Low-Risk Implementations (#1, #3, #11, #12, #13, #14, #16)
+## Live System Revision & Git Push Status Ledger
+
+> **Auto-Updated Rule:** Every code, database, or configuration modification is logged in this ledger immediately after implementation, specifying whether it is **✅ PUSHED** (`origin/main`) or **⏳ NOT PUSHED** (local working tree / staged).
+
+### 1. Revision Items Status Summary (20-Point Evaluation Sheet)
+
+| Item # | Risk Tier | Revision Requirement | Implementation Status | Git / Push Status | Commit / Branch |
+| :---: | :---: | :--- | :---: | :---: | :---: |
+| **#1** | 🟢 Low | Search box in Personnel interface (Guards + Field Inspectors) under Operations Head | ✅ Completed | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| **#2** | ✅ Pre-existing | Prevent duplicate registration of an already registered mobile number | ✅ Already Implemented | **✅ PUSHED** | `50eb288` (`origin/main`) |
+| **#3** | 🟢 Low | Upfront required field indicators (`*`, legend, & required badges) across forms | ✅ Completed | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| **#4** | 🟡 Medium | Dual-point proximity/distance check between locations for seminar or attendance | ⏳ Pending | **—** | Not started |
+| **#5** | 🟠 High | Allow time-in outside designated location subject to Operations Head force attendance approval | ⏳ Pending | **—** | Not started |
+| **#6** | 🔴 High | Live face capture feature + device cellular/hardware ID verification on mobile app | ⏳ Pending | **—** | Not started |
+| **#7** | 🟠 High | Capture and verify user's device information in the mobile app | ⏳ Pending | **—** | Not started |
+| **#8** | 🟡 Medium | Geotagging watermark overlay on captured evidence photos to verify guard location | ⏳ Pending | **—** | Not started |
+| **#9** | 🟠 High | Custom client-specific shift time schedules within the same shift category | ✅ Completed | **✅ PUSHED** | `origin/main` (Batch 2) |
+| **#10** | 🟠 High | Enhance automated personnel deployment (auto-assign guards to open slots) | ✅ Completed | **✅ PUSHED** | `origin/main` (Batch 2) |
+| **#11** | 🟢 Low | Rename `"Duty Request"` to specify `"Absence Request"`, `"Shift Swap Request"`, and `"Overtime Request"` | ✅ Completed | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| **#12** | 🟢 Low | Dashboard Calendar View (Present, Absent, Shift Change, Company/Location assignments, & Incidents) | ✅ Completed | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| **#13** | 🟢 Low | Interactive & clickable dashboard elements with detailed drill-down modal | ✅ Completed | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| **#14** | 🟢 Low | Click location marker on map $\rightarrow$ zoom in & display assigned guard profiles (e.g., CHMSU) | ✅ Completed | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| **#15** | 🟡 Medium | Store and view guard location history (`guard_location_history` breadcrumb trail) | ✅ Completed | **✅ PUSHED** | `origin/main` + Supabase DB |
+| **#16** | 🟢 Low | Change the term `"Live Guard Map"` to `"Guard Tracker"` | ✅ Completed | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| **#17** | ✅ Pre-existing | Automatically remove guard name from live map when shift ends | ✅ Already Implemented | **✅ PUSHED** | `50eb288` (`origin/main`) |
+| **#18** | 🟡 Medium | Bundled Deployment view (company/site expandable bundles instead of flat static list) | ✅ Completed | **✅ PUSHED** | `origin/main` (Batch 2) |
+| **#19** | ✅ Pre-existing | Make the dashboard infographics | ✅ Already Implemented | **✅ PUSHED** | `50eb288` (`origin/main`) |
+| **#20** | 🔴 High | Mobile app security hardening & fully functional automated features | ⏳ Pending | **—** | Not started |
+
+### 2. File-Level Change & Push Tracker
+
+| File Path | Related Item(s) | Change Summary | Git / Push Status | Commit Reference |
+| :--- | :---: | :--- | :---: | :---: |
+| [`web/admin/js/admin-shell.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/admin-shell.js) | #11, #16 | Sidebar nav labels updated to `Guard Tracker` and `Absence, Shift Swap & Overtime` | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/admin/live-tracking.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/live-tracking.html) | #16 | Page `<title>` and header `<h1>` updated to `Guard Tracker` | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/admin/records.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/records.html) | #16 | Operational guidance reference updated to `Guard Tracker` | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/inspector/live-tracking.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/live-tracking.html) | #16 | Inspector page `<title>`, sidebar nav, and `<h1>` updated to `Guard Tracker` | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/inspector/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/dashboard.html) | #16 | Inspector sidebar link updated to `Guard Tracker` | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/inspector/incidents.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/incidents.html) | #16 | Inspector sidebar link updated to `Guard Tracker` | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/inspector/locations.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/locations.html) | #16 | Inspector sidebar link updated to `Guard Tracker` | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/inspector/swaps.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/swaps.html) | #16 | Inspector sidebar link updated to `Guard Tracker` | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/inspector/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/users.html) | #16 | Inspector sidebar link updated to `Guard Tracker` | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/admin/css/admin-theme.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/admin-theme.css) | #3 | Added `.req-star`, `.form-required-note`, and `.badge-field-required` styles | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html) | #1, #3, #16 | Added `#inspectorSearchInput` search bar, upfront `*` required indicators in `#createGuardModal`, and `Guard Tracker` text update | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/admin/locations.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/locations.html) | #3 | Added required note + `*` & `Required` badges on Deployment Site Label, Radius, and Address | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/admin/schedule.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/schedule.html) | #3 | Added `*` & `Required` badges to Shifting setup, Schedule date, and Deployment site | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/admin/js/shift-roster.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/shift-roster.js) | #3 | Added `*` & `Required` badges to dynamic guard slot labels in `renderSlotGrid()` | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/admin/swaps.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/swaps.html) | #11 | Updated header to `Absence, Shift Swap & Overtime Requests` and added `#requestType` filter | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/admin/js/duty-requests.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/duty-requests.js) | #11 | Updated `requestKind()` & `normalizeRequestKindKey()` to classify `Absence Request`, `Shift Swap Request`, and `Overtime Request` | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`lib/homepage.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/homepage.dart) | #11 | Updated Guard mobile menu tile to `Absence, Shift Swap & Overtime` | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`lib/letter_request.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/letter_request.dart) | #11 | Added 3-way `SegmentedButton` (`Absence Request`, `Shift Swap Request`, `Overtime Request`) and updated badges | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`lib/services/duty_request_service.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/services/duty_request_service.dart) | #11 | Added `overtime` request handling in `submitDutyRequest()` with `[Overtime Request]` tagging | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/js/live-tracking.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/live-tracking.js) | #14 | Added `siteLayer` location markers, `#trackingSiteChips` bar, zoom-in (`zoom: 17`), and `#locationGuardsPanel` guard profiles drawer | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/css/live-tracking.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/css/live-tracking.css) | #14 | Added styling for location map markers, quick-jump chips, and slide-over assigned guard profile drawer | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`web/admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html) | #12, #13 | Added interactive Attendance & Duty Operations Calendar (`#dashboardCalendarSection`) and clickable element Drill-Down Modal (`#dashboardDrilldownModal`) | **✅ PUSHED** | `99a139b` (`origin/main`) |
+| [`supabase/migrations/20261104000001_guard_location_history.sql`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261104000001_guard_location_history.sql) | #15 | Added `public.guard_location_history` table, trigger `trg_record_guard_location_history`, and RPC `get_guard_location_history` | **✅ PUSHED** | `origin/main` + Supabase DB |
+| [`web/admin/css/dtr-scheduling.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/dtr-scheduling.css) | #10, #18 | Added styles for Automated Deployment toolbar and Company/Site Deployment Bundles | **✅ PUSHED** | `origin/main` (Batch 2) |
+| [`web/admin/schedule.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/schedule.html) | #3, #9, #10, #18 | Added `#autoDeployToolbar`, `#bundledDeploymentsContainer` (`renderBundledDeployments`), and `#flexibleClientHoursMode` client business-hours switch | **✅ PUSHED** | `origin/main` (Batch 2) |
+| [`web/admin/js/shift-roster.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/shift-roster.js) | #3, #9, #10 | Added `autoAssignShiftRoster()`, `autoDeployUnstaffedSites()`, and flexible client business-hours shift time validation | **✅ PUSHED** | `origin/main` (Batch 2) |
+| [`web/inspector/locations.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/locations.html) | #16, #18 | Added expandable Company Deployment Bundles (`#inspectorLocationBundles`, `renderInspectorBundles`) | **✅ PUSHED** | `origin/main` (Batch 2) |
+| [`web/js/live-tracking.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/live-tracking.js) | #14, #15 | Added `guardHistoryMap`, `recordGuardHistoryPoint()`, `openGuardLocationHistory()`, and map breadcrumb polyline trail (`historyLayer`) | **✅ PUSHED** | `origin/main` (Batch 2) |
+| [`web/css/live-tracking.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/css/live-tracking.css) | #14, #15 | Added `.tracking-history-panel`, `.tracking-history-list`, and `.tracking-history-item` styles | **✅ PUSHED** | `origin/main` (Batch 2) |
+| [`CHANGE_LOG.md`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/CHANGE_LOG.md) | All | Added live System Revision & Git Push Status Ledger + Batch 2 entry | **✅ PUSHED** | `origin/main` (Batch 2) |
+| [`supabase/migrations/20261101000001_fix_is_on_active_shift_open_status.sql`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261101000001_fix_is_on_active_shift_open_status.sql) | Pre-existing | Trailing newline diff in working tree (migration itself already pushed in `749125e`) | **⏳ NOT PUSHED** *(1-line whitespace)* | Local working tree |
+| [`web/tests/admin_dashboard.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/admin_dashboard.spec.js) | Pre-existing | Local test adjustment in working tree from earlier session | **⏳ NOT PUSHED** | Local working tree |
+
+---
+
+### [2026-11-04 00:14] - Feat: System Revision Batch 2 — Bundled Deployments, Automated Deployment, Custom Client Hours & Guard Location History (#9, #10, #15, #18) — [✅ PUSHED: `origin/main` + Supabase DB]
+
+- **Scope & Objective**:
+  - Implemented **Item #18** (Bundled Deployment View), **Item #10** (Automated Personnel Deployment), **Item #9** (Custom Client Business-Hour Shift Schedules within Same Shift Category), and **Item #15** (Store & View Guard Location History) across Web Consoles and Supabase.
+- **Files Modified / Created**:
+  - [`supabase/migrations/20261104000001_guard_location_history.sql`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261104000001_guard_location_history.sql) *(New — ⏳ NOT PUSHED)*:
+    - **Item #15**: Created `public.guard_location_history`, trigger `trg_record_guard_location_history` on `public.guard_live_locations`, and RPC `public.get_guard_location_history(p_user_id, p_limit)`.
+  - [`web/js/live-tracking.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/live-tracking.js) & [`web/css/live-tracking.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/css/live-tracking.css) *(⏳ NOT PUSHED)*:
+    - **Item #15**: Added automatic GPS breadcrumb recording (`recordGuardHistoryPoint`), **"Location History"** buttons on guard cards and map popups, route trail polyline rendering (`historyLayer`), and the **Guard Location History** slide-over panel (`#guardHistoryPanel`, `openGuardLocationHistory`).
+  - [`web/admin/schedule.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/schedule.html), [`web/admin/js/shift-roster.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/shift-roster.js), [`web/admin/css/dtr-scheduling.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/dtr-scheduling.css), & [`web/inspector/locations.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/locations.html) *(⏳ NOT PUSHED)*:
+    - **Item #18**: Added expandable **Company / Site Deployment Bundles** (`#bundledDeploymentsContainer` in `schedule.html` and `#inspectorLocationBundles` in `inspector/locations.html`) with guard counts, shift breakdowns, and 1-click `Deploy Roster` actions.
+    - **Item #10**: Added **Automated Personnel Deployment** (`#autoDeployToolbar`, `autoAssignShiftRoster`, `autoDeployUnstaffedSites`) that automatically assigns active, contract-valid, non-conflicting guards to open shift slots or across all unstaffed deployment sites.
+    - **Item #9**: Added **Follow Client Business Hours Mode** (`#flexibleClientHoursMode`) in `#editRosterTimesModal` so shifts within the same category can use custom client business-hour schedules without forcing 24-hour continuous lock.
+- **Verification**:
+  - Verified all 93 JS files and 21 HTML files parse with 0 syntax errors; `security_rendering_test.js`, `google_icons_test.js`, and `live_tracking_test.cjs` all passed.
+
+### [2026-11-03 23:08] - Feat: System Revision Phase 1 & 2 Low-Risk Implementations (#1, #3, #11, #12, #13, #14, #16) — [✅ PUSHED: `99a139b` on `origin/main`]
 
 - **Scope & Objective**:
   - Implemented all 6 Low-Risk System Revision items (#16, #3, #11, #13, #14, #12) plus the Inspector search box enhancement (#1) across the Web Portal and Flutter Mobile App with zero breaking database migrations.

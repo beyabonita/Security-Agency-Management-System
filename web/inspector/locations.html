@@ -12,6 +12,12 @@
     <style>
         .loc-address { font-size: 0.82rem; color: var(--ix-muted); line-height: 1.45; max-width: 360px; }
         .loc-coords { font-size: 0.72rem; color: var(--sl-muted); font-family: monospace; margin-top: 4px; }
+        .ix-bundles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-bottom: 18px; }
+        .ix-bundle-card { border: 1px solid var(--ax-border); border-radius: 12px; background: var(--sl-surface, #fff); overflow: hidden; }
+        .ix-bundle-summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; cursor: pointer; background: var(--sl-surface-muted, rgba(15, 23, 42, 0.02)); }
+        .ix-bundle-summary::-webkit-details-marker { display: none; }
+        .ix-bundle-body { padding: 12px 16px; border-top: 1px solid var(--ax-border); display: grid; gap: 8px; }
+        .ix-bundle-guard { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--ax-border); font-size: 0.79rem; }
     </style>
 </head>
 <body class="admin-body inspector-body" data-ix-page="locations">
@@ -43,7 +49,8 @@
       </div></header>
       <main class="ax-content">
 
-            <div class="ix-section-label">All locations</div>
+            <div class="ix-section-label">Company Deployment Bundles &amp; All Locations</div>
+            <div id="inspectorLocationBundles" class="ix-bundles-grid" aria-label="Bundled deployment locations"></div>
             <div class="ix-panel">
               <div class="sl-table-frame">
                 <table class="ix-table">
@@ -125,12 +132,54 @@ function loadLocations() {
         });
         document.getElementById("locationTable").innerHTML = html ||
             `<tr><td colspan="4" class="empty-state">No sites assigned to you or your Guards yet.</td></tr>`;
+        renderInspectorBundles(snapshot);
         finishPageLoading();
     }).catch(err => {
         document.getElementById("locationTable").innerHTML =
             `<tr><td colspan="4" class="empty-state" style="color:#dc2626;">Error: ${escapeHtml(err?.message || "Could not load locations.")}</td></tr>`;
         finishPageLoading();
     });
+}
+
+async function renderInspectorBundles(locSnapshot) {
+    const bundleEl = document.getElementById("inspectorLocationBundles");
+    if (!bundleEl) return;
+    try {
+        const userSnap = await db.collection("users").get();
+        const guardsBySite = new Map();
+        userSnap.forEach(uDoc => {
+            const u = uDoc.data();
+            if (u.role !== "user") return;
+            const sId = u.assignedLocationId || "";
+            if (!sId) return;
+            if (!guardsBySite.has(sId)) guardsBySite.set(sId, []);
+            guardsBySite.get(sId).push({
+                name: [u.firstName, u.middleInitial ? u.middleInitial + "." : "", u.lastName].filter(Boolean).join(" ") || u.name || "Guard",
+                phone: u.mobileNumber || u.phone || "",
+                active: u.active !== false
+            });
+        });
+        const cards = [];
+        locSnapshot.forEach(doc => {
+            const d = doc.data();
+            const gList = guardsBySite.get(doc.id) || [];
+            cards.push(`<details class="ix-bundle-card" open>
+                <summary class="ix-bundle-summary">
+                    <div>
+                        <strong style="font-size:0.9rem;">${escapeHtml(d.label || "Site")}</strong>
+                        <div class="loc-address">${escapeHtml(d.address || "—")} · Radius: ${d.radius ? d.radius + " m" : "—"}</div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="ix-badge ${d.active ? "ix-badge-ok" : "ix-badge-off"}">${gList.length} ${gList.length === 1 ? "Guard" : "Guards"}</span>
+                    </div>
+                </summary>
+                <div class="ix-bundle-body">
+                    ${gList.length ? gList.map(g => `<div class="ix-bundle-guard"><strong>${escapeHtml(g.name)}</strong><span style="color:var(--ix-muted);font-size:0.74rem;">${escapeHtml(g.phone || (g.active ? "Active" : "Disabled"))}</span></div>`).join("") : `<div style="font-size:0.76rem;color:var(--ix-muted);">No guards currently bundled to this location.</div>`}
+                </div>
+            </details>`);
+        });
+        bundleEl.innerHTML = cards.join("");
+    } catch (_) {}
 }
 </script>
 </body>

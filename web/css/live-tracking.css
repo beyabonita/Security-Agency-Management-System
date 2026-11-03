@@ -75,3 +75,32 @@
 [data-theme="dark"] .tracking-location-panel-sub,[data-theme="dark"] .tracking-guard-submeta{color:#9ca3af}
 [data-theme="dark"] .tracking-location-guard-card{background:#111827;border-color:#374151}
 [data-theme="dark"] .tracking-location-panel-close{border-color:#4b5563;color:#e5e7eb}
+
+/* ====== ITEM #15: GUARD LOCATION HISTORY PANEL ====== */
+.tracking-history-panel {
+  border-color: rgba(37, 99, 235, 0.35);
+}
+.tracking-history-list {
+  display: grid;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.tracking-history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--ax-border, rgba(148, 163, 184, 0.25));
+  background: var(--ax-bg, rgba(15, 23, 42, 0.02));
+  font-size: 0.78rem;
+}
+.tracking-history-meta {
+  font-size: 0.72rem;
+  color: var(--ax-muted, #64748b);
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}

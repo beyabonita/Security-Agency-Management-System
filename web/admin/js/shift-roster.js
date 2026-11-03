@@ -707,7 +707,8 @@
       const allEnds = [...rosterTimesInputs.querySelectorAll('[data-end]')];
       const n = allStarts.length;
 
-      if (n >= 2 && idx >= 0 && input.value) {
+      const flexEl = document.getElementById('flexibleClientHoursMode');
+      if (!flexEl?.checked && n >= 2 && idx >= 0 && input.value) {
         if (isStart) {
           // Scheduled IN of Shift idx changed -> previous shift's Scheduled OUT automatically updates to match it!
           const prevIdx = (idx - 1 + n) % n;
@@ -778,7 +779,19 @@
         end_time: ends[i].value
       }));
 
-      const validationError = RosterSetup.validate(newShifts);
+      const flexEl = document.getElementById('flexibleClientHoursMode');
+      const validateCustomClientShifts = list => {
+        if (!Array.isArray(list) || !list.length) return 'Enter at least one shift.';
+        for (let i = 0; i < list.length; i++) {
+          const s = list[i];
+          if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(s?.start_time || '') || !/^([01]\d|2[0-3]):[0-5]\d$/.test(s?.end_time || '')) {
+            return `Shift ${i + 1}: enter valid start and end times.`;
+          }
+          if (s.start_time === s.end_time) return `Shift ${i + 1}: start and end times must be different.`;
+        }
+        return null;
+      };
+      const validationError = flexEl?.checked ? validateCustomClientShifts(newShifts) : RosterSetup.validate(newShifts);
       if (validationError) {
         if (rosterTimesError) {
           rosterTimesError.innerHTML = `<div class="d-flex justify-content-between align-items-center w-100 flex-wrap gap-2"><span>${escapeHtml(validationError)}</span><button type="button" id="autoFixGapsInlineBtn" class="btn btn-xs btn-outline-danger">Auto-fix gap</button></div>`;
@@ -796,6 +809,161 @@
       appDialog.toast('Shift times updated for this assignment.', { tone: 'success' });
     });
   }
+
+  // --- ITEM #10: AUTOMATED PERSONNEL DEPLOYMENT ---
+  function pickEligibleGuardsForShifts(targetSiteId, targetDate, shiftsList, alreadyTakenGuardIds = new Set()) {
+    const now = new Date();
+    const activeGuards = (window.guards || guards || []).filter(g => g.active && g.role === 'user');
+    const dateRows = (window.schedules || schedules || []).filter(s => s.date === targetDate && s.approval_status !== 'cancelled');
+    const busyToday = new Set(dateRows.map(s => s.userId));
+    const cutoff = SchedulePeriod.dtrPeriodForDate(targetDate);
+    const shiftCounts = new Map();
+    (window.schedules || schedules || []).forEach(s => {
+      if (s.approval_status === 'cancelled') return;
+      if (cutoff && s.date >= cutoff.start && s.date <= cutoff.end) {
+        shiftCounts.set(s.userId, (shiftCounts.get(s.userId) || 0) + 1);
+      }
+    });
+
+    const chosen = [];
+    for (let i = 0; i < shiftsList.length; i++) {
+      const p = shiftsList[i];
+      if (!available(targetDate, p, now)) {
+        chosen.push('');
+        continue;
+      }
+      const plan = SchedulePeriod.buildDutyPlan(targetDate, [{ period: 'auto', start_time: p[0], end_time: p[1], next_day: false }]);
+      if (plan.error) {
+        chosen.push('');
+        continue;
+      }
+      const candidates = activeGuards.filter(g => {
+        if (busyToday.has(g.id) || alreadyTakenGuardIds.has(g.id) || chosen.includes(g.id)) return false;
+        const contractErr = ContractPeriod.dutyError(g, plan.periods[0].startAt, plan.periods[0].endAt);
+        return !contractErr;
+      });
+      candidates.sort((a, b) => {
+        const aSiteMatch = a.assignedLocationId && a.assignedLocationId === targetSiteId ? 0 : 1;
+        const bSiteMatch = b.assignedLocationId && b.assignedLocationId === targetSiteId ? 0 : 1;
+        if (aSiteMatch !== bSiteMatch) return aSiteMatch - bSiteMatch;
+        const aCount = shiftCounts.get(a.id) || 0;
+        const bCount = shiftCounts.get(b.id) || 0;
+        if (aCount !== bCount) return aCount - bCount;
+        return (a.name || '').localeCompare(b.name || '');
+      });
+      const winner = candidates[0];
+      chosen.push(winner ? winner.id : '');
+      if (winner) alreadyTakenGuardIds.add(winner.id);
+    }
+    return chosen;
+  }
+
+  window.autoAssignShiftRoster = () => {
+    if (saving || setupSaving) return;
+    const day = date.value || todayDateString();
+    if (!site.value && (window.locations || locations || []).length) {
+      const unstaffedSite = (window.locations || locations || []).find(loc => {
+        return !(window.schedules || schedules || []).some(s => (s.locationId || s.location_id) === loc.id && s.date === day && s.approval_status !== 'cancelled');
+      }) || (window.locations || locations || [])[0];
+      if (unstaffedSite) {
+        site.value = unstaffedSite.id;
+        updateSiteOptions(unstaffedSite.id);
+      }
+    }
+    const shiftsList = periods();
+    if (!shiftsList.length) {
+      appDialog.toast('Select or create a shifting setup first.', { tone: 'warning' });
+      return;
+    }
+    const assignedIds = pickEligibleGuardsForShifts(site.value, day, shiftsList);
+    const selects = [...slots.querySelectorAll('select')];
+    let filledCount = 0;
+    selects.forEach((sel, idx) => {
+      if (!sel.disabled && assignedIds[idx]) {
+        sel.value = assignedIds[idx];
+        filledCount++;
+      }
+    });
+    summary();
+    if (filledCount > 0) {
+      appDialog.toast(`Auto-assigned ${filledCount} eligible ${filledCount === 1 ? 'guard' : 'guards'} to open shift slots. Click "Assign all shifts" to confirm.`, { tone: 'success' });
+    } else {
+      appDialog.toast('No available non-conflicting guards found for the remaining shifts on this date.', { tone: 'warning' });
+    }
+  };
+
+  window.autoDeployUnstaffedSites = async (btnEl) => {
+    if (saving || setupSaving) return;
+    const chosenSetup = customSetup();
+    const day = date.value || todayDateString();
+    const shiftsList = periods();
+    if (!chosenSetup || !shiftsList.length) {
+      appDialog.toast('Select a saved shifting setup before running multi-site automated deployment.', { tone: 'warning' });
+      return;
+    }
+    const allLocs = window.locations || locations || [];
+    const unstaffedLocs = allLocs.filter(loc => {
+      return !(window.schedules || schedules || []).some(s => ((s.locationId || s.location_id) === loc.id || s.locationLabel === loc.label) && s.date === day && s.approval_status !== 'cancelled');
+    });
+    if (!unstaffedLocs.length) {
+      appDialog.toast(`All ${allLocs.length} active deployment sites already have guards scheduled on ${formatDate(day)}.`, { tone: 'info' });
+      return;
+    }
+    const taken = new Set();
+    const planBundles = [];
+    for (const loc of unstaffedLocs) {
+      const picked = pickEligibleGuardsForShifts(loc.id, day, shiftsList, taken);
+      const activePicked = picked.filter((_, i) => available(day, shiftsList[i]));
+      if (activePicked.length && activePicked.every(Boolean)) {
+        planBundles.push({ loc, guardIds: picked.map((id, i) => available(day, shiftsList[i]) ? id : null) });
+      }
+    }
+    if (!planBundles.length) {
+      appDialog.toast('Not enough available, non-conflicting guards to staff a full site roster on this date.', { tone: 'warning' });
+      return;
+    }
+    const previewLines = planBundles.map(b => {
+      const names = b.guardIds.filter(Boolean).map(id => currentName(id)).join(', ');
+      return `• ${b.loc.label}: ${names}`;
+    }).join('\n');
+    const confirmed = await appDialog.confirm(
+      `Automatically deploy ${planBundles.length} unstaffed ${planBundles.length === 1 ? 'site' : 'sites'} on ${formatDate(day)}?\n\n${previewLines}`,
+      { title: 'Automated Personnel Deployment', confirmText: `Deploy ${planBundles.length} ${planBundles.length === 1 ? 'Site' : 'Sites'}`, icon: 'verified_user' }
+    );
+    if (!confirmed) return;
+    saving = true;
+    try {
+      await appDialog.runBusy(btnEl || button, async () => {
+        let totalShiftsCreated = 0;
+        for (const bundle of planBundles) {
+          const { data, error } = await appSupabase.rpc('assign_saved_shift_roster', {
+            p_location_id: bundle.loc.id,
+            p_duty_date: day,
+            p_guard_ids: bundle.guardIds,
+            p_setup_id: chosenSetup.id,
+            p_expected_version: chosenSetup.version
+          });
+          if (error) throw error;
+          totalShiftsCreated += Array.isArray(data) ? data.length : 0;
+        }
+        chosenSetup.in_use = true;
+        setupRevision++;
+        managementControls();
+        setScheduleListPeriod(day);
+        await refreshSchedules();
+        appDialog.toast(`Automated deployment complete: ${totalShiftsCreated} shifts assigned across ${planBundles.length} ${planBundles.length === 1 ? 'site' : 'sites'}.`, { tone: 'success' });
+      }, { label: 'Auto-deploying…' });
+    } catch (err) {
+      appDialog.toast(err.message || 'Automated deployment stopped due to a conflict. Refreshing schedule.', { tone: 'danger' });
+      await refreshSchedules();
+    } finally {
+      saving = false;
+      summary();
+    }
+  };
+
+  document.getElementById('autoAssignRosterBtn')?.addEventListener('click', () => window.autoAssignShiftRoster());
+  document.getElementById('autoDeployAllSitesBtn')?.addEventListener('click', (e) => window.autoDeployUnstaffedSites(e.currentTarget));
 
   if(editor)renderDraft();
   const clock=setInterval(()=>{if(!saving&&!document.hidden){summary();window.loadRosterSetups({silent:true});}},30000);

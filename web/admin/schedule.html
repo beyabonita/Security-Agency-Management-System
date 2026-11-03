@@ -73,6 +73,7 @@
         </div>
       </div>
       <div class="roster-setup-loading"><span id="rosterSetupsStatus" role="status"></span><button id="retryRosterSetups" type="button" class="btn btn-outline-secondary btn-sm" hidden>Reload saved setups</button></div>
+      <div class="auto-deploy-toolbar" id="autoDeployToolbar"><div class="auto-deploy-copy"><span class="material-symbols-rounded" aria-hidden="true">verified_user</span><div><strong>Automated Personnel Deployment</strong><div class="text-muted" style="font-size:0.75rem;">Automatically match active, contract-valid, non-conflicting guards to open shift slots or all unstaffed sites.</div></div></div><div class="auto-deploy-actions"><button type="button" id="autoAssignRosterBtn" class="btn-auto-assign"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;">groups</span> Auto-Assign Guards</button><button type="button" id="autoDeployAllSitesBtn" class="btn-auto-deploy-all"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;">business</span> Auto-Deploy Unstaffed Sites</button></div></div>
       <div id="rosterGuards" class="schedule-form-grid" aria-label="Guards for each shift"></div>
       <div id="rosterPreview" role="status" aria-live="polite"></div>
       <button id="saveRoster" type="button" class="btn btn-danger">Assign all shifts</button>
@@ -115,6 +116,8 @@
             </div>
         </div>
         <p class="schedule-list-note">Philippine time (UTC+8)</p>
+        <div class="bundled-deployments-bar" id="bundledDeploymentsBar"><div class="d-flex align-items-center gap-2 flex-wrap"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;color:var(--ax-accent,#dc2626);">business</span><strong style="font-size:0.86rem;">Company / Site Deployment Bundles</strong><span id="bundledDeploymentsSummary" class="bundle-pill bundle-pill-neutral">0 bundles</span></div><div class="d-flex align-items-center gap-2 flex-wrap"><button type="button" class="bundle-quick-btn" onclick="toggleAllDeploymentBundles(true)">Expand all</button><button type="button" class="bundle-quick-btn" onclick="toggleAllDeploymentBundles(false)">Collapse all</button></div></div>
+        <div id="bundledDeploymentsContainer" class="bundled-deployments-grid" aria-label="Bundled deployment sites"></div>
         <div class="table-responsive" tabindex="0" aria-label="Scheduled guard shifts">
             <table class="schedule-table schedule-dtr-table">
                 <thead><tr>
@@ -533,10 +536,12 @@ function renderSchedules() {
             && matchesSite;
     });
     if (!filtered.length) {
+        renderBundledDeployments([]);
         tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon material-symbols-rounded" aria-hidden="true">event_note</div><div>No scheduled duty for this cut-off.<br>Choose another period or assign a guard roster above.</div></div></td></tr>';
         return;
     }
 
+    renderBundledDeployments(filtered);
     tbody.innerHTML = [...filtered].sort((left,right) =>
         left.date.localeCompare(right.date) || toDate(left.startAt)-toDate(right.startAt)
     ).map(schedule => {
@@ -715,6 +720,111 @@ function formatScheduleDisplay(s) {
     return `<div class="schedule-time-range">${escapeHtml(formatDate(s.date))}</div>`;
 }
 
+// =====================================
+// ITEM #18: BUNDLED DEPLOYMENT VIEW
+// =====================================
+function renderBundledDeployments(filtered) {
+    const container = document.getElementById('bundledDeploymentsContainer');
+    const summaryEl = document.getElementById('bundledDeploymentsSummary');
+    if (!container) return;
+
+    const bundleMap = new Map();
+    const siteFilterEl = document.getElementById('scheduleSiteFilter');
+    const selectedSiteId = siteFilterEl ? siteFilterEl.value : '';
+
+    (locations || []).forEach(loc => {
+        if (selectedSiteId && loc.id !== selectedSiteId) return;
+        bundleMap.set(loc.label || loc.id, {
+            id: loc.id,
+            label: loc.label || loc.id,
+            address: loc.address || '',
+            items: []
+        });
+    });
+
+    (filtered || []).forEach(schedule => {
+        const locLabel = schedule.locationLabel || schedule.company || schedule.area || 'Unassigned Deployment Site';
+        if (!bundleMap.has(locLabel)) {
+            const matchedLoc = (locations || []).find(l => l.id === (schedule.locationId || schedule.location_id) || l.label === locLabel);
+            bundleMap.set(locLabel, {
+                id: matchedLoc?.id || schedule.locationId || schedule.location_id || '',
+                label: locLabel,
+                address: schedule.locationAddress || matchedLoc?.address || '',
+                items: []
+            });
+        }
+        bundleMap.get(locLabel).items.push(schedule);
+    });
+
+    const bundles = [...bundleMap.values()].filter(b => b.items.length > 0 || !document.getElementById('schedulePersonnelFilter')?.value);
+    bundles.sort((a, b) => (b.items.length - a.items.length) || a.label.localeCompare(b.label));
+
+    if (summaryEl) {
+        const activeBundles = bundles.filter(b => b.items.length > 0).length;
+        summaryEl.textContent = `${activeBundles} active ${activeBundles === 1 ? 'bundle' : 'bundles'} · ${(filtered || []).length} ${(filtered || []).length === 1 ? 'shift' : 'shifts'}`;
+    }
+
+    if (!bundles.length) {
+        container.innerHTML = '';
+        return;
+    }
+
+    container.innerHTML = bundles.map((bundle, idx) => {
+        const uniqueGuards = new Set(bundle.items.map(s => s.userId)).size;
+        const sortedItems = [...bundle.items].sort((l, r) => (l.date || '').localeCompare(r.date || '') || (toDate(l.startAt) - toDate(r.startAt)));
+        const isOpen = bundle.items.length > 0 && idx < 4 ? ' open' : '';
+        return `<details class="deployment-bundle-card"${isOpen} data-bundle-site="${escapeHtml(bundle.label)}">
+            <summary class="deployment-bundle-summary">
+                <div class="deployment-bundle-title-wrap">
+                    <span class="deployment-bundle-icon"><span class="material-symbols-rounded" aria-hidden="true">business</span></span>
+                    <div>
+                        <div class="deployment-bundle-title">${escapeHtml(bundle.label)}</div>
+                        <div class="deployment-bundle-sub">${escapeHtml(bundle.address || 'Company deployment bundle')}</div>
+                    </div>
+                </div>
+                <div class="deployment-bundle-badges">
+                    <span class="bundle-pill"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:13px;">groups</span> ${uniqueGuards} ${uniqueGuards === 1 ? 'Guard' : 'Guards'}</span>
+                    <span class="bundle-pill bundle-pill-neutral">${bundle.items.length} ${bundle.items.length === 1 ? 'Shift' : 'Shifts'}</span>
+                    ${bundle.id ? `<button type="button" class="bundle-quick-btn" onclick="event.preventDefault();event.stopPropagation();quickDeploySiteBundle('${escapeHtml(bundle.id)}')">Deploy Roster</button>` : ''}
+                </div>
+            </summary>
+            <div class="deployment-bundle-body">
+                ${sortedItems.length ? sortedItems.map(item => {
+                    const person = guards.find(g => g.id === item.userId);
+                    const start = toDate(item.startAt);
+                    const end = toDate(item.endAt);
+                    const timeRange = start && end ? `${formatTime(start)} – ${formatTime(end)}` : 'Shift';
+                    const dur = start && end ? formatDurationBetween(start, end) : '';
+                    return `<div class="bundle-shift-item">
+                        <div>
+                            <div class="bundle-shift-guard">${escapeHtml(person?.name || item.guardName || 'Guard')}</div>
+                            <div class="bundle-shift-meta">${escapeHtml(formatDate(item.date))} · ${escapeHtml(timeRange)}${dur ? ' · ' + escapeHtml(dur) : ''}</div>
+                        </div>
+                    </div>`;
+                }).join('') : `<div class="bundle-shift-meta">No shifts scheduled in this cut-off yet. Click <strong>Deploy Roster</strong> to assign guards to this site.</div>`}
+            </div>
+        </details>`;
+    }).join('');
+}
+
+function toggleAllDeploymentBundles(open) {
+    document.querySelectorAll('#bundledDeploymentsContainer .deployment-bundle-card').forEach(el => {
+        el.open = Boolean(open);
+    });
+}
+
+function quickDeploySiteBundle(siteId) {
+    const siteSelect = document.getElementById('rosterSite');
+    if (!siteSelect || !siteId) return;
+    siteSelect.value = siteId;
+    siteSelect.dispatchEvent(new Event('change'));
+    document.querySelector('.shift-roster-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.autoAssignShiftRoster?.();
+}
+
+function _unusedEndHelper() {
+}
+
 </script>
 
 <!-- Edit Roster Shift Times Modal -->
@@ -735,6 +845,10 @@ function formatScheduleDisplay(s) {
                         <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn" data-preset="06:00-18:00">6 AM – 6 PM</button>
                         <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn" data-preset="07:00-19:00">7 AM – 7 PM</button>
                         <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn" data-preset="08:00-20:00">8 AM – 8 PM</button>
+                    </div>
+                    <div class="form-check form-switch mb-3 p-2 rounded border" style="padding-left:2.4rem !important;background:rgba(220,38,38,0.04);">
+                        <input class="form-check-input" type="checkbox" role="switch" id="flexibleClientHoursMode">
+                        <label class="form-check-label small fw-semibold" for="flexibleClientHoursMode">Follow Client Business Hours (Allow custom shift schedules per slot without forcing 24-hour continuous lock)</label>
                     </div>
                     <div id="rosterTimesInputs" class="d-grid gap-3"></div>
                     <div class="alert alert-danger mt-3 py-1 px-2 small" id="editRosterTimesError" hidden></div>

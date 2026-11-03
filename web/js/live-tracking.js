@@ -5,6 +5,18 @@
   const refreshButton=document.getElementById('refreshTracking');
   const entries=new Map();
   const siteEntries=new Map();
+  const guardHistoryMap=new Map();
+  const HISTORY_STORAGE_KEY='sams_guard_location_history_v1';
+  let historyLayer=null,activeHistoryGuardId=null;
+  try {
+    const rawHist=localStorage.getItem(HISTORY_STORAGE_KEY);
+    if(rawHist){
+      const parsedHist=JSON.parse(rawHist);
+      if(parsedHist&&typeof parsedHist==='object'){
+        Object.entries(parsedHist).forEach(([k,v])=>{if(Array.isArray(v))guardHistoryMap.set(k,v.slice(0,100));});
+      }
+    }
+  } catch(_) {}
   const serverClock=window.LiveTrackingModel.createServerClock();
   const reconcileMs=30000, realtimeBatchMs=1000, retryMs=500, requestTimeoutMs=10000;
   const AVATAR_PALETTE=['#b91c1c','#9f1239','#0f766e','#1d4ed8','#6d28d9','#b45309','#15803d','#334155'];
@@ -143,6 +155,169 @@
       mapWrap.appendChild(panel);
     }
     return { sitesBar, panel };
+  }
+
+  function haversineMeters(lat1, lng1, lat2, lng2) {
+    const toRad = d => (d * Math.PI) / 180;
+    const R = 6371000;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  function recordGuardHistoryPoint(row) {
+    if (!row || !row.user_id || row.state === 'waiting') return;
+    const lat = Number(row.latitude), lng = Number(row.longitude);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    const uid = String(row.user_id);
+    const capturedAt = row.captured_at || new Date().toISOString();
+    const listPts = guardHistoryMap.get(uid) || [];
+    if (listPts.length) {
+      const latest = listPts[0];
+      if (latest.captured_at === capturedAt) return;
+      const dist = haversineMeters(latest.latitude, latest.longitude, lat, lng);
+      const timeDiff = Math.abs(Date.parse(capturedAt) - Date.parse(latest.captured_at || 0));
+      if (dist < 2 && timeDiff < 15000) return;
+    }
+    listPts.unshift({
+      user_id: uid,
+      guard_name: row.guard_name || 'Guard',
+      location_label: row.location_label || '',
+      latitude: lat,
+      longitude: lng,
+      accuracy_meters: Number(row.accuracy_meters) || 25,
+      captured_at: capturedAt
+    });
+    if (listPts.length > 100) listPts.length = 100;
+    guardHistoryMap.set(uid, listPts);
+    try {
+      const serial = {};
+      for (const [k, v] of guardHistoryMap.entries()) serial[k] = v.slice(0, 50);
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(serial));
+    } catch (_) {}
+  }
+
+  async function openGuardLocationHistory(userId, fallbackGuard) {
+    const uid = String(userId || '');
+    if (!uid) return;
+    activeHistoryGuardId = uid;
+    const mapWrap = document.getElementById('trackingMap')?.parentElement;
+    if (!mapWrap) return;
+    let histPanel = document.getElementById('guardHistoryPanel');
+    if (!histPanel) {
+      histPanel = document.createElement('section');
+      histPanel.id = 'guardHistoryPanel';
+      histPanel.className = 'tracking-location-panel tracking-history-panel';
+      histPanel.setAttribute('aria-label', 'Guard location history');
+      mapWrap.appendChild(histPanel);
+    }
+    histPanel.hidden = false;
+    histPanel.innerHTML = '<div class="tracking-location-panel-head"><div><h3 class="tracking-location-panel-title">Loading Location History…</h3></div></div>';
+
+    let dbPoints = [];
+    if (client && typeof client.rpc === 'function' && /^[0-9a-f-]{32,36}$/i.test(uid)) {
+      try {
+        const res = await client.rpc('get_guard_location_history', { p_user_id: uid, p_limit: 100 });
+        if (Array.isArray(res?.data)) dbPoints = res.data;
+      } catch (_) {}
+    }
+    const localPoints = guardHistoryMap.get(uid) || [];
+    const mergedMap = new Map();
+    [...dbPoints, ...localPoints].forEach(pt => {
+      const lat = Number(pt.latitude), lng = Number(pt.longitude);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+      const key = `${pt.captured_at || ''}_${lat.toFixed(5)}_${lng.toFixed(5)}`;
+      if (!mergedMap.has(key)) {
+        mergedMap.set(key, {
+          latitude: lat,
+          longitude: lng,
+          accuracy_meters: Number(pt.accuracy_meters) || 25,
+          captured_at: pt.captured_at || new Date().toISOString(),
+          location_label: pt.location_label || fallbackGuard?.location_label || 'Assigned Post'
+        });
+      }
+    });
+    const points = [...mergedMap.values()].sort((a, b) => Date.parse(b.captured_at) - Date.parse(a.captured_at));
+
+    let totalDistanceMeters = 0;
+    for (let i = 0; i < points.length - 1; i++) {
+      totalDistanceMeters += haversineMeters(points[i].latitude, points[i].longitude, points[i + 1].latitude, points[i + 1].longitude);
+    }
+
+    if (map && window.L) {
+      if (!historyLayer && typeof L.layerGroup === 'function') historyLayer = L.layerGroup().addTo(map);
+      if (historyLayer && typeof historyLayer.clearLayers === 'function') historyLayer.clearLayers();
+      if (points.length >= 2 && typeof L.polyline === 'function' && historyLayer) {
+        L.polyline(points.map(p => [p.latitude, p.longitude]), { color: '#2563eb', weight: 3, dashArray: '6, 6', opacity: 0.85 }).addTo(historyLayer);
+      }
+      if (points.length && typeof map.setView === 'function') {
+        map.setView([points[0].latitude, points[0].longitude], 17);
+      }
+    }
+
+    const guardName = fallbackGuard?.guard_name || entries.get(uid)?.row?.guard_name || 'Guard';
+    histPanel.replaceChildren();
+    const head = document.createElement('div');
+    head.className = 'tracking-location-panel-head';
+    const titleWrap = document.createElement('div');
+    const title = document.createElement('h3');
+    title.className = 'tracking-location-panel-title';
+    title.textContent = `${guardName} — Location History (${points.length} pts)`;
+    const sub = document.createElement('p');
+    sub.className = 'tracking-location-panel-sub';
+    sub.textContent = `Total tracked movement: ${Math.round(totalDistanceMeters)} m · Stored in Guard Location History`;
+    titleWrap.append(title, sub);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'tracking-location-panel-close';
+    closeBtn.textContent = 'Close History';
+    closeBtn.onclick = () => {
+      activeHistoryGuardId = null;
+      histPanel.hidden = true;
+      if (historyLayer && typeof historyLayer.clearLayers === 'function') historyLayer.clearLayers();
+    };
+    head.append(titleWrap, closeBtn);
+    histPanel.appendChild(head);
+
+    if (!points.length) {
+      const emptyEl = document.createElement('p');
+      emptyEl.className = 'tracking-location-empty';
+      emptyEl.textContent = 'No GPS location history points recorded for this guard yet.';
+      histPanel.appendChild(emptyEl);
+      return;
+    }
+
+    const listWrap = document.createElement('div');
+    listWrap.className = 'tracking-history-list';
+    points.forEach((pt, idx) => {
+      const prevPt = points[idx + 1];
+      const stepDist = prevPt ? Math.round(haversineMeters(pt.latitude, pt.longitude, prevPt.latitude, prevPt.longitude)) : 0;
+      const item = document.createElement('div');
+      item.className = 'tracking-history-item';
+      const ts = new Date(pt.captured_at);
+      const timeLabel = Number.isNaN(ts.getTime()) ? String(pt.captured_at) : ts.toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit' });
+      const info = document.createElement('div');
+      const strong = document.createElement('strong');
+      strong.textContent = `${idx === 0 ? 'Latest · ' : `#${points.length - idx} · `}${timeLabel}`;
+      const meta = document.createElement('div');
+      meta.className = 'tracking-history-meta';
+      meta.textContent = `${pt.latitude.toFixed(5)}, ${pt.longitude.toFixed(5)} · ±${Math.round(pt.accuracy_meters)} m${prevPt ? ` · Moved ${stepDist} m` : ' · Initial point'}`;
+      info.append(strong, meta);
+
+      const jumpBtn = document.createElement('button');
+      jumpBtn.type = 'button';
+      jumpBtn.className = 'tracking-focus-guard-btn';
+      jumpBtn.style.marginTop = '0';
+      jumpBtn.textContent = 'Pin on Map';
+      jumpBtn.onclick = () => {
+        map?.setView([pt.latitude, pt.longitude], 18);
+      };
+      item.append(info, jumpBtn);
+      listWrap.appendChild(item);
+    });
+    histPanel.appendChild(listWrap);
   }
 
   function fullGuardName(g) {
@@ -323,6 +498,13 @@
       setText(emergRow.val, (g.emergency_contact || '').trim() || '—');
 
       card.append(cardHead, postRow.row, phoneRow.row, addrRow.row, emergRow.row);
+      const histBtn = document.createElement('button');
+      histBtn.type = 'button';
+      histBtn.className = 'tracking-focus-guard-btn';
+      histBtn.style.marginRight = '6px';
+      histBtn.textContent = 'Location History';
+      histBtn.onclick = () => openGuardLocationHistory(g.user_id, g);
+      card.appendChild(histBtn);
       if (Number.isFinite(Number(g.latitude)) && Number.isFinite(Number(g.longitude))) {
         const focusBtn = document.createElement('button');
         focusBtn.type = 'button';
@@ -411,6 +593,7 @@
     if(visible.length)empty.remove();
     else if(!empty.parentNode)list.append(empty);
     visible.forEach((row,index)=>{
+      recordGuardHistoryPoint(row);
       const ring=window.LiveTrackingModel.markerRing
         ? window.LiveTrackingModel.markerRing(row,{offline:row.offline===true||row.state==='offline'||row.state==='waiting'})
         : (row.state==='waiting'?'gray':(row.ageSeconds>300?'amber':'green'));
@@ -442,7 +625,9 @@
         const popupStatusRow=createInfoRow('Status:', 'tracking-status-row');
         const popupDetail=popupStatusRow.val;
         const popupWaitingNote=document.createElement('span'); popupWaitingNote.className='tracking-waiting-note';
-        popup.append(popupHead,popupClientRow.row,popupLocRow.row,popupContactRow.row,popupStatusRow.row,popupWaitingNote);
+        const popupHistBtn=document.createElement('button'); popupHistBtn.type='button'; popupHistBtn.className='tracking-focus-guard-btn'; popupHistBtn.textContent='Location History';
+        popupHistBtn.onclick=(ev)=>{ev.stopPropagation();openGuardLocationHistory(row.user_id,entry.row||row);};
+        popup.append(popupHead,popupClientRow.row,popupLocRow.row,popupContactRow.row,popupStatusRow.row,popupWaitingNote,popupHistBtn);
 
         entry={item,listAvatar,name,clientRow,locRow,contactRow,statusRow,detail,waitingNote,
                popup,popupAvatar,title,popupClientRow,popupLocRow,popupContactRow,popupStatusRow,popupDetail,popupWaitingNote,
