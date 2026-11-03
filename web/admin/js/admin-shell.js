@@ -107,9 +107,13 @@ function markAdminNavigation() {
 
 function initAdminShell() {
     initAdminIdentity();
+    const swapsLink = document.querySelector('.ax-nav a[href="swaps.html"]');
+    if (swapsLink) {
+        swapsLink.innerHTML = '<span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">swap_horiz</span> Absence, Swap &amp; OT';
+    }
     if (window.SENTINEL_LIVE_TRACKING_ENABLED && !document.querySelector('.ax-nav a[href="live-tracking.html"]')) {
         const link = document.createElement('a'); link.href = 'live-tracking.html';
-        link.innerHTML = '<svg class="ax-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z"/><path d="M9 3v15M15 6v15"/><circle cx="15" cy="11" r="2" fill="currentColor"/></svg><span>Live guard map</span>'; document.querySelector('.ax-nav')?.append(link);
+        link.innerHTML = '<svg class="ax-nav-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3Z"/><path d="M9 3v15M15 6v15"/><circle cx="15" cy="11" r="2" fill="currentColor"/></svg><span>Guard Tracker</span>'; document.querySelector('.ax-nav')?.append(link);
     }
     if (!document.querySelector('.ax-nav a[href="records.html"]')) {
         const link = document.createElement('a'); link.href = 'records.html';

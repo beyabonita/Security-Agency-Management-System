@@ -344,8 +344,8 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
           child: Column(
             children: [
               GuardPageTopBar(
-                title: 'Letter requests',
-                subtitle: 'Absence, relief and shift swaps',
+                title: 'Absence, Shift Swap & Overtime',
+                subtitle: 'Absence Request, Shift Swap Request & Overtime Request',
                 onBack: () {
                   if (!_saving && !_picking) Navigator.pop(context);
                 },
@@ -407,7 +407,7 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 const Text(
-                                  'Submit a duty request',
+                                  'Select request type',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w700,
@@ -417,14 +417,19 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
                                 SegmentedButton<String>(
                                   segments: const [
                                     ButtonSegment(
+                                      value: 'absence',
+                                      label: Text('Absence Request'),
+                                      icon: Icon(Icons.event_busy),
+                                    ),
+                                    ButtonSegment(
                                       value: 'swap',
-                                      label: Text('Swap Duty'),
+                                      label: Text('Shift Swap Request'),
                                       icon: Icon(Icons.swap_horiz),
                                     ),
                                     ButtonSegment(
-                                      value: 'absence',
-                                      label: Text('Absent'),
-                                      icon: Icon(Icons.event_busy),
+                                      value: 'overtime',
+                                      label: Text('Overtime Request'),
+                                      icon: Icon(Icons.more_time),
                                     ),
                                   ],
                                   selected: {_type},
@@ -664,10 +669,12 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
                                 children: [
                                   Text(
                                     '${r['is_incoming'] == true
-                                        ? 'Swap invitation'
+                                        ? 'Shift Swap Request (Invitation)'
+                                        : (r['request_type'] == 'overtime' || (r['reason'] ?? '').toString().startsWith('[Overtime Request]'))
+                                        ? 'Overtime Request'
                                         : r['request_type'] == 'absence'
-                                        ? 'Absence'
-                                        : 'Swap'} · ${r['guard_response'] == 'pending'
+                                        ? 'Absence Request'
+                                        : 'Shift Swap Request'} · ${r['guard_response'] == 'pending'
                                         ? 'Awaiting Guard approval'
                                         : r['guard_response'] == 'declined'
                                         ? 'Declined by Guard'

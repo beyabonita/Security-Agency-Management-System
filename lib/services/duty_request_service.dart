@@ -174,19 +174,27 @@ class DutyRequestService {
   }) async {
     final user = _client.auth.currentUser;
     if (user == null) throw StateError('Your session expired. Sign in again.');
-    if (!const ['absence', 'swap'].contains(requestType)) {
-      throw const FormatException('Choose Absence or Swap.');
+    if (!const ['absence', 'swap', 'overtime'].contains(requestType)) {
+      throw const FormatException(
+        'Choose Absence Request, Shift Swap Request, or Overtime Request.',
+      );
     }
     if (requestType == 'swap' && targetScheduleId == scheduleId) {
       throw const FormatException(
         'Choose another Guard’s duty to exchange with yours.',
       );
     }
-    if (reason.trim().length < 5 || reason.trim().length > 1500) {
+    final trimmedReason = reason.trim();
+    if (trimmedReason.length < 5 || trimmedReason.length > 1500) {
       throw const FormatException(
         'Enter a reason between 5 and 1500 characters.',
       );
     }
+    final formattedReason = requestType == 'overtime' &&
+            !trimmedReason.toLowerCase().startsWith('[overtime request]')
+        ? '[Overtime Request] $trimmedReason'
+        : trimmedReason;
+    final dbRequestType = requestType == 'overtime' ? 'absence' : requestType;
     final bucket = _client.storage.from('request-letters');
     await prepareRequestLetterUpload(
       letter: letter,
@@ -215,11 +223,11 @@ class DutyRequestService {
                 : 'submit_duty_request',
             params: {
               'p_schedule_id': scheduleId,
-              'p_reason': reason.trim(),
+              'p_reason': formattedReason,
               if (requestType == 'swap' && targetScheduleId != null)
                 'p_target_schedule_id': targetScheduleId,
               if (requestType != 'swap' || targetScheduleId == null)
-                'p_request_type': requestType,
+                'p_request_type': dbRequestType,
               'p_letter_path': letter.uploadedPath,
               'p_letter_name': letter.name,
             },

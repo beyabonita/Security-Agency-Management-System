@@ -170,7 +170,7 @@
   window.renderShiftRoster=()=>{
     const ids=selected(),oldSite=site.value;
     updateSiteOptions(oldSite);
-    slots.innerHTML=periods().map((p,i)=>`<div class="schedule-field"><label class="form-label" for="rosterGuard${i}">${p[2]}</label><select id="rosterGuard${i}" class="form-select" aria-describedby="rosterStatus${i}"><option value="">Select Guard ${i+1}</option>${guards.filter(g=>g.active&&g.role==='user').map(g=>`<option value="${escapeHtml(g.id)}">${escapeHtml(g.name)}</option>`).join('')}</select><p id="rosterStatus${i}" class="form-hint roster-slot-status"></p></div>`).join('');
+    slots.innerHTML=periods().map((p,i)=>`<div class="schedule-field"><label class="form-label" for="rosterGuard${i}">${p[2]} <span class="req-star" aria-hidden="true">*</span> <span class="badge-field-required">Required</span></label><select id="rosterGuard${i}" class="form-select" aria-required="true" aria-describedby="rosterStatus${i}"><option value="">Select Guard ${i+1}</option>${guards.filter(g=>g.active&&g.role==='user').map(g=>`<option value="${escapeHtml(g.id)}">${escapeHtml(g.name)}</option>`).join('')}</select><p id="rosterStatus${i}" class="form-hint roster-slot-status"></p></div>`).join('');
     slots.querySelectorAll('select').forEach((s,i)=>{
       s.value=ids[i]||'';
       s.disabled=saving;

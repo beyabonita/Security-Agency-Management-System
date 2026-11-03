@@ -4,11 +4,12 @@
   const list=document.getElementById('guardList'), search=document.getElementById('guardSearch');
   const refreshButton=document.getElementById('refreshTracking');
   const entries=new Map();
+  const siteEntries=new Map();
   const serverClock=window.LiveTrackingModel.createServerClock();
   const reconcileMs=30000, realtimeBatchMs=1000, retryMs=500, requestTimeoutMs=10000;
   const AVATAR_PALETTE=['#b91c1c','#9f1239','#0f766e','#1d4ed8','#6d28d9','#b45309','#15803d','#334155'];
   const RING_HEX={green:'#16a34a',amber:'#f59e0b',gray:'#6b7280'};
-  let rows=[],map,layer,channel,timer,ageTimer,refreshTimer,client,authSubscription,stopped=false,loading=false,refreshAgain=false,connected=false,hasFit=false;
+  let rows=[],siteLocations=[],assignedGuards=[],selectedSiteKey=null,map,layer,siteLayer,channel,timer,ageTimer,refreshTimer,client,authSubscription,stopped=false,loading=false,refreshAgain=false,connected=false,hasFit=false;
   let requestController,retryTimer,retryResolve,requestGeneration=0;
   let interrupted=false,lastAuthorizedAt=0,accessExpiryTimer;
   const empty=document.createElement('p'); empty.className='tracking-empty';
@@ -120,6 +121,278 @@
     return { row, label, val };
   }
 
+  function ensureLocationProfilesUi() {
+    const mapWrap = document.getElementById('trackingMap')?.parentElement;
+    if (!mapWrap) return null;
+    let sitesBar = document.getElementById('trackingSiteChips');
+    if (!sitesBar) {
+      sitesBar = document.createElement('div');
+      sitesBar.id = 'trackingSiteChips';
+      sitesBar.className = 'tracking-site-chips';
+      sitesBar.setAttribute('aria-label', 'Client locations');
+      sitesBar.hidden = true;
+      mapWrap.insertBefore(sitesBar, document.getElementById('trackingMap'));
+    }
+    let panel = document.getElementById('locationGuardsPanel');
+    if (!panel) {
+      panel = document.createElement('section');
+      panel.id = 'locationGuardsPanel';
+      panel.className = 'tracking-location-panel';
+      panel.setAttribute('aria-label', 'Guards assigned to selected location');
+      panel.hidden = true;
+      mapWrap.appendChild(panel);
+    }
+    return { sitesBar, panel };
+  }
+
+  function fullGuardName(g) {
+    if (!g) return 'Guard';
+    if (g.guard_name) return String(g.guard_name).trim();
+    const parts = [g.first_name, g.middle_initial ? `${g.middle_initial}.` : '', g.last_name].filter(Boolean);
+    return parts.join(' ').trim() || g.username || 'Guard';
+  }
+
+  function buildLocationGroups(visibleRows) {
+    const groups = new Map();
+    for (const loc of siteLocations) {
+      if (!loc || loc.active === false) continue;
+      const key = String(loc.id || loc.label || '').trim();
+      if (!key) continue;
+      groups.set(key, {
+        key,
+        id: loc.id || null,
+        label: String(loc.label || 'Deployment Site').trim(),
+        address: String(loc.address || '').trim(),
+        lat: Number(loc.lat),
+        lng: Number(loc.lng),
+        radius: Number(loc.radius) || 100,
+        guards: new Map()
+      });
+    }
+    for (const g of assignedGuards) {
+      if (!g || g.role !== 'user' || g.active === false || !g.assigned_location_id) continue;
+      const group = groups.get(String(g.assigned_location_id));
+      if (!group) continue;
+      group.guards.set(String(g.id), {
+        user_id: String(g.id),
+        guard_name: fullGuardName(g),
+        first_name: g.first_name || '',
+        last_name: g.last_name || '',
+        personnel_id: g.personnel_id || '',
+        employment_category: g.employment_category || 'regular',
+        contract_start_date: g.contract_start_date || '',
+        contract_end_date: g.contract_end_date || '',
+        mobile_number: g.mobile_number || '',
+        complete_address: g.complete_address || '',
+        emergency_contact: g.emergency_contact || '',
+        profile_photo_url: g.profile_photo_url || '',
+        location_label: group.label,
+        location_address: group.address,
+        state: 'assigned',
+        onDuty: false
+      });
+    }
+    for (const row of visibleRows) {
+      const parsed = parseGuardLocation(row);
+      const clientName = parsed.client;
+      let targetGroup = null;
+      for (const grp of groups.values()) {
+        if (grp.label.toLowerCase() === clientName.toLowerCase() ||
+            String(row.location_label || '').toLowerCase().includes(grp.label.toLowerCase())) {
+          targetGroup = grp;
+          break;
+        }
+      }
+      if (!targetGroup && clientName && clientName !== '—') {
+        const syntheticKey = 'loc:' + clientName.toLowerCase();
+        targetGroup = groups.get(syntheticKey);
+        if (!targetGroup) {
+          targetGroup = {
+            key: syntheticKey,
+            id: null,
+            label: clientName,
+            address: parsed.location !== clientName ? parsed.location : '',
+            lat: Number(row.latitude),
+            lng: Number(row.longitude),
+            radius: Number(row.accuracy_meters) || 100,
+            guards: new Map()
+          };
+          groups.set(syntheticKey, targetGroup);
+        }
+      }
+      if (targetGroup) {
+        if (!Number.isFinite(targetGroup.lat) && Number.isFinite(Number(row.latitude))) {
+          targetGroup.lat = Number(row.latitude);
+          targetGroup.lng = Number(row.longitude);
+        }
+        const existing = targetGroup.guards.get(String(row.user_id)) || {};
+        targetGroup.guards.set(String(row.user_id), {
+          ...existing,
+          ...row,
+          guard_name: row.guard_name || existing.guard_name || 'Guard',
+          onDuty: true
+        });
+      }
+    }
+    return groups;
+  }
+
+  function openLocationGuardsProfile(groupKey, zoomOnMap = true) {
+    const visible = window.LiveTrackingModel.visible(rows, search.value, serverClock.now());
+    const groups = buildLocationGroups(visible);
+    const group = groups.get(groupKey);
+    const ui = ensureLocationProfilesUi();
+    if (!ui) return;
+    if (!group) {
+      selectedSiteKey = null;
+      ui.panel.hidden = true;
+      return;
+    }
+    selectedSiteKey = group.key;
+    if (zoomOnMap && map && Number.isFinite(group.lat) && Number.isFinite(group.lng)) {
+      if (typeof map.flyTo === 'function') map.flyTo([group.lat, group.lng], 17, { duration: 0.45 });
+      else map.setView([group.lat, group.lng], 17);
+    }
+    ui.sitesBar.querySelectorAll('.tracking-site-chip').forEach(btn => {
+      btn.classList.toggle('is-active', btn.dataset.siteKey === group.key);
+    });
+    const guardsList = [...group.guards.values()];
+    ui.panel.hidden = false;
+    ui.panel.replaceChildren();
+
+    const head = document.createElement('div');
+    head.className = 'tracking-location-panel-head';
+    const titleWrap = document.createElement('div');
+    const title = document.createElement('h3');
+    title.className = 'tracking-location-panel-title';
+    title.textContent = `${group.label} — Assigned Guard Profiles (${guardsList.length})`;
+    const sub = document.createElement('p');
+    sub.className = 'tracking-location-panel-sub';
+    sub.textContent = group.address || 'Designated deployment location';
+    titleWrap.append(title, sub);
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'tracking-location-panel-close';
+    closeBtn.textContent = 'Close';
+    closeBtn.onclick = () => {
+      selectedSiteKey = null;
+      ui.panel.hidden = true;
+      ui.sitesBar.querySelectorAll('.tracking-site-chip').forEach(btn => btn.classList.remove('is-active'));
+    };
+    head.append(titleWrap, closeBtn);
+    ui.panel.appendChild(head);
+
+    if (!guardsList.length) {
+      const emptyMsg = document.createElement('p');
+      emptyMsg.className = 'tracking-location-empty';
+      emptyMsg.textContent = `No guards are currently assigned to ${group.label}.`;
+      ui.panel.appendChild(emptyMsg);
+      return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'tracking-location-guard-grid';
+    guardsList.forEach(g => {
+      const card = document.createElement('article');
+      card.className = 'tracking-location-guard-card';
+      const cardHead = document.createElement('div');
+      cardHead.className = 'tracking-guard-head';
+      const ring = g.onDuty ? (g.state === 'waiting' ? 'gray' : (g.ageSeconds > 300 ? 'amber' : 'green')) : 'gray';
+      const av = createAvatarDom('tracking-list-avatar');
+      syncAvatarDom(av, g, ring);
+      const nameWrap = document.createElement('div');
+      const gName = document.createElement('strong');
+      gName.className = 'tracking-guard-name';
+      gName.textContent = g.guard_name || 'Guard';
+      const gBadge = document.createElement('div');
+      gBadge.className = 'tracking-guard-submeta';
+      const pid = g.personnel_id ? `${g.personnel_id} · ` : '';
+      const cat = (g.employment_category === 'contract') ? 'Contract' : 'Regular';
+      gBadge.textContent = `${pid}${cat} · ${g.onDuty ? 'On Duty Now' : 'Assigned to Location'}`;
+      nameWrap.append(gName, gBadge);
+      cardHead.append(av.root, nameWrap);
+
+      const postRow = createInfoRow('Assigned Post:');
+      setText(postRow.val, group.label + (group.address ? ` (${group.address})` : ''));
+      const phoneRow = createInfoRow('Contact Number:');
+      setText(phoneRow.val, (g.mobile_number || g.contact_number || '').trim() || '—');
+      const addrRow = createInfoRow('Home Address:');
+      setText(addrRow.val, (g.complete_address || '').trim() || '—');
+      const emergRow = createInfoRow('Emergency Contact:');
+      setText(emergRow.val, (g.emergency_contact || '').trim() || '—');
+
+      card.append(cardHead, postRow.row, phoneRow.row, addrRow.row, emergRow.row);
+      if (Number.isFinite(Number(g.latitude)) && Number.isFinite(Number(g.longitude))) {
+        const focusBtn = document.createElement('button');
+        focusBtn.type = 'button';
+        focusBtn.className = 'tracking-focus-guard-btn';
+        focusBtn.textContent = 'Zoom to Guard Marker';
+        focusBtn.onclick = () => {
+          map?.setView([Number(g.latitude), Number(g.longitude)], 18);
+          entries.get(g.user_id)?.marker?.openPopup();
+        };
+        card.appendChild(focusBtn);
+      }
+      grid.appendChild(card);
+    });
+    ui.panel.appendChild(grid);
+  }
+
+  function renderLocationMarkersAndChips(visibleRows) {
+    if (!siteLocations.length && !assignedGuards.length) return;
+    const ui = ensureLocationProfilesUi();
+    if (!ui) return;
+    const groups = buildLocationGroups(visibleRows);
+    ui.sitesBar.replaceChildren();
+    if (!groups.size) {
+      ui.sitesBar.hidden = true;
+      return;
+    }
+    ui.sitesBar.hidden = false;
+    const labelSpan = document.createElement('span');
+    labelSpan.className = 'tracking-site-chips-label';
+    labelSpan.textContent = 'Locations (click to zoom & view assigned guards):';
+    ui.sitesBar.appendChild(labelSpan);
+
+    for (const [key, grp] of groups) {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'tracking-site-chip' + (selectedSiteKey === key ? ' is-active' : '');
+      chip.dataset.siteKey = key;
+      chip.textContent = `${grp.label} (${grp.guards.size})`;
+      chip.onclick = () => openLocationGuardsProfile(key, true);
+      ui.sitesBar.appendChild(chip);
+
+      if (map && siteLayer && Number.isFinite(grp.lat) && Number.isFinite(grp.lng) && !siteEntries.has(key)) {
+        const pinEl = document.createElement('div');
+        pinEl.className = 'tracking-site-pin';
+        pinEl.title = `${grp.label} (${grp.guards.size} guards)`;
+        pinEl.textContent = grp.label;
+        const icon = typeof L.divIcon === 'function'
+          ? L.divIcon({ className: 'tracking-site-pin-shell', html: pinEl, iconSize: [110, 28], iconAnchor: [55, 14] })
+          : undefined;
+        const sMarker = typeof L.marker === 'function' && icon
+          ? L.marker([grp.lat, grp.lng], { icon })
+          : L.circleMarker([grp.lat, grp.lng], { radius: 9, color: '#991b1b', fillColor: '#dc2626', fillOpacity: 0.9 });
+        sMarker.addTo(siteLayer);
+        if (typeof sMarker.on === 'function') {
+          sMarker.on('click', () => openLocationGuardsProfile(key, true));
+        }
+        pinEl.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          openLocationGuardsProfile(key, true);
+        });
+        siteEntries.set(key, { marker: sMarker, pinEl });
+      } else if (siteEntries.has(key)) {
+        siteEntries.get(key).pinEl.textContent = `${grp.label} (${grp.guards.size})`;
+      }
+    }
+    if (selectedSiteKey && groups.has(selectedSiteKey)) {
+      openLocationGuardsProfile(selectedSiteKey, false);
+    }
+  }
+
   function clear(message) { clearTimeout(accessExpiryTimer);rows=[]; render(); status.textContent=message; }
 
   function render() {
@@ -199,6 +472,19 @@
             map.setView([entry.row.latitude,entry.row.longitude],16);
             entry.marker.openPopup();
           };
+          if(typeof entry.marker?.on==='function') {
+            entry.marker.on('click',()=>{
+              map.setView([entry.row.latitude,entry.row.longitude],17);
+              const parsed=parseGuardLocation(entry.row);
+              const groups=buildLocationGroups(window.LiveTrackingModel.visible(rows,search.value,serverClock.now()));
+              for(const [k,grp] of groups) {
+                if(grp.label.toLowerCase()===parsed.client.toLowerCase()) {
+                  openLocationGuardsProfile(k,false);
+                  break;
+                }
+              }
+            });
+          }
       }
       if(row.state==='waiting' && entry.marker) {
         entry.motion?.stop();layer.removeLayer(entry.marker);layer.removeLayer(entry.circle);
@@ -258,6 +544,7 @@
       // Keep the focused list item, map layers and open popup mounted during updates.
       if(list.children[index]!==entry.item)list.insertBefore(entry.item,list.children[index]||null);
     });
+    renderLocationMarkersAndChips(visible);
     if(map&&!hasFit&&visible.some(r=>r.state!=='waiting')) { fit();hasFit=true; }
   }
   function fit() {
@@ -381,6 +668,7 @@
       attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',maxZoom:19
     }).on('tileerror',()=>{document.getElementById('mapNotice').textContent='Map tiles unavailable. Please try again shortly.';}).addTo(map);
     layer=L.layerGroup().addTo(map);
+    siteLayer=L.layerGroup().addTo(map);
   } else document.getElementById('mapNotice').textContent='Map library unavailable. Check your internet connection.';
   if(window.SENTINEL_LIVE_TRACKING_DEMO && ['localhost','127.0.0.1','[::1]'].includes(location.hostname)) {
     document.getElementById('demoNotice').hidden=false;
@@ -415,6 +703,17 @@
     }
     authSubscription=client.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')stop();}).data?.subscription;
     refreshButton.onclick=refresh;
+    try {
+      const locQuery=client.from('locations')?.select('id,label,address,lat,lng,radius,active');
+      const guardQuery=client.from('profiles')?.select('id,first_name,middle_initial,last_name,username,personnel_id,employment_category,contract_start_date,contract_end_date,mobile_number,complete_address,emergency_contact,profile_photo_url,assigned_location_id,role,active');
+      if(typeof locQuery?.then==='function' && typeof guardQuery?.then==='function') {
+        Promise.all([locQuery,guardQuery]).then(([locRes,guardRes])=>{
+          if(Array.isArray(locRes?.data)) siteLocations=locRes.data;
+          if(Array.isArray(guardRes?.data)) assignedGuards=guardRes.data;
+          if(!stopped) render();
+        }).catch(()=>{});
+      }
+    } catch(_) {}
     channel=client.channel('live-guards:'+data.user.id,{config:{private:true}}).on('broadcast',{
       event:'location_changed'
     },scheduleRefresh).subscribe(state=>{

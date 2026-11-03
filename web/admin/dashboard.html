@@ -878,6 +878,305 @@
             opacity: 0.8;
         }
 
+        /* Interactive & Clickable Dashboard Elements (Item #13) */
+        body[data-ax-page="dashboard"] .ig-clickable {
+            cursor: pointer;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+        }
+        body[data-ax-page="dashboard"] .ig-clickable:hover,
+        body[data-ax-page="dashboard"] .ig-clickable:focus-visible {
+            transform: translateY(-2px);
+            border-color: var(--sl-danger);
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.12);
+            outline: none;
+        }
+        body[data-ax-page="dashboard"] .ig-click-hint {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--ax-muted);
+        }
+
+        /* Operations Calendar View (Item #12) */
+        body[data-ax-page="dashboard"] .ig-cal-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+            gap: 18px;
+            margin-top: 14px;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-box,
+        body[data-ax-page="dashboard"] .ig-cal-detail-box {
+            background: var(--ig-card-bg);
+            border: 1px solid var(--ax-border);
+            border-radius: 14px;
+            padding: 16px;
+            min-width: 0;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-month-title {
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: var(--ax-text);
+            margin: 0;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-nav-btns {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-btn {
+            border: 1px solid var(--ax-border);
+            background: var(--ig-subtle-bg);
+            color: var(--ax-text);
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-btn:hover {
+            border-color: var(--sl-danger);
+        }
+        body[data-ax-page="dashboard"] .ig-cal-weekdays,
+        body[data-ax-page="dashboard"] .ig-cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 6px;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-weekday {
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--ax-muted);
+            padding: 4px 0;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: space-between;
+            min-height: 68px;
+            padding: 6px;
+            border-radius: 10px;
+            border: 1px solid var(--ax-border);
+            background: var(--ig-subtle-bg);
+            color: var(--ax-text);
+            cursor: pointer;
+            text-align: left;
+            min-width: 0;
+            overflow: hidden;
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-cell.is-outside {
+            opacity: 0.42;
+            cursor: default;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-cell.is-today {
+            border-color: #f59e0b;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-cell.is-selected {
+            border: 2px solid var(--sl-danger);
+            background: rgba(220, 38, 38, 0.06);
+        }
+        body[data-ax-page="dashboard"] .ig-cal-day-num {
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: var(--ax-text);
+            line-height: 1;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            width: 100%;
+            margin-top: 4px;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-mini-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-size: 0.62rem;
+            font-weight: 800;
+            line-height: 1.2;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-mini-pill.is-present {
+            background: rgba(16, 185, 129, 0.16);
+            color: #047857;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-mini-pill.is-absent {
+            background: rgba(239, 68, 68, 0.16);
+            color: #b91c1c;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-mini-pill.is-swap {
+            background: rgba(99, 102, 241, 0.16);
+            color: #4338ca;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-mini-pill.is-incident {
+            background: rgba(245, 158, 11, 0.18);
+            color: #b45309;
+        }
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .ig-cal-mini-pill.is-present {
+            background: rgba(16, 185, 129, 0.22);
+            color: #6ee7b7;
+        }
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .ig-cal-mini-pill.is-absent {
+            background: rgba(239, 68, 68, 0.24);
+            color: #fca5a5;
+        }
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .ig-cal-mini-pill.is-swap {
+            background: rgba(99, 102, 241, 0.24);
+            color: #c7d2fe;
+        }
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .ig-cal-mini-pill.is-incident {
+            background: rgba(245, 158, 11, 0.22);
+            color: #fcd34d;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-summary-pills {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+            margin: 10px 0 14px;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-stat-box {
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid var(--ax-border);
+            background: var(--ig-subtle-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-stat-box strong {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--ax-text);
+        }
+        body[data-ax-page="dashboard"] .ig-cal-stat-box span {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--ax-muted);
+            text-transform: uppercase;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-detail-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-detail-item {
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--ax-border);
+            background: var(--ig-subtle-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        body[data-ax-page="dashboard"] .ig-cal-detail-subhead {
+            font-size: 0.74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--ax-muted);
+            margin: 10px 0 6px;
+        }
+
+        /* Dashboard Drill-Down Modal (Item #13) */
+        body[data-ax-page="dashboard"] .ig-drilldown-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            z-index: 1200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        body[data-ax-page="dashboard"] .ig-drilldown-backdrop[hidden] {
+            display: none !important;
+        }
+        body[data-ax-page="dashboard"] .ig-drilldown-dialog {
+            width: 100%;
+            max-width: 680px;
+            max-height: 85vh;
+            background: var(--ax-surface, #ffffff);
+            color: var(--ax-text);
+            border: 1px solid var(--ax-border);
+            border-radius: 16px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        body[data-ax-page="dashboard"] .ig-drilldown-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--ax-border);
+        }
+        body[data-ax-page="dashboard"] .ig-drilldown-title {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: var(--ax-text);
+        }
+        body[data-ax-page="dashboard"] .ig-drilldown-body {
+            padding: 16px 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        body[data-ax-page="dashboard"] .ig-drilldown-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--ax-border);
+            background: var(--ig-subtle-bg);
+        }
+        body[data-ax-page="dashboard"] .ig-drilldown-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 20px;
+            border-top: 1px solid var(--ax-border);
+        }
+        body[data-ax-page="dashboard"] .ig-drilldown-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border-radius: 8px;
+            background: var(--sl-danger, #dc2626);
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
         /* Responsive Layout */
         @media (max-width: 1180px) {
             body[data-ax-page="dashboard"] .ig-kpi-grid {
@@ -897,6 +1196,9 @@
                 grid-template-columns: 1fr;
             }
             body[data-ax-page="dashboard"] .incident-top5-grid {
+                grid-template-columns: 1fr;
+            }
+            body[data-ax-page="dashboard"] .ig-cal-layout {
                 grid-template-columns: 1fr;
             }
             body[data-ax-page="dashboard"] .dashboard-section-head {
@@ -930,6 +1232,17 @@
             }
             body[data-ax-page="dashboard"] .incident-summary {
                 padding: 14px;
+            }
+            body[data-ax-page="dashboard"] .ig-cal-summary-pills {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            body[data-ax-page="dashboard"] .ig-cal-weekdays,
+            body[data-ax-page="dashboard"] .ig-cal-grid {
+                gap: 3px;
+            }
+            body[data-ax-page="dashboard"] .ig-cal-cell {
+                min-height: 52px;
+                padding: 4px 3px;
             }
         }
     </style>
@@ -978,7 +1291,7 @@
         <main class="ax-content">
 
             <div class="ax-stat-strip ig-kpi-grid" aria-label="Key workforce metrics">
-                <div class="ig-kpi-card">
+                <div class="ig-kpi-card ig-clickable" role="button" tabindex="0" data-drilldown="kpi-guards" aria-label="View detailed total guards information">
                     <div class="ig-kpi-top">
                         <span class="ig-kpi-icon" aria-hidden="true"><span class="material-symbols-rounded">groups</span></span>
                         <span class="ig-kpi-pill" id="guardsPctPill">—</span>
@@ -998,7 +1311,7 @@
                     </div>
                 </div>
 
-                <div class="ig-kpi-card is-emerald">
+                <div class="ig-kpi-card is-emerald ig-clickable" role="button" tabindex="0" data-drilldown="kpi-deployed" aria-label="View detailed deployed guards information">
                     <div class="ig-kpi-top">
                         <span class="ig-kpi-icon" aria-hidden="true"><span class="material-symbols-rounded">verified_user</span></span>
                         <span class="ig-kpi-pill" id="deployedPctPill">—</span>
@@ -1018,7 +1331,7 @@
                     </div>
                 </div>
 
-                <div class="ig-kpi-card is-amber">
+                <div class="ig-kpi-card is-amber ig-clickable" role="button" tabindex="0" data-drilldown="kpi-locations" aria-label="View detailed client locations information">
                     <div class="ig-kpi-top">
                         <span class="ig-kpi-icon" aria-hidden="true"><span class="material-symbols-rounded">business</span></span>
                         <span class="ig-kpi-pill" id="locationsPctPill">—</span>
@@ -1038,7 +1351,7 @@
                     </div>
                 </div>
 
-                <div class="ig-kpi-card is-indigo">
+                <div class="ig-kpi-card is-indigo ig-clickable" role="button" tabindex="0" data-drilldown="kpi-inspectors" aria-label="View detailed inspector personnel information">
                     <div class="ig-kpi-top">
                         <span class="ig-kpi-icon" aria-hidden="true"><span class="material-symbols-rounded">policy</span></span>
                         <span class="ig-kpi-pill" id="inspectorPctPill">—</span>
@@ -1166,6 +1479,76 @@
                 </section>
             </div>
 
+            <section class="dashboard-section" id="dashboardCalendarSection" aria-labelledby="operationsCalendarHeading">
+                <div class="dashboard-section-head">
+                    <div class="ig-section-title-group">
+                        <span class="ig-section-badge" aria-hidden="true"><span class="material-symbols-rounded">calendar_month</span></span>
+                        <div>
+                            <h2 id="operationsCalendarHeading">Attendance &amp; Duty Operations Calendar</h2>
+                            <p class="ig-section-sub">Daily Present, Absent &amp; Shift Change counts, company assignments, and incident log</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-filter-bar" aria-label="Calendar filters">
+                        <label>
+                            <span>Month</span>
+                            <input type="month" id="calendarMonthInput">
+                        </label>
+                        <label>
+                            <span>Company / Location</span>
+                            <select id="calendarCompanyFilter">
+                                <option value="">All companies</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="ig-cal-layout">
+                    <div class="ig-cal-box">
+                        <div class="ig-cal-nav">
+                            <h3 class="ig-cal-month-title" id="calendarMonthLabel">Month</h3>
+                            <div class="ig-cal-nav-btns">
+                                <button type="button" class="ig-cal-btn" id="calPrevBtn">Prev</button>
+                                <button type="button" class="ig-cal-btn" id="calTodayBtn">Today</button>
+                                <button type="button" class="ig-cal-btn" id="calNextBtn">Next</button>
+                            </div>
+                        </div>
+                        <div class="ig-cal-weekdays" aria-hidden="true">
+                            <div class="ig-cal-weekday">Sun</div>
+                            <div class="ig-cal-weekday">Mon</div>
+                            <div class="ig-cal-weekday">Tue</div>
+                            <div class="ig-cal-weekday">Wed</div>
+                            <div class="ig-cal-weekday">Thu</div>
+                            <div class="ig-cal-weekday">Fri</div>
+                            <div class="ig-cal-weekday">Sat</div>
+                        </div>
+                        <div class="ig-cal-grid" id="dashboardCalendarGrid" role="grid" aria-label="Monthly attendance and deployment calendar"></div>
+                    </div>
+
+                    <div class="ig-cal-detail-box" id="calendarDayDetailBox" aria-live="polite">
+                        <h3 class="ig-cal-month-title" id="calSelectedDateHeading">Selected Date Overview</h3>
+                        <div class="ig-cal-summary-pills">
+                            <div class="ig-cal-stat-box">
+                                <strong id="calSelectedPresent">0</strong>
+                                <span>Present</span>
+                            </div>
+                            <div class="ig-cal-stat-box">
+                                <strong id="calSelectedAbsent">0</strong>
+                                <span>Absent</span>
+                            </div>
+                            <div class="ig-cal-stat-box">
+                                <strong id="calSelectedSwaps">0</strong>
+                                <span>Shift Change</span>
+                            </div>
+                            <div class="ig-cal-stat-box">
+                                <strong id="calSelectedIncidents">0</strong>
+                                <span>Incidents</span>
+                            </div>
+                        </div>
+                        <div id="calSelectedDayDetails" class="ig-cal-detail-list"></div>
+                    </div>
+                </div>
+            </section>
+
             <section class="dashboard-section" aria-labelledby="recentIncidentsHeading">
                 <div class="ig-section-title-group">
                     <span class="ig-section-badge" aria-hidden="true"><span class="material-symbols-rounded">emergency</span></span>
@@ -1199,6 +1582,20 @@
     </div>
 </div>
 
+<div class="ig-drilldown-backdrop" id="dashboardDrilldownModal" role="dialog" aria-modal="true" aria-labelledby="dashboardDrilldownTitle" hidden>
+    <div class="ig-drilldown-dialog">
+        <div class="ig-drilldown-head">
+            <h2 class="ig-drilldown-title" id="dashboardDrilldownTitle">Details</h2>
+            <button type="button" class="ig-cal-btn" id="dashboardDrilldownCloseBtn" aria-label="Close detail view">Close</button>
+        </div>
+        <div class="ig-drilldown-body" id="dashboardDrilldownBody"></div>
+        <div class="ig-drilldown-foot">
+            <span class="ig-click-hint" id="dashboardDrilldownMeta"></span>
+            <a class="ig-drilldown-link" id="dashboardDrilldownLink" href="users.html">Open full page</a>
+        </div>
+    </div>
+</div>
+
 <script src="../js/auth-username.js"></script>
 <script src="../js/dashboard-shifts.js"></script>
 <script src="js/admin-shell.js"></script>
@@ -1226,14 +1623,31 @@ auth.onAuthStateChanged(async function(user) {
     }
 });
 
+let dashboardData = {
+    profiles: [],
+    guards: [],
+    inspectors: [],
+    locations: [],
+    schedules: [],
+    attendance: [],
+    incidents: [],
+    swaps: []
+};
+let calendarMonthState = '';
+let calendarSelectedDate = '';
+
 async function loadDashboard() {
     try {
-        const [profilesResult, locationsResult, schedulesResult, attendanceResult, incidentsResult] = await Promise.all([
+        const swapPromise = Promise.resolve(
+            appSupabase.from('shift_swap_requests')?.select?.('id,requester_id,target_guard_id,requested_schedule_id,request_type,status,reason,created_at')?.limit?.(300)
+        ).catch(() => ({ data: [] }));
+        const [profilesResult, locationsResult, schedulesResult, attendanceResult, incidentsResult, swapsResult] = await Promise.all([
             appSupabase.from('profiles').select('id,first_name,middle_initial,last_name,role,active,assigned_location_id,employment_category,contract_start_date,contract_end_date'),
             appSupabase.from('locations').select('id,label,address,active').order('label', { ascending: true }),
             appSupabase.from('schedules').select('id,user_id,location_id,location_label,location_address,guard_name,start_at,end_at,duty_date,approval_status').order('start_at', { ascending: false }).limit(500),
             appSupabase.from('attendance_sessions').select('id,user_id,schedule_id,location_id,location_label,duty_date,scheduled_start_at,clock_in_at,clock_out_at,status').order('duty_date', { ascending: false }).limit(500),
             appSupabase.from('incidents').select('id,user_id,category,location_label,status,created_at,captured_at').order('created_at', { ascending: false }).limit(200),
+            swapPromise
         ]);
         for (const result of [profilesResult, locationsResult, schedulesResult, attendanceResult, incidentsResult]) {
             if (result.error) throw result.error;
@@ -1245,6 +1659,8 @@ async function loadDashboard() {
         const schedules = (schedulesResult.data || []).filter(schedule => !['draft', 'cancelled'].includes(schedule.approval_status));
         const attendance = attendanceResult.data || [];
         const incidents = incidentsResult.data || [];
+        const swaps = (swapsResult && Array.isArray(swapsResult.data)) ? swapsResult.data : [];
+        dashboardData = { profiles, guards, inspectors, locations, schedules, attendance, incidents, swaps };
         const activeGuards = guards.filter(guard => guard.active !== false);
         const activeInspectors = inspectors.filter(inspector => inspector.active !== false);
         const activeLocations = locations.filter(location => location.active !== false);
@@ -1289,7 +1705,9 @@ async function loadDashboard() {
         renderContractStatus(guards);
         renderAttendanceOverview(schedules, attendance);
         renderRecentIncidents(incidents, profiles);
+        initOperationsCalendar(locations);
         bindDashboardFilters(schedules, locations);
+        bindDashboardDrilldowns();
     } catch (error) {
         if (window.appDialog) appDialog.toast('Some dashboard totals could not be loaded. Refresh to try again.', { tone: 'danger' });
     }
@@ -1384,7 +1802,7 @@ function renderDeploymentInfographic(schedules, locations) {
         const nightShare = siteTotal ? (100 - dayShare) : 0;
         const forceSharePct = grandTotal ? Math.round((siteTotal / grandTotal) * 100) : 0;
 
-        return '<article class="ig-deploy-card">' +
+        return '<article class="ig-deploy-card ig-clickable" role="button" tabindex="0" data-drilldown="site" data-site-name="' + escapeHtml(row.siteName) + '">' +
             '<div class="ig-deploy-card-head">' +
                 '<div class="ig-deploy-site">' +
                     '<span class="ig-deploy-pin" aria-hidden="true"><span class="material-symbols-rounded">location_on</span></span>' +
@@ -1500,7 +1918,7 @@ function renderRecentIncidents(incidents, profiles = []) {
             ? escapeHtml(incident.location_label)
             : '<em>No location on record</em>';
 
-        return '<article class="ig-incident-card ' + toneClass + '" data-incident-id="' + escapeHtml(incident.id) + '">' +
+        return '<article class="ig-incident-card ig-clickable ' + toneClass + '" role="button" tabindex="0" data-drilldown="incident" data-incident-id="' + escapeHtml(incident.id) + '">' +
             '<div class="ig-incident-card-top">' +
                 '<div class="ig-incident-type">' +
                     '<span class="ig-incident-icon" aria-hidden="true"><span class="material-symbols-rounded">' + iconName + '</span></span>' +
@@ -1727,7 +2145,7 @@ function renderDonut(chartId, legendId, segments, centerTotalId, explicitCenterT
         const pct = (displayTotal > 0 || segmentSum > 0)
             ? Math.min(100, Math.round((segment.value / denom) * 100))
             : 0;
-        return '<div class="ig-legend-row">' +
+        return '<div class="ig-legend-row ig-clickable" role="button" tabindex="0" data-drilldown="legend" data-chart-id="' + escapeHtml(chartId) + '" data-segment="' + escapeHtml(segment.label) + '">' +
             '<div class="ig-legend-top">' +
                 '<span class="ig-legend-label"><i class="ig-legend-dot" style="background:' + segment.color + '"></i>' + escapeHtml(segment.label) + '</span>' +
                 '<span class="ig-legend-metrics"><strong>' + segment.value + '</strong><span class="ig-legend-pct">' + pct + '%</span></span>' +
@@ -1786,6 +2204,384 @@ function escapeHtml(text) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+}
+
+function profileDisplayName(p) {
+    if (!p) return 'Guard';
+    return [p.first_name, p.middle_initial ? p.middle_initial + '.' : '', p.last_name].filter(Boolean).join(' ') || 'Guard';
+}
+
+function initOperationsCalendar(locations) {
+    const today = localDateString(new Date());
+    if (!calendarSelectedDate) calendarSelectedDate = today;
+    if (!calendarMonthState) calendarMonthState = today.slice(0, 7);
+
+    const monthInput = document.getElementById('calendarMonthInput');
+    const compSelect = document.getElementById('calendarCompanyFilter');
+    if (monthInput) monthInput.value = calendarMonthState;
+    if (compSelect) {
+        const prev = compSelect.value;
+        compSelect.innerHTML = '<option value="">All companies</option>' + (locations || [])
+            .map(l => '<option value="' + escapeHtml(l.id) + '">' + escapeHtml(l.label || 'Company') + '</option>')
+            .join('');
+        compSelect.value = [...compSelect.options].some(o => o.value === prev) ? prev : '';
+    }
+
+    if (monthInput && !monthInput.dataset.bound) {
+        monthInput.dataset.bound = 'true';
+        monthInput.addEventListener('change', () => {
+            if (monthInput.value) {
+                calendarMonthState = monthInput.value;
+                calendarSelectedDate = calendarMonthState + '-01';
+                renderOperationsCalendar();
+            }
+        });
+    }
+    if (compSelect && !compSelect.dataset.bound) {
+        compSelect.dataset.bound = 'true';
+        compSelect.addEventListener('change', () => renderOperationsCalendar());
+    }
+    const prevBtn = document.getElementById('calPrevBtn');
+    const nextBtn = document.getElementById('calNextBtn');
+    const todayBtn = document.getElementById('calTodayBtn');
+    if (prevBtn && !prevBtn.dataset.bound) {
+        prevBtn.dataset.bound = 'true';
+        prevBtn.addEventListener('click', () => shiftCalendarMonth(-1));
+    }
+    if (nextBtn && !nextBtn.dataset.bound) {
+        nextBtn.dataset.bound = 'true';
+        nextBtn.addEventListener('click', () => shiftCalendarMonth(1));
+    }
+    if (todayBtn && !todayBtn.dataset.bound) {
+        todayBtn.dataset.bound = 'true';
+        todayBtn.addEventListener('click', () => {
+            const nowStr = localDateString(new Date());
+            calendarMonthState = nowStr.slice(0, 7);
+            calendarSelectedDate = nowStr;
+            if (monthInput) monthInput.value = calendarMonthState;
+            renderOperationsCalendar();
+        });
+    }
+    renderOperationsCalendar();
+}
+
+function shiftCalendarMonth(delta) {
+    const [y, m] = (calendarMonthState || localDateString(new Date()).slice(0, 7)).split('-').map(Number);
+    const d = new Date(Date.UTC(y, m - 1 + delta, 1));
+    calendarMonthState = d.getUTCFullYear() + '-' + String(d.getUTCMonth() + 1).padStart(2, '0');
+    calendarSelectedDate = calendarMonthState + '-01';
+    const monthInput = document.getElementById('calendarMonthInput');
+    if (monthInput) monthInput.value = calendarMonthState;
+    renderOperationsCalendar();
+}
+
+function computeDayMetrics(dateStr, companyFilter) {
+    const { schedules, attendance, incidents, swaps, locations, profiles } = dashboardData;
+    const locMap = new Map((locations || []).map(l => [l.id, l]));
+    const profMap = new Map((profiles || []).map(p => [p.id, p]));
+    const selectedLocLabel = companyFilter && locMap.get(companyFilter) ? (locMap.get(companyFilter).label || '').toLowerCase() : '';
+
+    const daySchedules = (schedules || []).filter(s => {
+        const d = s.duty_date || (s.start_at ? localDateString(new Date(s.start_at)) : '');
+        if (d !== dateStr) return false;
+        if (companyFilter && s.location_id !== companyFilter) return false;
+        return true;
+    });
+    const attBySched = new Map((attendance || []).filter(a => a.duty_date === dateStr).map(a => [a.schedule_id, a]));
+    let present = 0;
+    const presentGuards = [];
+    const absentGuards = [];
+    daySchedules.forEach(s => {
+        const gName = s.guard_name || profileDisplayName(profMap.get(s.user_id));
+        const siteLabel = s.location_label || (locMap.get(s.location_id)?.label) || 'Assigned Site';
+        const shiftKind = dashboardShiftKind(s.start_at) === 'night' ? 'Night Shift' : 'Day Shift';
+        const sess = attBySched.get(s.id);
+        if (sess && sess.clock_in_at) {
+            present++;
+            presentGuards.push({ name: gName, site: siteLabel, shift: shiftKind, status: 'Present' });
+        } else {
+            absentGuards.push({ name: gName, site: siteLabel, shift: shiftKind, status: 'Absent' });
+        }
+    });
+    const schedById = new Map((schedules || []).map(s => [s.id, s]));
+    const daySwaps = (swaps || []).filter(sw => {
+        const relSched = schedById.get(sw.requested_schedule_id);
+        const d = relSched ? (relSched.duty_date || localDateString(new Date(relSched.start_at))) : (sw.created_at ? localDateString(new Date(sw.created_at)) : '');
+        if (d !== dateStr) return false;
+        if (companyFilter && relSched && relSched.location_id !== companyFilter) return false;
+        return true;
+    });
+    const dayIncidents = (incidents || []).filter(inc => {
+        const raw = inc.captured_at || inc.created_at;
+        if (!raw) return false;
+        const d = localDateString(new Date(raw));
+        if (d !== dateStr) return false;
+        if (selectedLocLabel && !(inc.location_label || '').toLowerCase().includes(selectedLocLabel)) return false;
+        return true;
+    });
+
+    return {
+        present,
+        absent: Math.max(0, daySchedules.length - present),
+        swapsCount: daySwaps.length,
+        incidentsCount: dayIncidents.length,
+        daySchedules,
+        presentGuards,
+        absentGuards,
+        daySwaps,
+        dayIncidents
+    };
+}
+
+function renderOperationsCalendar() {
+    const grid = document.getElementById('dashboardCalendarGrid');
+    const monthLabel = document.getElementById('calendarMonthLabel');
+    const compFilter = document.getElementById('calendarCompanyFilter')?.value || '';
+    if (!grid) return;
+
+    const today = localDateString(new Date());
+    const [year, month] = (calendarMonthState || today.slice(0, 7)).split('-').map(Number);
+    const firstDay = new Date(Date.UTC(year, month - 1, 1));
+    const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate();
+    const startWeekday = firstDay.getUTCDay();
+
+    if (monthLabel) {
+        monthLabel.textContent = firstDay.toLocaleDateString('en-PH', { timeZone: 'UTC', month: 'long', year: 'numeric' });
+    }
+
+    const cells = [];
+    for (let i = 0; i < startWeekday; i++) {
+        cells.push('<div class="ig-cal-cell is-outside" aria-hidden="true"></div>');
+    }
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = year + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+        const m = computeDayMetrics(dateStr, compFilter);
+        const isToday = dateStr === today;
+        const isSelected = dateStr === calendarSelectedDate;
+        const badges = [];
+        if (m.present > 0) badges.push('<span class="ig-cal-mini-pill is-present" title="Present">P:' + m.present + '</span>');
+        if (m.absent > 0) badges.push('<span class="ig-cal-mini-pill is-absent" title="Absent">A:' + m.absent + '</span>');
+        if (m.swapsCount > 0) badges.push('<span class="ig-cal-mini-pill is-swap" title="Shift Change">SC:' + m.swapsCount + '</span>');
+        if (m.incidentsCount > 0) badges.push('<span class="ig-cal-mini-pill is-incident" title="Incidents">INC:' + m.incidentsCount + '</span>');
+
+        cells.push(
+            '<button type="button" class="ig-cal-cell' + (isToday ? ' is-today' : '') + (isSelected ? ' is-selected' : '') + '" data-cal-date="' + dateStr + '" aria-label="' + dateStr + ': ' + m.present + ' present, ' + m.absent + ' absent, ' + m.swapsCount + ' shift changes, ' + m.incidentsCount + ' incidents">' +
+                '<span class="ig-cal-day-num">' + day + '</span>' +
+                '<div class="ig-cal-badges">' + badges.join('') + '</div>' +
+            '</button>'
+        );
+    }
+    grid.innerHTML = cells.join('');
+    grid.querySelectorAll('button[data-cal-date]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            calendarSelectedDate = btn.dataset.calDate;
+            renderOperationsCalendar();
+        });
+    });
+
+    renderCalendarSelectedDay(calendarSelectedDate || today, compFilter);
+}
+
+function renderCalendarSelectedDay(dateStr, compFilter) {
+    const m = computeDayMetrics(dateStr, compFilter);
+    const heading = document.getElementById('calSelectedDateHeading');
+    if (heading) heading.textContent = 'Operations on ' + formatDashboardDate(dateStr + 'T00:00:00+08:00');
+    document.getElementById('calSelectedPresent').textContent = m.present;
+    document.getElementById('calSelectedAbsent').textContent = m.absent;
+    document.getElementById('calSelectedSwaps').textContent = m.swapsCount;
+    document.getElementById('calSelectedIncidents').textContent = m.incidentsCount;
+
+    const listEl = document.getElementById('calSelectedDayDetails');
+    if (!listEl) return;
+
+    const { locations, guards, profiles } = dashboardData;
+    const locMap = new Map((locations || []).map(l => [l.id, l]));
+    const profMap = new Map((profiles || []).map(p => [p.id, p]));
+
+    const byCompany = new Map();
+    m.daySchedules.forEach(s => {
+        const compName = s.location_label || (locMap.get(s.location_id)?.label) || 'Unassigned Company';
+        if (!byCompany.has(compName)) byCompany.set(compName, []);
+        const gName = s.guard_name || profileDisplayName(profMap.get(s.user_id));
+        const shiftKind = dashboardShiftKind(s.start_at) === 'night' ? 'Night Shift' : 'Day Shift';
+        byCompany.get(compName).push(gName + ' (' + shiftKind + ')');
+    });
+    if (!byCompany.size) {
+        (guards || []).filter(g => g.active !== false && g.assigned_location_id && (!compFilter || g.assigned_location_id === compFilter)).forEach(g => {
+            const compName = locMap.get(g.assigned_location_id)?.label || 'Assigned Company';
+            if (!byCompany.has(compName)) byCompany.set(compName, []);
+            byCompany.get(compName).push(profileDisplayName(g) + ' (Assigned Post)');
+        });
+    }
+
+    let html = '<div class="ig-cal-detail-subhead">Assigned Personnel by Company / Location</div>';
+    if (byCompany.size) {
+        byCompany.forEach((guardList, compName) => {
+            html += '<div class="ig-cal-detail-item">' +
+                '<strong>' + escapeHtml(compName) + ' (' + guardList.length + ')</strong>' +
+                '<span style="font-size:0.78rem;color:var(--ax-muted);">' + escapeHtml(guardList.join(' · ')) + '</span>' +
+            '</div>';
+        });
+    } else {
+        html += '<div class="ig-cal-detail-item"><span style="font-size:0.8rem;color:var(--ax-muted);">No company duty assignments recorded for this date.</span></div>';
+    }
+
+    html += '<div class="ig-cal-detail-subhead">Incidents on This Date (' + m.dayIncidents.length + ')</div>';
+    if (m.dayIncidents.length) {
+        m.dayIncidents.forEach(inc => {
+            const reporter = profileDisplayName(profMap.get(inc.user_id));
+            html += '<div class="ig-cal-detail-item">' +
+                '<strong>' + escapeHtml(incidentCategory(inc.category)) + ' — ' + escapeHtml(incidentStatus(inc.status)) + '</strong>' +
+                '<span style="font-size:0.78rem;color:var(--ax-muted);">Location: ' + escapeHtml(inc.location_label || 'Unspecified') + ' · Guard: ' + escapeHtml(reporter) + '</span>' +
+            '</div>';
+        });
+    } else {
+        html += '<div class="ig-cal-detail-item"><span style="font-size:0.8rem;color:var(--ax-muted);">No incidents reported on this date.</span></div>';
+    }
+
+    listEl.innerHTML = html;
+}
+
+function bindDashboardDrilldowns() {
+    const modal = document.getElementById('dashboardDrilldownModal');
+    const closeBtn = document.getElementById('dashboardDrilldownCloseBtn');
+    if (closeBtn && !closeBtn.dataset.bound) {
+        closeBtn.dataset.bound = 'true';
+        closeBtn.addEventListener('click', () => { if (modal) modal.hidden = true; });
+    }
+    if (modal && !modal.dataset.bound) {
+        modal.dataset.bound = 'true';
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.hidden = true; });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) modal.hidden = true; });
+    }
+    if (!document.body.dataset.drilldownBound) {
+        document.body.dataset.drilldownBound = 'true';
+        const handler = (e) => {
+            const target = e.target.closest('[data-drilldown]');
+            if (!target) return;
+            openDashboardDrilldown(target);
+        };
+        document.body.addEventListener('click', handler);
+        document.body.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                const target = e.target.closest('[data-drilldown]');
+                if (target) {
+                    e.preventDefault();
+                    openDashboardDrilldown(target);
+                }
+            }
+        });
+    }
+}
+
+function openDashboardDrilldown(el) {
+    const kind = el.dataset.drilldown;
+    const modal = document.getElementById('dashboardDrilldownModal');
+    const titleEl = document.getElementById('dashboardDrilldownTitle');
+    const bodyEl = document.getElementById('dashboardDrilldownBody');
+    const metaEl = document.getElementById('dashboardDrilldownMeta');
+    const linkEl = document.getElementById('dashboardDrilldownLink');
+    if (!modal || !titleEl || !bodyEl || !linkEl) return;
+
+    const { guards, inspectors, locations, schedules, attendance, incidents, profiles } = dashboardData;
+    const locMap = new Map((locations || []).map(l => [l.id, l.label || 'Location']));
+    const profMap = new Map((profiles || []).map(p => [p.id, p]));
+    let title = 'Dashboard Details';
+    let linkHref = 'users.html';
+    let linkText = 'Open Personnel';
+    let itemsHtml = '';
+
+    if (kind === 'kpi-guards') {
+        title = 'Total Guards Breakdown (' + guards.length + ')';
+        linkHref = 'users.html';
+        linkText = 'Manage Personnel';
+        itemsHtml = guards.map(g => {
+            const post = g.assigned_location_id ? (locMap.get(g.assigned_location_id) || 'Assigned Site') : 'Standby / Unassigned';
+            const cat = g.employment_category === 'contract' ? 'Contract' : 'Regular';
+            return '<div class="ig-drilldown-row"><strong>' + escapeHtml(profileDisplayName(g)) + '</strong><span>' + escapeHtml(cat + ' · ' + post + ' · ' + (g.active !== false ? 'Active' : 'Disabled')) + '</span></div>';
+        }).join('');
+    } else if (kind === 'kpi-deployed') {
+        const deployed = guards.filter(g => g.active !== false && g.assigned_location_id);
+        title = 'Deployed Guards (' + deployed.length + ')';
+        linkHref = 'schedule.html';
+        linkText = 'Open Duty Scheduling';
+        itemsHtml = deployed.map(g => {
+            const post = locMap.get(g.assigned_location_id) || 'Assigned Site';
+            return '<div class="ig-drilldown-row"><strong>' + escapeHtml(profileDisplayName(g)) + '</strong><span>Assigned to ' + escapeHtml(post) + '</span></div>';
+        }).join('');
+    } else if (kind === 'kpi-locations') {
+        title = 'Client Companies & Deployment Sites (' + locations.length + ')';
+        linkHref = 'locations.html';
+        linkText = 'Manage Companies';
+        itemsHtml = locations.map(l => {
+            const count = guards.filter(g => g.active !== false && g.assigned_location_id === l.id).length;
+            return '<div class="ig-drilldown-row"><strong>' + escapeHtml(l.label || 'Site') + '</strong><span>' + escapeHtml((l.address || '-') + ' · ' + count + ' assigned guard(s)') + '</span></div>';
+        }).join('');
+    } else if (kind === 'kpi-inspectors') {
+        title = 'Field Inspectors (' + inspectors.length + ')';
+        linkHref = 'users.html';
+        linkText = 'Manage Inspectors';
+        itemsHtml = inspectors.map(i => '<div class="ig-drilldown-row"><strong>' + escapeHtml(profileDisplayName(i)) + '</strong><span>' + (i.active !== false ? 'Active Field Inspector' : 'Disabled') + '</span></div>').join('');
+    } else if (kind === 'site') {
+        const siteName = el.dataset.siteName || 'Deployment Site';
+        title = siteName + ' — Assigned Duty Roster';
+        linkHref = 'schedule.html';
+        linkText = 'Open Schedule';
+        const siteScheds = schedules.filter(s => (s.location_label || locMap.get(s.location_id) || '') === siteName);
+        itemsHtml = siteScheds.map(s => {
+            const gName = s.guard_name || profileDisplayName(profMap.get(s.user_id));
+            const shift = dashboardShiftKind(s.start_at) === 'night' ? 'Night Shift' : 'Day Shift';
+            return '<div class="ig-drilldown-row"><strong>' + escapeHtml(gName) + '</strong><span>' + escapeHtml(shift + ' · ' + (s.duty_date || formatDashboardDate(s.start_at))) + '</span></div>';
+        }).join('');
+    } else if (kind === 'legend') {
+        const segment = el.dataset.segment || 'Overview';
+        const chartId = el.dataset.chartId || '';
+        title = segment + ' — Detailed List';
+        linkHref = chartId === 'contractDonut' ? 'users.html' : 'schedule.html';
+        linkText = chartId === 'contractDonut' ? 'Open Personnel Contracts' : 'Open Attendance & Schedule';
+        if (chartId === 'contractDonut') {
+            const today = localDateString(new Date());
+            const soon = addDays(today, 30);
+            const contractGuards = guards.filter(g => g.active !== false && g.employment_category === 'contract').filter(g => {
+                const end = g.contract_end_date;
+                if (segment === 'Expired') return !end || end < today;
+                if (segment === 'Expiring Soon') return end && end >= today && end <= soon;
+                return end && end > soon;
+            });
+            itemsHtml = contractGuards.map(g => '<div class="ig-drilldown-row"><strong>' + escapeHtml(profileDisplayName(g)) + '</strong><span>Contract ends: ' + escapeHtml(g.contract_end_date || 'Not set') + '</span></div>').join('');
+        } else {
+            const today = localDateString(new Date());
+            const todayScheds = schedules.filter(s => (s.duty_date || localDateString(new Date(s.start_at))) === today);
+            const attMap = new Map(attendance.filter(a => a.duty_date === today).map(a => [a.schedule_id, a]));
+            itemsHtml = todayScheds.map(s => {
+                const sess = attMap.get(s.id);
+                const status = sess && sess.clock_in_at ? 'Present' : 'Absent';
+                const gName = s.guard_name || profileDisplayName(profMap.get(s.user_id));
+                return '<div class="ig-drilldown-row"><strong>' + escapeHtml(gName) + '</strong><span>' + escapeHtml((s.location_label || 'Site') + ' · ' + status) + '</span></div>';
+            }).join('');
+        }
+    } else if (kind === 'incident') {
+        const incId = el.dataset.incidentId;
+        const inc = incidents.find(i => String(i.id) === String(incId));
+        title = inc ? (incidentCategory(inc.category) + ' — Incident Details') : 'Incident Details';
+        linkHref = 'incidents.html';
+        linkText = 'Open Incident Management';
+        if (inc) {
+            const reporter = profileDisplayName(profMap.get(inc.user_id));
+            itemsHtml =
+                '<div class="ig-drilldown-row"><strong>Status</strong><span>' + escapeHtml(incidentStatus(inc.status)) + '</span></div>' +
+                '<div class="ig-drilldown-row"><strong>Location</strong><span>' + escapeHtml(inc.location_label || 'No location on record') + '</span></div>' +
+                '<div class="ig-drilldown-row"><strong>Reporting Guard</strong><span>' + escapeHtml(reporter) + '</span></div>' +
+                '<div class="ig-drilldown-row"><strong>Reported Date</strong><span>' + escapeHtml(formatDashboardDate(inc.captured_at || inc.created_at)) + '</span></div>';
+        }
+    }
+
+    titleEl.textContent = title;
+    bodyEl.innerHTML = itemsHtml || '<div class="ig-drilldown-row"><span>No matching records found for this selection.</span></div>';
+    if (metaEl) metaEl.textContent = 'Click any item or open the full management view for actions.';
+    linkEl.href = linkHref;
+    linkEl.textContent = linkText;
+    modal.hidden = false;
 }
 </script>
 </body>

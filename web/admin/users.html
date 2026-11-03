@@ -1089,8 +1089,20 @@ html[data-theme="dark"] .field-inline-error {
             </section>
             <section class="personnel-table-section" aria-labelledby="inspectorPersonnelHeading">
                 <div class="personnel-table-heading">
-                    <h2 id="inspectorPersonnelHeading">Inspector Personnel</h2>
-                    <span class="personnel-table-count" id="inspectorPersonnelCount">0</span>
+                    <div class="personnel-table-title-wrap">
+                        <h2 id="inspectorPersonnelHeading">Inspector Personnel</h2>
+                        <span class="personnel-table-count" id="inspectorPersonnelCount">0</span>
+                    </div>
+                    <div class="personnel-table-filters d-flex align-items-center gap-2 flex-wrap">
+                        <div class="personnel-search-wrap">
+                            <label for="inspectorSearchInput" class="visually-hidden">Search inspector personnel</label>
+                            <span class="material-symbols-rounded personnel-search-icon" aria-hidden="true">search</span>
+                            <input type="text" id="inspectorSearchInput" class="form-control form-control-sm personnel-search-input" placeholder="Search inspector name, ID, or email..." autocomplete="off" spellcheck="false" oninput="handleInspectorSearchInput()" aria-label="Search inspector personnel">
+                            <button type="button" class="personnel-search-clear" id="inspectorSearchClearBtn" onclick="clearInspectorSearch()" title="Clear inspector search" aria-label="Clear inspector search" hidden>
+                                <span class="material-symbols-rounded" aria-hidden="true">close</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="glass-card">
                     <table class="user-table">
@@ -1129,6 +1141,10 @@ html[data-theme="dark"] .field-inline-error {
 </div>
 <div class="modal-body">
     <p class="modal-guard-meta" id="createUserRoleHint">Creates login credentials and complete personnel file. Guards use the mobile app; inspectors and admins use the web panel.</p>
+    <div class="form-required-note" role="note">
+        <span class="req-star" aria-hidden="true">*</span>
+        <span>Fields marked with an asterisk (*) are required to be filled out.</span>
+    </div>
     <div class="form-required-legend" id="createGuardRequiredLegend" role="alert" hidden>
         <span class="badge-field-required" aria-hidden="true">Required</span>
         <span id="createGuardRequiredLegendText">Please fill out the required fields.</span>
@@ -1138,14 +1154,14 @@ html[data-theme="dark"] .field-inline-error {
     <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">person</span>Account & Identification</div>
     <div class="row g-3">
         <div class="col-md-4">
-            <label class="form-label" for="newGuardRole">ACCOUNT ROLE <span class="badge-field-required" hidden>Required</span></label>
+            <label class="form-label" for="newGuardRole">ACCOUNT ROLE <span class="req-star" aria-hidden="true" title="Required">*</span> <span class="badge-field-required" hidden>Required</span></label>
             <select id="newGuardRole" class="form-select" aria-required="true" onchange="updateCreateUserHint()">
                 <option value="user">Guard — mobile attendance app</option>
                 <option value="inspector">Inspector — field review & approvals</option>
             </select>
         </div>
         <div class="col-md-4">
-            <label class="form-label" for="newGuardEmploymentCategory">DUTY CATEGORY <span class="badge-field-required" hidden>Required</span></label>
+            <label class="form-label" for="newGuardEmploymentCategory">DUTY CATEGORY <span class="req-star" aria-hidden="true" title="Required">*</span> <span class="badge-field-required" hidden>Required</span></label>
             <select id="newGuardEmploymentCategory" class="form-select" aria-required="true" onchange="updateCreateUserHint()">
                 <option value="regular">Regular</option>
                 <option value="contract">Contract</option>
@@ -1153,7 +1169,7 @@ html[data-theme="dark"] .field-inline-error {
         </div>
         <div class="col-md-4">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-1 mb-1">
-                <label class="form-label mb-0" for="newGuardPersonnelId">PERSONNEL ID <span class="badge-field-required" hidden>Required</span></label>
+                <label class="form-label mb-0" for="newGuardPersonnelId">PERSONNEL ID <span class="req-star" aria-hidden="true" title="Required">*</span> <span class="badge-field-required" hidden>Required</span></label>
                 <button type="button" class="btn btn-sm btn-link p-0 text-decoration-none" style="font-size:0.72rem; color:var(--sl-danger); font-weight:600;" onclick="regenerateNewGuardPersonnelId()" title="Regenerate Personnel ID">
                     <span class="material-symbols-rounded align-middle" style="font-size:14px;" aria-hidden="true">refresh</span> Auto-generate
                 </button>
@@ -1167,7 +1183,7 @@ html[data-theme="dark"] .field-inline-error {
     <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">person</span>Personal Information</div>
     <div class="row g-3">
         <div class="col-md-4">
-            <label class="form-label" for="newGuardFirstName">FIRST NAME <span class="badge-field-required" hidden>Required</span></label>
+            <label class="form-label" for="newGuardFirstName">FIRST NAME <span class="req-star" aria-hidden="true" title="Required">*</span> <span class="badge-field-required" hidden>Required</span></label>
             <input type="text" id="newGuardFirstName" class="form-control personnel-name-input" placeholder="e.g. Juan" aria-required="true" oninput="autoCapitalizeWords(this)">
         </div>
         <div class="col-md-4">
@@ -1175,7 +1191,7 @@ html[data-theme="dark"] .field-inline-error {
             <input type="text" id="newGuardMiddleName" class="form-control personnel-name-input" placeholder="e.g. Dela Cruz" oninput="autoCapitalizeWords(this)">
         </div>
         <div class="col-md-4">
-            <label class="form-label" for="newGuardLastName">LAST NAME <span class="badge-field-required" hidden>Required</span></label>
+            <label class="form-label" for="newGuardLastName">LAST NAME <span class="req-star" aria-hidden="true" title="Required">*</span> <span class="badge-field-required" hidden>Required</span></label>
             <input type="text" id="newGuardLastName" class="form-control personnel-name-input" placeholder="e.g. Santos" aria-required="true" oninput="autoCapitalizeWords(this)">
         </div>
         <div class="col-md-4">
@@ -1204,7 +1220,7 @@ html[data-theme="dark"] .field-inline-error {
             <input type="text" id="newGuardAddress" class="form-control" placeholder="House/Lot, Street, Barangay, City/Municipality, Province">
         </div>
         <div class="col-md-6">
-            <label class="form-label" for="newGuardUsername">EMAIL (LOGIN USERNAME) <span class="badge-field-required" hidden>Required</span></label>
+            <label class="form-label" for="newGuardUsername">EMAIL (LOGIN USERNAME) <span class="req-star" aria-hidden="true" title="Required">*</span> <span class="badge-field-required" hidden>Required</span></label>
             <input type="email" id="newGuardUsername" class="form-control" placeholder="name@gmail.com" autocomplete="off" aria-required="true" aria-describedby="newGuardUsernameError">
             <div class="field-inline-error" id="newGuardUsernameError" role="alert" hidden></div>
             <div class="form-text" style="color:var(--sl-muted);font-size:0.75rem;">Use the person’s own email address.</div>
@@ -1236,8 +1252,8 @@ html[data-theme="dark"] .field-inline-error {
         </div>
     </div>
     <div id="newGuardContractPeriod" class="row g-3 mt-1" hidden>
-        <div class="col-sm-6"><label class="form-label" for="newGuardContractStart">CONTRACT START <span class="badge-field-required" hidden>Required</span></label><input id="newGuardContractStart" type="date" class="form-control"></div>
-        <div class="col-sm-6"><label class="form-label" for="newGuardContractEnd">CONTRACT END <span class="badge-field-required" hidden>Required</span></label><input id="newGuardContractEnd" type="date" class="form-control"></div>
+        <div class="col-sm-6"><label class="form-label" for="newGuardContractStart">CONTRACT START <span class="req-star" aria-hidden="true" title="Required">*</span> <span class="badge-field-required" hidden>Required</span></label><input id="newGuardContractStart" type="date" class="form-control"></div>
+        <div class="col-sm-6"><label class="form-label" for="newGuardContractEnd">CONTRACT END <span class="req-star" aria-hidden="true" title="Required">*</span> <span class="badge-field-required" hidden>Required</span></label><input id="newGuardContractEnd" type="date" class="form-control"></div>
         <div class="col-12 form-text">Both dates are included. All duty periods must fit inside this contract.</div>
     </div>
 
@@ -1270,7 +1286,7 @@ html[data-theme="dark"] .field-inline-error {
     <div class="form-section-heading"><span class="material-symbols-rounded" style="font-size:16px;" aria-hidden="true">lock</span>Password Credentials</div>
     <div class="row g-3">
         <div class="col-md-6">
-            <label class="form-label" for="newGuardPassword">PASSWORD <span class="badge-field-required" hidden>Required</span></label>
+            <label class="form-label" for="newGuardPassword">PASSWORD <span class="req-star" aria-hidden="true" title="Required">*</span> <span class="badge-field-required" hidden>Required</span></label>
             <div class="password-field-wrap">
                 <input type="password" id="newGuardPassword" class="form-control" autocomplete="new-password" minlength="8" placeholder="8+ characters: uppercase, lowercase, number, symbol" aria-describedby="newGuardPasswordHelp" aria-required="true">
                 <button type="button" class="btn-toggle-password" id="newGuardPasswordToggle" onclick="togglePasswordVisibility('newGuardPassword', this)" aria-label="Show password" title="Show password" aria-controls="newGuardPassword" aria-pressed="false">
@@ -1280,7 +1296,7 @@ html[data-theme="dark"] .field-inline-error {
             <small id="newGuardPasswordHelp">At least 8 characters with upper, lower, number, and symbol.</small>
         </div>
         <div class="col-md-6">
-            <label class="form-label" for="newGuardPasswordConfirm">CONFIRM PASSWORD <span class="badge-field-required" hidden>Required</span></label>
+            <label class="form-label" for="newGuardPasswordConfirm">CONFIRM PASSWORD <span class="req-star" aria-hidden="true" title="Required">*</span> <span class="badge-field-required" hidden>Required</span></label>
             <div class="password-field-wrap">
                 <input type="password" id="newGuardPasswordConfirm" class="form-control" placeholder="Repeat password" aria-required="true">
                 <button type="button" class="btn-toggle-password" id="newGuardPasswordConfirmToggle" onclick="togglePasswordVisibility('newGuardPasswordConfirm', this)" aria-label="Show password" title="Show password" aria-controls="newGuardPasswordConfirm" aria-pressed="false">
@@ -1370,7 +1386,7 @@ html[data-theme="dark"] .field-inline-error {
         <div id="editGuardPhotoAvatarMount"></div>
         <div style="flex:1;min-width:210px;">
             <div style="font-size:0.82rem;font-weight:700;color:var(--sl-ink);margin-bottom:3px;">Profile Photo</div>
-            <div style="font-size:0.75rem;color:var(--sl-muted);margin-bottom:8px;">Shared across the Guard mobile app, Personnel Record Profile, and Live Guard Map (JPG/PNG, max 2 MB, 400×400).</div>
+            <div style="font-size:0.75rem;color:var(--sl-muted);margin-bottom:8px;">Shared across the Guard mobile app, Personnel Record Profile, and Guard Tracker (JPG/PNG, max 2 MB, 400×400).</div>
             <input type="file" id="editGuardProfilePhotoInput" accept="image/jpeg,image/png" hidden onchange="handleEditGuardPhotoSelected(this)">
             <div class="edit-profile-photo-actions">
                 <button type="button" class="btn-photo-upload" id="editGuardReplacePhotoBtn" onclick="document.getElementById('editGuardProfilePhotoInput').click()">
@@ -1691,9 +1707,11 @@ let personnelAccounts    = {};
 let personnelLocationsById = {};
 let personnelLocationDetailsById = {};
 let allGuards              = [];
+let allInspectors          = [];
 let guardSchedulesByUserId = {};
 let guardHistoryShiftByUserId = {};
 let guardSearchDebounceTimer = null;
+let inspectorSearchDebounceTimer = null;
 
 function getGuardContractStatus(data, today) {
     if (data.employmentCategory !== 'contract') return 'regular';
@@ -1781,6 +1799,52 @@ function clearGuardSearch() {
     }
     if (clearBtn) clearBtn.hidden = true;
     applyGuardFilters();
+}
+
+function handleInspectorSearchInput() {
+    const searchEl = document.getElementById("inspectorSearchInput");
+    const clearBtn = document.getElementById("inspectorSearchClearBtn");
+    if (clearBtn && searchEl) {
+        clearBtn.hidden = searchEl.value.length === 0;
+    }
+    if (inspectorSearchDebounceTimer) {
+        clearTimeout(inspectorSearchDebounceTimer);
+    }
+    inspectorSearchDebounceTimer = setTimeout(() => {
+        inspectorSearchDebounceTimer = null;
+        applyInspectorFilters();
+    }, 200);
+}
+
+function clearInspectorSearch() {
+    if (inspectorSearchDebounceTimer) {
+        clearTimeout(inspectorSearchDebounceTimer);
+        inspectorSearchDebounceTimer = null;
+    }
+    const searchEl = document.getElementById("inspectorSearchInput");
+    const clearBtn = document.getElementById("inspectorSearchClearBtn");
+    if (searchEl) {
+        searchEl.value = "";
+        searchEl.focus();
+    }
+    if (clearBtn) clearBtn.hidden = true;
+    applyInspectorFilters();
+}
+
+function applyInspectorFilters() {
+    const searchRaw = document.getElementById("inspectorSearchInput")?.value || "";
+    const searchQuery = searchRaw.trim().replace(/\s+/g, " ").toLowerCase();
+    const clearBtn = document.getElementById("inspectorSearchClearBtn");
+    if (clearBtn) clearBtn.hidden = searchRaw.length === 0;
+    const filtered = allInspectors.filter(({ data }) => matchesGuardSearch(data, searchQuery));
+    const countEl = document.getElementById("inspectorPersonnelCount");
+    if (countEl) countEl.textContent = filtered.length;
+    const inspectorRows = filtered.map(({ id, data }) => renderInspectorRow(id, data)).join("");
+    const tbody = document.getElementById("inspectorTableBody");
+    if (tbody) {
+        tbody.innerHTML = inspectorRows ||
+            `<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--sl-muted);">${searchQuery ? 'No inspector personnel match your search.' : 'No inspector personnel found.'}</td></tr>`;
+    }
 }
 
 function matchesGuardSearch(data, searchQuery) {
@@ -2125,12 +2189,10 @@ async function loadUsers() {
         const guards = accounts.filter(account => account.data.role === "user");
         const inspectors = accounts.filter(account => account.data.role === "inspector");
         allGuards = guards;
-        document.getElementById("inspectorPersonnelCount").textContent = inspectors.length;
+        allInspectors = inspectors;
 
         applyGuardFilters();
-        const inspectorRows = inspectors.map(({ id, data }) => renderInspectorRow(id, data)).join("");
-        document.getElementById("inspectorTableBody").innerHTML = inspectorRows ||
-            `<tr><td colspan="4" style="text-align:center;padding:40px;color:var(--sl-muted);">No inspector personnel found.</td></tr>`;
+        applyInspectorFilters();
         finishPageLoading();
         checkInitialUrlTargetReport();
     } catch (err) {

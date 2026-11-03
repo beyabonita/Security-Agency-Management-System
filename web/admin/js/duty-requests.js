@@ -3,12 +3,16 @@ const auth = firebase.auth(), db = firebase.firestore();
 let dutyRequests = [], dutyProfiles = {}, dutySchedules = {}, loadSequence = 0;
 const requestList = document.getElementById('requests');
 const requestStatus = document.getElementById('requestStatus');
+const requestType = document.getElementById('requestType');
 const requestSearch = document.getElementById('requestSearch');
 const escapeText = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 const profileName = p => p ? [p.first_name, p.middle_initial ? `${p.middle_initial}.` : '', p.last_name].filter(Boolean).join(' ') || p.username : 'Guard';
 const when = value => value ? new Date(value).toLocaleString('en-PH', {timeZone:'Asia/Manila',year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
 const isExchange = r => Boolean(r.target_schedule_id);
-const requestKind = r => r.request_type === 'absence' ? 'Absence' : isExchange(r) ? 'Duty exchange' : 'Coverage';
+const isOvertime = r => r.request_type === 'overtime' || /^\[Overtime Request\]/i.test(r.reason || '');
+const cleanReason = r => String(r?.reason ?? '').replace(/^\[Overtime Request\]\s*/i, '');
+const requestCategory = r => isOvertime(r) ? 'overtime' : r.request_type === 'absence' ? 'absence' : 'swap';
+const requestKind = r => isOvertime(r) ? 'Overtime Request' : r.request_type === 'absence' ? 'Absence Request' : isExchange(r) ? 'Shift Swap Request (Duty Exchange)' : 'Shift Swap Request';
 const dutySummary = s => `${({morning:'Morning',afternoon:'Afternoon',overtime:'Overtime'})[s?.dtr_period] || 'Continuous shift'} · ${when(s?.start_at)} – ${when(s?.end_at)} · ${s?.location_label || 'Duty site'}`;
 const statusLabel = s => ({pending_admin:'Awaiting Operations Head approval',approved:'Approved',rejected:'Rejected',cancelled:'Cancelled'}[s] || s);
 
@@ -47,15 +51,19 @@ async function loadDutyRequests() {
 
 function renderDutyRequests() {
   const term = requestSearch.value.trim().toLowerCase();
-  const visible = dutyRequests.filter(r => `${profileName(dutyProfiles[r.requester_id])} ${requestKind(r)} ${r.reason}`.toLowerCase().includes(term));
-  if (!visible.length) { requestList.innerHTML = '<div class="empty-state">No matching duty requests.</div>'; return; }
+  const typeVal = requestType ? requestType.value : 'all';
+  const visible = dutyRequests.filter(r => {
+    if (typeVal !== 'all' && requestCategory(r) !== typeVal) return false;
+    return `${profileName(dutyProfiles[r.requester_id])} ${requestKind(r)} ${r.reason}`.toLowerCase().includes(term);
+  });
+  if (!visible.length) { requestList.innerHTML = '<div class="empty-state">No matching Absence, Shift Swap, or Overtime requests.</div>'; return; }
   requestList.innerHTML = visible.map(r => {
     const s = r.exchange_snapshot?.offered || dutySchedules[r.requested_schedule_id] || {};
     const target = r.exchange_snapshot?.requested || dutySchedules[r.target_schedule_id] || {};
     const targetName = r.exchange_snapshot?.target_name || profileName(dutyProfiles[r.target_guard_id]);
     return `<article class="duty-request-card" data-request-id="${escapeText(r.id)}">
       <div class="duty-request-heading"><h2>${escapeText(profileName(dutyProfiles[r.requester_id]))}</h2><span class="ax-role-pill">${escapeText(requestKind(r))} · ${escapeText(statusLabel(r.status))}</span></div>
-      <p class="duty-request-reason">${escapeText(r.reason)}</p>
+      <p class="duty-request-reason">${escapeText(cleanReason(r))}</p>
       <dl class="duty-request-meta"><div><dt>Requested duty period</dt><dd>${escapeText(({morning:'Morning',afternoon:'Afternoon',overtime:'Overtime'})[s.dtr_period] || 'Continuous shift')} · ${escapeText(when(s.start_at))} – ${escapeText(when(s.end_at))}<br>${escapeText(s.location_label || 'Duty site')}</dd></div><div><dt>Submitted</dt><dd>${escapeText(when(r.created_at))}</dd></div></dl>
       ${isExchange(r) ? `<section class="duty-exchange-preview" aria-label="Proposed duty exchange">
         <div><strong>${escapeText(profileName(dutyProfiles[r.requester_id]))} will take</strong><p>${escapeText(dutySummary(target))}</p></div>
@@ -220,5 +228,6 @@ requestList.addEventListener('click',async event => {
   finally { activeRequests.delete(id); }
 });
 requestStatus.addEventListener('change',loadDutyRequests);
+requestType?.addEventListener('change',renderDutyRequests);
 requestSearch.addEventListener('input',renderDutyRequests);
 document.getElementById('refreshRequests').addEventListener('click',loadDutyRequests);
