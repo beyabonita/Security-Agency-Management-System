@@ -136,6 +136,23 @@
   function ensureLocationProfilesUi() {
     const mapWrap = document.getElementById('trackingMap')?.parentElement;
     if (!mapWrap) return null;
+    let companyDir = document.getElementById('trackingCompanyDirectory');
+    const layout = list?.closest?.('.tracking-layout');
+    if (!companyDir && layout && list) {
+      let sidebarCol = list.parentElement;
+      if (sidebarCol === layout) {
+        sidebarCol = document.createElement('div');
+        sidebarCol.className = 'tracking-sidebar-col';
+        layout.insertBefore(sidebarCol, list);
+        sidebarCol.appendChild(list);
+      }
+      companyDir = document.createElement('section');
+      companyDir.id = 'trackingCompanyDirectory';
+      companyDir.className = 'tracking-company-directory';
+      companyDir.setAttribute('aria-label', 'Deployment sites and companies');
+      companyDir.hidden = true;
+      sidebarCol.insertBefore(companyDir, list);
+    }
     let sitesBar = document.getElementById('trackingSiteChips');
     if (!sitesBar) {
       sitesBar = document.createElement('div');
@@ -150,11 +167,11 @@
       panel = document.createElement('section');
       panel.id = 'locationGuardsPanel';
       panel.className = 'tracking-location-panel';
-      panel.setAttribute('aria-label', 'Guards assigned to selected location');
+      panel.setAttribute('aria-label', 'Guards on duty at selected location');
       panel.hidden = true;
       mapWrap.appendChild(panel);
     }
-    return { sitesBar, panel };
+    return { companyDir, sitesBar, panel };
   }
 
   function haversineMeters(lat1, lng1, lat2, lng2) {
@@ -327,56 +344,49 @@
     return parts.join(' ').trim() || g.username || 'Guard';
   }
 
-  function buildLocationGroups(visibleRows) {
+  function buildLocationGroups(onDutyRows) {
     const groups = new Map();
+    const profileById = new Map();
+    for (const g of assignedGuards) {
+      if (g && g.id) profileById.set(String(g.id), g);
+    }
     for (const loc of siteLocations) {
       if (!loc || loc.active === false) continue;
       const key = String(loc.id || loc.label || '').trim();
       if (!key) continue;
+      const lat = Number(loc.latitude ?? loc.lat);
+      const lng = Number(loc.longitude ?? loc.lng);
       groups.set(key, {
         key,
         id: loc.id || null,
         label: String(loc.label || 'Deployment Site').trim(),
         address: String(loc.address || '').trim(),
-        lat: Number(loc.lat),
-        lng: Number(loc.lng),
+        lat,
+        lng,
         radius: Number(loc.radius) || 100,
         guards: new Map()
       });
     }
-    for (const g of assignedGuards) {
-      if (!g || g.role !== 'user' || g.active === false || !g.assigned_location_id) continue;
-      const group = groups.get(String(g.assigned_location_id));
-      if (!group) continue;
-      group.guards.set(String(g.id), {
-        user_id: String(g.id),
-        guard_name: fullGuardName(g),
-        first_name: g.first_name || '',
-        last_name: g.last_name || '',
-        personnel_id: g.personnel_id || '',
-        employment_category: g.employment_category || 'regular',
-        contract_start_date: g.contract_start_date || '',
-        contract_end_date: g.contract_end_date || '',
-        mobile_number: g.mobile_number || '',
-        complete_address: g.complete_address || '',
-        emergency_contact: g.emergency_contact || '',
-        profile_photo_url: g.profile_photo_url || '',
-        location_label: group.label,
-        location_address: group.address,
-        state: 'assigned',
-        onDuty: false
-      });
-    }
-    for (const row of visibleRows) {
+    // Only include personnel who are currently assigned in real time / on duty right now
+    for (const row of (onDutyRows || [])) {
       const parsed = parseGuardLocation(row);
       const clientName = parsed.client;
+      const prof = profileById.get(String(row.user_id)) || {};
       let targetGroup = null;
-      for (const grp of groups.values()) {
-        if (grp.label.toLowerCase() === clientName.toLowerCase() ||
-            String(row.location_label || '').toLowerCase().includes(grp.label.toLowerCase())) {
-          targetGroup = grp;
-          break;
+      if (row.location_id && groups.has(String(row.location_id))) {
+        targetGroup = groups.get(String(row.location_id));
+      }
+      if (!targetGroup) {
+        for (const grp of groups.values()) {
+          if (grp.label.toLowerCase() === clientName.toLowerCase() ||
+              String(row.location_label || '').toLowerCase().includes(grp.label.toLowerCase())) {
+            targetGroup = grp;
+            break;
+          }
         }
+      }
+      if (!targetGroup && prof.assigned_location_id && groups.has(String(prof.assigned_location_id))) {
+        targetGroup = groups.get(String(prof.assigned_location_id));
       }
       if (!targetGroup && clientName && clientName !== '—') {
         const syntheticKey = 'loc:' + clientName.toLowerCase();
@@ -400,11 +410,22 @@
           targetGroup.lat = Number(row.latitude);
           targetGroup.lng = Number(row.longitude);
         }
-        const existing = targetGroup.guards.get(String(row.user_id)) || {};
         targetGroup.guards.set(String(row.user_id), {
-          ...existing,
+          user_id: String(row.user_id),
+          guard_name: row.guard_name || fullGuardName(prof) || 'Guard',
+          first_name: row.first_name || prof.first_name || '',
+          last_name: row.last_name || prof.last_name || '',
+          personnel_id: row.personnel_id || prof.personnel_id || '',
+          employment_category: row.employment_category || prof.employment_category || 'regular',
+          contract_start_date: row.contract_start_date || prof.contract_start_date || '',
+          contract_end_date: row.contract_end_date || prof.contract_end_date || '',
+          mobile_number: row.mobile_number || row.contact_number || prof.mobile_number || '',
+          complete_address: row.complete_address || prof.complete_address || '',
+          emergency_contact: row.emergency_contact || prof.emergency_contact || '',
+          profile_photo_url: row.profile_photo_url || prof.profile_photo_url || '',
+          location_label: row.location_label || targetGroup.label,
+          location_address: row.location_address || targetGroup.address,
           ...row,
-          guard_name: row.guard_name || existing.guard_name || 'Guard',
           onDuty: true
         });
       }
@@ -412,9 +433,23 @@
     return groups;
   }
 
+  function allOnDutyRows() {
+    return window.LiveTrackingModel.visible(rows, '', serverClock.now())
+      .map(row => interrupted && row.state !== 'waiting' ? { ...row, state: 'stale' } : row);
+  }
+
+  function groupMatchesQuery(grp, rawQuery) {
+    const q = String(rawQuery || '').trim().toLowerCase();
+    if (!q) return true;
+    if (grp.label.toLowerCase().includes(q) || grp.address.toLowerCase().includes(q)) return true;
+    for (const g of grp.guards.values()) {
+      if (String(g.guard_name || '').toLowerCase().includes(q)) return true;
+    }
+    return false;
+  }
+
   function openLocationGuardsProfile(groupKey, zoomOnMap = true) {
-    const visible = window.LiveTrackingModel.visible(rows, search.value, serverClock.now());
-    const groups = buildLocationGroups(visible);
+    const groups = buildLocationGroups(allOnDutyRows());
     const group = groups.get(groupKey);
     const ui = ensureLocationProfilesUi();
     if (!ui) return;
@@ -431,6 +466,18 @@
     ui.sitesBar.querySelectorAll('.tracking-site-chip').forEach(btn => {
       btn.classList.toggle('is-active', btn.dataset.siteKey === group.key);
     });
+    siteEntries.forEach((entryObj, k) => {
+      entryObj.pinEl?.classList.toggle('is-active', k === group.key);
+    });
+    if (ui.companyDir) {
+      ui.companyDir.querySelectorAll('.tracking-company-card').forEach(card => {
+        const active = card.dataset.siteKey === group.key;
+        card.classList.toggle('is-active', active);
+        const rosterEl = card.querySelector('.tracking-company-roster');
+        if (rosterEl) rosterEl.hidden = !active;
+      });
+    }
+
     const guardsList = [...group.guards.values()];
     ui.panel.hidden = false;
     ui.panel.replaceChildren();
@@ -440,10 +487,10 @@
     const titleWrap = document.createElement('div');
     const title = document.createElement('h3');
     title.className = 'tracking-location-panel-title';
-    title.textContent = `${group.label} — Assigned Guard Profiles (${guardsList.length})`;
+    title.textContent = `${group.label} — On-Duty Personnel in Real Time (${guardsList.length})`;
     const sub = document.createElement('p');
     sub.className = 'tracking-location-panel-sub';
-    sub.textContent = group.address || 'Designated deployment location';
+    sub.textContent = (group.address ? `${group.address} · ` : '') + `Geofence radius: ${group.radius} m · Real-time active duty`;
     titleWrap.append(title, sub);
 
     const closeBtn = document.createElement('button');
@@ -454,6 +501,14 @@
       selectedSiteKey = null;
       ui.panel.hidden = true;
       ui.sitesBar.querySelectorAll('.tracking-site-chip').forEach(btn => btn.classList.remove('is-active'));
+      siteEntries.forEach(entryObj => entryObj.pinEl?.classList.remove('is-active'));
+      if (ui.companyDir) {
+        ui.companyDir.querySelectorAll('.tracking-company-card').forEach(card => {
+          card.classList.remove('is-active');
+          const rosterEl = card.querySelector('.tracking-company-roster');
+          if (rosterEl) rosterEl.hidden = true;
+        });
+      }
     };
     head.append(titleWrap, closeBtn);
     ui.panel.appendChild(head);
@@ -461,7 +516,7 @@
     if (!guardsList.length) {
       const emptyMsg = document.createElement('p');
       emptyMsg.className = 'tracking-location-empty';
-      emptyMsg.textContent = `No guards are currently assigned to ${group.label}.`;
+      emptyMsg.textContent = `No personnel are currently on duty at ${group.label} in real time.`;
       ui.panel.appendChild(emptyMsg);
       return;
     }
@@ -473,7 +528,7 @@
       card.className = 'tracking-location-guard-card';
       const cardHead = document.createElement('div');
       cardHead.className = 'tracking-guard-head';
-      const ring = g.onDuty ? (g.state === 'waiting' ? 'gray' : (g.ageSeconds > 300 ? 'amber' : 'green')) : 'gray';
+      const ring = g.state === 'waiting' ? 'gray' : (g.ageSeconds > 300 ? 'amber' : 'green');
       const av = createAvatarDom('tracking-list-avatar');
       syncAvatarDom(av, g, ring);
       const nameWrap = document.createElement('div');
@@ -484,7 +539,8 @@
       gBadge.className = 'tracking-guard-submeta';
       const pid = g.personnel_id ? `${g.personnel_id} · ` : '';
       const cat = (g.employment_category === 'contract') ? 'Contract' : 'Regular';
-      gBadge.textContent = `${pid}${cat} · ${g.onDuty ? 'On Duty Now' : 'Assigned to Location'}`;
+      const liveState = g.state === 'waiting' ? 'On Duty · Waiting for GPS' : 'On Duty · Live in Real Time';
+      gBadge.textContent = `${pid}${cat} · ${liveState}`;
       nameWrap.append(gName, gBadge);
       cardHead.append(av.root, nameWrap);
 
@@ -521,38 +577,47 @@
     ui.panel.appendChild(grid);
   }
 
-  function renderLocationMarkersAndChips(visibleRows) {
-    if (!siteLocations.length && !assignedGuards.length) return;
+  function renderLocationMarkersAndChips() {
+    if (!siteLocations.length) return;
     const ui = ensureLocationProfilesUi();
     if (!ui) return;
-    const groups = buildLocationGroups(visibleRows);
+    const groups = buildLocationGroups(allOnDutyRows());
+    const query = search?.value || '';
+    const matchingGroups = [...groups.entries()].filter(([, grp]) => groupMatchesQuery(grp, query));
+
     ui.sitesBar.replaceChildren();
     if (!groups.size) {
       ui.sitesBar.hidden = true;
+      if (ui.companyDir) ui.companyDir.hidden = true;
       return;
     }
+
+    // 1. Top Quick-Jump Chips Bar above the Map
     ui.sitesBar.hidden = false;
     const labelSpan = document.createElement('span');
     labelSpan.className = 'tracking-site-chips-label';
-    labelSpan.textContent = 'Locations (click to zoom & view assigned guards):';
+    labelSpan.textContent = `Companies & Deployment Sites (${matchingGroups.length}):`;
     ui.sitesBar.appendChild(labelSpan);
 
-    for (const [key, grp] of groups) {
+    for (const [key, grp] of matchingGroups) {
       const chip = document.createElement('button');
       chip.type = 'button';
       chip.className = 'tracking-site-chip' + (selectedSiteKey === key ? ' is-active' : '');
       chip.dataset.siteKey = key;
-      chip.textContent = `${grp.label} (${grp.guards.size})`;
+      chip.textContent = `${grp.label} (${grp.guards.size} on duty)`;
       chip.onclick = () => openLocationGuardsProfile(key, true);
       ui.sitesBar.appendChild(chip);
+    }
 
+    // 2. Map Building / Company Markers
+    for (const [key, grp] of groups) {
       if (map && siteLayer && Number.isFinite(grp.lat) && Number.isFinite(grp.lng) && !siteEntries.has(key)) {
         const pinEl = document.createElement('div');
-        pinEl.className = 'tracking-site-pin';
-        pinEl.title = `${grp.label} (${grp.guards.size} guards)`;
-        pinEl.textContent = grp.label;
+        pinEl.className = 'tracking-site-pin' + (selectedSiteKey === key ? ' is-active' : '');
+        pinEl.title = `${grp.label} (${grp.guards.size} on duty)`;
+        pinEl.textContent = `${grp.label} (${grp.guards.size})`;
         const icon = typeof L.divIcon === 'function'
-          ? L.divIcon({ className: 'tracking-site-pin-shell', html: pinEl, iconSize: [110, 28], iconAnchor: [55, 14] })
+          ? L.divIcon({ className: 'tracking-site-pin-shell', html: pinEl, iconSize: [130, 30], iconAnchor: [65, 15] })
           : undefined;
         const sMarker = typeof L.marker === 'function' && icon
           ? L.marker([grp.lat, grp.lng], { icon })
@@ -567,9 +632,110 @@
         });
         siteEntries.set(key, { marker: sMarker, pinEl });
       } else if (siteEntries.has(key)) {
-        siteEntries.get(key).pinEl.textContent = `${grp.label} (${grp.guards.size})`;
+        const entryObj = siteEntries.get(key);
+        entryObj.pinEl.textContent = `${grp.label} (${grp.guards.size})`;
+        entryObj.pinEl.title = `${grp.label} (${grp.guards.size} on duty)`;
+        entryObj.pinEl.classList.toggle('is-active', selectedSiteKey === key);
       }
     }
+
+    // 3. Left Sidebar Company & Deployment Sites List (Searchable + Expandable Real-Time Personnel)
+    if (ui.companyDir) {
+      ui.companyDir.hidden = false;
+      ui.companyDir.replaceChildren();
+      const headEl = document.createElement('div');
+      headEl.className = 'tracking-section-heading';
+      const headTitle = document.createElement('span');
+      headTitle.textContent = `Deployment Sites & Locations (${matchingGroups.length})`;
+      const headHint = document.createElement('span');
+      headHint.textContent = 'Click site for on-duty guards';
+      headEl.append(headTitle, headHint);
+      ui.companyDir.appendChild(headEl);
+
+      if (!matchingGroups.length) {
+        const noSite = document.createElement('p');
+        noSite.className = 'tracking-company-empty';
+        noSite.textContent = 'No deployment sites match your search.';
+        ui.companyDir.appendChild(noSite);
+      } else {
+        for (const [key, grp] of matchingGroups) {
+          const isSelected = selectedSiteKey === key;
+          const card = document.createElement('div');
+          card.className = 'tracking-company-card' + (isSelected ? ' is-active' : '');
+          card.dataset.siteKey = key;
+          card.setAttribute('role', 'button');
+          card.tabIndex = 0;
+
+          const cardHead = document.createElement('div');
+          cardHead.className = 'tracking-company-head';
+          const titleWrap = document.createElement('div');
+          titleWrap.className = 'tracking-company-title-wrap';
+          const iconSpan = document.createElement('span');
+          iconSpan.className = 'tracking-company-icon material-symbols-rounded';
+          iconSpan.setAttribute('aria-hidden', 'true');
+          iconSpan.textContent = 'business';
+          const copyWrap = document.createElement('div');
+          const nameEl = document.createElement('div');
+          nameEl.className = 'tracking-company-name';
+          nameEl.textContent = grp.label;
+          const addrEl = document.createElement('div');
+          addrEl.className = 'tracking-company-addr';
+          addrEl.textContent = (grp.address || 'Designated deployment location') + (grp.radius ? ` · ${grp.radius} m` : '');
+          copyWrap.append(nameEl, addrEl);
+          titleWrap.append(iconSpan, copyWrap);
+
+          const countBadge = document.createElement('span');
+          countBadge.className = 'tracking-company-badge' + (grp.guards.size > 0 ? ' has-onduty' : '');
+          countBadge.textContent = `${grp.guards.size} On Duty`;
+          cardHead.append(titleWrap, countBadge);
+          card.appendChild(cardHead);
+
+          // Inline Real-Time Assigned Personnel Roster (shown when clicked)
+          const roster = document.createElement('div');
+          roster.className = 'tracking-company-roster';
+          roster.hidden = !isSelected;
+          const guardsArr = [...grp.guards.values()];
+          if (!guardsArr.length) {
+            const emptyP = document.createElement('p');
+            emptyP.className = 'tracking-company-empty';
+            emptyP.textContent = 'No personnel currently on duty in real time at this location.';
+            roster.appendChild(emptyP);
+          } else {
+            guardsArr.forEach(g => {
+              const gRow = document.createElement('div');
+              gRow.className = 'tracking-company-guard-row';
+              const gLeft = document.createElement('div');
+              gLeft.className = 'tracking-company-guard-left';
+              const ring = g.state === 'waiting' ? 'gray' : (g.ageSeconds > 300 ? 'amber' : 'green');
+              const av = createAvatarDom('tracking-list-avatar');
+              syncAvatarDom(av, g, ring);
+              const gMeta = document.createElement('div');
+              gMeta.className = 'tracking-company-guard-meta';
+              const gStrong = document.createElement('strong');
+              gStrong.textContent = g.guard_name || 'Guard';
+              const gSub = document.createElement('span');
+              const statusLabel = g.state === 'waiting' ? 'On Duty · Waiting for GPS' : `On Duty · Live (${g.ageSeconds ?? 0}s ago)`;
+              gSub.textContent = statusLabel + ((g.mobile_number || g.contact_number) ? ` · ${g.mobile_number || g.contact_number}` : '');
+              gMeta.append(gStrong, gSub);
+              gLeft.append(av.root, gMeta);
+              gRow.appendChild(gLeft);
+              roster.appendChild(gRow);
+            });
+          }
+          card.appendChild(roster);
+
+          const activateSite = (ev) => {
+            if (ev.type === 'keydown' && ev.key !== 'Enter' && ev.key !== ' ') return;
+            if (ev.type === 'keydown') ev.preventDefault();
+            openLocationGuardsProfile(key, true);
+          };
+          card.addEventListener('click', activateSite);
+          card.addEventListener('keydown', activateSite);
+          ui.companyDir.appendChild(card);
+        }
+      }
+    }
+
     if (selectedSiteKey && groups.has(selectedSiteKey)) {
       openLocationGuardsProfile(selectedSiteKey, false);
     }
@@ -730,10 +896,17 @@
       if(list.children[index]!==entry.item)list.insertBefore(entry.item,list.children[index]||null);
     });
     renderLocationMarkersAndChips(visible);
-    if(map&&!hasFit&&visible.some(r=>r.state!=='waiting')) { fit();hasFit=true; }
+    if(map&&!hasFit&&(visible.some(r=>r.state!=='waiting')||siteLocations.some(l=>l.active!==false&&Number.isFinite(Number(l.latitude??l.lat))&&Number.isFinite(Number(l.longitude??l.lng))))) { fit();hasFit=true; }
   }
   function fit() {
     const points=window.LiveTrackingModel.visible(rows,search.value,serverClock.now()).filter(r=>r.state!=='waiting').map(r=>[r.latitude,r.longitude]);
+    if(!points.length&&siteLocations.length) {
+      siteLocations.forEach(loc=>{
+        if(loc.active===false)return;
+        const lat=Number(loc.latitude??loc.lat),lng=Number(loc.longitude??loc.lng);
+        if(Number.isFinite(lat)&&Number.isFinite(lng))points.push([lat,lng]);
+      });
+    }
     if(map&&points.length) map.fitBounds(points,{padding:[35,35],maxZoom:16});
   }
   function schedulePoll() {
@@ -887,18 +1060,21 @@
       clear('Only active Operations Heads and assigned Inspectors can view live locations.');return;
     }
     authSubscription=client.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')stop();}).data?.subscription;
-    refreshButton.onclick=refresh;
-    try {
-      const locQuery=client.from('locations')?.select('id,label,address,lat,lng,radius,active');
-      const guardQuery=client.from('profiles')?.select('id,first_name,middle_initial,last_name,username,personnel_id,employment_category,contract_start_date,contract_end_date,mobile_number,complete_address,emergency_contact,profile_photo_url,assigned_location_id,role,active');
-      if(typeof locQuery?.then==='function' && typeof guardQuery?.then==='function') {
-        Promise.all([locQuery,guardQuery]).then(([locRes,guardRes])=>{
-          if(Array.isArray(locRes?.data)) siteLocations=locRes.data;
-          if(Array.isArray(guardRes?.data)) assignedGuards=guardRes.data;
-          if(!stopped) render();
-        }).catch(()=>{});
-      }
-    } catch(_) {}
+    function loadSiteAndProfileCatalog() {
+      try {
+        const locQuery=client.from('locations')?.select('id,label,address,latitude,longitude,radius,active');
+        const guardQuery=client.from('profiles')?.select('id,first_name,middle_initial,last_name,username,personnel_id,employment_category,contract_start_date,contract_end_date,mobile_number,complete_address,emergency_contact,profile_photo_url,assigned_location_id,role,active');
+        if(typeof locQuery?.then==='function' && typeof guardQuery?.then==='function') {
+          Promise.all([locQuery,guardQuery]).then(([locRes,guardRes])=>{
+            if(Array.isArray(locRes?.data)) siteLocations=locRes.data;
+            if(Array.isArray(guardRes?.data)) assignedGuards=guardRes.data;
+            if(!stopped) render();
+          }).catch(()=>{});
+        }
+      } catch(_) {}
+    }
+    refreshButton.onclick=()=>{ loadSiteAndProfileCatalog(); refresh(); };
+    loadSiteAndProfileCatalog();
     channel=client.channel('live-guards:'+data.user.id,{config:{private:true}}).on('broadcast',{
       event:'location_changed'
     },scheduleRefresh).subscribe(state=>{
