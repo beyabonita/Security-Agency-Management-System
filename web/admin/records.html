@@ -156,11 +156,10 @@
                                         <th>Date of Employment Ended</th>
                                         <th>Client Assigned Post</th>
                                         <th>Shift</th>
-                                        <th>Registered Device</th>
                                     </tr>
                                 </thead>
                                 <tbody id="pmTableBody">
-                                    <tr><td colspan="12" class="records-empty"><span class="material-symbols-rounded">hourglass_empty</span><p>Loading records…</p></td></tr>
+                                    <tr><td colspan="11" class="records-empty"><span class="material-symbols-rounded">hourglass_empty</span><p>Loading records…</p></td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -372,6 +371,17 @@
             </div>
         </main>
     </div>
+<div class="modal fade ax-modal" id="facePreviewModal" tabindex="-1" aria-labelledby="facePreviewModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="facePreviewModalTitle">Geotagged Face &amp; Device Verification</h5>
+                <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
+            </div>
+            <div class="modal-body" id="facePreviewModalBody" style="text-align:center;"></div>
+        </div>
+    </div>
+</div>
 <div class="modal fade ax-modal incident-report-modal" id="detailModal" tabindex="-1" aria-labelledby="modalTitle">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">

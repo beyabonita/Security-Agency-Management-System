@@ -179,7 +179,7 @@
         if (countBadge) countBadge.textContent = `${data.length} records`;
 
         if (!data.length) {
-            tbody.innerHTML = `<tr><td colspan="12" class="records-empty"><span class="material-symbols-rounded">group_off</span><p>No matching personnel records found.</p></td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="11" class="records-empty"><span class="material-symbols-rounded">group_off</span><p>No matching personnel records found.</p></td></tr>`;
             return;
         }
 
@@ -188,20 +188,23 @@
             const contBadgeClass = p.contractStatus === 'Active' ? 'rec-badge-active' : (p.contractStatus === 'Pending' ? 'rec-badge-pending' : 'rec-badge-expired');
             const dutyClass = p.dutyCategory.toLowerCase() === 'regular' ? 'rec-badge-regular' : 'rec-badge-reliever';
             const deviceHtml = p.registeredDeviceId
-                ? `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                     <span class="rec-badge rec-badge-active" style="font-size:0.68rem;" title="${escapeHtml(p.registeredDeviceInfo || '')}">
-                       <span class="material-symbols-rounded" style="font-size:12px;vertical-align:-2px;">smartphone</span>
+                ? `<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:4px;">
+                     <span class="rec-badge rec-badge-active" style="font-size:0.65rem;padding:2px 6px;" title="${escapeHtml(p.registeredDeviceInfo || '')}">
+                       <span class="material-symbols-rounded" style="font-size:11px;vertical-align:-2px;">smartphone</span>
                        ${escapeHtml(p.registeredDeviceId)}
                      </span>
-                     <button type="button" class="records-btn-reset" style="padding:2px 6px;font-size:10px;" onclick="window.resetGuardDeviceBinding('${p.id}', '${escapeHtml(p.fullName)}')" title="Reset bound phone if guard changed device">Reset</button>
+                     <button type="button" class="records-btn-reset" style="padding:1px 5px;font-size:10px;" onclick="window.resetGuardDeviceBinding('${p.id}', '${escapeHtml(p.fullName)}')" title="Reset bound phone if guard changed device">Reset Device</button>
                    </div>`
-                : '<span class="col-muted" style="font-size:0.75rem;">Not bound yet</span>';
+                : '';
 
             return `<tr${p.isArchived ? ' class="opacity-75"' : ''}>
                 <td class="col-id">${escapeHtml(p.personnelId)}</td>
                 <td class="col-primary">${escapeHtml(p.fullName)}</td>
                 <td>${escapeHtml(p.gender)}</td>
-                <td>${escapeHtml(p.contactNumber)}</td>
+                <td>
+                    <div>${escapeHtml(p.contactNumber)}</div>
+                    ${deviceHtml}
+                </td>
                 <td><span class="rec-badge ${dutyClass}">${escapeHtml(p.dutyCategory)}</span></td>
                 <td><span class="rec-badge ${empBadgeClass}">${escapeHtml(p.employmentStatus)}</span></td>
                 <td><span class="rec-badge ${contBadgeClass}">${escapeHtml(p.contractStatus)}</span></td>
@@ -213,7 +216,6 @@
                     : '<span class="rec-badge rec-badge-active" style="font-size:0.7rem;opacity:0.75;">Still Active</span>'}</td>
                 <td>${escapeHtml(p.assignedPost)}</td>
                 <td>${escapeHtml(p.shift)}</td>
-                <td>${deviceHtml}</td>
             </tr>`;
         }).join('');
     }
@@ -563,15 +565,26 @@
     window.previewAttendanceFacePhoto = function(sessionId) {
         const sess = allSessions.find(s => s.id === sessionId);
         if (!sess || !sess.clock_in_face_photo) return;
-        const w = window.open('', '_blank', 'width=540,height=640');
-        if (!w) return;
-        w.document.write(`<!DOCTYPE html><html><head><title>Geotagged Attendance Face Photo</title></head>
-            <body style="margin:0;background:#0f172a;color:#f8fafc;font-family:system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:16px;box-sizing:border-box;">
-                <h3 style="margin:0 0 10px;font-size:15px;">Geotagged Face &amp; Device Verification</h3>
-                <img src="${sess.clock_in_face_photo}" alt="Geotagged Face Verification" style="max-width:100%;max-height:78vh;border-radius:12px;border:2px solid #dc2626;" />
-                <p style="margin:10px 0 0;font-size:12px;color:#94a3b8;">Device: ${escapeHtml(sess.device_info || '')} (${escapeHtml(sess.device_id || 'Bound')})</p>
-            </body></html>`);
-        w.document.close();
+        const bodyEl = document.getElementById('facePreviewModalBody');
+        const modalEl = document.getElementById('facePreviewModal');
+        if (bodyEl && modalEl) {
+            bodyEl.innerHTML = '';
+            const img = document.createElement('img');
+            img.src = String(sess.clock_in_face_photo).startsWith('data:image/')
+                ? sess.clock_in_face_photo
+                : 'data:image/jpeg;base64,' + sess.clock_in_face_photo;
+            img.alt = 'Geotagged Face Verification';
+            img.style.cssText = 'max-width:100%;max-height:70vh;border-radius:12px;border:2px solid #dc2626;';
+            const meta = document.createElement('p');
+            meta.style.cssText = 'margin:10px 0 0;font-size:12px;color:#64748b;';
+            meta.textContent = `Device: ${sess.device_info || 'Mobile Device'} (${sess.device_id || 'Bound'})`;
+            bodyEl.appendChild(img);
+            bodyEl.appendChild(meta);
+            if (window.bootstrap?.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                return;
+            }
+        }
     };
 
     window.resetGuardDeviceBinding = async function(guardId, guardName) {
