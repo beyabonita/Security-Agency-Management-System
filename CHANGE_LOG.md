@@ -43,6 +43,7 @@
 | [`web/inspector/swaps.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/swaps.html) | #16 | Inspector sidebar link updated to `Guard Tracker` | **✅ PUSHED** | `99a139b` (`origin/main`) |
 | [`web/inspector/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/users.html) | #16 | Inspector sidebar link updated to `Guard Tracker` | **✅ PUSHED** | `99a139b` (`origin/main`) |
 | [`web/admin/css/admin-theme.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/admin-theme.css) | UI Organization | Standardized `.btn-add`, `.btn-save`, `.btn-pdf`, `.btn-add-guard`, `.btn-add-schedule` with unified `min-height: 42px`, `border-radius: 10px`, icon gap and hover states; standardized `.btn-cancel-form` and `.btn-cancel` | **✅ PUSHED** | 14cc2d (origin/main) |
+| [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html) | UI Organization, Responsive Fit | Consolidated Personnel table from 9 columns to 8 (merged DTR into Actions cluster), clamped verbose 140+ char post addresses to 2 lines, streamlined padding, and added sleek 5px scrollbar to eliminate horizontal sliding | **✅ PUSHED** | `HEAD` (`origin/main`) |
 | [`web/admin/css/dtr-scheduling.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/dtr-scheduling.css) | UI Organization | Resolved 38px vs 44px input height disparity with 42px comboboxes, vertically centered combobox icons/arrows, responsive `auto-fit` filter grid, `#saveRoster` button redesign, and dark theme support | **✅ PUSHED** | 14cc2d (origin/main) |
 | [`web/admin/schedule.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/schedule.html) | UI Organization | Wrapped `#saveRoster` in `.schedule-form-actions` with `assignment_turned_in` icon | **✅ PUSHED** | 14cc2d (origin/main) |
 | [`web/admin/incidents.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/incidents.html) | UI Organization | Added missing `<main class="ax-content">` tag, added count badge, search bar with icon, and live multi-field filtering in `renderTable()` | **✅ PUSHED** | 14cc2d (origin/main) |
@@ -91,6 +92,21 @@
 | [`web/tests/admin_dashboard.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/admin_dashboard.spec.js) | Pre-existing | Local test adjustment in working tree from earlier session | **⏳ NOT PUSHED** | Local working tree |
 
 ---
+
+### [2026-11-04 10:15] - Fix: Personnel Table Fit & Elimination of Horizontal Slide Bar in Users Console — [✅ PUSHED: `origin/main`]
+
+- **Scope & Objective**:
+  - Resolve viewport overflow and unwanted horizontal scroll sliding on the Operations Head Personnel console (`web/admin/users.html`).
+  - Eliminate table bloating caused by unconstrained establishment address strings (e.g. 140+ character campus address for Carlos Hilado Memorial State University) and redundant standalone DTR column.
+- **Key Implementation Details**:
+  - **8-Column Layout Consolidation**: Merged `DTR` into `Actions` column into a neat side-by-side flex cluster (`.personnel-action-cluster`) featuring `.btn-dtr` and `.personnel-actions-trigger`.
+  - **Address Clamping**: Clamped verbose location text (`.assigned-post-location`) to 2 lines using `-webkit-line-clamp: 2` while preserving the full unabridged address in an accessible HTML `title="..."` tooltip.
+  - **Padding & Proportional Widths**: Trimmed th/td horizontal padding to 10px and configured proportional column percentages totaling 100%, shrinking overall table footprint from >1,550px down to <990px to fit on standard 1366px and 1440px displays without horizontal overflow.
+  - **Sleek Scrollbar Styling**: Replaced default thick OS gray slide bars with a sleek, rounded 5px red-tinted scrollbar on `.glass-card` for extreme narrow viewports.
+  - **Skeleton & Empty-State Alignment**: Updated skeleton loader rows and empty/error state `colspan` values from 9/10 to 8 columns.
+- **Verification & Testing**:
+  - Mobile & desktop responsive layout tests passing with 0 horizontal overflows across all 18 pages.
+  - Node unit tests (11/11 test suites) all passing.
 
 ### [2026-11-04 08:52] - Feat: Add Antigravity Workspace Skills Suite for Project Architecture — [✅ PUSHED: `origin/main`]
 

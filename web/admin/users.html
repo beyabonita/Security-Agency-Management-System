@@ -223,22 +223,61 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
 .user-table { width: 100%; border-collapse: separate; border-spacing: 0; }
 .user-table thead tr { background: var(--sl-red-soft); }
 .user-table thead th {
-    padding: 13px 14px; font-size: 0.72rem; font-weight: 600; letter-spacing: 1px;
-    text-transform: uppercase; color: var(--sl-muted);
+    padding: 10px 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--sl-muted);
     border-bottom: 1px solid var(--sl-line);
+    white-space: nowrap;
 }
 .user-table thead th:first-child { border-top-left-radius: 13px; }
 .user-table thead th:last-child { border-top-right-radius: 13px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(1) { min-width: 155px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(2) { min-width: 110px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(3) { min-width: 140px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(4) { min-width: 65px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(5) { min-width: 75px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(6) { min-width: 165px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(7) { min-width: 105px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(8) { min-width: 85px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(9) { min-width: 75px; }
-.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(10) { min-width: 60px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(1) { width: 19%; min-width: 145px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(2) { width: 11%; min-width: 85px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(3) { width: 14%; min-width: 110px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(4) { width: 7%; min-width: 50px; text-align: center; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(5) { width: 9%; min-width: 68px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(6) { width: 20%; min-width: 145px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(7) { width: 9%; min-width: 85px; }
+.personnel-table-section[aria-labelledby="guardPersonnelHeading"] .user-table th:nth-child(8) { width: 11%; min-width: 125px; text-align: right; }
+.personnel-action-cluster {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    white-space: nowrap;
+}
+.personnel-action-cluster .btn-dtr {
+    padding: 6px 10px !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    min-height: 32px !important;
+    white-space: nowrap;
+}
+.personnel-action-cluster .personnel-actions-trigger {
+    padding: 6px 10px !important;
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    border-radius: 8px !important;
+    min-height: 32px !important;
+    white-space: nowrap;
+}
+.glass-card::-webkit-scrollbar {
+    height: 5px;
+}
+.glass-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+.glass-card::-webkit-scrollbar-thumb {
+    background: rgba(220, 38, 38, 0.22);
+    border-radius: 999px;
+}
+.glass-card::-webkit-scrollbar-thumb:hover {
+    background: rgba(220, 38, 38, 0.5);
+}
 .badge-duty-contract {
     background: rgba(100, 116, 139, 0.12);
     color: #475569;
@@ -268,16 +307,24 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
 .assigned-post-company {
     font-weight: 600;
     color: var(--sl-ink);
-    font-size: 0.88rem;
+    font-size: 0.85rem;
     line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
 }
 .assigned-post-location {
-    font-size: 0.76rem;
+    font-size: 0.74rem;
     color: var(--sl-muted);
     line-height: 1.25;
-    display: flex;
-    align-items: flex-start;
-    gap: 3px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    word-break: break-word;
 }
 .assigned-post-location .material-symbols-rounded {
     flex-shrink: 0;
@@ -345,7 +392,10 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
 .user-table tbody tr.has-open-personnel-actions { z-index: 40; }
 .user-table tbody tr:hover { background: var(--sl-surface-muted); }
 .user-table tbody td {
-    padding: 14px 14px; font-size: 0.875rem; color: var(--sl-ink); vertical-align: middle;
+    padding: 10px 10px;
+    font-size: 0.84rem;
+    color: var(--sl-ink);
+    vertical-align: middle;
     border-bottom: 1px solid var(--sl-line);
 }
 .user-table tbody tr:last-child td { border-bottom: none; }
@@ -1041,12 +1091,11 @@ html[data-theme="dark"] .field-inline-error {
                     <th>Personnel</th>
                     <th>Duty Category</th>
                     <th>Contract Status</th>
-                    <th>Days of Duty</th>
+                    <th class="text-center">Days</th>
                     <th>Status</th>
                     <th>Assigned Post</th>
                     <th>Inspector</th>
-                    <th>Actions</th>
-                    <th class="text-center">DTR</th>
+                    <th class="text-end">Actions</th>
                 </tr>
             </thead>
             <tbody id="guardTableBody">
@@ -1058,8 +1107,7 @@ html[data-theme="dark"] .field-inline-error {
                     <td><span class="ax-skeleton ax-skeleton-pill" style="width:60px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-line" style="width:130px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-line" style="width:90px;"></span></td>
-                    <td><span class="ax-skeleton ax-skeleton-btn"></span></td>
-                    <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:40px;"></span></td>
+                    <td class="text-end"><div class="d-inline-flex gap-1 justify-content-end"><span class="ax-skeleton ax-skeleton-btn" style="width:50px;"></span><span class="ax-skeleton ax-skeleton-btn" style="width:60px;"></span></div></td>
                 </tr>
                 <tr class="ax-skeleton-tr">
                     <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-avatar"></span><span class="ax-skeleton ax-skeleton-line" style="width:145px;"></span></div></td>
@@ -1069,8 +1117,7 @@ html[data-theme="dark"] .field-inline-error {
                     <td><span class="ax-skeleton ax-skeleton-pill" style="width:60px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-line" style="width:120px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-line" style="width:85px;"></span></td>
-                    <td><span class="ax-skeleton ax-skeleton-btn"></span></td>
-                    <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:40px;"></span></td>
+                    <td class="text-end"><div class="d-inline-flex gap-1 justify-content-end"><span class="ax-skeleton ax-skeleton-btn" style="width:50px;"></span><span class="ax-skeleton ax-skeleton-btn" style="width:60px;"></span></div></td>
                 </tr>
                 <tr class="ax-skeleton-tr">
                     <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-avatar"></span><span class="ax-skeleton ax-skeleton-line" style="width:115px;"></span></div></td>
@@ -1080,8 +1127,7 @@ html[data-theme="dark"] .field-inline-error {
                     <td><span class="ax-skeleton ax-skeleton-pill" style="width:60px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-line" style="width:130px;"></span></td>
                     <td><span class="ax-skeleton ax-skeleton-line" style="width:95px;"></span></td>
-                    <td><span class="ax-skeleton ax-skeleton-btn"></span></td>
-                    <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:40px;"></span></td>
+                    <td class="text-end"><div class="d-inline-flex gap-1 justify-content-end"><span class="ax-skeleton ax-skeleton-btn" style="width:50px;"></span><span class="ax-skeleton ax-skeleton-btn" style="width:60px;"></span></div></td>
                 </tr>
             </tbody>
         </table>
@@ -1948,7 +1994,7 @@ function applyGuardFilters() {
     const guardRows = filtered.map(({ id, data }) => renderGuardRow(id, data, personnelLocationsById)).join("");
     document.getElementById("guardTableBody").innerHTML = guardRows ||
         `<tr>
-            <td colspan="9" class="personnel-empty-state">
+            <td colspan="8" class="personnel-empty-state">
                 <div class="personnel-empty-inner">
                     <span class="material-symbols-rounded personnel-empty-icon" aria-hidden="true">group_off</span>
                     <div class="personnel-empty-title">No personnel found</div>
@@ -2198,7 +2244,7 @@ async function loadUsers() {
     } catch (err) {
         const message = escapeHtml(err?.message || "Could not load personnel.");
         document.getElementById("guardTableBody").innerHTML =
-            `<tr><td colspan="10" style="text-align:center;color:var(--sl-danger);padding:32px;">Error: ${message}</td></tr>`;
+            `<tr><td colspan="8" style="text-align:center;color:var(--sl-danger);padding:32px;">Error: ${message}</td></tr>`;
         document.getElementById("inspectorTableBody").innerHTML =
             `<tr><td colspan="4" style="text-align:center;color:var(--sl-danger);padding:32px;">Error: ${message}</td></tr>`;
         finishPageLoading();
@@ -2317,12 +2363,16 @@ function renderGuardRow(id, data, locationsById) {
         <td>${renderPersonnelIdentity(id, data)}</td>
         <td>${renderDutyCategoryCell(data)}</td>
         <td>${renderContractStatusCell(data)}</td>
-        <td>${escapeHtml(String(data.dutyDaysTotal || 0))}</td>
+        <td class="text-center font-monospace">${escapeHtml(String(data.dutyDaysTotal || 0))}</td>
         <td>${renderPersonnelStatus(data)}</td>
         <td>${renderAssignedPostCell(id, data, locationsById)}</td>
         <td>${escapeHtml(inspector ? personnelDisplayName(inspector) : "Unassigned")}</td>
-        <td>${actions}</td>
-        <td class="text-center"><button type="button" class="action-btn btn-dtr" onclick="viewDTR('${id}')">View DTR</button></td>
+        <td class="text-end">
+            <div class="personnel-action-cluster">
+                <button type="button" class="action-btn btn-dtr" onclick="viewDTR('${id}')" title="View DTR">View DTR</button>
+                ${actions}
+            </div>
+        </td>
     </tr>`;
 }
 
