@@ -193,7 +193,7 @@
                        <span class="material-symbols-rounded" style="font-size:11px;vertical-align:-2px;">smartphone</span>
                        ${escapeHtml(p.registeredDeviceId)}
                      </span>
-                     <button type="button" class="records-btn-reset" style="padding:1px 5px;font-size:10px;" onclick="window.resetGuardDeviceBinding('${p.id}', '${escapeHtml(p.fullName)}')" title="Reset bound phone if guard changed device">Reset Device</button>
+                     <button type="button" class="records-btn-reset" style="padding:1px 5px;font-size:10px;" onclick="window.resetGuardDeviceBinding('${escapeHtml(p.id)}')" title="Reset bound phone if guard changed device">Reset Device</button>
                    </div>`
                 : '';
 
@@ -493,7 +493,7 @@
                 : '<span class="col-muted" style="font-size:11px;">Standard Mobile</span>';
 
             const faceHtml = sess.clock_in_face_photo
-                ? `<button type="button" class="records-btn-export" style="padding:3px 8px;font-size:11px;" onclick="window.previewAttendanceFacePhoto('${sess.id}')">
+                ? `<button type="button" class="records-btn-export" style="padding:3px 8px;font-size:11px;" onclick="window.previewAttendanceFacePhoto('${escapeHtml(sess.id)}')">
                      <span class="material-symbols-rounded" style="font-size:13px;">person</span> View Geotagged Face
                    </button>`
                 : '<span class="col-muted" style="font-size:11px;">Verified on Device</span>';
@@ -509,8 +509,8 @@
             const canDecide = sess.force_attendance_requested && (sess.force_attendance_status || 'pending') === 'pending';
             const actionsHtml = canDecide
                 ? `<div style="display:flex;gap:6px;">
-                     <button type="button" class="records-btn-apply" style="padding:4px 8px;font-size:11px;background:#16a34a;" onclick="window.decideForceAttendanceSession('${sess.id}', 'approved')">Approve</button>
-                     <button type="button" class="records-btn-reset" style="padding:4px 8px;font-size:11px;color:#dc2626;border-color:#dc2626;" onclick="window.decideForceAttendanceSession('${sess.id}', 'rejected')">Reject</button>
+                     <button type="button" class="records-btn-apply" style="padding:4px 8px;font-size:11px;background:#16a34a;" onclick="window.decideForceAttendanceSession('${escapeHtml(sess.id)}', 'approved')">Approve</button>
+                     <button type="button" class="records-btn-reset" style="padding:4px 8px;font-size:11px;color:#dc2626;border-color:#dc2626;" onclick="window.decideForceAttendanceSession('${escapeHtml(sess.id)}', 'rejected')">Reject</button>
                    </div>`
                 : '<span class="col-muted" style="font-size:11px;">—</span>';
 
@@ -587,14 +587,15 @@
         }
     };
 
-    window.resetGuardDeviceBinding = async function(guardId, guardName) {
+    window.resetGuardDeviceBinding = async function(guardId, fallbackName) {
         if (!client || !guardId) return;
+        const p = allPersonnel.find(item => item.id === guardId);
+        const guardName = p?.fullName || fallbackName || 'this guard';
         const ok = confirm(`Reset the registered mobile phone binding for ${guardName}? Their next login/punch will bind their new phone.`);
         if (!ok) return;
         try {
             const { error } = await client.rpc('reset_guard_registered_device', { p_guard_id: guardId });
             if (error) throw error;
-            const p = allPersonnel.find(item => item.id === guardId);
             if (p) {
                 p.registeredDeviceId = null;
                 p.registeredDeviceInfo = null;

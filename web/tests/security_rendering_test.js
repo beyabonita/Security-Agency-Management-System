@@ -52,7 +52,7 @@ expectExcludes(adminUsers, "from('accomplishment_reports').insert", 'direct acco
 expectIncludes(adminUsers, "rpc('assign_guard_inspector'", 'tenant-safe Inspector assignment');
 expectIncludes(adminUsers, "from('guard_assignment_history')", 'visible assignment history');
 expectIncludes(adminUsers, 'appDialog.runBusy(btn', 'animated personnel account creation');
-expectIncludes(adminUsers, 'account created. Username:', 'consistent personnel creation toast');
+expectIncludes(adminUsers, 'account created. Email:', 'consistent personnel creation toast');
 expectExcludes(adminUsers, 'id="createGuardSuccess"', 'legacy inline personnel creation success message');
 const inspectorPersonnelTable = adminUsers.match(/<section class="personnel-table-section" aria-labelledby="inspectorPersonnelHeading">[\s\S]*?<\/section>/)?.[0] || '';
 expectIncludes(inspectorPersonnelTable, 'Inspector Personnel', 'Inspector personnel table');
@@ -68,7 +68,7 @@ const adminDashboard = read('admin', 'dashboard.html');
 expectIncludes(adminDashboard, 'id="deploymentSiteFilter"', 'Operations Head deployment filters');
 expectIncludes(adminDashboard, 'id="contractDonut"', 'Operations Head contract-status chart');
 expectIncludes(adminDashboard, 'id="attendanceDonut"', 'Operations Head attendance-overview chart');
-expectIncludes(adminDashboard, 'id="recentIncidentTableBody"', 'Operations Head recent incident table');
+expectIncludes(adminDashboard, 'id="recentIncidentFeed"', 'Operations Head recent incident feed');
 expectIncludes(adminDashboard, "data-incident-id", 'safe dashboard incident row identifier');
 expectExcludes(adminDashboard, 'onclick="openDetail', 'dashboard inline incident opener');
 assertInlineScriptsParse(adminDashboard, 'admin/dashboard.html');
@@ -96,10 +96,10 @@ for (const page of ['dashboard.html', 'users.html', 'locations.html', 'incidents
 }
 
 const schedule = read('admin', 'schedule.html');
-expectIncludes(schedule, '>${escapeHtml(guard.name)}${guard.role', 'escaped personnel filter labels');
+expectIncludes(schedule, '${escapeHtml(guard.name)}</option>', 'escaped personnel filter labels');
 const roster = read('admin', 'js', 'shift-roster.js');
 expectIncludes(roster, '${escapeHtml(g.name)}</option>', 'escaped roster Guard names');
-expectIncludes(roster, '${escapeHtml(currentName(ids[i]))}', 'escaped roster preview names');
+expectIncludes(roster, 'escapeHtml(currentName(ids[i]))', 'escaped roster preview names');
 assertJavaScriptParses(roster, 'admin/js/shift-roster.js');
 assertInlineScriptsParse(schedule, 'admin/schedule.html');
 
@@ -123,17 +123,15 @@ assertInlineScriptsParse(inspectorSwaps, 'inspector/swaps.html');
 for (const panel of ['admin', 'inspector']) {
   const locations = read(panel, 'locations.html');
   const locationError = panel === 'admin'
-    ? 'escapeHtml(err?.message || "Could not load deployment sites.")'
+    ? "escapeHtml(err?.message||'Could not load deployment sites.')"
     : 'escapeHtml(err?.message || "Could not load locations.")';
   expectIncludes(locations, locationError, `${panel} escaped location-load error`);
   if (panel === 'admin') {
     expectIncludes(locations, 'L.divIcon', 'CSS-rendered admin location marker');
     expectIncludes(locations, 'icon: locationPinIcon', 'custom admin location marker assignment');
     expectExcludes(locations, 'L.marker(DEFAULT_CENTER, { draggable: true }).addTo(map);', 'external default Leaflet marker');
-    expectIncludes(locations, 'countrycodes: "ph"', 'hard Philippine geocoder country filter');
-    expectIncludes(locations, 'bounded: "1"', 'bounded Philippine geocoder search');
-    expectIncludes(locations, 'viewbox: PHILIPPINES_VIEWBOX', 'Philippine geocoder viewbox');
-    expectIncludes(locations, 'result.address?.country_code === "ph"', 'defensive Philippine result validation');
+    expectIncludes(locations, "countrycodes:'ph'", 'hard Philippine geocoder country filter');
+    expectIncludes(locations, 'PhLocationSearch.filter(results', 'defensive Philippine result validation');
     expectIncludes(locations, 'id="addressSearchButton"', 'explicit address-search action');
     expectExcludes(locations, 'setTimeout(() => searchAddress(query)', 'Nominatim autocomplete requests');
     expectIncludes(locations, 'requestId !== geolocationRequestId', 'stale geolocation callback guard');
@@ -201,17 +199,15 @@ expectExcludes(itDashboard, 'is maintained by your IT team', 'retired IT Admin o
 assertInlineScriptsParse(itDashboard, 'it-admin/dashboard.html');
 
 const itControls = read('it-admin', 'clients.html');
-expectIncludes(itControls, 'Single-beneficiary operations', 'single beneficiary system mode');
+const itAccountActivity = read('it-admin', 'account-activity.js');
 expectExcludes(itControls, 'it-provision-client', 'retired client-provisioning call');
-expectIncludes(itControls, 'id="refreshSystemCheck"', 'System Controls refresh action');
-expectIncludes(itControls, 'async function runSystemCheck', 'live System Controls check');
-expectIncludes(itControls, "appSupabase.from('profiles').select('role,active')", 'System Controls account-directory check');
-expectIncludes(itControls, 'id="workspaceHealth"', 'System Controls health status');
+expectIncludes(itDashboard, "appSupabase.from('profiles').select('role,active')", 'IT overview account-directory check');
+expectIncludes(itAccountActivity, "rpc('it_account_activity'", 'live IT account-activity check');
 expectIncludes(itControls, 'id="platformSettingsForm"', 'Super Operations Head platform configuration form');
 expectExcludes(itControls, 'onsubmit="savePlatformSettings(event)"', 'shadowed platform settings inline handler');
 expectIncludes(itControls, "addEventListener('submit', handlePlatformSettingsSubmit)", 'explicit platform settings submit listener');
 expectIncludes(itControls, "rpc('update_platform_settings'", 'secured platform configuration save');
-expectIncludes(itControls, "from('platform_settings_audit')", 'platform configuration audit list');
+assertJavaScriptParses(itAccountActivity, 'it-admin/account-activity.js');
 assertInlineScriptsParse(itControls, 'it-admin/clients.html');
 
 const itAdminUi = read('it-admin', 'it-admin-ui.js');
@@ -249,13 +245,14 @@ expectIncludes(inspectorShell, "event.key === 'Escape'", 'Inspector navigation e
 assertJavaScriptParses(inspectorShell, 'inspector/js/inspector-shell.js');
 
 const itUsers = read('it-admin', 'users.html');
-expectIncludes(itUsers, "const platformRoles = ['admin', 'it_admin'];", 'restricted IT account roles');
-expectIncludes(itUsers, 'IT Admin and Operations Head accounts only.', 'restricted IT account scope');
-expectExcludes(itUsers, 'id="organizationId"', 'client organization selector');
-expectExcludes(itUsers, 'resetDevice(', 'IT Admin device-reset action');
-expectExcludes(itUsers, 'resetDevice: true', 'IT Admin device-reset request');
-expectExcludes(itUsers, '<th>Device</th>', 'irrelevant IT Admin device column');
-expectExcludes(itUsers, 'device_locked', 'irrelevant IT Admin device-state query');
+expectIncludes(itUsers, 'clients.html#accounts', 'IT accounts redirect to System Controls');
+expectIncludes(itControls, "const platformRoles = ['admin', 'it_admin'];", 'restricted IT account roles');
+expectIncludes(itControls, '<option value="admin">Operations Head</option>', 'restricted IT account scope');
+expectExcludes(itControls, 'id="organizationId"', 'client organization selector');
+expectExcludes(itControls, 'resetDevice(', 'IT Admin device-reset action');
+expectExcludes(itControls, 'resetDevice: true', 'IT Admin device-reset request');
+expectExcludes(itControls, '<th>Device</th>', 'irrelevant IT Admin device column');
+expectExcludes(itControls, 'device_locked', 'irrelevant IT Admin device-state query');
 expectIncludes(read('admin', 'users.html'), 'resetDevice(', 'Operations Head guard-device reset remains available');
 assertInlineScriptsParse(itUsers, 'it-admin/users.html');
 
@@ -276,11 +273,11 @@ const portalPages = [
   'staff/login.html',
   ...['admin', 'inspector'].flatMap((panel) => [
     `${panel}/dashboard.html`, `${panel}/users.html`, `${panel}/locations.html`,
-    `${panel}/incidents.html`, `${panel}/swaps.html`,
+    `${panel}/incidents.html`, `${panel}/swaps.html`, `${panel}/live-tracking.html`,
   ]),
   'admin/schedule.html',
+  'admin/records.html',
   'it-admin/dashboard.html',
-  'it-admin/users.html',
   'it-admin/clients.html',
 ];
 for (const page of portalPages) {
@@ -307,7 +304,6 @@ for (const page of [
   ]),
   'admin/schedule.html',
   'it-admin/dashboard.html',
-  'it-admin/users.html',
   'it-admin/clients.html',
 ]) {
   const source = fs.readFileSync(path.join(root, page), 'utf8');

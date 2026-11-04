@@ -9,7 +9,7 @@
         },
         {
           "key": "Content-Disposition",
-          "value": "attachment; filename=\"Security-Agency-Management-System-Guard-v1.0.18.apk\""
+          "value": "attachment; filename=\"Security-Agency-Management-System-Guard-v1.0.20.apk\""
         },
         {
           "key": "Cache-Control",
@@ -103,6 +103,18 @@
       "permanent": false
     },
     {
+      "source": "/admin/records.html",
+      "has": [{ "type": "host", "value": "it.tts-agency.site" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/live-tracking.html",
+      "has": [{ "type": "host", "value": "it.tts-agency.site" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
       "source": "/inspector/:path*",
       "has": [{ "type": "host", "value": "it.tts-agency.site" }],
       "destination": "/system-access-7d92a4/login.html",
@@ -164,6 +176,18 @@
     },
     {
       "source": "/admin/swaps.html",
+      "has": [{ "type": "host", "value": "sams-it-portal.vercel.app" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/records.html",
+      "has": [{ "type": "host", "value": "sams-it-portal.vercel.app" }],
+      "destination": "/system-access-7d92a4/login.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin/live-tracking.html",
       "has": [{ "type": "host", "value": "sams-it-portal.vercel.app" }],
       "destination": "/system-access-7d92a4/login.html",
       "permanent": false

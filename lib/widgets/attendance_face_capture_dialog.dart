@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
@@ -192,16 +193,7 @@ class _AttendanceFaceCaptureSheetState
       maxDimension: 640,
       jpegQuality: 78,
     );
-    final dataUrl = GeotagWatermarkService.toWatermarkedBase64DataUrl(
-      rawBytes,
-      latitude: widget.latitude,
-      longitude: widget.longitude,
-      accuracyMeters: widget.accuracyMeters,
-      locationLabel: widget.locationLabel,
-      tagLabel: widget.actionLabel.toUpperCase(),
-      deviceLabel: widget.deviceLabel,
-      capturedAt: now,
-    );
+    final dataUrl = 'data:image/jpeg;base64,${base64Encode(watermarked)}';
     setState(() {
       _watermarkedPreview = watermarked;
       _encodedDataUrl = dataUrl;
@@ -398,3 +390,4 @@ class _AttendanceFaceCaptureSheetState
     );
   }
 }
+

@@ -595,9 +595,7 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
       return;
     }
 
-    final reasonController = TextEditingController(
-      text: 'Seminar / Off-Site Assignment',
-    );
+    var reasonDraft = 'Seminar / Off-Site Assignment';
     final reason = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -612,8 +610,9 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
               style: const TextStyle(fontSize: 13),
             ),
             const SizedBox(height: 12),
-            TextField(
-              controller: reasonController,
+            TextFormField(
+              initialValue: reasonDraft,
+              onChanged: (value) => reasonDraft = value,
               maxLines: 2,
               decoration: const InputDecoration(
                 labelText: 'Reason for Outside-Post Time In *',
@@ -629,15 +628,13 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () =>
-                Navigator.of(ctx).pop(reasonController.text.trim()),
+            onPressed: () => Navigator.of(ctx).pop(reasonDraft.trim()),
             style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
             child: const Text('Continue to Face Capture'),
           ),
         ],
       ),
     );
-    reasonController.dispose();
     if (reason == null || reason.length < 5 || !mounted) {
       if (reason != null && reason.length < 5) {
         _showSnack(

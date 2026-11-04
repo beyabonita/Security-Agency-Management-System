@@ -2699,9 +2699,20 @@ function openDashboardDrilldown(el) {
             const today = localDateString(new Date());
             const todayScheds = schedules.filter(s => (s.duty_date || localDateString(new Date(s.start_at))) === today);
             const attMap = new Map(attendance.filter(a => a.duty_date === today).map(a => [a.schedule_id, a]));
-            itemsHtml = todayScheds.map(s => {
+            const filteredScheds = todayScheds.filter(s => {
                 const sess = attMap.get(s.id);
-                const status = sess && sess.clock_in_at ? 'Present' : 'Absent';
+                const hasClockIn = Boolean(sess && sess.clock_in_at);
+                const isLate = hasClockIn && (new Date(sess.clock_in_at).getTime() > new Date(sess.scheduled_start_at || s.start_at).getTime() + 5 * 60000);
+                if (segment === 'Absent') return !hasClockIn;
+                if (segment === 'Late') return isLate;
+                if (segment === 'Present') return hasClockIn;
+                return true;
+            });
+            itemsHtml = filteredScheds.map(s => {
+                const sess = attMap.get(s.id);
+                const hasClockIn = Boolean(sess && sess.clock_in_at);
+                const isLate = hasClockIn && (new Date(sess.clock_in_at).getTime() > new Date(sess.scheduled_start_at || s.start_at).getTime() + 5 * 60000);
+                const status = !hasClockIn ? 'Absent' : (isLate ? 'Present (Late)' : 'Present (On Time)');
                 const gName = s.guard_name || profileDisplayName(profMap.get(s.user_id));
                 return '<div class="ig-drilldown-row"><strong>' + escapeHtml(gName) + '</strong><span>' + escapeHtml((s.location_label || 'Site') + ' · ' + status) + '</span></div>';
             }).join('');

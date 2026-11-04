@@ -86,12 +86,15 @@ function responseContext(payload, requestId, options = {}) {
     { ok: true },
   );
 
-  const usersPage = fs.readFileSync(path.resolve(__dirname, '..', 'it-admin', 'users.html'), 'utf8');
-  assert.match(usersPage, /<script src="\.\.\/js\/edge-function-errors\.js"><\/script>/);
-  assert.match(usersPage, /person\.id === me\.uid/);
-  assert.doesNotMatch(usersPage, /person\.id === me\.id/);
-  assert.match(usersPage, /edgeFunctionErrors\.unwrap\(result, 'Could not create account\.'\)/);
-  assert.match(usersPage, /edgeFunctionErrors\.unwrap\(result, 'Could not update account\.'\)/);
+  const usersRedirect = fs.readFileSync(path.resolve(__dirname, '..', 'it-admin', 'users.html'), 'utf8');
+  assert.match(usersRedirect, /clients\.html#accounts/);
+
+  const controlsPage = fs.readFileSync(path.resolve(__dirname, '..', 'it-admin', 'clients.html'), 'utf8');
+  assert.match(controlsPage, /<script src="\.\.\/js\/edge-function-errors\.js"><\/script>/);
+  assert.match(controlsPage, /person\.id === me\.uid/);
+  assert.doesNotMatch(controlsPage, /person\.id === me\.id/);
+  assert.match(controlsPage, /edgeFunctionErrors\.unwrap\(result, 'Could not create account\.'\)/);
+  assert.match(controlsPage, /edgeFunctionErrors\.unwrap\(result, 'Could not update account\.'\)/);
 
   console.log('Edge Function error handling checks passed.');
 })().catch((error) => {

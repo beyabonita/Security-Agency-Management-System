@@ -610,6 +610,14 @@
     }
 
     // 2. Map Building / Company Markers
+    for (const [existingKey, existingEntry] of siteEntries) {
+      if (!groups.has(existingKey)) {
+        if (siteLayer && typeof siteLayer.removeLayer === 'function') {
+          siteLayer.removeLayer(existingEntry.marker);
+        }
+        siteEntries.delete(existingKey);
+      }
+    }
     for (const [key, grp] of groups) {
       if (map && siteLayer && Number.isFinite(grp.lat) && Number.isFinite(grp.lng) && !siteEntries.has(key)) {
         const pinEl = document.createElement('div');
@@ -633,6 +641,9 @@
         siteEntries.set(key, { marker: sMarker, pinEl });
       } else if (siteEntries.has(key)) {
         const entryObj = siteEntries.get(key);
+        if (Number.isFinite(grp.lat) && Number.isFinite(grp.lng)) {
+          entryObj.marker?.setLatLng?.([grp.lat, grp.lng]);
+        }
         entryObj.pinEl.textContent = `${grp.label} (${grp.guards.size})`;
         entryObj.pinEl.title = `${grp.label} (${grp.guards.size} on duty)`;
         entryObj.pinEl.classList.toggle('is-active', selectedSiteKey === key);

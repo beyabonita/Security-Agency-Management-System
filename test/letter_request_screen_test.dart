@@ -209,7 +209,7 @@ void main() {
     (tester) async {
       final gateway = FakeGateway()..schedules = [];
       await render(tester, gateway);
-      expect(find.text('Absent'), findsOneWidget);
+      expect(find.text('Absence Request'), findsOneWidget);
       expect(
         find.textContaining('Choose a duty scheduled today'),
         findsOneWidget,
@@ -257,7 +257,7 @@ void main() {
   ) async {
     final gateway = FakeGateway();
     await render(tester, gateway);
-    await tapText(tester, 'Swap Duty');
+    await tapText(tester, 'Shift Swap Request');
     await chooseDuty(tester);
     await tester.enterText(
       find.byType(TextField),
@@ -289,7 +289,7 @@ void main() {
         ..options = [];
       await render(tester, gateway);
       await chooseDuty(tester);
-      await tapText(tester, 'Swap Duty');
+      await tapText(tester, 'Shift Swap Request');
       expect(find.text('Request a replacement Guard'), findsOneWidget);
       await tester.enterText(
         find.byType(TextField),
@@ -306,7 +306,7 @@ void main() {
     (tester) async {
       final gateway = FakeGateway()..options = [];
       await render(tester, gateway, width: 320);
-      await tapText(tester, 'Swap Duty');
+      await tapText(tester, 'Shift Swap Request');
       await chooseDuty(tester);
       expect(find.textContaining('No eligible duties to swap'), findsOneWidget);
       await tapText(tester, 'Attach request letter');
@@ -326,7 +326,7 @@ void main() {
       await render(tester, gateway);
       await chooseDuty(tester);
       await tapText(tester, 'Attach request letter');
-      await tapText(tester, 'Swap Duty');
+      await tapText(tester, 'Shift Swap Request');
       expect(
         find.textContaining('Could not load other Guards'),
         findsOneWidget,
@@ -335,7 +335,7 @@ void main() {
       await tapText(tester, 'Retry swap options');
       expect(find.text('absence.pdf'), findsOneWidget);
       expect(find.byType(DropdownButtonFormField<String>), findsNWidgets(2));
-      await tapText(tester, 'Absent');
+      await tapText(tester, 'Absence Request');
       await tester.enterText(find.byType(TextField), 'Family appointment.');
       await tapText(tester, 'Send to Operations Head');
       expect(gateway.submissions.single['type'], 'absence');

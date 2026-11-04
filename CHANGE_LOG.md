@@ -79,6 +79,24 @@
 
 ---
 
+### [2026-11-04 08:45] - Fix & Audit: Full System Audit, Route & Security Hardening (#4, #5, #6, #7, #8, #14, #20) — [✅ PUSHED: `origin/main`]
+
+- **Scope & Objective**:
+  - Conducted full-system static syntax scan across 870 web files, audited Flutter mobile code and test suites, verified all 13 Node test suites, and fixed 6 security/routing edge cases.
+- **Fixes Applied**:
+  1. **Mobile Guard Device Cache Boundary & Face Capture URL Formatting**:
+     - Updated [`DeviceVerificationService.verifyCurrentDevice`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/services/device_verification_service.dart#L98-L150) to invalidate device binding cache when a different user logs in (`_cachedUserId`), and added `clearCache()`.
+     - In [`attendance_face_capture_dialog.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/widgets/attendance_face_capture_dialog.dart#L180-L200), streamlined base64 data URL formatting directly from the watermarked preview buffer to avoid redundant JPEG encoding passes.
+     - In [`attendance.dart`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/lib/attendance.dart#L598-L640), switched outside-location Force Attendance dialog input to state-managed `TextFormField` to avoid unnecessary manual controller disposal during dialog teardown.
+  2. **Vercel Security Headers & Host Routing**:
+     - In [`vercel.json`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/vercel.json#L10-L190), bumped download header filename to `v1.0.20`, and added explicit host isolation redirects for `/admin/records.html` and `/admin/live-tracking.html` on `it.tts-agency.site` and `sams-it-portal.vercel.app` pointing to `/system-access-7d92a4/login.html`.
+  3. **Records & Dashboard Infographics Interactivity**:
+     - In [`web/admin/js/records.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/records.js#L190-L200), sanitized `resetGuardDeviceBinding` inline call parameter to use escaped ID rather than unescaped name string.
+     - In [`web/admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html#L2695-L2715), refined attendance donut drilldown to accurately categorize and filter Present vs. Late vs. Absent guards.
+     - In [`web/js/live-tracking.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/live-tracking.js#L610-L640), added defensive cleanup removing decommissioned location pins when `siteLocations` entries are deactivated.
+  4. **Test Suite Modernization**:
+     - Updated [`web/tests/security_rendering_test.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/security_rendering_test.js) and [`web/tests/edge_function_errors_test.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/edge_function_errors_test.js) to match modern layout patterns. All 13 test suites pass with 0 errors.
+
 ### [2026-11-04 03:05] - Feat & Fix: Guard Tracker All Deployment Sites Directory, Search & Real-Time On-Duty Personnel Filter (#14, #17) — [✅ PUSHED: `origin/main`]
 
 - **Scope & Objective**:

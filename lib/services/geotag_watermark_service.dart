@@ -152,3 +152,4 @@ class GeotagWatermarkService {
         .replaceAll(RegExp(r'[^\x20-\x7E]'), '');
   }
 }
+

@@ -30,6 +30,13 @@ class DeviceVerificationResult {
 class DeviceVerificationService {
   static const _prefKeyDeviceId = 'sentinel_guard_hardware_device_id_v1';
   static DeviceVerificationResult? _cachedResult;
+  static String? _cachedUserId;
+
+  /// Clears cached verification state (e.g., on sign-out or account switch).
+  static void clearCache() {
+    _cachedResult = null;
+    _cachedUserId = null;
+  }
 
   /// Generates or retrieves the persistent hardware-bound installation ID for this device.
   static Future<String> getOrCreateDeviceId() async {
@@ -92,7 +99,14 @@ class DeviceVerificationService {
   static Future<DeviceVerificationResult> verifyCurrentDevice({
     bool forceRefresh = false,
   }) async {
-    if (!forceRefresh && _cachedResult != null) {
+    String? currentUid;
+    try {
+      currentUid = Supabase.instance.client.auth.currentUser?.id;
+    } catch (_) {}
+    if (!forceRefresh &&
+        _cachedResult != null &&
+        currentUid != null &&
+        _cachedUserId == currentUid) {
       return _cachedResult!;
     }
     final deviceId = await getOrCreateDeviceId();
@@ -129,6 +143,7 @@ class DeviceVerificationService {
           registeredDeviceInfo: map['registered_device_info']?.toString(),
           message: map['message']?.toString(),
         );
+        _cachedUserId = user.id;
         _cachedResult = result;
         return result;
       }
@@ -141,7 +156,9 @@ class DeviceVerificationService {
       verified: true,
       status: 'local_only',
     );
+    _cachedUserId = currentUid;
     _cachedResult = fallback;
     return fallback;
   }
 }
+
