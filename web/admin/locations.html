@@ -308,14 +308,28 @@
         </div>
     </div>
 
-    <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="section-title" style="flex:1;margin-bottom:0;">All Deployment Sites</div>
-        <button class="btn-add ms-3" onclick="showAddForm()"><span class="material-symbols-rounded" aria-hidden="true">add_location_alt</span>Add Deployment Site</button>
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-2">
+            <div class="section-title" style="margin:0;">All Deployment Sites</div>
+            <span id="locationCountBadge" class="personnel-table-count">0</span>
+        </div>
+        <button class="btn-add ms-auto" onclick="showAddForm()"><span class="material-symbols-rounded" aria-hidden="true">add_location_alt</span>Add Deployment Site</button>
     </div>
 
-    <div class="row g-2 mb-3">
-        <div class="col-md-8"><label class="form-label" for="siteFilter">SEARCH SAVED SITES</label><input type="search" id="siteFilter" class="form-control" placeholder="Site name or address" oninput="renderLocations()"></div>
-        <div class="col-md-4"><label class="form-label" for="siteStatusFilter">STATUS</label><select id="siteStatusFilter" class="form-control" onchange="renderLocations()"><option value="all">All sites</option><option value="active">Active</option><option value="disabled">Disabled</option></select></div>
+    <div class="personnel-table-filters d-flex align-items-center gap-2 flex-wrap mb-3">
+        <div class="personnel-search-wrap" style="flex:1;min-width:240px;max-width:420px;">
+            <label for="siteFilter" class="visually-hidden">Search deployment sites</label>
+            <span class="material-symbols-rounded personnel-search-icon" aria-hidden="true">search</span>
+            <input type="search" id="siteFilter" class="form-control personnel-search-input" placeholder="Search site name or address…" oninput="renderLocations()">
+        </div>
+        <div class="personnel-filter-group" style="min-width:160px;">
+            <label for="siteStatusFilter" class="visually-hidden">Filter status</label>
+            <select id="siteStatusFilter" class="form-select personnel-filter-select" onchange="renderLocations()">
+                <option value="all">All Sites</option>
+                <option value="active">Active Only</option>
+                <option value="disabled">Disabled Sites</option>
+            </select>
+        </div>
     </div>
     <div class="glass-card">
       <div class="sl-table-frame">
@@ -1158,9 +1172,11 @@ function loadLocations() {
 
 function renderLocations() {
     let html='';
+    let matchCount = 0;
     const query=document.getElementById('siteFilter').value,status=document.getElementById('siteStatusFilter').value;
     locationRecords.forEach((d,id)=>{
         if(!PhLocationSearch.matchesSite(d,query,status))return;
+        matchCount++;
         const doc={id};
         const deployedList = deployedGuardsByLocation.get(id) || [];
         const deployedCount = deployedList.length;
@@ -1198,6 +1214,8 @@ function renderLocations() {
             </div></td>
         </tr>`;
     });
+    const countBadge = document.getElementById("locationCountBadge");
+    if (countBadge) countBadge.textContent = String(matchCount);
     document.getElementById("locationTable").innerHTML = html ||
         `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--sl-muted);">No deployment sites match your filters.</td></tr>`;
 }

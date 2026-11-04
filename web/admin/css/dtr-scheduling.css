@@ -1,7 +1,8 @@
 /* Guard roster and DTR schedule history. */
 .schedule-list-filters {
     display: grid;
-    grid-template-columns: repeat(2, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    align-items: end;
     gap: 16px;
     padding: 20px 24px 14px;
 }
@@ -30,7 +31,18 @@
 #rosterPreview, #assignedRoster { padding: 16px; border: 1px solid var(--ax-border); border-radius: 12px; }
 #rosterPreview p, #assignedRoster p { margin: 0 0 8px; }
 #rosterPreview p:last-child, #assignedRoster p:last-child { margin-bottom: 0; }
-#saveRoster { justify-self: start; min-height: 44px; padding-inline: 20px; }
+#saveRoster {
+  justify-self: start;
+  min-height: 42px;
+  padding: 10px 22px;
+  font-weight: 700;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.25);
+}
 .shift-roster-card .form-hint { margin: 0; }
 .roster-dtr-scroll { overflow-x: auto; max-width: 100%; margin: 12px 0; }
 .roster-dtr-preview { width: 100%; min-width: 580px; border-collapse: collapse; font-size: .8rem; }
@@ -83,7 +95,9 @@
 }
 .roster-combobox-icon {
   position: absolute;
-  left: 11px;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 1.15rem;
   color: var(--ax-muted, #fca5a5);
   pointer-events: none;
@@ -92,11 +106,12 @@
 .roster-combobox-input {
   padding-left: 36px !important;
   padding-right: 58px !important;
-  height: 38px !important;
+  height: 42px !important;
+  min-height: 42px !important;
   font-size: 0.88rem !important;
   background: var(--sl-surface-muted, rgba(255, 255, 255, 0.04)) !important;
   border: 1px solid var(--ax-border) !important;
-  border-radius: 8px !important;
+  border-radius: 10px !important;
   color: var(--ax-text) !important;
   cursor: pointer;
 }
@@ -107,7 +122,9 @@
 }
 .roster-combobox-clear {
   position: absolute;
-  right: 32px;
+  right: 34px;
+  top: 50%;
+  transform: translateY(-50%);
   background: transparent;
   border: none;
   color: var(--ax-muted, #fca5a5);
@@ -123,7 +140,9 @@
 }
 .roster-combobox-arrow {
   position: absolute;
-  right: 6px;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
   background: transparent;
   border: none;
   color: var(--ax-muted, #fca5a5);
@@ -142,7 +161,7 @@
   color: var(--ax-text, #fff);
 }
 .roster-combobox.is-open .roster-combobox-arrow {
-  transform: rotate(180deg);
+  transform: translateY(-50%) rotate(180deg);
 }
 .roster-combobox-menu {
   position: absolute;
@@ -293,10 +312,12 @@
 .btn-auto-assign {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 7px 14px;
-  border-radius: 8px;
-  font-size: 0.8rem;
+  min-height: 38px;
+  padding: 8px 16px;
+  border-radius: 9px;
+  font-size: 0.82rem;
   font-weight: 700;
   border: 1px solid var(--ax-accent, #dc2626);
   background: var(--sl-surface, #fff);
@@ -315,10 +336,12 @@
 .btn-auto-deploy-all {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 7px 14px;
-  border-radius: 8px;
-  font-size: 0.8rem;
+  min-height: 38px;
+  padding: 8px 16px;
+  border-radius: 9px;
+  font-size: 0.82rem;
   font-weight: 700;
   border: 1px solid var(--ax-border);
   background: var(--sl-surface, #fff);
@@ -466,4 +489,45 @@
     padding-inline: 18px;
     grid-template-columns: 1fr;
   }
+}
+
+/* Dark Theme Enhancements for Duty Scheduling */
+[data-theme="dark"] .auto-deploy-toolbar {
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(220, 38, 38, 0.45);
+}
+[data-theme="dark"] .btn-auto-assign {
+  background: #2a1518;
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+[data-theme="dark"] .btn-auto-assign:hover:not(:disabled) {
+  background: #dc2626;
+  color: #fff;
+}
+[data-theme="dark"] .btn-auto-deploy-all {
+  background: #1f2937;
+  border-color: #374151;
+  color: #e5e7eb;
+}
+[data-theme="dark"] .btn-auto-deploy-all:hover:not(:disabled) {
+  border-color: #ef4444;
+  color: #fca5a5;
+  background: #2a1518;
+}
+[data-theme="dark"] .deployment-bundle-card {
+  background: #1f2937;
+  border-color: #374151;
+}
+[data-theme="dark"] .deployment-bundle-summary {
+  background: rgba(17, 24, 39, 0.6);
+}
+[data-theme="dark"] .bundle-quick-btn {
+  background: #111827;
+  border-color: #374151;
+  color: #e5e7eb;
+}
+[data-theme="dark"] .bundle-quick-btn:hover {
+  border-color: #ef4444;
+  color: #fca5a5;
 }

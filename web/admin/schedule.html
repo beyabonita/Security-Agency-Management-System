@@ -76,7 +76,9 @@
       <div class="auto-deploy-toolbar" id="autoDeployToolbar"><div class="auto-deploy-copy"><span class="material-symbols-rounded" aria-hidden="true">verified_user</span><div><strong>Automated Personnel Deployment</strong><div class="text-muted" style="font-size:0.75rem;">Automatically match active, contract-valid, non-conflicting guards to open shift slots or all unstaffed sites.</div></div></div><div class="auto-deploy-actions"><button type="button" id="autoAssignRosterBtn" class="btn-auto-assign"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;">groups</span> Auto-Assign Guards</button><button type="button" id="autoDeployAllSitesBtn" class="btn-auto-deploy-all"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;">business</span> Auto-Deploy Unstaffed Sites</button></div></div>
       <div id="rosterGuards" class="schedule-form-grid" aria-label="Guards for each shift"></div>
       <div id="rosterPreview" role="status" aria-live="polite"></div>
-      <button id="saveRoster" type="button" class="btn btn-danger">Assign all shifts</button>
+      <div class="schedule-form-actions">
+        <button id="saveRoster" type="button" class="btn btn-danger"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;">assignment_turned_in</span> Assign all shifts</button>
+      </div>
       <div id="assignedRoster" aria-live="polite"></div>
     </div>
     <div class="section-title">Scheduled guard shifts</div>

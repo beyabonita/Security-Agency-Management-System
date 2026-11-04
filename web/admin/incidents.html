@@ -48,15 +48,25 @@
                 <button type="button" class="ax-btn-logout" onclick="adminLogout()">Sign out</button>
             </div>
         </header>
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 class="h5 mb-0 fw-bold">Incident Reports</h2>
+        <main class="ax-content">
+        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2">
-                <label for="incidentViewFilter" class="form-label mb-0 fw-semibold text-muted" style="font-size:13px;">View:</label>
-                <select id="incidentViewFilter" class="form-select form-select-sm" style="width: auto;">
-                    <option value="active" selected>Active Reports</option>
-                    <option value="archived">Archived Reports</option>
-                    <option value="all">All Reports</option>
-                </select>
+                <div class="ax-section-label" style="margin:0;">Incident Reports</div>
+                <span id="incidentCountBadge" style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:0.75rem;font-weight:700;background:rgba(220,38,38,0.12);color:var(--ax-accent,#dc2626);">0</span>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div style="position:relative;display:inline-flex;align-items:center;min-width:240px;">
+                    <span class="material-symbols-rounded" style="position:absolute;left:10px;font-size:17px;color:var(--sl-muted);pointer-events:none;" aria-hidden="true">search</span>
+                    <input type="search" id="incidentSearchInput" class="form-control form-control-sm" style="padding-left:34px;height:38px;border-radius:9px;" placeholder="Search guard, type, summary…" oninput="renderTable()" aria-label="Search incidents">
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <label for="incidentViewFilter" class="visually-hidden">Filter incidents by state</label>
+                    <select id="incidentViewFilter" class="form-select form-select-sm" style="height:38px;border-radius:9px;min-width:145px;">
+                        <option value="active" selected>Active Reports</option>
+                        <option value="archived">Archived Reports</option>
+                        <option value="all">All Reports</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -244,12 +254,24 @@ document.getElementById('incidentViewFilter')?.addEventListener('change', render
 function renderTable() {
   const tbody = document.getElementById('incidentTableBody');
   const viewFilter = document.getElementById('incidentViewFilter')?.value || 'active';
+  const searchQuery = (document.getElementById('incidentSearchInput')?.value || '').trim().toLowerCase();
+  const countBadge = document.getElementById('incidentCountBadge');
   const filtered = incidents.filter(function(inc) {
     const isArchived = !!(inc.archivedAt || inc.archived_at);
-    if (viewFilter === 'active') return !isArchived;
-    if (viewFilter === 'archived') return isArchived;
+    if (viewFilter === 'active' && isArchived) return false;
+    if (viewFilter === 'archived' && !isArchived) return false;
+    if (searchQuery) {
+      const guardName = String(inc.guardName || inc.guard_name || '').toLowerCase();
+      const type = String(inc.incident_type || inc.type || inc.category || '').toLowerCase();
+      const summary = String(inc.summary || inc.description || '').toLowerCase();
+      const status = String(inc.status || '').toLowerCase();
+      if (!guardName.includes(searchQuery) && !type.includes(searchQuery) && !summary.includes(searchQuery) && !status.includes(searchQuery)) {
+        return false;
+      }
+    }
     return true;
   });
+  if (countBadge) countBadge.textContent = String(filtered.length);
   if (!filtered.length) {
     tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No ' + (viewFilter === 'archived' ? 'archived' : 'incident') + ' reports found.</td></tr>';
     return;
