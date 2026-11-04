@@ -22,6 +22,7 @@
 * { box-sizing: border-box; }
 
 .inspector-body {
+    overflow-x: hidden;
     font-family: 'Inter', system-ui, sans-serif;
     background: var(--ix-bg);
     color: var(--ix-text);
@@ -778,7 +779,7 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 .ix-login-admin-link { text-align: center; margin-top: 24px; font-size: 0.82rem; color: var(--ix-muted); }
 .ix-login-admin-link a { color: var(--sl-accent); font-weight: 600; text-decoration: none; }
 
-@media (max-width: 900px) {
+@media (max-width: 992px) {
     .ix-shell-bar { padding: 12px 16px; }
     .ix-shell-actions { justify-content: flex-end; }
     .ix-readonly-pill { display: none; }

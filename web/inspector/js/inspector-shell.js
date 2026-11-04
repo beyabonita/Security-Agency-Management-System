@@ -69,7 +69,7 @@ function initInspectorShell() {
             if (event.key === 'Escape') closeNavigation();
         });
         window.addEventListener('resize', function() {
-            if (window.innerWidth > 900) closeNavigation();
+            if (window.innerWidth > 992) closeNavigation();
         });
     }
 }

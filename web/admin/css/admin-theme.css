@@ -23,6 +23,7 @@
 * { box-sizing: border-box; }
 
 .admin-body {
+    overflow-x: hidden;
     font-family: 'Inter', system-ui, sans-serif;
     background: var(--ax-bg);
     color: var(--ax-text);
@@ -704,7 +705,7 @@ body[data-it-page="users"] .ax-nav a[href="users.html"],
     transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 #loadingScreen p { color: var(--ax-muted); font-size: 0.9rem; margin: 0; }
-@media (max-width: 900px) {
+@media (max-width: 992px) {
     #loadingScreen {
         top: 60px;
         left: 0;
@@ -1221,11 +1222,11 @@ button.btn-add-schedule:focus-visible,
 }
 .btn-add:hover, .btn-save:hover, .btn-pdf:hover, .btn-add-guard:hover { background: var(--ax-accent-light) !important; }
 
-@media (max-width: 900px) {
-    .ax-sidebar { transform: translateX(-100%); transition: transform 0.25s; }
-    .ax-sidebar.ax-open { transform: translateX(0); }
-    .ax-main { margin-left: 0; }
-    .ax-menu-toggle { display: block; }
+@media (max-width: 992px) {
+    .ax-sidebar { transform: translateX(-100%); transition: transform 0.25s ease, visibility 0.25s ease; visibility: hidden; pointer-events: none; }
+    .ax-sidebar.ax-open { transform: translateX(0); visibility: visible; pointer-events: auto; }
+    .ax-main { margin-left: 0; min-width: 0; width: 100%; max-width: 100vw; }
+    .ax-menu-toggle { display: inline-flex; align-items: center; justify-content: center; }
     .ax-stat-strip { grid-template-columns: repeat(2, 1fr); }
     .dashboard-section-head { align-items: stretch; flex-direction: column; }
     .dashboard-filter-bar { grid-template-columns: 1fr; min-width: 0; }

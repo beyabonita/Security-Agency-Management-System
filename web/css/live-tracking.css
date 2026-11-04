@@ -48,7 +48,22 @@
 [data-theme="dark"] .tracking-popup-card .tracking-info-val{color:#e5e7eb}
 .tracking-empty{padding:20px}.tracking-note{font-size:14px;margin:12px 0}
 #demoNotice{padding:12px;border:1px solid #d79c3b;background:#fff4d5;color:#583608;border-radius:8px;margin-bottom:14px}
-@media(max-width:800px){.tracking-layout{grid-template-columns:1fr}#guardList{max-height:240px}#trackingMap{height:50vh}}
+.admin-tracking-content{padding:24px;box-sizing:border-box;width:100%;max-width:100%}
+@media(max-width:992px){
+  .tracking-layout{grid-template-columns:1fr;gap:14px}
+  #guardList{max-height:260px}
+  #trackingMap{height:46vh;min-height:280px;width:100%}
+  .tracking-sidebar-col{max-height:420px;width:100%}
+  .tracking-location-guard-grid{grid-template-columns:1fr}
+  .tracking-toolbar{flex-direction:column;align-items:stretch;gap:8px}
+  .tracking-toolbar input{width:100%;min-width:0}
+  .tracking-toolbar button{width:100%}
+}
+@media(max-width:600px){
+  .admin-tracking-content{padding:12px 10px!important}
+  #trackingMap{height:42vh;min-height:260px}
+  .tracking-sidebar-col{max-height:360px}
+}
 
 /* Location Markers & Assigned Guard Profiles Drawer (Item #14) */
 .tracking-sidebar-col{display:flex;flex-direction:column;gap:12px;max-height:72vh;overflow-y:auto;padding-right:4px}
