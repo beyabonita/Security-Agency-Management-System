@@ -531,3 +531,24 @@
   border-color: #ef4444;
   color: #fca5a5;
 }
+
+.contract-shift-callout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #065f46;
+  margin-top: -6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+[data-theme="dark"] .contract-shift-callout {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #a7f3d0;
+}

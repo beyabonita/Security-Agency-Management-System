@@ -149,6 +149,33 @@
         margin-left: 8px;
         vertical-align: middle;
     }
+    .badge-shift-contract {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        background: rgba(30, 41, 59, 0.05);
+        border: 1px solid rgba(30, 41, 59, 0.15);
+        color: #334155;
+        border-radius: 6px;
+        padding: 2px 7px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+    }
+    [data-theme="dark"] .badge-shift-contract {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.15);
+        color: #cbd5e1;
+    }
+    .custom-shifts-card {
+        background: var(--sl-surface-muted, #f8fafc);
+        border: 1px dashed var(--sl-line, #cbd5e1);
+        border-radius: 8px;
+    }
+    [data-theme="dark"] .custom-shifts-card {
+        background: rgba(255, 255, 255, 0.03);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
     .loc-status-cell {
         display: flex;
         flex-direction: column;
@@ -246,7 +273,7 @@
         <input type="hidden" id="address">
 
         <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-md-5">
                 <label class="form-label" for="label">DEPLOYMENT SITE LABEL <span class="req-star" aria-hidden="true">*</span></label>
                 <input type="text" id="label" class="form-control" placeholder="e.g. Jollibee Main Branch" aria-required="true">
             </div>
@@ -255,6 +282,26 @@
                 <input type="number" id="radius" class="form-control" placeholder="Meters" aria-describedby="radiusDefaultStatus" aria-required="true">
                 <div class="radius-note">Recommended: 50–200 m</div>
                 <div id="radiusDefaultStatus" class="radius-note" role="status" aria-live="polite"></div>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" for="siteShiftModel">CONTRACTED SHIFTS <span class="req-star" aria-hidden="true">*</span></label>
+                <select id="siteShiftModel" class="form-select" onchange="onSiteShiftModelChange()" aria-required="true">
+                    <option value="2_shifts_12h" selected>2 Shifts (12h) — 06:00–18:00 / 18:00–06:00</option>
+                    <option value="2_shifts_12h_07">2 Shifts (12h) — 07:00–19:00 / 19:00–07:00</option>
+                    <option value="3_shifts_8h">3 Shifts (8h) — 06:00 / 14:00 / 22:00</option>
+                    <option value="1_shift_8h">1 Shift (8h) — 08:00–17:00 (Day)</option>
+                    <option value="custom">Custom Shift Hours…</option>
+                </select>
+                <div class="radius-note" id="siteShiftModelHelp">Auto-loads roster shifts when scheduling</div>
+            </div>
+            <div class="col-12" id="customShiftsConfigWrap" style="display:none;">
+                <div class="custom-shifts-card p-3 rounded">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <strong style="font-size:0.85rem;"><span class="material-symbols-rounded align-middle me-1" style="font-size:16px;">tune</span> Custom Client Shift Hours</strong>
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:0.75rem;" onclick="addCustomShiftRow()">+ Add Shift</button>
+                    </div>
+                    <div id="customShiftRows" class="d-flex flex-column gap-2"></div>
+                </div>
             </div>
             <div class="col-12">
                 <div class="address-search-label-row">
@@ -998,6 +1045,9 @@ function resetFormFields() {
         labelEl.value = "";
         labelEl.dataset.autofilled = "false";
     }
+    const shiftModelSelect = document.getElementById("siteShiftModel");
+    if (shiftModelSelect) shiftModelSelect.value = "2_shifts_12h";
+    onSiteShiftModelChange();
     document.getElementById("addressSearch").value = "";
     document.getElementById("radius").value = "";
     document.getElementById("radiusDefaultStatus").textContent = "";
@@ -1198,7 +1248,10 @@ function renderLocations() {
             ? `<div class="loc-coords-fallback">${d.latitude}, ${d.longitude}</div>`
             : "";
         html += `<tr>
-            <td><div class="loc-name">${escapeHtml(d.label) || '—'}${lockedBadge}</div></td>
+            <td>
+                <div class="loc-name">${escapeHtml(d.label) || '—'}${lockedBadge}</div>
+                <div class="mt-1">${getShiftModelBadge(d)}</div>
+            </td>
             <td><div class="loc-address">${addressText}${coordsFallback}</div></td>
             <td style="color:var(--sl-muted);">${d.radius ? d.radius + ' m' : '—'}</td>
             <td><div class="loc-status-cell">${badge}${assignedBadge}</div></td>
@@ -1286,6 +1339,14 @@ async function editLocation(id, button) {
         document.getElementById("radiusDefaultStatus").textContent = "";
         document.getElementById("formError").innerText = "";
 
+        const shiftModelSelect = document.getElementById("siteShiftModel");
+        if (shiftModelSelect) {
+            shiftModelSelect.value = d.shiftModel || d.shift_model || "2_shifts_12h";
+            const customHours = d.customShiftHours || d.custom_shift_hours;
+            renderCustomShiftRows(Array.isArray(customHours) && customHours.length ? customHours : null);
+            onSiteShiftModelChange();
+        }
+
         if (deployedGuards && deployedGuards.length > 0) {
             lockedLocationData = {
                 latitude: Number(d.latitude),
@@ -1350,12 +1411,57 @@ async function saveLocation(button) {
         return;
     }
 
+    const shiftModel = document.getElementById("siteShiftModel")?.value || "2_shifts_12h";
+    let customShiftHours = null;
+    if (shiftModel === "custom") {
+        customShiftHours = getCustomShiftRowsData();
+        if (!customShiftHours || !customShiftHours.length) {
+            errEl.innerText = "Please configure at least one custom shift.";
+            return;
+        }
+        for (let i = 0; i < customShiftHours.length; i++) {
+            const cs = customShiftHours[i];
+            if (!cs.start_time || !cs.end_time) {
+                errEl.innerText = "Please enter valid start and end times for Shift " + (i + 1) + ".";
+                return;
+            }
+            if (cs.start_time === cs.end_time) {
+                errEl.innerText = "Start and end time cannot be identical for Shift " + (i + 1) + ".";
+                return;
+            }
+        }
+    } else if (shiftModel === "2_shifts_12h_07") {
+        customShiftHours = [
+            { start_time: "07:00", end_time: "19:00", label: "Day Shift" },
+            { start_time: "19:00", end_time: "07:00", label: "Night Shift" }
+        ];
+    } else if (shiftModel === "3_shifts_8h") {
+        customShiftHours = [
+            { start_time: "06:00", end_time: "14:00", label: "First Shift" },
+            { start_time: "14:00", end_time: "22:00", label: "Second Shift" },
+            { start_time: "22:00", end_time: "06:00", label: "Third Shift" }
+        ];
+    } else if (shiftModel === "1_shift_8h") {
+        customShiftHours = [
+            { start_time: "08:00", end_time: "17:00", label: "Daytime Duty" }
+        ];
+    } else {
+        customShiftHours = [
+            { start_time: "06:00", end_time: "18:00", label: "Day Shift" },
+            { start_time: "18:00", end_time: "06:00", label: "Night Shift" }
+        ];
+    }
+
     if (isGeofenceLocked && id) {
         try {
-            await appDialog.runBusy(button, () => db.collection("locations").doc(id).update({ label }), { label: 'Saving changes…' });
+            await appDialog.runBusy(button, () => db.collection("locations").doc(id).update({
+                label,
+                shift_model: shiftModel,
+                custom_shift_hours: customShiftHours
+            }), { label: 'Saving changes…' });
             hideForm();
             await loadLocations();
-            appDialog.toast('Deployment site label updated. Geofence remained locked.', { tone: 'success' });
+            appDialog.toast('Deployment site updated. Geofence remained locked.', { tone: 'success' });
         } catch (error) {
             errEl.innerText = error.message || 'Could not save the deployment site.';
             appDialog.toast(errEl.innerText, { tone: 'danger' });
@@ -1376,7 +1482,16 @@ async function saveLocation(button) {
         return;
     }
 
-    const data = { label, address, latitude: lat, longitude: lng, radius, active: true };
+    const data = {
+        label,
+        address,
+        latitude: lat,
+        longitude: lng,
+        radius,
+        active: true,
+        shift_model: shiftModel,
+        custom_shift_hours: customShiftHours
+    };
     try {
         await appDialog.runBusy(button, () => id
             ? db.collection("locations").doc(id).update(data)
@@ -1477,6 +1592,94 @@ async function viewDeployedGuards(siteId, siteLabel) {
         listEl.innerHTML = `<div style="text-align:center;padding:24px;color:var(--sl-danger);">Could not load deployed guards: ${escapeHtml(err?.message || 'Please try again.')}</div>`;
     }
 }
+
+function onSiteShiftModelChange() {
+    const model = document.getElementById("siteShiftModel")?.value;
+    const wrap = document.getElementById("customShiftsConfigWrap");
+    if (!wrap) return;
+    if (model === "custom") {
+        wrap.style.display = "block";
+        const container = document.getElementById("customShiftRows");
+        if (container && !container.children.length) {
+            renderCustomShiftRows([
+                { start_time: "06:00", end_time: "18:00", label: "Day Shift" },
+                { start_time: "18:00", end_time: "06:00", label: "Night Shift" }
+            ]);
+        }
+    } else {
+        wrap.style.display = "none";
+    }
+}
+
+function renderCustomShiftRows(shifts) {
+    const container = document.getElementById("customShiftRows");
+    if (!container) return;
+    const list = Array.isArray(shifts) && shifts.length ? shifts : [
+        { start_time: "06:00", end_time: "18:00", label: "Day Shift" },
+        { start_time: "18:00", end_time: "06:00", label: "Night Shift" }
+    ];
+    container.innerHTML = list.map((s, idx) => `
+        <div class="row g-2 align-items-center custom-shift-row" data-index="${idx}">
+            <div class="col-md-4 col-sm-12">
+                <input type="text" class="form-control form-control-sm custom-shift-label" placeholder="Shift Label (e.g. Day Shift)" value="${escapeHtml(s.label || ('Shift ' + (idx + 1)))}">
+            </div>
+            <div class="col-md-3 col-6">
+                <input type="time" class="form-control form-control-sm custom-shift-start" value="${escapeHtml(s.start_time || '06:00')}" aria-label="Start time">
+            </div>
+            <div class="col-md-3 col-6">
+                <input type="time" class="form-control form-control-sm custom-shift-end" value="${escapeHtml(s.end_time || '18:00')}" aria-label="End time">
+            </div>
+            <div class="col-md-2 col-12 text-end">
+                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="removeCustomShiftRow(this)" title="Remove this shift" ${list.length <= 1 ? 'disabled' : ''}>&times; Remove</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function addCustomShiftRow() {
+    const current = getCustomShiftRowsData();
+    if (current.length >= 4) {
+        appDialog.toast("Maximum 4 shifts allowed per deployment site.", { tone: "warning" });
+        return;
+    }
+    current.push({ start_time: "06:00", end_time: "18:00", label: 'Shift ' + (current.length + 1) });
+    renderCustomShiftRows(current);
+}
+
+function removeCustomShiftRow(btn) {
+    const current = getCustomShiftRowsData();
+    if (current.length <= 1) return;
+    const row = btn.closest(".custom-shift-row");
+    const idx = parseInt(row.dataset.index, 10);
+    current.splice(idx, 1);
+    renderCustomShiftRows(current);
+}
+
+function getCustomShiftRowsData() {
+    const rows = document.querySelectorAll(".custom-shift-row");
+    const data = [];
+    rows.forEach(r => {
+        const label = r.querySelector(".custom-shift-label")?.value.trim() || "";
+        const start_time = r.querySelector(".custom-shift-start")?.value || "";
+        const end_time = r.querySelector(".custom-shift-end")?.value || "";
+        data.push({ start_time, end_time, label });
+    });
+    return data;
+}
+
+function getShiftModelBadge(d) {
+    const model = d.shiftModel || d.shift_model || '2_shifts_12h';
+    if (model === '2_shifts_12h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: 06:00–18:00)</span>';
+    if (model === '2_shifts_12h_07') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: 07:00–19:00)</span>';
+    if (model === '3_shifts_8h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 3 Shifts (8h)</span>';
+    if (model === '1_shift_8h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 1 Day Shift (8h)</span>';
+    if (model === 'custom') {
+        const customCount = Array.isArray(d.customShiftHours || d.custom_shift_hours) ? (d.customShiftHours || d.custom_shift_hours).length : 2;
+        return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> Custom (' + customCount + ' Shifts)</span>';
+    }
+    return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h)</span>';
+}
+
 </script>
 </body>
 </html>

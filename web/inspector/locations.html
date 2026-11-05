@@ -10,7 +10,25 @@
     <link href="css/inspector-theme.css" rel="stylesheet">
     <link href="../admin/css/admin-theme.css" rel="stylesheet">
     <style>
-        .loc-address { font-size: 0.82rem; color: var(--ix-muted); line-height: 1.45; max-width: 360px; }
+        .badge-shift-contract {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        background: rgba(30, 41, 59, 0.05);
+        border: 1px solid rgba(30, 41, 59, 0.15);
+        color: #334155;
+        border-radius: 6px;
+        padding: 2px 7px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+    }
+    [data-theme="dark"] .badge-shift-contract {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(255, 255, 255, 0.15);
+        color: #cbd5e1;
+    }
+    .loc-address { font-size: 0.82rem; color: var(--ix-muted); line-height: 1.45; max-width: 360px; }
         .loc-coords { font-size: 0.72rem; color: var(--sl-muted); font-family: monospace; margin-top: 4px; }
         .ix-bundles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-bottom: 18px; }
         .ix-bundle-card { border: 1px solid var(--ax-border); border-radius: 12px; background: var(--sl-surface, #fff); overflow: hidden; }
@@ -124,7 +142,10 @@ function loadLocations() {
                 ? `<div class="loc-coords">${d.latitude}, ${d.longitude}</div>`
                 : "";
             html += `<tr>
-                <td><div class="ix-cell-primary">${escapeHtml(d.label) || '—'}</div></td>
+                <td>
+                    <div class="ix-cell-primary">${escapeHtml(d.label) || '—'}</div>
+                    <div class="mt-1">${getShiftModelBadge(d)}</div>
+                </td>
                 <td><div class="loc-address">${addressText}${coordsFallback}</div></td>
                 <td style="color:var(--ix-muted);">${d.radius ? d.radius + ' m' : '—'}</td>
                 <td>${badge}</td>
@@ -181,6 +202,20 @@ async function renderInspectorBundles(locSnapshot) {
         bundleEl.innerHTML = cards.join("");
     } catch (_) {}
 }
+
+function getShiftModelBadge(d) {
+    const model = d.shiftModel || d.shift_model || '2_shifts_12h';
+    if (model === '2_shifts_12h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: 06:00–18:00)</span>';
+    if (model === '2_shifts_12h_07') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: 07:00–19:00)</span>';
+    if (model === '3_shifts_8h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 3 Shifts (8h)</span>';
+    if (model === '1_shift_8h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 1 Day Shift (8h)</span>';
+    if (model === 'custom') {
+        const customCount = Array.isArray(d.customShiftHours || d.custom_shift_hours) ? (d.customShiftHours || d.custom_shift_hours).length : 2;
+        return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> Custom (' + customCount + ' Shifts)</span>';
+    }
+    return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h)</span>';
+}
+
 </script>
 </body>
 </html>

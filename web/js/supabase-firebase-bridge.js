@@ -84,10 +84,11 @@
       licenseSecurityUrl: 'license_security_url', licenseFirearmsUrl: 'license_firearms_url', mobileNumber: 'mobile_number',
       createdAt: 'created_at', updatedAt: 'updated_at', updatedBy: 'updated_by', archivedAt: 'archived_at',
       photoData: 'photo_data', radius: 'radius_meters', name: 'guard_name',
+      shiftModel: 'shift_model', customShiftHours: 'custom_shift_hours',
     };
     const allowed = {
       users: ['id', 'username', 'email', 'first_name', 'middle_initial', 'middle_name', 'last_name', 'role', 'organization_id', 'active', 'device_id', 'device_locked', 'created_at', 'personnel_id', 'date_of_birth', 'gender', 'civil_status', 'complete_address', 'emergency_contact', 'profile_photo_url', 'date_hired', 'contract_status', 'license_security_url', 'license_firearms_url', 'mobile_number', 'employment_category', 'contract_start_date', 'contract_end_date', 'assigned_location_id', 'inspector_id', 'removed_at'],
-      locations: ['id', 'label', 'address', 'latitude', 'longitude', 'radius_meters', 'active', 'created_at'],
+      locations: ['id', 'label', 'address', 'latitude', 'longitude', 'radius_meters', 'active', 'created_at', 'shift_model', 'custom_shift_hours'],
       schedules: ['id', 'user_id', 'location_id', 'location_label', 'location_address', 'guard_name', 'start_at', 'end_at', 'duty_date', 'dtr_period', 'duty_category', 'duty_days', 'approval_status', 'marked_done', 'completed_at', 'completed_by', 'created_at'],
       incidents: ['id', 'user_id', 'guard_name', 'guard_email', 'category', 'description', 'photo_data', 'latitude', 'longitude', 'location_label', 'status', 'status_note', 'created_at', 'updated_at', 'updated_by', 'deletion_requested_at', 'archived_at'],
     };
@@ -123,6 +124,7 @@
       date_hired: 'dateHired', contract_status: 'contractStatus', license_security_url: 'licenseSecurityUrl',
       license_firearms_url: 'licenseFirearmsUrl', mobile_number: 'mobileNumber',
       photo_data: 'photoData', radius_meters: 'radius', guard_name: 'guardName',
+      shift_model: 'shiftModel', custom_shift_hours: 'customShiftHours',
       guard_email: 'guardEmail', incident_title: 'incidentTitle',
       detailed_narrative: 'detailedNarrative', immediate_action: 'immediateAction',
       status_note: 'statusNote', review_history: 'reviewHistory', video_path: 'videoPath',

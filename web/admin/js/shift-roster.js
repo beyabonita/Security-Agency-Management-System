@@ -214,8 +214,114 @@
   };
   date.min=todayDateString();
   date.value=todayDateString();
-  setup.addEventListener('change',()=>{if(editingSetup)resetEditor();customRosterShifts=null;window.renderShiftRoster();});
+  setup.addEventListener('change',()=>{
+    if(editingSetup)resetEditor();
+    customRosterShifts=null;
+    if (activeContractInfo) {
+      const noticeEl = document.getElementById('contractShiftNotice');
+      if (noticeEl) {
+        noticeEl.style.display = 'flex';
+        noticeEl.innerHTML = '<div class="d-flex align-items-center gap-2 flex-wrap">' +
+          '<span class="material-symbols-rounded text-warning" style="font-size:18px;" aria-hidden="true">info</span>' +
+          '<span>Manual Setup: <strong>' + escapeHtml(setup.selectedOptions[0]?.text || '') + '</strong></span>' +
+          '</div>' +
+          '<button type="button" id="reapplyContractShiftsBtn" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:0.75rem;">Re-apply Contract</button>';
+        document.getElementById('reapplyContractShiftsBtn')?.addEventListener('click', () => {
+          applySiteContractShifts(site.value);
+        });
+      }
+    }
+    window.renderShiftRoster();
+  });
   date.addEventListener('change',summary);
+
+  let activeContractInfo = null;
+
+  function updateContractNotice(info) {
+    activeContractInfo = info;
+    const noticeEl = document.getElementById('contractShiftNotice');
+    if (!noticeEl) return;
+    if (!info) {
+      noticeEl.style.display = 'none';
+      noticeEl.innerHTML = '';
+      return;
+    }
+    noticeEl.style.display = 'flex';
+    noticeEl.innerHTML = '<div class="d-flex align-items-center gap-2 flex-wrap">' +
+      '<span class="material-symbols-rounded text-success" style="font-size:18px;" aria-hidden="true">check_circle</span>' +
+      '<span>Contract shifts auto-applied for <strong>' + escapeHtml(info.siteName) + '</strong>: <span class="badge bg-danger-subtle text-danger border border-danger-subtle">' + escapeHtml(info.label) + '</span></span>' +
+      '</div>' +
+      '<button type="button" id="overrideContractShiftsBtn" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size:0.75rem;">Override for Event</button>';
+
+    const overrideBtn = document.getElementById('overrideContractShiftsBtn');
+    if (overrideBtn) {
+      overrideBtn.addEventListener('click', () => {
+        setup.disabled = false;
+        const editTimesBtn = document.getElementById('editRosterTimesBtn');
+        if (editTimesBtn) editTimesBtn.click();
+        noticeEl.innerHTML = '<div class="d-flex align-items-center gap-2 flex-wrap">' +
+          '<span class="material-symbols-rounded text-warning" style="font-size:18px;" aria-hidden="true">event_note</span>' +
+          '<span>Manual Shift Override Active for <strong>' + escapeHtml(info.siteName) + '</strong></span>' +
+          '</div>' +
+          '<button type="button" id="reapplyContractShiftsBtn" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:0.75rem;">Re-apply Contract</button>';
+        document.getElementById('reapplyContractShiftsBtn')?.addEventListener('click', () => {
+          applySiteContractShifts(site.value);
+        });
+      });
+    }
+  }
+
+  function applySiteContractShifts(siteId) {
+    if (!siteId) {
+      updateContractNotice(null);
+      return;
+    }
+    const loc = locations.find(l => l.id === siteId);
+    if (!loc) {
+      updateContractNotice(null);
+      return;
+    }
+
+    const model = loc.shift_model || loc.shiftModel || '2_shifts_12h';
+    const customHours = loc.custom_shift_hours || loc.customShiftHours;
+
+    let targetShifts = null;
+    let modelLabel = '';
+
+    if (model === '2_shifts_12h') {
+      targetShifts = [{ start_time: '06:00', end_time: '18:00' }, { start_time: '18:00', end_time: '06:00' }];
+      modelLabel = '2 Shifts (12h: 06:00–18:00)';
+    } else if (model === '2_shifts_12h_07') {
+      targetShifts = [{ start_time: '07:00', end_time: '19:00' }, { start_time: '19:00', end_time: '07:00' }];
+      modelLabel = '2 Shifts (12h: 07:00–19:00)';
+    } else if (model === '3_shifts_8h') {
+      targetShifts = [{ start_time: '06:00', end_time: '14:00' }, { start_time: '14:00', end_time: '22:00' }, { start_time: '22:00', end_time: '06:00' }];
+      modelLabel = '3 Shifts (8h rotation)';
+    } else if (model === '1_shift_8h') {
+      targetShifts = [{ start_time: '08:00', end_time: '17:00' }];
+      modelLabel = '1 Day Shift (8h: 08:00–17:00)';
+    } else if (model === 'custom' && Array.isArray(customHours) && customHours.length) {
+      targetShifts = customHours.map(s => ({ start_time: s.start_time, end_time: s.end_time }));
+      modelLabel = 'Custom Contract (' + customHours.length + ' shifts)';
+    } else {
+      targetShifts = [{ start_time: '06:00', end_time: '18:00' }, { start_time: '18:00', end_time: '06:00' }];
+      modelLabel = '2 Shifts (12h: 06:00–18:00)';
+    }
+
+    const sig = RosterSetup.signature(targetShifts);
+    const matchingSetup = savedSetups.find(s => RosterSetup.signature(s.shifts) === sig);
+
+    if (matchingSetup) {
+      setup.value = matchingSetup.id;
+      customRosterShifts = null;
+    } else {
+      customRosterShifts = targetShifts;
+    }
+
+    updateContractNotice({ label: modelLabel, siteName: loc.label });
+    window.renderShiftRoster();
+  }
+
   site.addEventListener('change', () => {
     const activeObj = locations.find(l => l.id === site.value);
     if (siteFilter) {
@@ -224,6 +330,7 @@
     if (siteFilterClear) {
       siteFilterClear.hidden = !site.value;
     }
+    applySiteContractShifts(site.value);
     summary();
   });
 

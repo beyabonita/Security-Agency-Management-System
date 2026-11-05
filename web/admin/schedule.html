@@ -72,6 +72,7 @@
           </div>
         </div>
       </div>
+      <div id="contractShiftNotice" class="contract-shift-callout" style="display:none;" role="status" aria-live="polite"></div>
       <div class="roster-setup-loading"><span id="rosterSetupsStatus" role="status"></span><button id="retryRosterSetups" type="button" class="btn btn-outline-secondary btn-sm" hidden>Reload saved setups</button></div>
       <div class="auto-deploy-toolbar" id="autoDeployToolbar"><div class="auto-deploy-copy"><span class="material-symbols-rounded" aria-hidden="true">verified_user</span><div><strong>Automated Personnel Deployment</strong><div class="text-muted" style="font-size:0.75rem;">Automatically match active, contract-valid, non-conflicting guards to open shift slots or all unstaffed sites.</div></div></div><div class="auto-deploy-actions"><button type="button" id="autoAssignRosterBtn" class="btn-auto-assign"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;">groups</span> Auto-Assign Guards</button><button type="button" id="autoDeployAllSitesBtn" class="btn-auto-deploy-all"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;">business</span> Auto-Deploy Unstaffed Sites</button></div></div>
       <div id="rosterGuards" class="schedule-form-grid" aria-label="Guards for each shift"></div>
@@ -452,7 +453,9 @@ function loadLocations() {
             const d = doc.data();
             const label = d.label || doc.id;
             const address = d.address || "";
-            locations.push({ id: doc.id, label, address });
+            const shiftModel = d.shiftModel || d.shift_model || "2_shifts_12h";
+            const customShiftHours = d.customShiftHours || d.custom_shift_hours || null;
+            locations.push({ id: doc.id, label, address, shiftModel, shift_model: shiftModel, customShiftHours, custom_shift_hours: customShiftHours });
         });
         initScheduleSiteCombobox();
         window.renderShiftRoster?.();
