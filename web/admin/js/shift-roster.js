@@ -36,8 +36,13 @@
     availability();
     managementControls();
     syncGuardSelections();
+    if(!site.value){
+      preview.innerHTML='';
+      assigned.innerHTML='';
+      return;
+    }
     if(!customSetup() && !customRosterShifts){
-      preview.textContent=setupsLoaded?'Create a shifting setup to get started.':'Loading shifting setups…';
+      preview.textContent=setupsLoaded?'No shifting schedule available for this site.':'Loading schedule…';
       assigned.textContent='';return;
     }
     const ids=selected();
@@ -170,6 +175,11 @@
   window.renderShiftRoster=()=>{
     const ids=selected(),oldSite=site.value;
     updateSiteOptions(oldSite);
+    if (!site.value) {
+      slots.innerHTML = '<div class="text-muted p-4 text-center w-100" style="grid-column: 1 / -1; background:var(--sl-surface-muted, #f8fafc); border:1px dashed var(--sl-line, #cbd5e1); border-radius:8px; font-size:0.875rem;"><span class="material-symbols-rounded align-middle me-1 text-danger" style="font-size:20px;">business</span> Please select a <strong>Deployment site</strong> above to load its contracted shift schedule.</div>';
+      summary();
+      return;
+    }
     slots.innerHTML=periods().map((p,i)=>`<div class="schedule-field"><label class="form-label" for="rosterGuard${i}">${p[2]} <span class="req-star" aria-hidden="true">*</span></label><select id="rosterGuard${i}" class="form-select" aria-required="true" aria-describedby="rosterStatus${i}"><option value="">Select Guard ${i+1}</option>${guards.filter(g=>g.active&&g.role==='user').map(g=>`<option value="${escapeHtml(g.id)}">${escapeHtml(g.name)}</option>`).join('')}</select><p id="rosterStatus${i}" class="form-hint roster-slot-status"></p></div>`).join('');
     slots.querySelectorAll('select').forEach((s,i)=>{
       s.value=ids[i]||'';
@@ -555,7 +565,7 @@
     }
     if(saveSetupButton) saveSetupButton.disabled=setupSaving||saving||Boolean(editingSetup&&(locked||setupLoading));
     if(retry) retry.disabled=saving||setupSaving||setupLoading;
-    button.disabled=saving||setupSaving||!customSetup();
+    button.disabled=saving||setupSaving||!site.value||(!customSetup()&&!customRosterShifts);
     setup.disabled=saving||setupSaving||!savedSetups.length;
   }
   function uniqueSetups(items){
@@ -1006,7 +1016,7 @@
     }
     const shiftsList = periods();
     if (!shiftsList.length) {
-      appDialog.toast('Select or create a shifting setup first.', { tone: 'warning' });
+      appDialog.toast('Please select a Deployment site first.', { tone: 'warning' });
       return;
     }
     const assignedIds = pickEligibleGuardsForShifts(site.value, day, shiftsList);
