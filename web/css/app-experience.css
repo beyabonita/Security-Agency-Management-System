@@ -470,6 +470,7 @@ body.sl-notifications-open, body.sl-critical-open { overflow: hidden; }
 .sl-notification-item-time { flex: 0 0 auto; color: var(--sl-muted); font-size: .66rem; white-space: nowrap; }
 .sl-notification-item-message { margin: 5px 0 8px; color: var(--sl-muted); font-size: .76rem; line-height: 1.5; overflow-wrap: anywhere; }
 .sl-notification-item-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.sl-notification-priority, .sl-notification-detail-priority, .sl-notification-detail-meta dt:has(+ .sl-notification-detail-priority) { display: none !important; }
 .sl-notification-priority, .sl-notification-ack-label { padding: 3px 7px; border-radius: 999px; background: #f4eff0; color: var(--sl-muted); font-size: .61rem; font-weight: 800; letter-spacing: .035em; text-transform: uppercase; }
 .sl-notification-item[data-priority="critical"] .sl-notification-priority { background: var(--sl-red-soft); color: var(--sl-danger); }
 .sl-notification-item[data-priority="high"] .sl-notification-priority { background: var(--sl-warning-soft); color: var(--sl-warning); }

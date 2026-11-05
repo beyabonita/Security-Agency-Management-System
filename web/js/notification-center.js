@@ -173,8 +173,7 @@
       dateStyle: 'medium', timeStyle: 'short',
     }).format(date);
     metadata.append(
-      create('dt', '', 'Sent'), create('dd', '', sent),
-      create('dt', '', 'Priority'), create('dd', 'sl-notification-detail-priority', item.priority || 'normal')
+      create('dt', '', 'Sent'), create('dd', '', sent)
     );
     details.appendChild(metadata);
     const readStatus = create('p', 'sl-notification-detail-status');
@@ -279,11 +278,11 @@
     heading.append(title, time);
     const message = create('p', 'sl-notification-item-message', item.message);
     const tags = create('div', 'sl-notification-item-tags');
-    tags.appendChild(create('span', 'sl-notification-priority', item.priority));
     if (item.requires_ack && !item.acknowledged_at) {
       tags.appendChild(create('span', 'sl-notification-ack-label', 'Acknowledgement required'));
     }
-    content.append(heading, message, tags);
+    content.append(heading, message);
+    if (tags.childElementCount) content.appendChild(tags);
 
     const actions = create('div', 'sl-notification-item-actions');
     if (item.requires_ack && !item.acknowledged_at) {
