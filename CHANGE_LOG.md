@@ -43,6 +43,7 @@
 | [`web/inspector/swaps.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/swaps.html) | #16 | Inspector sidebar link updated to `Guard Tracker` | **✅ PUSHED** | `99a139b` (`origin/main`) |
 | [`web/inspector/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/users.html) | #16 | Inspector sidebar link updated to `Guard Tracker` | **✅ PUSHED** | `99a139b` (`origin/main`) |
 | [`web/admin/css/admin-theme.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/admin-theme.css) | UI Organization | Standardized `.btn-add`, `.btn-save`, `.btn-pdf`, `.btn-add-guard`, `.btn-add-schedule` with unified `min-height: 42px`, `border-radius: 10px`, icon gap and hover states; standardized `.btn-cancel-form` and `.btn-cancel` | **✅ PUSHED** | 14cc2d (origin/main) |
+| [`web/admin/locations.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/locations.html) & [`web/admin/schedule.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/schedule.html) | UI Cleanliness (#3) | Removed redundant "Required" pill badges from form labels, keeping clean red asterisks (`*`) | **✅ PUSHED** | `origin/main` |
 | [`pubspec.yaml`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/pubspec.yaml) & [`web/staff/login.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/staff/login.html) | Mobile Release | Bumped Guard mobile app to `v1.0.21+22`, regenerated direct download QR code, updated Vercel download headers, and configured GitHub Actions release workflow | **✅ PUSHED** | `v1.0.21` (`origin/main`) |
 | [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html) | UI Organization, Responsive Fit | Consolidated Personnel table from 9 columns to 8 (merged DTR into Actions cluster), clamped verbose 140+ char post addresses to 2 lines, streamlined padding, and added sleek 5px scrollbar to eliminate horizontal sliding | **✅ PUSHED** | `HEAD` (`origin/main`) |
 | [`web/admin/css/dtr-scheduling.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/dtr-scheduling.css) | UI Organization | Resolved 38px vs 44px input height disparity with 42px comboboxes, vertically centered combobox icons/arrows, responsive `auto-fit` filter grid, `#saveRoster` button redesign, and dark theme support | **✅ PUSHED** | 14cc2d (origin/main) |
@@ -93,6 +94,15 @@
 | [`web/tests/admin_dashboard.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/admin_dashboard.spec.js) | Pre-existing | Local test adjustment in working tree from earlier session | **⏳ NOT PUSHED** | Local working tree |
 
 ---
+
+### [2026-11-05 11:55] - UI Cleanliness: Streamline Required Field Indicators to Asterisk Only — [✅ PUSHED: `origin/main`]
+
+- **Scope & Objective**:
+  - Remove redundant `Required` text badges next to form field labels in Add Deployment Site (`web/admin/locations.html`) and Duty Scheduling (`web/admin/schedule.html` & `web/admin/js/shift-roster.js`), retaining only the clean red asterisk (`*`).
+- **Files Modified**:
+  - `web/admin/locations.html`: Removed `<span class="badge-field-required">Required</span>` from Deployment Site Label, Radius, and Address Search labels; updated top note to `Fields marked with an asterisk (*) must be filled out before saving.`.
+  - `web/admin/schedule.html`: Removed `<span class="badge-field-required">Required</span>` from Shifting setup, Schedule date, and Deployment site labels.
+  - `web/admin/js/shift-roster.js`: Removed `<span class="badge-field-required">Required</span>` from dynamic guard slot labels in `renderShiftRoster`.
 
 ### [2026-11-04 11:10] - Feat: Release Guard Mobile APK v1.0.21 & Automated Cloud Build Workflow — [✅ PUSHED: `origin/main`]
 
