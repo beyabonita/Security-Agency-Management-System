@@ -79,53 +79,67 @@
         body[data-ax-page="dashboard"] .ig-kpi-card {
             position: relative;
             overflow: hidden;
-            background: var(--ax-surface);
-            border: 1px solid var(--ax-border);
+            background: #dc2626;
+            border: 1px solid #b91c1c;
             border-radius: var(--ig-card-radius);
-            padding: 18px 20px 18px;
+            padding: 22px 20px 20px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
             gap: 12px;
-            box-shadow: 0 4px 14px rgba(28, 25, 23, 0.04);
+            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.16);
             min-width: 0;
+            color: #ffffff;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-card:hover,
+        body[data-ax-page="dashboard"] .ig-kpi-card:focus-visible {
+            transform: translateY(-2px);
+            background: #b91c1c;
+            border-color: #991b1b;
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.32);
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-card.is-emerald,
         body[data-ax-page="dashboard"] .ig-kpi-card.is-amber,
         body[data-ax-page="dashboard"] .ig-kpi-card.is-indigo {
-            border-top-color: var(--ax-border);
+            background: #dc2626;
+            border-color: #b91c1c;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-top {
             display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: var(--ax-bg, rgba(0, 0, 0, 0.04));
-            color: var(--ax-text);
-            border: 1px solid var(--ax-border);
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.32);
             flex-shrink: 0;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-card.is-emerald .ig-kpi-icon,
         body[data-ax-page="dashboard"] .ig-kpi-card.is-amber .ig-kpi-icon,
         body[data-ax-page="dashboard"] .ig-kpi-card.is-indigo .ig-kpi-icon {
-            background: var(--ax-bg, rgba(0, 0, 0, 0.04));
-            color: var(--ax-text);
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.32);
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-icon .material-symbols-rounded {
-            font-size: 21px;
+            font-size: 24px;
+            color: #ffffff;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-pill,
@@ -149,27 +163,44 @@
 
         body[data-ax-page="dashboard"] .ig-kpi-main {
             display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            gap: 8px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+            gap: 4px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-main > div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-main .ax-stat-num {
-            font-size: 2.15rem;
+            font-size: 2.3rem;
             font-weight: 800;
             letter-spacing: -0.02em;
-            color: var(--ax-text);
+            color: #ffffff;
             line-height: 1;
+            text-align: center;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-main .ax-stat-lbl {
-            margin-top: 4px;
-            font-size: 0.73rem;
+            margin-top: 6px;
+            font-size: 0.74rem;
             font-weight: 700;
-            letter-spacing: 0.06em;
-            color: var(--ax-muted);
+            letter-spacing: 0.07em;
+            color: rgba(255, 255, 255, 0.9);
             text-transform: uppercase;
+            text-align: center;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-card .ax-skeleton {
+            background: rgba(255, 255, 255, 0.35);
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-meter {
