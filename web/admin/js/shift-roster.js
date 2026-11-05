@@ -299,15 +299,25 @@
     let targetShifts = null;
     let modelLabel = '';
 
-    if (model === '2_shifts_12h') {
-      targetShifts = [{ start_time: '06:00', end_time: '18:00' }, { start_time: '18:00', end_time: '06:00' }];
-      modelLabel = '2 Shifts (12h: 6:00 AM–6:00 PM)';
-    } else if (model === '2_shifts_12h_07') {
-      targetShifts = [{ start_time: '07:00', end_time: '19:00' }, { start_time: '19:00', end_time: '07:00' }];
-      modelLabel = '2 Shifts (12h: 7:00 AM–7:00 PM)';
+    if (model === '2_shifts_12h' || model === '2_shifts_12h_07') {
+      if (Array.isArray(customHours) && customHours.length && customHours.every(s => s.start_time && s.end_time)) {
+        targetShifts = customHours.map(s => ({ start_time: s.start_time, end_time: s.end_time }));
+        modelLabel = '2 Shifts (12h: ' + formatTime12Hour(customHours[0].start_time) + '–' + formatTime12Hour(customHours[0].end_time) + ')';
+      } else if (model === '2_shifts_12h_07') {
+        targetShifts = [{ start_time: '07:00', end_time: '19:00' }, { start_time: '19:00', end_time: '07:00' }];
+        modelLabel = '2 Shifts (12h: 7:00 AM–7:00 PM)';
+      } else {
+        targetShifts = [{ start_time: '06:00', end_time: '18:00' }, { start_time: '18:00', end_time: '06:00' }];
+        modelLabel = '2 Shifts (12h: 6:00 AM–6:00 PM)';
+      }
     } else if (model === '3_shifts_8h') {
-      targetShifts = [{ start_time: '06:00', end_time: '14:00' }, { start_time: '14:00', end_time: '22:00' }, { start_time: '22:00', end_time: '06:00' }];
-      modelLabel = '3 Shifts (8h: 6:00 AM / 2:00 PM / 10:00 PM)';
+      if (Array.isArray(customHours) && customHours.length >= 3 && customHours.every(s => s.start_time && s.end_time)) {
+        targetShifts = customHours.map(s => ({ start_time: s.start_time, end_time: s.end_time }));
+        modelLabel = '3 Shifts (8h: ' + customHours.map(s => formatTime12Hour(s.start_time)).join(' / ') + ')';
+      } else {
+        targetShifts = [{ start_time: '06:00', end_time: '14:00' }, { start_time: '14:00', end_time: '22:00' }, { start_time: '22:00', end_time: '06:00' }];
+        modelLabel = '3 Shifts (8h: 6:00 AM / 2:00 PM / 10:00 PM)';
+      }
     } else if (model === '1_shift_8h') {
       if (Array.isArray(customHours) && customHours.length && customHours[0].start_time && customHours[0].end_time) {
         targetShifts = customHours.map(s => ({ start_time: s.start_time, end_time: s.end_time }));
