@@ -81,20 +81,21 @@
             overflow: hidden;
             background: var(--ax-surface);
             border: 1px solid var(--ax-border);
-            border-top: 4px solid var(--ax-accent);
             border-radius: var(--ig-card-radius);
-            padding: 18px 20px 16px;
+            padding: 18px 20px 18px;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
             gap: 12px;
             box-shadow: 0 4px 14px rgba(28, 25, 23, 0.04);
             min-width: 0;
         }
 
-        body[data-ax-page="dashboard"] .ig-kpi-card.is-emerald { border-top-color: #10b981; }
-        body[data-ax-page="dashboard"] .ig-kpi-card.is-amber { border-top-color: #f59e0b; }
-        body[data-ax-page="dashboard"] .ig-kpi-card.is-indigo { border-top-color: #3b82f6; }
+        body[data-ax-page="dashboard"] .ig-kpi-card.is-emerald,
+        body[data-ax-page="dashboard"] .ig-kpi-card.is-amber,
+        body[data-ax-page="dashboard"] .ig-kpi-card.is-indigo {
+            border-top-color: var(--ax-border);
+        }
 
         body[data-ax-page="dashboard"] .ig-kpi-top {
             display: flex;
@@ -110,28 +111,26 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: var(--sl-red-soft);
-            color: var(--sl-danger);
+            background: var(--ax-bg, rgba(0, 0, 0, 0.04));
+            color: var(--ax-text);
+            border: 1px solid var(--ax-border);
             flex-shrink: 0;
         }
 
-        body[data-ax-page="dashboard"] .ig-kpi-card.is-emerald .ig-kpi-icon {
-            background: var(--ig-emerald-soft);
-            color: var(--ig-emerald);
-        }
-
-        body[data-ax-page="dashboard"] .ig-kpi-card.is-amber .ig-kpi-icon {
-            background: var(--ig-amber-soft);
-            color: var(--ig-amber);
-        }
-
+        body[data-ax-page="dashboard"] .ig-kpi-card.is-emerald .ig-kpi-icon,
+        body[data-ax-page="dashboard"] .ig-kpi-card.is-amber .ig-kpi-icon,
         body[data-ax-page="dashboard"] .ig-kpi-card.is-indigo .ig-kpi-icon {
-            background: var(--ig-night-soft);
-            color: var(--ig-night-accent);
+            background: var(--ax-bg, rgba(0, 0, 0, 0.04));
+            color: var(--ax-text);
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-icon .material-symbols-rounded {
             font-size: 21px;
+        }
+
+        body[data-ax-page="dashboard"] .ig-kpi-pill,
+        body[data-ax-page="dashboard"] .ig-kpi-meter {
+            display: none !important;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-pill {
@@ -1818,29 +1817,38 @@ async function loadDashboard() {
         const inspectorActivePct = inspectors.length ? Math.round((activeInspectors.length / inspectors.length) * 100) : 0;
         const guardRatio = activeInspectors.length ? Math.round(activeGuards.length / activeInspectors.length) : activeGuards.length;
 
-        document.getElementById("totalGuards").innerText = guards.length;
-        document.getElementById("activeGuards").innerText = activeGuards.length + " active";
-        document.getElementById("guardsPctPill").innerText = guardsActivePct + "% active";
-        document.getElementById("guardsBarFill").style.width = guardsActivePct + "%";
-        document.getElementById("guardsSplitMeta").innerText = regularGuardCount + " reg · " + contractGuardCount + " contract";
+        const setKpiText = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.innerText = val;
+        };
+        const setKpiWidth = (id, width) => {
+            const el = document.getElementById(id);
+            if (el) el.style.width = width;
+        };
 
-        document.getElementById("totalDeployed").innerText = deployedIds.size;
-        document.getElementById("deployedHint").innerText = "Home post set";
-        document.getElementById("deployedPctPill").innerText = deployedRatePct + "% deployed";
-        document.getElementById("deployedBarFill").style.width = deployedRatePct + "%";
-        document.getElementById("deployedSplitMeta").innerText = standbyCount + " standby";
+        setKpiText("totalGuards", guards.length);
+        setKpiText("activeGuards", activeGuards.length + " active");
+        setKpiText("guardsPctPill", guardsActivePct + "% active");
+        setKpiWidth("guardsBarFill", guardsActivePct + "%");
+        setKpiText("guardsSplitMeta", regularGuardCount + " reg · " + contractGuardCount + " contract");
 
-        document.getElementById("totalLocations").innerText = locations.length;
-        document.getElementById("activeLocations").innerText = activeLocations.length + " active";
-        document.getElementById("locationsPctPill").innerText = locationsActivePct + "% active";
-        document.getElementById("locationsBarFill").style.width = locationsActivePct + "%";
-        document.getElementById("locationsSplitMeta").innerText = staffedLocationIds.size + " scheduled";
+        setKpiText("totalDeployed", deployedIds.size);
+        setKpiText("deployedHint", "Home post set");
+        setKpiText("deployedPctPill", deployedRatePct + "% deployed");
+        setKpiWidth("deployedBarFill", deployedRatePct + "%");
+        setKpiText("deployedSplitMeta", standbyCount + " standby");
 
-        document.getElementById("totalInspectors").innerText = inspectors.length;
-        document.getElementById("inspectorHint").innerText = activeInspectors.length + " active";
-        document.getElementById("inspectorPctPill").innerText = activeInspectors.length ? ("1 : " + guardRatio + " guards") : "Unassigned";
-        document.getElementById("inspectorBarFill").style.width = inspectorActivePct + "%";
-        document.getElementById("inspectorSplitMeta").innerText = "Field patrol";
+        setKpiText("totalLocations", locations.length);
+        setKpiText("activeLocations", activeLocations.length + " active");
+        setKpiText("locationsPctPill", locationsActivePct + "% active");
+        setKpiWidth("locationsBarFill", locationsActivePct + "%");
+        setKpiText("locationsSplitMeta", staffedLocationIds.size + " scheduled");
+
+        setKpiText("totalInspectors", inspectors.length);
+        setKpiText("inspectorHint", activeInspectors.length + " active");
+        setKpiText("inspectorPctPill", activeInspectors.length ? ("1 : " + guardRatio + " guards") : "Unassigned");
+        setKpiWidth("inspectorBarFill", inspectorActivePct + "%");
+        setKpiText("inspectorSplitMeta", "Field patrol");
 
         populateDeploymentFilters(locations);
         renderDeploymentInfographic(schedules, locations);
