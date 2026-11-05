@@ -220,6 +220,74 @@
     .badge-guards-assigned-icon {
         font-size: 13px;
     }
+    .personnel-table-filters {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .personnel-search-wrap {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        width: 100%;
+        max-width: 420px;
+    }
+    .personnel-search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        color: var(--sl-muted, #64748b);
+        pointer-events: none;
+        line-height: 1;
+        z-index: 2;
+        transition: color 0.15s ease;
+    }
+    .personnel-search-wrap:focus-within .personnel-search-icon {
+        color: var(--sl-danger, #b91c1c);
+    }
+    .personnel-search-input {
+        width: 100%;
+        height: 42px;
+        min-height: 42px;
+        padding: 8px 16px 8px 38px !important;
+        font-size: 0.86rem;
+        font-weight: 500;
+        border-radius: 10px;
+        background: var(--sl-surface, #ffffff);
+        border: 1px solid var(--sl-line, #e2e8f0);
+        color: var(--sl-ink, #0f172a);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .personnel-search-input:focus {
+        border-color: var(--sl-danger, #b91c1c);
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+        outline: none;
+    }
+    .personnel-filter-group {
+        display: inline-flex;
+        align-items: center;
+    }
+    .personnel-filter-select {
+        height: 42px;
+        min-height: 42px;
+        padding: 6px 32px 6px 12px;
+        font-size: 0.86rem;
+        font-weight: 500;
+        border-radius: 10px;
+        background-color: var(--sl-surface, #ffffff);
+        border: 1px solid var(--sl-line, #e2e8f0);
+        color: var(--sl-ink, #0f172a);
+        cursor: pointer;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .personnel-filter-select:focus {
+        border-color: var(--sl-danger, #b91c1c);
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+        outline: none;
+    }
     </style>
 </head>
 <body class="admin-body" data-ax-page="locations">
