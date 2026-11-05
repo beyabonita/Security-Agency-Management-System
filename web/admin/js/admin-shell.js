@@ -109,7 +109,7 @@ function initAdminShell() {
     initAdminIdentity();
     const swapsLink = document.querySelector('.ax-nav a[href="swaps.html"]');
     if (swapsLink) {
-        swapsLink.innerHTML = '<span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">swap_horiz</span> Absence, Swap &amp; OT';
+        swapsLink.innerHTML = '<span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">swap_horiz</span> Absence &amp; Shift Swap';
     }
     if (window.SENTINEL_LIVE_TRACKING_ENABLED && !document.querySelector('.ax-nav a[href="live-tracking.html"]')) {
         const link = document.createElement('a'); link.href = 'live-tracking.html';

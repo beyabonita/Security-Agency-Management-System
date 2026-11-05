@@ -344,8 +344,8 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
           child: Column(
             children: [
               GuardPageTopBar(
-                title: 'Absence, Shift Swap & Overtime',
-                subtitle: 'Absence Request, Shift Swap Request & Overtime Request',
+                title: 'Absence & Shift Swap',
+                subtitle: 'Absence Request & Shift Swap Request',
                 onBack: () {
                   if (!_saving && !_picking) Navigator.pop(context);
                 },
@@ -425,11 +425,6 @@ class _ShiftChangeRequestScreenState extends State<ShiftChangeRequestScreen> {
                                       value: 'swap',
                                       label: Text('Shift Swap Request'),
                                       icon: Icon(Icons.swap_horiz),
-                                    ),
-                                    ButtonSegment(
-                                      value: 'overtime',
-                                      label: Text('Overtime Request'),
-                                      icon: Icon(Icons.more_time),
                                     ),
                                   ],
                                   selected: {_type},

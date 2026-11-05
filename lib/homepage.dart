@@ -348,8 +348,8 @@ class _HomePageState extends State<HomePage> {
                           Expanded(
                             child: _ActionCard(
                               icon: Icons.swap_horiz_rounded,
-                              label: 'Absence, Swap & OT',
-                              subtitle: 'Absence, Shift Swap & Overtime',
+                              label: 'Absence & Shift Swap',
+                              subtitle: 'Absence & Shift Swap Requests',
                               color: AppColors.of(context).accent,
                               onTap: () => Navigator.of(context).push(
                                 MaterialPageRoute(

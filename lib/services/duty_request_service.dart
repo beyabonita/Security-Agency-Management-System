@@ -174,9 +174,9 @@ class DutyRequestService {
   }) async {
     final user = _client.auth.currentUser;
     if (user == null) throw StateError('Your session expired. Sign in again.');
-    if (!const ['absence', 'swap', 'overtime'].contains(requestType)) {
+    if (!const ['absence', 'swap'].contains(requestType)) {
       throw const FormatException(
-        'Choose Absence Request, Shift Swap Request, or Overtime Request.',
+        'Choose Absence Request or Shift Swap Request.',
       );
     }
     if (requestType == 'swap' && targetScheduleId == scheduleId) {

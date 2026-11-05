@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Absence, Shift Swap &amp; Overtime Requests — Operations Head</title>
+  <title>Absence &amp; Shift Swap Requests — Operations Head</title>
     <link rel="icon" type="image/png" href="../favicon.png">
     <script src="../js/theme-preference.js"></script>
   <link href="css/admin-theme.css" rel="stylesheet">
   <link href="../css/duty-requests.css" rel="stylesheet">
 </head>
 <body class="admin-body" data-ax-page="swaps">
-<div id="loadingScreen"><p>Loading Absence, Shift Swap &amp; Overtime Requests…</p></div>
+<div id="loadingScreen"><p>Loading Absence &amp; Shift Swap Requests…</p></div>
 <div class="ax-app">
   <aside class="ax-sidebar">
     <div class="ax-brand"><p class="ax-brand-title">Operations Head</p><p class="ax-brand-sub">Security Agency Management System</p></div>
@@ -21,19 +21,19 @@
       <a href="locations.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">business</span> Company</a>
       <a href="schedule.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">calendar_month</span> Schedule</a>
       <a href="incidents.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">emergency</span> Incidents</a>
-      <a href="swaps.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">swap_horiz</span> Absence, Swap &amp; OT</a>
+      <a href="swaps.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">swap_horiz</span> Absence &amp; Shift Swap</a>
     </nav>
     <div class="ax-sidebar-foot">TwentyTwenty Security Agency</div>
   </aside>
   <div class="ax-main">
     <header class="ax-topbar">
-      <div class="ax-topbar-left"><button class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button><div><div class="ax-breadcrumb">Operations Head Console</div><h1 class="ax-page-title">Absence, Shift Swap &amp; Overtime Requests</h1></div></div>
+      <div class="ax-topbar-left"><button class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button><div><div class="ax-breadcrumb">Operations Head Console</div><h1 class="ax-page-title">Absence &amp; Shift Swap Requests</h1></div></div>
       <div class="ax-topbar-right"><span class="ax-user-chip" id="axUserName" hidden aria-live="polite"></span><button class="ax-btn-logout" onclick="adminLogout()">Sign out</button></div>
     </header>
     <main class="ax-content">
       <div class="duty-request-toolbar">
-        <label for="requestSearch">Search requests<input id="requestSearch" type="search" placeholder="Guard, Absence Request, Shift Swap Request, Overtime Request or reason"></label>
-        <label for="requestType">Request type<select id="requestType"><option value="all">All request types</option><option value="absence">Absence Request</option><option value="swap">Shift Swap Request</option><option value="overtime">Overtime Request</option></select></label>
+        <label for="requestSearch">Search requests<input id="requestSearch" type="search" placeholder="Guard, Absence Request, Shift Swap Request or reason"></label>
+        <label for="requestType">Request type<select id="requestType"><option value="all">All request types</option><option value="absence">Absence Request</option><option value="swap">Shift Swap Request</option></select></label>
         <label for="requestStatus">Status<select id="requestStatus"><option value="pending_admin">Awaiting Operations Head approval</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="all">All requests</option></select></label>
         <button type="button" class="ax-btn" id="refreshRequests">Refresh</button>
       </div>

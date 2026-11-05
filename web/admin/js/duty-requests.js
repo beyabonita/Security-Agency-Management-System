@@ -56,7 +56,7 @@ function renderDutyRequests() {
     if (typeVal !== 'all' && requestCategory(r) !== typeVal) return false;
     return `${profileName(dutyProfiles[r.requester_id])} ${requestKind(r)} ${r.reason}`.toLowerCase().includes(term);
   });
-  if (!visible.length) { requestList.innerHTML = '<div class="empty-state">No matching Absence, Shift Swap, or Overtime requests.</div>'; return; }
+  if (!visible.length) { requestList.innerHTML = '<div class="empty-state">No matching Absence or Shift Swap requests.</div>'; return; }
   requestList.innerHTML = visible.map(r => {
     const s = r.exchange_snapshot?.offered || dutySchedules[r.requested_schedule_id] || {};
     const target = r.exchange_snapshot?.requested || dutySchedules[r.target_schedule_id] || {};
