@@ -303,46 +303,46 @@
       return;
     }
 
-    const model = loc.shift_model || loc.shiftModel || '2_shifts_12h';
+    let model = loc.shift_model || loc.shiftModel || '2_shifts_12h';
+    if (model === '2_shifts_12h_07') model = '2_shifts_12h';
     const customHours = loc.custom_shift_hours || loc.customShiftHours;
 
     let targetShifts = null;
     let modelLabel = '';
 
-    if (model === '2_shifts_12h' || model === '2_shifts_12h_07') {
-      if (Array.isArray(customHours) && customHours.length && customHours.every(s => s.start_time && s.end_time)) {
-        targetShifts = customHours.map(s => ({ start_time: s.start_time, end_time: s.end_time }));
-        modelLabel = '2 Shifts (12h: ' + formatTime12Hour(customHours[0].start_time) + '–' + formatTime12Hour(customHours[0].end_time) + ')';
-      } else if (model === '2_shifts_12h_07') {
-        targetShifts = [{ start_time: '07:00', end_time: '19:00' }, { start_time: '19:00', end_time: '07:00' }];
-        modelLabel = '2 Shifts (12h: 7:00 AM–7:00 PM)';
-      } else {
-        targetShifts = [{ start_time: '06:00', end_time: '18:00' }, { start_time: '18:00', end_time: '06:00' }];
-        modelLabel = '2 Shifts (12h: 6:00 AM–6:00 PM)';
-      }
-    } else if (model === '3_shifts_8h') {
-      if (Array.isArray(customHours) && customHours.length >= 3 && customHours.every(s => s.start_time && s.end_time)) {
-        targetShifts = customHours.map(s => ({ start_time: s.start_time, end_time: s.end_time }));
-        modelLabel = '3 Shifts (8h: ' + customHours.map(s => formatTime12Hour(s.start_time)).join(' / ') + ')';
-      } else {
-        targetShifts = [{ start_time: '06:00', end_time: '14:00' }, { start_time: '14:00', end_time: '22:00' }, { start_time: '22:00', end_time: '06:00' }];
-        modelLabel = '3 Shifts (8h: 6:00 AM / 2:00 PM / 10:00 PM)';
-      }
-    } else if (model === '1_shift_8h') {
-      if (Array.isArray(customHours) && customHours.length && customHours[0].start_time && customHours[0].end_time) {
-        targetShifts = customHours.map(s => ({ start_time: s.start_time, end_time: s.end_time }));
-        const s0 = customHours[0];
+    if (model === '1_shift_8h') {
+      const s0 = (Array.isArray(customHours) && customHours.length) ? customHours[0] : null;
+      if (s0 && s0.start_time && s0.end_time) {
+        targetShifts = [{ start_time: s0.start_time, end_time: s0.end_time, label: s0.label || 'Day Shift' }];
         modelLabel = '1 Day Shift (' + formatTime12Hour(s0.start_time) + '–' + formatTime12Hour(s0.end_time) + ')';
       } else {
-        targetShifts = [{ start_time: '08:00', end_time: '17:00' }];
+        targetShifts = [{ start_time: '08:00', end_time: '17:00', label: 'Day Shift' }];
         modelLabel = '1 Day Shift (8:00 AM–5:00 PM)';
       }
-    } else if (model === 'custom' && Array.isArray(customHours) && customHours.length) {
-      targetShifts = customHours.map(s => ({ start_time: s.start_time, end_time: s.end_time }));
-      modelLabel = 'Custom Contract (' + customHours.length + ' shifts)';
+    } else if (model === '3_shifts_8h') {
+      if (Array.isArray(customHours) && customHours.length >= 3 && customHours.slice(0, 3).every(s => s.start_time && s.end_time)) {
+        targetShifts = customHours.slice(0, 3).map((s, idx) => ({ start_time: s.start_time, end_time: s.end_time, label: s.label || ('Shift ' + (idx + 1)) }));
+        modelLabel = '3 Shifts (8h: ' + targetShifts.map(s => formatTime12Hour(s.start_time)).join(' / ') + ')';
+      } else {
+        targetShifts = [
+          { start_time: '06:00', end_time: '14:00', label: 'First Shift' },
+          { start_time: '14:00', end_time: '22:00', label: 'Second Shift' },
+          { start_time: '22:00', end_time: '06:00', label: 'Third Shift' }
+        ];
+        modelLabel = '3 Shifts (8h: 6:00 AM / 2:00 PM / 10:00 PM)';
+      }
     } else {
-      targetShifts = [{ start_time: '06:00', end_time: '18:00' }, { start_time: '18:00', end_time: '06:00' }];
-      modelLabel = '2 Shifts (12h: 6:00 AM–6:00 PM)';
+      // Default: 2_shifts_12h
+      if (Array.isArray(customHours) && customHours.length >= 2 && customHours.slice(0, 2).every(s => s.start_time && s.end_time)) {
+        targetShifts = customHours.slice(0, 2).map((s, idx) => ({ start_time: s.start_time, end_time: s.end_time, label: s.label || ('Shift ' + (idx + 1)) }));
+        modelLabel = '2 Shifts (12h: ' + formatTime12Hour(targetShifts[0].start_time) + '–' + formatTime12Hour(targetShifts[0].end_time) + ')';
+      } else {
+        targetShifts = [
+          { start_time: '06:00', end_time: '18:00', label: 'Day Shift' },
+          { start_time: '18:00', end_time: '06:00', label: 'Night Shift' }
+        ];
+        modelLabel = '2 Shifts (12h: 6:00 AM–6:00 PM)';
+      }
     }
 
     const sig = RosterSetup.signature(targetShifts);
@@ -575,7 +575,11 @@
   function options(selectedId=setup.value){
     setup.innerHTML=savedSetups.length?savedSetups.map(item=>`<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}${item.name.toLowerCase()===`${item.shifts.length} shifts`?'':` (${item.shifts.length} shifts)`}</option>`).join(''):'<option value="">No shifting setups</option>';
     setup.value=savedSetups.some(item=>item.id===selectedId)?selectedId:(savedSetups[0]?.id||'');
-    window.renderShiftRoster();
+    if (site.value) {
+      applySiteContractShifts(site.value);
+    } else {
+      window.renderShiftRoster();
+    }
   }
   window.loadRosterSetups=async({silent=false}={})=>{
     if(setupLoading||setupSaving||saving)return;

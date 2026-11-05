@@ -1791,6 +1791,7 @@ function onShiftRowTimeInput(input) {
 }
 
 function getSiteShiftRowsData() {
+    const model = getActiveShiftModel();
     const rows = document.querySelectorAll(".site-shift-row");
     const data = [];
     rows.forEach(r => {
@@ -1799,7 +1800,8 @@ function getSiteShiftRowsData() {
         const end_time = r.querySelector(".site-shift-end")?.value || "";
         data.push({ start_time, end_time, label });
     });
-    return data;
+    const expectedCount = model === "1_shift_8h" ? 1 : (model === "3_shifts_8h" ? 3 : 2);
+    return data.slice(0, expectedCount);
 }
 
 function resetCurrentShiftModelDefault() {

@@ -88,11 +88,14 @@
 
   const storeLocationShifts = (id, label, shiftModel, customShiftHours) => {
     try {
+      const model = shiftModel || '2_shifts_12h';
+      const expectedCount = model === '1_shift_8h' ? 1 : (model === '3_shifts_8h' ? 3 : 2);
+      const cleanCustom = Array.isArray(customShiftHours) ? customShiftHours.slice(0, expectedCount) : null;
       const payload = JSON.stringify({
-        shift_model: shiftModel || '2_shifts_12h',
-        shiftModel: shiftModel || '2_shifts_12h',
-        custom_shift_hours: customShiftHours || null,
-        customShiftHours: customShiftHours || null,
+        shift_model: model,
+        shiftModel: model,
+        custom_shift_hours: cleanCustom,
+        customShiftHours: cleanCustom,
       });
       if (id) localStorage.setItem('sams_site_shifts_' + id, payload);
       if (label) localStorage.setItem('sams_site_shifts_lbl_' + encodeURIComponent(label), payload);
@@ -185,8 +188,11 @@
           result.shift_model = cached.shift_model || '2_shifts_12h';
         }
         if (!result.customShiftHours && !result.custom_shift_hours && (cached.customShiftHours || cached.custom_shift_hours)) {
-          result.customShiftHours = cached.customShiftHours || cached.custom_shift_hours;
-          result.custom_shift_hours = cached.custom_shift_hours || cached.customShiftHours;
+          const raw = cached.customShiftHours || cached.custom_shift_hours;
+          const m = result.shiftModel || result.shift_model || '2_shifts_12h';
+          const maxCount = m === '1_shift_8h' ? 1 : (m === '3_shifts_8h' ? 3 : 2);
+          result.customShiftHours = Array.isArray(raw) ? raw.slice(0, maxCount) : raw;
+          result.custom_shift_hours = result.customShiftHours;
         }
       }
     }
