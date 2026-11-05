@@ -203,14 +203,37 @@ async function renderInspectorBundles(locSnapshot) {
     } catch (_) {}
 }
 
+function formatTime12Hour(time24) {
+    if (!time24) return '';
+    const parts = String(time24).split(':');
+    let h = parseInt(parts[0], 10);
+    const m = parts[1] || '00';
+    if (isNaN(h)) return time24;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12;
+    if (h === 0) h = 12;
+    return `${h}:${m} ${ampm}`;
+}
+
 function getShiftModelBadge(d) {
     const model = d.shiftModel || d.shift_model || '2_shifts_12h';
-    if (model === '2_shifts_12h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: 06:00–18:00)</span>';
-    if (model === '2_shifts_12h_07') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: 07:00–19:00)</span>';
-    if (model === '3_shifts_8h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 3 Shifts (8h)</span>';
-    if (model === '1_shift_8h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 1 Day Shift (8h)</span>';
+    if (model === '2_shifts_12h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: 6:00 AM–6:00 PM)</span>';
+    if (model === '2_shifts_12h_07') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: 7:00 AM–7:00 PM)</span>';
+    if (model === '3_shifts_8h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 3 Shifts (8h: 6:00 AM / 2:00 PM / 10:00 PM)</span>';
+    if (model === '1_shift_8h') {
+        const customHours = d.customShiftHours || d.custom_shift_hours;
+        let timeRange = '8:00 AM–5:00 PM';
+        if (Array.isArray(customHours) && customHours.length && customHours[0].start_time && customHours[0].end_time) {
+            timeRange = formatTime12Hour(customHours[0].start_time) + '–' + formatTime12Hour(customHours[0].end_time);
+        }
+        return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 1 Day Shift (' + timeRange + ')</span>';
+    }
     if (model === 'custom') {
-        const customCount = Array.isArray(d.customShiftHours || d.custom_shift_hours) ? (d.customShiftHours || d.custom_shift_hours).length : 2;
+        const customList = Array.isArray(d.customShiftHours || d.custom_shift_hours) ? (d.customShiftHours || d.custom_shift_hours) : [];
+        const customCount = customList.length || 2;
+        if (customCount === 1 && customList[0]?.start_time && customList[0]?.end_time) {
+            return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 1 Shift (' + formatTime12Hour(customList[0].start_time) + '–' + formatTime12Hour(customList[0].end_time) + ')</span>';
+        }
         return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> Custom (' + customCount + ' Shifts)</span>';
     }
     return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h)</span>';

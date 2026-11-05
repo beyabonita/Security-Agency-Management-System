@@ -271,6 +271,17 @@
     }
   }
 
+  function formatTime12Hour(val) {
+    if (!val) return "";
+    const parts = String(val).split(":");
+    let h = parseInt(parts[0], 10);
+    const m = parts[1] || "00";
+    if (isNaN(h)) return val;
+    const suffix = h >= 12 ? "PM" : "AM";
+    const hour12 = h % 12 || 12;
+    return `${hour12}:${m} ${suffix}`;
+  }
+
   function applySiteContractShifts(siteId) {
     if (!siteId) {
       updateContractNotice(null);
@@ -290,22 +301,28 @@
 
     if (model === '2_shifts_12h') {
       targetShifts = [{ start_time: '06:00', end_time: '18:00' }, { start_time: '18:00', end_time: '06:00' }];
-      modelLabel = '2 Shifts (12h: 06:00–18:00)';
+      modelLabel = '2 Shifts (12h: 6:00 AM–6:00 PM)';
     } else if (model === '2_shifts_12h_07') {
       targetShifts = [{ start_time: '07:00', end_time: '19:00' }, { start_time: '19:00', end_time: '07:00' }];
-      modelLabel = '2 Shifts (12h: 07:00–19:00)';
+      modelLabel = '2 Shifts (12h: 7:00 AM–7:00 PM)';
     } else if (model === '3_shifts_8h') {
       targetShifts = [{ start_time: '06:00', end_time: '14:00' }, { start_time: '14:00', end_time: '22:00' }, { start_time: '22:00', end_time: '06:00' }];
-      modelLabel = '3 Shifts (8h rotation)';
+      modelLabel = '3 Shifts (8h: 6:00 AM / 2:00 PM / 10:00 PM)';
     } else if (model === '1_shift_8h') {
-      targetShifts = [{ start_time: '08:00', end_time: '17:00' }];
-      modelLabel = '1 Day Shift (8h: 08:00–17:00)';
+      if (Array.isArray(customHours) && customHours.length && customHours[0].start_time && customHours[0].end_time) {
+        targetShifts = customHours.map(s => ({ start_time: s.start_time, end_time: s.end_time }));
+        const s0 = customHours[0];
+        modelLabel = '1 Day Shift (' + formatTime12Hour(s0.start_time) + '–' + formatTime12Hour(s0.end_time) + ')';
+      } else {
+        targetShifts = [{ start_time: '08:00', end_time: '17:00' }];
+        modelLabel = '1 Day Shift (8:00 AM–5:00 PM)';
+      }
     } else if (model === 'custom' && Array.isArray(customHours) && customHours.length) {
       targetShifts = customHours.map(s => ({ start_time: s.start_time, end_time: s.end_time }));
       modelLabel = 'Custom Contract (' + customHours.length + ' shifts)';
     } else {
       targetShifts = [{ start_time: '06:00', end_time: '18:00' }, { start_time: '18:00', end_time: '06:00' }];
-      modelLabel = '2 Shifts (12h: 06:00–18:00)';
+      modelLabel = '2 Shifts (12h: 6:00 AM–6:00 PM)';
     }
 
     const sig = RosterSetup.signature(targetShifts);

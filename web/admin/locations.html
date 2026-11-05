@@ -352,15 +352,48 @@
                 <div id="radiusDefaultStatus" class="radius-note" role="status" aria-live="polite"></div>
             </div>
             <div class="col-md-4">
-                <label class="form-label" for="siteShiftModel">CONTRACTED SHIFTS <span class="req-star" aria-hidden="true">*</span></label>
+                <div class="d-flex align-items-center justify-content-between">
+                    <label class="form-label mb-1" for="siteShiftModel">CONTRACTED SHIFTS <span class="req-star" aria-hidden="true">*</span></label>
+                    <button type="button" id="editDayShiftBtn" class="btn btn-sm btn-link p-0 text-danger text-decoration-none" style="font-size:0.76rem;font-weight:700;display:none;" onclick="toggleDayShiftEditor()">
+                        <span class="material-symbols-rounded align-middle" style="font-size:14px;">tune</span> Edit Time
+                    </button>
+                </div>
                 <select id="siteShiftModel" class="form-select" onchange="onSiteShiftModelChange()" aria-required="true">
-                    <option value="2_shifts_12h" selected>2 Shifts (12h) — 06:00–18:00 / 18:00–06:00</option>
-                    <option value="2_shifts_12h_07">2 Shifts (12h) — 07:00–19:00 / 19:00–07:00</option>
-                    <option value="3_shifts_8h">3 Shifts (8h) — 06:00 / 14:00 / 22:00</option>
-                    <option value="1_shift_8h">1 Shift (8h) — 08:00–17:00 (Day)</option>
+                    <option value="2_shifts_12h" selected>2 Shifts (12h) — 6:00 AM–6:00 PM / 6:00 PM–6:00 AM</option>
+                    <option value="2_shifts_12h_07">2 Shifts (12h) — 7:00 AM–7:00 PM / 7:00 PM–7:00 AM</option>
+                    <option value="3_shifts_8h">3 Shifts (8h) — 6:00 AM / 2:00 PM / 10:00 PM</option>
+                    <option value="1_shift_8h">1 Shift (Day) — 8:00 AM–5:00 PM</option>
                     <option value="custom">Custom Shift Hours…</option>
                 </select>
                 <div class="radius-note" id="siteShiftModelHelp">Auto-loads roster shifts when scheduling</div>
+            </div>
+            <div class="col-12" id="oneShiftConfigWrap" style="display:none;">
+                <div class="custom-shifts-card p-3 rounded" style="background:var(--sl-surface-muted, #f8fafc);border:1px solid var(--sl-line, #e2e8f0);">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <strong style="font-size:0.85rem;"><span class="material-symbols-rounded align-middle me-1" style="font-size:16px;">calendar_month</span> Customize 1 Shift (Day) Hours</strong>
+                        <button type="button" class="btn btn-sm btn-link text-muted p-0 text-decoration-none" style="font-size:0.75rem;" onclick="resetDayShiftDefault()">Reset to Default (8:00 AM–5:00 PM)</button>
+                    </div>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-4 col-sm-12">
+                            <label class="form-label mb-1" style="font-size:0.72rem;font-weight:700;letter-spacing:0.04em;">SHIFT LABEL</label>
+                            <input type="text" id="oneShiftLabel" class="form-control form-control-sm" value="Day Shift" placeholder="e.g. Day Shift">
+                        </div>
+                        <div class="col-md-4 col-6">
+                            <label class="form-label mb-1" style="font-size:0.72rem;font-weight:700;letter-spacing:0.04em;">START TIME</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="time" id="oneShiftStart" class="form-control form-control-sm" value="08:00" oninput="updateOneShiftDisplay()">
+                                <span id="oneShiftStart12" class="badge bg-light text-dark border" style="font-size:0.78rem;white-space:nowrap;">8:00 AM</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-6">
+                            <label class="form-label mb-1" style="font-size:0.72rem;font-weight:700;letter-spacing:0.04em;">END TIME</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="time" id="oneShiftEnd" class="form-control form-control-sm" value="17:00" oninput="updateOneShiftDisplay()">
+                                <span id="oneShiftEnd12" class="badge bg-light text-dark border" style="font-size:0.78rem;white-space:nowrap;">5:00 PM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="col-12" id="customShiftsConfigWrap" style="display:none;">
                 <div class="custom-shifts-card p-3 rounded">
@@ -1115,6 +1148,11 @@ function resetFormFields() {
     }
     const shiftModelSelect = document.getElementById("siteShiftModel");
     if (shiftModelSelect) shiftModelSelect.value = "2_shifts_12h";
+    resetDayShiftDefault();
+    const oneWrap = document.getElementById("oneShiftConfigWrap");
+    if (oneWrap) oneWrap.style.display = "none";
+    const editBtn = document.getElementById("editDayShiftBtn");
+    if (editBtn) editBtn.innerHTML = '<span class="material-symbols-rounded align-middle" style="font-size:14px;">tune</span> Edit Time';
     onSiteShiftModelChange();
     document.getElementById("addressSearch").value = "";
     document.getElementById("radius").value = "";
@@ -1409,8 +1447,28 @@ async function editLocation(id, button) {
 
         const shiftModelSelect = document.getElementById("siteShiftModel");
         if (shiftModelSelect) {
-            shiftModelSelect.value = d.shiftModel || d.shift_model || "2_shifts_12h";
+            const rawModel = d.shiftModel || d.shift_model || "2_shifts_12h";
+            shiftModelSelect.value = rawModel;
             const customHours = d.customShiftHours || d.custom_shift_hours;
+            if (rawModel === "1_shift_8h") {
+                if (Array.isArray(customHours) && customHours.length) {
+                    const sh = customHours[0];
+                    const startEl = document.getElementById("oneShiftStart");
+                    const endEl = document.getElementById("oneShiftEnd");
+                    const labelEl = document.getElementById("oneShiftLabel");
+                    if (startEl && sh.start_time) startEl.value = sh.start_time;
+                    if (endEl && sh.end_time) endEl.value = sh.end_time;
+                    if (labelEl && sh.label) labelEl.value = sh.label;
+                    const oneWrap = document.getElementById("oneShiftConfigWrap");
+                    if (oneWrap && (sh.start_time !== "08:00" || sh.end_time !== "17:00")) {
+                        oneWrap.style.display = "block";
+                        const editBtn = document.getElementById("editDayShiftBtn");
+                        if (editBtn) editBtn.innerHTML = '<span class="material-symbols-rounded align-middle" style="font-size:14px;">close</span> Close Editor';
+                    }
+                } else {
+                    resetDayShiftDefault();
+                }
+            }
             renderCustomShiftRows(Array.isArray(customHours) && customHours.length ? customHours : null);
             onSiteShiftModelChange();
         }
@@ -1510,8 +1568,19 @@ async function saveLocation(button) {
             { start_time: "22:00", end_time: "06:00", label: "Third Shift" }
         ];
     } else if (shiftModel === "1_shift_8h") {
+        const start_time = document.getElementById("oneShiftStart")?.value || "08:00";
+        const end_time = document.getElementById("oneShiftEnd")?.value || "17:00";
+        const label = document.getElementById("oneShiftLabel")?.value.trim() || "Day Shift";
+        if (!start_time || !end_time) {
+            errEl.innerText = "Please enter valid start and end times for the day shift.";
+            return;
+        }
+        if (start_time === end_time) {
+            errEl.innerText = "Start and end time cannot be identical.";
+            return;
+        }
         customShiftHours = [
-            { start_time: "08:00", end_time: "17:00", label: "Daytime Duty" }
+            { start_time, end_time, label }
         ];
     } else {
         customShiftHours = [
@@ -1661,22 +1730,99 @@ async function viewDeployedGuards(siteId, siteLabel) {
     }
 }
 
+function formatTime12Hour(time24) {
+    if (!time24) return '';
+    const parts = String(time24).split(':');
+    let h = parseInt(parts[0], 10);
+    const m = parts[1] || '00';
+    if (isNaN(h)) return time24;
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12;
+    if (h === 0) h = 12;
+    return `${h}:${m} ${ampm}`;
+}
+
 function onSiteShiftModelChange() {
     const model = document.getElementById("siteShiftModel")?.value;
-    const wrap = document.getElementById("customShiftsConfigWrap");
-    if (!wrap) return;
-    if (model === "custom") {
-        wrap.style.display = "block";
-        const container = document.getElementById("customShiftRows");
-        if (container && !container.children.length) {
-            renderCustomShiftRows([
-                { start_time: "06:00", end_time: "18:00", label: "Day Shift" },
-                { start_time: "18:00", end_time: "06:00", label: "Night Shift" }
-            ]);
+    const customWrap = document.getElementById("customShiftsConfigWrap");
+    const oneShiftWrap = document.getElementById("oneShiftConfigWrap");
+    const editDayBtn = document.getElementById("editDayShiftBtn");
+    const helpEl = document.getElementById("siteShiftModelHelp");
+
+    if (editDayBtn) {
+        editDayBtn.style.display = (model === "1_shift_8h") ? "inline-flex" : "none";
+    }
+
+    if (model === "1_shift_8h") {
+        if (customWrap) customWrap.style.display = "none";
+        updateOneShiftDisplay();
+    } else if (model === "custom") {
+        if (oneShiftWrap) oneShiftWrap.style.display = "none";
+        if (editDayBtn) editDayBtn.style.display = "none";
+        if (helpEl) helpEl.textContent = "Auto-loads custom shift hours when scheduling";
+        if (customWrap) {
+            customWrap.style.display = "block";
+            const container = document.getElementById("customShiftRows");
+            if (container && !container.children.length) {
+                renderCustomShiftRows([
+                    { start_time: "06:00", end_time: "18:00", label: "Day Shift" },
+                    { start_time: "18:00", end_time: "06:00", label: "Night Shift" }
+                ]);
+            }
         }
     } else {
-        wrap.style.display = "none";
+        if (oneShiftWrap) oneShiftWrap.style.display = "none";
+        if (customWrap) customWrap.style.display = "none";
+        if (helpEl) {
+            if (model === "2_shifts_12h") helpEl.textContent = "Auto-loads 2 Shifts: 6:00 AM–6:00 PM / 6:00 PM–6:00 AM";
+            else if (model === "2_shifts_12h_07") helpEl.textContent = "Auto-loads 2 Shifts: 7:00 AM–7:00 PM / 7:00 PM–7:00 AM";
+            else if (model === "3_shifts_8h") helpEl.textContent = "Auto-loads 3 Shifts: 6:00 AM / 2:00 PM / 10:00 PM";
+            else helpEl.textContent = "Auto-loads roster shifts when scheduling";
+        }
     }
+}
+
+function toggleDayShiftEditor() {
+    const wrap = document.getElementById("oneShiftConfigWrap");
+    if (!wrap) return;
+    const isShowing = wrap.style.display === "block";
+    wrap.style.display = isShowing ? "none" : "block";
+    const editBtn = document.getElementById("editDayShiftBtn");
+    if (editBtn) {
+        editBtn.innerHTML = isShowing
+            ? '<span class="material-symbols-rounded align-middle" style="font-size:14px;">tune</span> Edit Time'
+            : '<span class="material-symbols-rounded align-middle" style="font-size:14px;">close</span> Close Editor';
+    }
+    updateOneShiftDisplay();
+}
+
+function updateOneShiftDisplay() {
+    const startVal = document.getElementById("oneShiftStart")?.value || "08:00";
+    const endVal = document.getElementById("oneShiftEnd")?.value || "17:00";
+    const start12El = document.getElementById("oneShiftStart12");
+    const end12El = document.getElementById("oneShiftEnd12");
+    if (start12El) start12El.textContent = formatTime12Hour(startVal);
+    if (end12El) end12El.textContent = formatTime12Hour(endVal);
+
+    const helpEl = document.getElementById("siteShiftModelHelp");
+    if (helpEl && document.getElementById("siteShiftModel")?.value === "1_shift_8h") {
+        helpEl.textContent = `Auto-loads 1 Day Shift (${formatTime12Hour(startVal)}–${formatTime12Hour(endVal)})`;
+    }
+}
+
+function resetDayShiftDefault() {
+    const startEl = document.getElementById("oneShiftStart");
+    const endEl = document.getElementById("oneShiftEnd");
+    const labelEl = document.getElementById("oneShiftLabel");
+    if (startEl) startEl.value = "08:00";
+    if (endEl) endEl.value = "17:00";
+    if (labelEl) labelEl.value = "Day Shift";
+    updateOneShiftDisplay();
+}
+
+function updateCustomRow12(input) {
+    const badge = input.nextElementSibling;
+    if (badge) badge.textContent = formatTime12Hour(input.value);
 }
 
 function renderCustomShiftRows(shifts) {
@@ -1692,10 +1838,16 @@ function renderCustomShiftRows(shifts) {
                 <input type="text" class="form-control form-control-sm custom-shift-label" placeholder="Shift Label (e.g. Day Shift)" value="${escapeHtml(s.label || ('Shift ' + (idx + 1)))}">
             </div>
             <div class="col-md-3 col-6">
-                <input type="time" class="form-control form-control-sm custom-shift-start" value="${escapeHtml(s.start_time || '06:00')}" aria-label="Start time">
+                <div class="d-flex align-items-center gap-1">
+                    <input type="time" class="form-control form-control-sm custom-shift-start" value="${escapeHtml(s.start_time || '06:00')}" oninput="updateCustomRow12(this)" aria-label="Start time">
+                    <span class="badge bg-light text-dark border" style="font-size:0.72rem;white-space:nowrap;">${formatTime12Hour(s.start_time || '06:00')}</span>
+                </div>
             </div>
             <div class="col-md-3 col-6">
-                <input type="time" class="form-control form-control-sm custom-shift-end" value="${escapeHtml(s.end_time || '18:00')}" aria-label="End time">
+                <div class="d-flex align-items-center gap-1">
+                    <input type="time" class="form-control form-control-sm custom-shift-end" value="${escapeHtml(s.end_time || '18:00')}" oninput="updateCustomRow12(this)" aria-label="End time">
+                    <span class="badge bg-light text-dark border" style="font-size:0.72rem;white-space:nowrap;">${formatTime12Hour(s.end_time || '18:00')}</span>
+                </div>
             </div>
             <div class="col-md-2 col-12 text-end">
                 <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="removeCustomShiftRow(this)" title="Remove this shift" ${list.length <= 1 ? 'disabled' : ''}>&times; Remove</button>
@@ -1737,12 +1889,23 @@ function getCustomShiftRowsData() {
 
 function getShiftModelBadge(d) {
     const model = d.shiftModel || d.shift_model || '2_shifts_12h';
-    if (model === '2_shifts_12h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: 06:00–18:00)</span>';
-    if (model === '2_shifts_12h_07') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: 07:00–19:00)</span>';
-    if (model === '3_shifts_8h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 3 Shifts (8h)</span>';
-    if (model === '1_shift_8h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 1 Day Shift (8h)</span>';
+    if (model === '2_shifts_12h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: 6:00 AM–6:00 PM)</span>';
+    if (model === '2_shifts_12h_07') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: 7:00 AM–7:00 PM)</span>';
+    if (model === '3_shifts_8h') return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 3 Shifts (8h: 6:00 AM / 2:00 PM / 10:00 PM)</span>';
+    if (model === '1_shift_8h') {
+        const customHours = d.customShiftHours || d.custom_shift_hours;
+        let timeRange = '8:00 AM–5:00 PM';
+        if (Array.isArray(customHours) && customHours.length && customHours[0].start_time && customHours[0].end_time) {
+            timeRange = formatTime12Hour(customHours[0].start_time) + '–' + formatTime12Hour(customHours[0].end_time);
+        }
+        return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 1 Day Shift (' + timeRange + ')</span>';
+    }
     if (model === 'custom') {
-        const customCount = Array.isArray(d.customShiftHours || d.custom_shift_hours) ? (d.customShiftHours || d.custom_shift_hours).length : 2;
+        const customList = Array.isArray(d.customShiftHours || d.custom_shift_hours) ? (d.customShiftHours || d.custom_shift_hours) : [];
+        const customCount = customList.length || 2;
+        if (customCount === 1 && customList[0]?.start_time && customList[0]?.end_time) {
+            return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 1 Shift (' + formatTime12Hour(customList[0].start_time) + '–' + formatTime12Hour(customList[0].end_time) + ')</span>';
+        }
         return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> Custom (' + customCount + ' Shifts)</span>';
     }
     return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h)</span>';
