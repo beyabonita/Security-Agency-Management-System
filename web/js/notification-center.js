@@ -67,8 +67,37 @@
     return node;
   }
 
+  function isForceAttendanceNotification(item) {
+    if (!item) return false;
+    const title = (item.title || '').toLowerCase();
+    const actionKey = (item.action_key || '').toLowerCase();
+    const entityType = (item.entity_type || '').toLowerCase();
+    const tag = (item.dedup_key || '').toLowerCase();
+    return (
+      title.includes('force attendance') ||
+      actionKey === 'force_attendance' ||
+      entityType === 'attendance_session' ||
+      tag.startsWith('force-att:')
+    );
+  }
+
   function actionUrl(item) {
     const role = state.profile && state.profile.role;
+
+    if (isForceAttendanceNotification(item)) {
+      let meta = item.metadata;
+      if (typeof meta === 'string') {
+        try { meta = JSON.parse(meta); } catch (_) { meta = {}; }
+      }
+      meta = meta || {};
+      const sessionId = meta.session_id || meta.sessionId || (item.entity_type === 'attendance_session' ? item.entity_id : '');
+      const params = new URLSearchParams();
+      params.set('tab', 'attendance');
+      if (sessionId) params.set('session_id', sessionId);
+      const folder = { admin: 'admin', inspector: 'inspector', it_admin: 'it-admin' }[role] || 'admin';
+      return (role === 'admin' ? '/' + folder + '/records.html?' + params.toString() + '#force-attendance' : '/' + folder + '/dashboard.html');
+    }
+
     // Broadcasts are the content, not links to a dashboard or system controls.
     if (item.kind === 'system' || item.action_key === 'system') return null;
     const maps = {
@@ -114,6 +143,9 @@
   }
 
   function relatedActionLabel(item) {
+    if (isForceAttendanceNotification(item)) {
+      return 'View Approval';
+    }
     return {
       emergency: 'Open incident reports',
       schedule: state.profile.role === 'inspector' ? 'Open duty overview' : 'Open schedules',
@@ -174,6 +206,15 @@
           const targetUrl = new URL(url, location.origin);
           window.history.replaceState(null, '', url);
           window.handleUrlTargetReport(targetUrl.searchParams.get('reportId'), targetUrl.searchParams.get('guardId'));
+        } else if (location.pathname.endsWith('/records.html') && url.includes('records.html')) {
+          const targetUrl = new URL(url, location.origin);
+          window.history.replaceState(null, '', url);
+          const targetSessionId = targetUrl.searchParams.get('session_id') || targetUrl.searchParams.get('sessionId');
+          if (typeof window.handleUrlTargetForceAttendance === 'function') {
+            window.handleUrlTargetForceAttendance(targetSessionId);
+          } else if (typeof window.switchRecordsTab === 'function') {
+            window.switchRecordsTab('attendance');
+          }
         } else {
           location.href = url;
         }

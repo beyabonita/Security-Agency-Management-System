@@ -35,6 +35,7 @@
 | :--- | :---: | :--- | :---: | :---: |
 | [`web/admin/js/admin-shell.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/admin-shell.js) | #11, #16 | Sidebar nav labels updated to `Guard Tracker` and `Absence, Shift Swap & Overtime` | **✅ PUSHED** | `99a139b` (`origin/main`) |
 | [`web/admin/live-tracking.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/live-tracking.html) | #14, #16 | Page `<title>` and header `<h1>` updated to `Guard Tracker`; `#guardSearch` placeholder updated for company/site/location/guard search | **✅ PUSHED** | `origin/main` |
+| [`web/js/notification-center.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/notification-center.js) & [`web/admin/js/records.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/js/records.js) | Force Attendance (#5) | Added direct "View Approval" button in Force Attendance notification dialogs, deep-linking directly to the approval queue in Records & Reports with row auto-scroll and highlight | **✅ PUSHED** | `origin/main` |
 | [`web/admin/records.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/records.html) | #16 | Operational guidance reference updated to `Guard Tracker` | **✅ PUSHED** | `99a139b` (`origin/main`) |
 | [`web/inspector/live-tracking.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/live-tracking.html) | #14, #16 | Inspector page `<title>`, sidebar nav, `<h1>`, and `#guardSearch` placeholder updated for company/site/location/guard search | **✅ PUSHED** | `origin/main` |
 | [`web/inspector/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/dashboard.html) | #16 | Inspector sidebar link updated to `Guard Tracker` | **✅ PUSHED** | `99a139b` (`origin/main`) |
@@ -95,6 +96,15 @@
 | [`web/tests/admin_dashboard.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/admin_dashboard.spec.js) | Pre-existing | Local test adjustment in working tree from earlier session | **⏳ NOT PUSHED** | Local working tree |
 
 ---
+
+### [2026-11-05 12:35] - Feat: Direct "View Approval" Navigation in Force Attendance Notifications — [✅ PUSHED: `origin/main`]
+
+- **Scope & Objective**:
+  - Add a direct `View Approval` button on "Force Attendance Approval Needed" notification dialogs so the Operations Head can immediately jump to the approval queue in Records & Reports instead of seeing only a `Done` button.
+- **Key Implementation Details**:
+  - `web/js/notification-center.js`: Added `isForceAttendanceNotification(item)`, mapped action URL to `/admin/records.html?tab=attendance&session_id=<session_id>#force-attendance`, and labeled confirm button `View Approval`.
+  - `web/admin/js/records.js`: Added query parameter & hash detection (`?tab=attendance`, `?session_id=...`, `#force-attendance`), switching to the Attendance tab, smooth-scrolling to `#forceAttendanceQueueCard`, and applying visual highlight outline/pulse animation on the target session row.
+  - `web/admin/css/admin-theme.css`: Added `forceAttPulse` animation and `.force-att-highlight` container styling.
 
 ### [2026-11-05 12:20] - Fix: Mount Notification Center Across All Web Console Sections — [✅ PUSHED: `origin/main`]
 

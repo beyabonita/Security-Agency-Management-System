@@ -75,12 +75,46 @@
             });
         });
 
-        // URL hash support
+        // URL query param & hash support
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
         const hash = window.location.hash.replace('#', '');
-        if (['personnel', 'incidents', 'attendance'].includes(hash)) {
+        const targetSessionId = urlParams.get('session_id') || urlParams.get('sessionId');
+
+        if (tabParam && ['personnel', 'incidents', 'attendance'].includes(tabParam)) {
+            switchTab(tabParam);
+        } else if (['personnel', 'incidents', 'attendance'].includes(hash)) {
             switchTab(hash);
+        } else if (hash === 'force-attendance' || targetSessionId) {
+            switchTab('attendance');
+        }
+
+        if (hash === 'force-attendance' || targetSessionId) {
+            setTimeout(() => focusForceAttendanceTarget(targetSessionId), 350);
         }
     }
+
+    function focusForceAttendanceTarget(sessionId) {
+        const card = document.getElementById('forceAttendanceQueueCard');
+        if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            card.classList.add('force-att-highlight');
+        }
+        if (sessionId) {
+            const row = document.querySelector(`tr[data-session-id="${sessionId}"]`);
+            if (row) {
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                row.style.outline = '2px solid #dc2626';
+                row.style.backgroundColor = 'rgba(220, 38, 38, 0.12)';
+                row.classList.add('table-warning');
+            }
+        }
+    }
+    window.handleUrlTargetForceAttendance = function(sessionId) {
+        switchTab('attendance');
+        setTimeout(() => focusForceAttendanceTarget(sessionId), 150);
+    };
+    window.switchRecordsTab = switchTab;
 
     function switchTab(tabName) {
         currentTab = tabName;
@@ -514,7 +548,7 @@
                    </div>`
                 : '<span class="col-muted" style="font-size:11px;">—</span>';
 
-            return `<tr>
+            return `<tr data-session-id="${escapeHtml(sess.id)}" id="force-row-${escapeHtml(sess.id)}">
                 <td>
                     <div class="col-primary">${escapeHtml(guardName)}</div>
                     <div style="font-size:11px;color:#64748b;">${escapeHtml(postName)}</div>
@@ -530,6 +564,11 @@
                 <td>${actionsHtml}</td>
             </tr>`;
         }).join('');
+
+        const targetSessionId = new URLSearchParams(window.location.search).get('session_id') || new URLSearchParams(window.location.search).get('sessionId');
+        if (targetSessionId) {
+            setTimeout(() => focusForceAttendanceTarget(targetSessionId), 60);
+        }
     }
 
     window.decideForceAttendanceSession = async function(sessionId, decision) {
