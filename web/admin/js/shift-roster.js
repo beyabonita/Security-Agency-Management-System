@@ -218,20 +218,6 @@
   setup.addEventListener('change',()=>{
     if(editingSetup)resetEditor();
     customRosterShifts=null;
-    if (activeContractInfo) {
-      const noticeEl = document.getElementById('contractShiftNotice');
-      if (noticeEl) {
-        noticeEl.style.display = 'flex';
-        noticeEl.innerHTML = '<div class="d-flex align-items-center gap-2 flex-wrap">' +
-          '<span class="material-symbols-rounded text-warning" style="font-size:18px;" aria-hidden="true">info</span>' +
-          '<span>Manual Setup: <strong>' + escapeHtml(setup.selectedOptions[0]?.text || '') + '</strong></span>' +
-          '</div>' +
-          '<button type="button" id="reapplyContractShiftsBtn" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:0.75rem;">Re-apply Contract</button>';
-        document.getElementById('reapplyContractShiftsBtn')?.addEventListener('click', () => {
-          applySiteContractShifts(site.value);
-        });
-      }
-    }
     window.renderShiftRoster();
   });
   date.addEventListener('change',summary);
@@ -240,18 +226,6 @@
 
   function updateContractNotice(info) {
     activeContractInfo = info;
-    const noticeEl = document.getElementById('contractShiftNotice');
-    if (!noticeEl) return;
-    if (!info) {
-      noticeEl.style.display = 'none';
-      noticeEl.innerHTML = '';
-      return;
-    }
-    noticeEl.style.display = 'flex';
-    noticeEl.innerHTML = '<div class="d-flex align-items-center gap-2 flex-wrap">' +
-      '<span class="material-symbols-rounded text-success" style="font-size:18px;" aria-hidden="true">check_circle</span>' +
-      '<span>Contract shifts auto-applied for <strong>' + escapeHtml(info.siteName) + '</strong>: <span class="badge bg-danger-subtle text-danger border border-danger-subtle">' + escapeHtml(info.label) + '</span></span>' +
-      '</div>';
   }
 
   function formatTime12Hour(val) {
