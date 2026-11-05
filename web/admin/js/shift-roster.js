@@ -48,16 +48,7 @@
     const ids=selected();
     const cutoff=SchedulePeriod.dtrPeriodForDate(date.value);
     preview.innerHTML='<div class="roster-preview-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">'+
-      '<div class="d-flex align-items-center gap-2">'+
-        '<p class="mb-0"><strong>Selected guard shifts</strong></p>'+
-        (customRosterShifts ? '<span class="badge bg-warning text-dark" style="font-size:0.75rem;">Custom times</span>' : '')+
-      '</div>'+
-      '<div class="d-flex align-items-center gap-2">'+
-        (customRosterShifts ? '<button type="button" id="resetRosterTimesBtn" class="btn btn-sm btn-outline-secondary py-1 px-2" aria-label="Reset shift times">Reset times</button>' : '')+
-        '<button type="button" id="editRosterTimesBtn" class="btn btn-sm btn-outline-danger py-1 px-2" aria-label="Edit shift times">'+
-          'Edit shift times'+
-        '</button>'+
-      '</div>'+
+      '<p class="mb-0"><strong>Selected guard shifts</strong></p>'+
       '</div>'+
       `<p class="mb-2 text-muted small">${cutoff ? `Duty date: ${escapeHtml(formatDate(date.value))} · DTR cut-off: ${escapeHtml(cutoff.label)}` : 'Choose a valid schedule date.'}</p>`+
       '<div class="roster-dtr-scroll" tabindex="0" aria-label="Planned guard shifts"><table class="roster-dtr-preview"><thead><tr><th scope="col">Shift and Guard</th><th scope="col">Scheduled IN</th><th scope="col">Scheduled OUT</th><th scope="col">Planned hours</th></tr></thead><tbody>'+
@@ -260,25 +251,7 @@
     noticeEl.innerHTML = '<div class="d-flex align-items-center gap-2 flex-wrap">' +
       '<span class="material-symbols-rounded text-success" style="font-size:18px;" aria-hidden="true">check_circle</span>' +
       '<span>Contract shifts auto-applied for <strong>' + escapeHtml(info.siteName) + '</strong>: <span class="badge bg-danger-subtle text-danger border border-danger-subtle">' + escapeHtml(info.label) + '</span></span>' +
-      '</div>' +
-      '<button type="button" id="overrideContractShiftsBtn" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size:0.75rem;">Override for Event</button>';
-
-    const overrideBtn = document.getElementById('overrideContractShiftsBtn');
-    if (overrideBtn) {
-      overrideBtn.addEventListener('click', () => {
-        setup.disabled = false;
-        const editTimesBtn = document.getElementById('editRosterTimesBtn');
-        if (editTimesBtn) editTimesBtn.click();
-        noticeEl.innerHTML = '<div class="d-flex align-items-center gap-2 flex-wrap">' +
-          '<span class="material-symbols-rounded text-warning" style="font-size:18px;" aria-hidden="true">event_note</span>' +
-          '<span>Manual Shift Override Active for <strong>' + escapeHtml(info.siteName) + '</strong></span>' +
-          '</div>' +
-          '<button type="button" id="reapplyContractShiftsBtn" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:0.75rem;">Re-apply Contract</button>';
-        document.getElementById('reapplyContractShiftsBtn')?.addEventListener('click', () => {
-          applySiteContractShifts(site.value);
-        });
-      });
-    }
+      '</div>';
   }
 
   function formatTime12Hour(val) {
