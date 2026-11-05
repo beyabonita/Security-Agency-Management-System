@@ -1,5 +1,9 @@
 (() => {
   'use strict';
+  // Purge any stale contract notice or override elements
+  document.getElementById('contractShiftNotice')?.remove();
+  document.getElementById('overrideContractShiftsBtn')?.remove();
+
   const setup=document.getElementById('rosterSetup'), date=document.getElementById('rosterDate');
   const site=document.getElementById('rosterSite'), slots=document.getElementById('rosterGuards');
   const siteFilter=document.getElementById('rosterSiteFilter'), siteFilterClear=document.getElementById('rosterSiteFilterClear');
@@ -226,6 +230,8 @@
 
   function updateContractNotice(info) {
     activeContractInfo = info;
+    document.getElementById('contractShiftNotice')?.remove();
+    document.getElementById('overrideContractShiftsBtn')?.remove();
   }
 
   function formatTime12Hour(val) {
