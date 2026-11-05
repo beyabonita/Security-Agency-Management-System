@@ -26,7 +26,19 @@
     max-width: 100% !important;
     box-sizing: border-box;
 }
-.glass-card { background: var(--sl-surface); border: 1px solid var(--sl-line); border-radius: 14px; overflow-x: auto; max-width: 100%; }
+.glass-card {
+    background: var(--sl-surface);
+    border: 1px solid var(--sl-line);
+    border-radius: 14px;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 640px;
+    max-width: 100%;
+    position: relative;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(220, 38, 38, 0.25) transparent;
+}
 .target-accomplishment-card {
     border: 2px solid var(--sl-danger, #d32f2f) !important;
     box-shadow: 0 0 16px rgba(211, 47, 47, 0.25) !important;
@@ -221,8 +233,14 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
 }
 
 .user-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+.user-table thead { position: sticky; top: 0; z-index: 10; }
 .user-table thead tr { background: var(--sl-red-soft); }
 .user-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--sl-red-soft);
+    z-index: 10;
+    box-shadow: 0 1px 0 var(--sl-line);
     padding: 10px 10px;
     font-size: 0.7rem;
     font-weight: 700;
@@ -266,7 +284,8 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
     white-space: nowrap;
 }
 .glass-card::-webkit-scrollbar {
-    height: 5px;
+    width: 6px;
+    height: 6px;
 }
 .glass-card::-webkit-scrollbar-track {
     background: transparent;
@@ -476,8 +495,7 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
 .personnel-actions-menu .action-btn:hover { background: var(--sl-red-soft); color: var(--sl-danger); border-color: var(--sl-line); }
 .personnel-actions-menu .btn-disable { color: var(--sl-warning); }
 .personnel-actions-menu .btn-enable { color: var(--sl-success); }
-.glass-card { overflow-x: auto; }
-.user-table tbody tr:last-child .personnel-actions-menu {
+.user-table tbody tr:nth-last-child(-n+3) .personnel-actions-menu {
     top: auto;
     bottom: calc(100% - 1px);
 }
