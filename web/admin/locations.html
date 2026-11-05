@@ -1536,6 +1536,18 @@ async function saveLocation(button) {
             await loadLocations();
             appDialog.toast('Deployment site updated. Geofence remained locked.', { tone: 'success' });
         } catch (error) {
+            const msg = String(error?.message || '').toLowerCase();
+            if (msg.includes('custom_shift_hours') || msg.includes('shift_model') || msg.includes('schema cache')) {
+                try {
+                    await appDialog.runBusy(button, () => db.collection("locations").doc(id).update({ label }), { label: 'Saving changes…' });
+                    hideForm();
+                    await loadLocations();
+                    appDialog.toast('Deployment site updated. Geofence remained locked.', { tone: 'success' });
+                    return;
+                } catch (retryErr) {
+                    error = retryErr;
+                }
+            }
             errEl.innerText = error.message || 'Could not save the deployment site.';
             appDialog.toast(errEl.innerText, { tone: 'danger' });
         }
@@ -1573,6 +1585,23 @@ async function saveLocation(button) {
         await loadLocations();
         appDialog.toast(id ? 'Deployment site updated.' : 'Deployment site created.', { tone: 'success' });
     } catch (error) {
+        const msg = String(error?.message || '').toLowerCase();
+        if (msg.includes('custom_shift_hours') || msg.includes('shift_model') || msg.includes('schema cache')) {
+            try {
+                const cleanData = { ...data };
+                delete cleanData.shift_model;
+                delete cleanData.custom_shift_hours;
+                await appDialog.runBusy(button, () => id
+                    ? db.collection("locations").doc(id).update(cleanData)
+                    : db.collection("locations").add(cleanData), { label: id ? 'Saving changes…' : 'Creating site…' });
+                hideForm();
+                await loadLocations();
+                appDialog.toast(id ? 'Deployment site updated.' : 'Deployment site created.', { tone: 'success' });
+                return;
+            } catch (retryErr) {
+                error = retryErr;
+            }
+        }
         errEl.innerText = error.message || 'Could not save the deployment site.';
         appDialog.toast(errEl.innerText, { tone: 'danger' });
     }

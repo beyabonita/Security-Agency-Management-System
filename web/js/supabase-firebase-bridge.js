@@ -71,6 +71,46 @@
     incidents: 'incidents',
   };
 
+
+  const getStoredLocationShifts = (id, label) => {
+    try {
+      if (id) {
+        const raw = localStorage.getItem('sams_site_shifts_' + id);
+        if (raw) return JSON.parse(raw);
+      }
+      if (label) {
+        const raw = localStorage.getItem('sams_site_shifts_lbl_' + encodeURIComponent(label));
+        if (raw) return JSON.parse(raw);
+      }
+    } catch (_) {}
+    return null;
+  };
+
+  const storeLocationShifts = (id, label, shiftModel, customShiftHours) => {
+    try {
+      const payload = JSON.stringify({
+        shift_model: shiftModel || '2_shifts_12h',
+        shiftModel: shiftModel || '2_shifts_12h',
+        custom_shift_hours: customShiftHours || null,
+        customShiftHours: customShiftHours || null,
+      });
+      if (id) localStorage.setItem('sams_site_shifts_' + id, payload);
+      if (label) localStorage.setItem('sams_site_shifts_lbl_' + encodeURIComponent(label), payload);
+    } catch (_) {}
+  };
+
+  const isSchemaColumnError = (err) => {
+    if (!err) return false;
+    const msg = String(err.message || '').toLowerCase();
+    const details = String(err.details || '').toLowerCase();
+    return err.code === '42703' ||
+      msg.includes('schema cache') ||
+      msg.includes('custom_shift_hours') ||
+      msg.includes('shift_model') ||
+      details.includes('custom_shift_hours') ||
+      details.includes('shift_model');
+  };
+
   const toDb = (collection, data) => {
     const keys = {
       userId: 'user_id', organizationId: 'organization_id', locationId: 'location_id',
@@ -88,7 +128,7 @@
     };
     const allowed = {
       users: ['id', 'username', 'email', 'first_name', 'middle_initial', 'middle_name', 'last_name', 'role', 'organization_id', 'active', 'device_id', 'device_locked', 'created_at', 'personnel_id', 'date_of_birth', 'gender', 'civil_status', 'complete_address', 'emergency_contact', 'profile_photo_url', 'date_hired', 'contract_status', 'license_security_url', 'license_firearms_url', 'mobile_number', 'employment_category', 'contract_start_date', 'contract_end_date', 'assigned_location_id', 'inspector_id', 'removed_at'],
-      locations: ['id', 'label', 'address', 'latitude', 'longitude', 'radius_meters', 'active', 'created_at', 'shift_model', 'custom_shift_hours'],
+      locations: ['id', 'label', 'address', 'latitude', 'longitude', 'radius_meters', 'active', 'created_at'],
       schedules: ['id', 'user_id', 'location_id', 'location_label', 'location_address', 'guard_name', 'start_at', 'end_at', 'duty_date', 'dtr_period', 'duty_category', 'duty_days', 'approval_status', 'marked_done', 'completed_at', 'completed_by', 'created_at'],
       incidents: ['id', 'user_id', 'guard_name', 'guard_email', 'category', 'description', 'photo_data', 'latitude', 'longitude', 'location_label', 'status', 'status_note', 'created_at', 'updated_at', 'updated_by', 'deletion_requested_at', 'archived_at'],
     };
@@ -131,12 +171,26 @@
       video_duration_seconds: 'videoDurationSeconds',
     };
     const timeKey = /(_at|createdAt|updatedAt|startAt|endAt|completedAt|capturedAt|filedAt)$/;
-    return Object.fromEntries(Object.entries(row).map(([key, value]) => {
+    const result = Object.fromEntries(Object.entries(row).map(([key, value]) => {
       const mapped = keys[key] || key;
       return [mapped, timeKey.test(mapped) && typeof value === 'string'
         ? { toDate: () => new Date(value) }
         : value];
     }));
+    if (row && (row.radius_meters !== undefined || row.latitude !== undefined || row.address !== undefined)) {
+      const cached = getStoredLocationShifts(row.id, row.label);
+      if (cached) {
+        if (!result.shiftModel && !result.shift_model) {
+          result.shiftModel = cached.shiftModel || '2_shifts_12h';
+          result.shift_model = cached.shift_model || '2_shifts_12h';
+        }
+        if (!result.customShiftHours && !result.custom_shift_hours && (cached.customShiftHours || cached.custom_shift_hours)) {
+          result.customShiftHours = cached.customShiftHours || cached.custom_shift_hours;
+          result.custom_shift_hours = cached.custom_shift_hours || cached.customShiftHours;
+        }
+      }
+    }
+    return result;
   };
 
   const snapshot = (rows) => ({
@@ -223,19 +277,51 @@
     }
 
     async add(data) {
-      const { data: row, error } = await client
+      const isLoc = this.collectionName === 'locations';
+      const shiftModel = data.shift_model || data.shiftModel;
+      const customShiftHours = data.custom_shift_hours || data.customShiftHours;
+      const payload = toDb(this.collectionName, data);
+      let res = await client
         .from(tables[this.collectionName] || this.collectionName)
-        .insert(toDb(this.collectionName, data))
+        .insert(payload)
         .select()
         .single();
-      if (error) throw error;
+      if (res.error && isLoc && isSchemaColumnError(res.error)) {
+        delete payload.shift_model;
+        delete payload.custom_shift_hours;
+        res = await client
+          .from(tables[this.collectionName] || this.collectionName)
+          .insert(payload)
+          .select()
+          .single();
+      }
+      if (res.error) throw res.error;
+      const row = res.data;
+      if (isLoc && row) {
+        storeLocationShifts(row.id, row.label || data.label, shiftModel, customShiftHours);
+      }
       return { id: row.id };
     }
     async set(data) {
-      const { error } = await client
+      const isLoc = this.collectionName === 'locations';
+      const shiftModel = data.shift_model || data.shiftModel;
+      const customShiftHours = data.custom_shift_hours || data.customShiftHours;
+      const payload = { id: this.id, ...toDb(this.collectionName, data) };
+      let { error } = await client
         .from(tables[this.collectionName] || this.collectionName)
-        .upsert({ id: this.id, ...toDb(this.collectionName, data) });
+        .upsert(payload);
+      if (error && isLoc && isSchemaColumnError(error)) {
+        delete payload.shift_model;
+        delete payload.custom_shift_hours;
+        const retry = await client
+          .from(tables[this.collectionName] || this.collectionName)
+          .upsert(payload);
+        error = retry.error;
+      }
       if (error) throw error;
+      if (isLoc) {
+        storeLocationShifts(this.id, data.label, shiftModel, customShiftHours);
+      }
     }
     async update(data) {
       if (this.collectionName === 'incidents') {
@@ -247,11 +333,27 @@
         if (error) throw error;
         return;
       }
-      const { error } = await client
+      const isLoc = this.collectionName === 'locations';
+      const shiftModel = data.shift_model || data.shiftModel;
+      const customShiftHours = data.custom_shift_hours || data.customShiftHours;
+      const payload = toDb(this.collectionName, data);
+      let { error } = await client
         .from(tables[this.collectionName] || this.collectionName)
-        .update(toDb(this.collectionName, data))
+        .update(payload)
         .eq('id', this.id);
+      if (error && isLoc && isSchemaColumnError(error)) {
+        delete payload.shift_model;
+        delete payload.custom_shift_hours;
+        const retry = await client
+          .from(tables[this.collectionName] || this.collectionName)
+          .update(payload)
+          .eq('id', this.id);
+        error = retry.error;
+      }
       if (error) throw error;
+      if (isLoc) {
+        storeLocationShifts(this.id, data.label, shiftModel, customShiftHours);
+      }
     }
     async delete() {
       const { error } = await client
