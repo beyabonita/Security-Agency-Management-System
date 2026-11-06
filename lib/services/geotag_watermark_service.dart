@@ -40,39 +40,72 @@ class GeotagWatermarkService {
       final nowPht = (capturedAt ?? DateTime.now()).toUtc().add(
         const Duration(hours: 8),
       );
-      final dateStr =
-          '${nowPht.year}-${nowPht.month.toString().padLeft(2, '0')}-${nowPht.day.toString().padLeft(2, '0')}';
+      const months = [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ];
+      final monthName = months[nowPht.month - 1];
+      final dateFormatted =
+          '$monthName ${nowPht.day.toString().padLeft(2, '0')}, ${nowPht.year}';
       final hour12 = nowPht.hour % 12 == 0 ? 12 : nowPht.hour % 12;
       final ampm = nowPht.hour >= 12 ? 'PM' : 'AM';
       final timeStr =
           '${hour12.toString().padLeft(2, '0')}:${nowPht.minute.toString().padLeft(2, '0')}:${nowPht.second.toString().padLeft(2, '0')} $ampm PHT';
 
-      final gpsStr = (latitude != null && longitude != null)
+      final dateLine = 'DATE: $dateFormatted';
+      final timeLine = 'TIME: $timeStr';
+      final postLine = (locationLabel != null && locationLabel.trim().isNotEmpty)
+          ? 'POST: ${_sanitizeAscii(locationLabel.trim())}'
+          : 'POST: TwentyTwenty Security Agency';
+      final gpsLine = (latitude != null && longitude != null)
           ? 'GPS: ${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}'
                 '${accuracyMeters != null ? ' (+/-${accuracyMeters.round()}m)' : ''}'
           : 'GPS: Acquiring coordinates...';
+      final deviceLine = (deviceLabel != null && deviceLabel.trim().isNotEmpty)
+          ? 'DEVICE: ${_sanitizeAscii(deviceLabel.trim())}'
+          : 'DEVICE: Registered Android Mobile Device';
 
-      final siteStr = (locationLabel != null && locationLabel.trim().isNotEmpty)
-          ? 'POST: ${_sanitizeAscii(locationLabel.trim())}'
-          : 'POST: TwentyTwenty Security Agency';
-
-      final headerStr = (tagLabel != null && tagLabel.trim().isNotEmpty)
-          ? '${_sanitizeAscii(tagLabel.trim())} | $dateStr $timeStr'
-          : 'GEOTAGGED EVIDENCE | $dateStr $timeStr';
-
-      final lines = <String>[
-        headerStr,
-        gpsStr,
-        siteStr,
-        if (deviceLabel != null && deviceLabel.trim().isNotEmpty)
-          'DEVICE: ${_sanitizeAscii(deviceLabel.trim())}',
-      ];
+      final titleLine = (tagLabel != null && tagLabel.trim().isNotEmpty)
+          ? _sanitizeAscii(tagLabel.trim())
+          : 'ATTENDANCE FACE VERIFICATION';
 
       final useLargeFont = canvas.width >= 720;
       final font = useLargeFont ? img.arial24 : img.arial14;
       final lineHeight = useLargeFont ? 28 : 18;
       final padding = useLargeFont ? 14 : 10;
-      final bannerHeight = (lines.length * lineHeight) + (padding * 2);
+      final approxCharWidth = useLargeFont ? 14.0 : 8.5;
+      final maxCharsPerLine =
+          ((canvas.width - (padding * 2)) / approxCharWidth).floor();
+
+      final rawLines = <String>[
+        titleLine,
+        dateLine,
+        timeLine,
+        postLine,
+        gpsLine,
+        deviceLine,
+      ];
+
+      final lines = <String>[];
+      for (final raw in rawLines) {
+        if (maxCharsPerLine > 15 && raw.length > maxCharsPerLine) {
+          lines.addAll(_wrapText(raw, maxCharsPerLine));
+        } else {
+          lines.add(raw);
+        }
+      }
+
+      final bannerHeight = (lines.length * lineHeight) + (padding * 2) + 6;
       final bannerTop = (canvas.height - bannerHeight).clamp(0, canvas.height);
 
       // Draw dark semi-transparent footer box
@@ -82,7 +115,7 @@ class GeotagWatermarkService {
         y1: bannerTop,
         x2: canvas.width,
         y2: canvas.height,
-        color: img.ColorRgba8(15, 23, 42, 205),
+        color: img.ColorRgba8(15, 23, 42, 235),
       );
 
       // Draw top red accent stripe on the banner
@@ -91,13 +124,13 @@ class GeotagWatermarkService {
         x1: 0,
         y1: bannerTop,
         x2: canvas.width,
-        y2: (bannerTop + 3).clamp(0, canvas.height),
+        y2: (bannerTop + 4).clamp(0, canvas.height),
         color: img.ColorRgba8(220, 38, 38, 255),
       );
 
       for (var i = 0; i < lines.length; i++) {
-        final y = bannerTop + padding + (i * lineHeight);
-        final textColor = i == 0
+        final y = bannerTop + padding + 4 + (i * lineHeight);
+        final textColor = (i == 0 && lines[0] == titleLine)
             ? img.ColorRgba8(254, 240, 138, 255) // Warm yellow header
             : img.ColorRgba8(248, 250, 252, 255); // Crisp white details
         img.drawString(
@@ -114,6 +147,26 @@ class GeotagWatermarkService {
     } catch (_) {
       return rawBytes;
     }
+  }
+
+  static List<String> _wrapText(String text, int maxChars) {
+    if (text.length <= maxChars || maxChars <= 10) return [text];
+    final words = text.split(' ');
+    final result = <String>[];
+    var current = StringBuffer();
+    for (final word in words) {
+      if (current.isEmpty) {
+        current.write(word);
+      } else if (current.length + 1 + word.length <= maxChars) {
+        current.write(' $word');
+      } else {
+        result.add(current.toString());
+        current = StringBuffer(word);
+      }
+    }
+    if (current.isNotEmpty) result.add(current.toString());
+    return result;
+  }
   }
 
   /// Creates a compact base64 JPEG data URL with geotag watermark suitable for

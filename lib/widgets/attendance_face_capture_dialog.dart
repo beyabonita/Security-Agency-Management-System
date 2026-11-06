@@ -189,8 +189,8 @@ class _AttendanceFaceCapturePageState
       tagLabel: widget.actionLabel.toUpperCase(),
       deviceLabel: widget.deviceLabel,
       capturedAt: now,
-      maxDimension: 640,
-      jpegQuality: 78,
+      maxDimension: 720,
+      jpegQuality: 82,
     );
     final dataUrl = 'data:image/jpeg;base64,${base64Encode(watermarked)}';
     setState(() {
@@ -201,6 +201,160 @@ class _AttendanceFaceCapturePageState
 
   @override
   Widget build(BuildContext context) {
+    // ── Mode 1: Review View (Full Watermark Visible Above Buttons) ──
+    if (_watermarkedPreview != null) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: SafeArea(
+          child: Column(
+            children: [
+              // Top Bar
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    IconButton.filledTonal(
+                      onPressed: () {
+                        setState(() {
+                          _watermarkedPreview = null;
+                          _encodedDataUrl = null;
+                        });
+                      },
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white12,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.arrow_back_rounded, size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.actionLabel,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const Text(
+                            'Review captured photo & verified details',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Center: Fully Visible Watermarked Photo
+              Expanded(
+                child: Container(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      width: 1.5,
+                    ),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Center(
+                    child: Image.memory(
+                      _watermarkedPreview!,
+                      fit: BoxFit.contain,
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
+                  ),
+                ),
+              ),
+
+              // Bottom Bar: Retake & Submit Buttons (Completely Below Photo)
+              Container(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF0B0F17),
+                  border: Border(
+                    top: BorderSide(
+                      color: Colors.white.withValues(alpha: 0.1),
+                    ),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _watermarkedPreview = null;
+                            _encodedDataUrl = null;
+                          });
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: const BorderSide(
+                            color: Colors.white70,
+                            width: 1.5,
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        icon: const Icon(Icons.refresh_rounded, size: 20),
+                        label: const Text(
+                          'Retake',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: FilledButton.icon(
+                        onPressed: () =>
+                            Navigator.of(context).pop(_encodedDataUrl),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.success,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          elevation: 4,
+                        ),
+                        icon: const Icon(Icons.check_circle_rounded, size: 20),
+                        label: const Text(
+                          'Submit',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // ── Mode 2: Live Full-Screen Camera View ──
     final mediaQuery = MediaQuery.of(context);
     final topPadding = mediaQuery.padding.top;
     final bottomPadding = mediaQuery.padding.bottom;
@@ -210,16 +364,9 @@ class _AttendanceFaceCapturePageState
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // ── Layer 1: Full-Screen Live Camera Preview or Captured Photo ──
+          // ── Layer 1: Full-Screen Live Camera Preview ──
           Positioned.fill(
-            child: _watermarkedPreview != null
-                ? Image.memory(
-                    _watermarkedPreview!,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                  )
-                : _initializing
+            child: _initializing
                 ? Container(
                     color: Colors.black,
                     child: const Center(
@@ -296,9 +443,7 @@ class _AttendanceFaceCapturePageState
           ),
 
           // ── Layer 2: Subtle Face Framing Guide (when previewing) ──
-          if (_watermarkedPreview == null &&
-              _controller != null &&
-              _controller!.value.isInitialized)
+          if (_controller != null && _controller!.value.isInitialized)
             Center(
               child: Container(
                 width: 260,
@@ -414,92 +559,45 @@ class _AttendanceFaceCapturePageState
                     ),
                   ),
 
-                  // Action Buttons
-                  if (_watermarkedPreview == null)
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: _capturing
-                            ? null
-                            : (_controller != null &&
-                                    _controller!.value.isInitialized)
-                                ? _captureFromPreview
-                                : _captureFallback,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 4,
+                  // Shutter Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: _capturing
+                          ? null
+                          : (_controller != null &&
+                                  _controller!.value.isInitialized)
+                              ? _captureFromPreview
+                              : _captureFallback,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                        icon: _capturing
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Icon(Icons.camera_alt_rounded, size: 22),
-                        label: Text(
-                          _capturing
-                              ? 'Applying Geotag Watermark...'
-                              : 'Capture Geotagged Face Photo',
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        elevation: 4,
+                      ),
+                      icon: _capturing
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.camera_alt_rounded, size: 22),
+                      label: Text(
+                        _capturing
+                            ? 'Applying Geotag Watermark...'
+                            : 'Capture Geotagged Face Photo',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    )
-                  else
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              setState(() {
-                                _watermarkedPreview = null;
-                                _encodedDataUrl = null;
-                              });
-                            },
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              side: const BorderSide(color: Colors.white70),
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                            ),
-                            icon: const Icon(Icons.refresh_rounded),
-                            label: const Text('Retake'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          flex: 2,
-                          child: FilledButton.icon(
-                            onPressed: () =>
-                                Navigator.of(context).pop(_encodedDataUrl),
-                            style: FilledButton.styleFrom(
-                              backgroundColor: AppColors.success,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              elevation: 4,
-                            ),
-                            icon: const Icon(Icons.check_circle_rounded),
-                            label: const Text(
-                              'Confirm & Record',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
+                  ),
                 ],
               ),
             ),
