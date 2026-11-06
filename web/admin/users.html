@@ -45,6 +45,23 @@
     background: rgba(211, 47, 47, 0.03) !important;
     animation: target-report-pulse 1.8s ease-in-out 3;
 }
+.dtr-date-row {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    transition: all 0.15s ease;
+    border-radius: 12px;
+    border: 1px solid var(--sl-border, #E5E7EB);
+    background: var(--sl-surface, #FFFFFF);
+}
+.dtr-date-row:hover {
+    border-color: var(--sl-danger, #d32f2f) !important;
+    box-shadow: 0 4px 14px rgba(211, 47, 47, 0.12) !important;
+    transform: translateY(-1px);
+}
 @keyframes target-report-pulse {
     0%, 100% { box-shadow: 0 0 8px rgba(211, 47, 47, 0.2); }
     50% { box-shadow: 0 0 20px rgba(211, 47, 47, 0.45); }
@@ -3221,6 +3238,88 @@ function renderAccomplishmentReport(report, isTarget = false) {
     </article>`;
 }
 
+function formatAccomplishmentDate(timestamp) {
+    if (!timestamp) return 'Unknown Date';
+    const d = new Date(timestamp);
+    if (Number.isNaN(d.getTime())) return 'Unknown Date';
+    return d.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+}
+
+function renderAccomplishmentDateList() {
+    const listEl = document.getElementById('accomplishmentRecordsList');
+    if (!currentAccomplishmentData || !currentAccomplishmentData.length) {
+        listEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted)">No accomplishment reports submitted yet.</div>';
+        return;
+    }
+
+    const itemsHtml = currentAccomplishmentData.map(report => {
+        const dateStr = formatAccomplishmentDate(report.submitted_at);
+        const isNew = report.review_status === 'submitted' || !report.reviewed_at;
+        const statusMeta = accomplishmentStatusMeta(report.review_status);
+
+        let badgeHtml = '';
+        if (isNew) {
+            badgeHtml = '<span class="badge bg-danger ms-2" style="font-size:0.75rem;padding:3px 9px;border-radius:12px;font-weight:700;text-transform:lowercase;">new</span>';
+        } else if (report.review_status === 'reviewed') {
+            badgeHtml = '<span class="badge bg-success ms-2" style="font-size:0.75rem;padding:3px 8px;border-radius:12px;font-weight:600;">Reviewed</span>';
+        } else {
+            badgeHtml = `<span class="badge bg-warning text-dark ms-2" style="font-size:0.75rem;padding:3px 8px;border-radius:12px;font-weight:600;">${escapeHtml(statusMeta.label)}</span>`;
+        }
+
+        return `
+        <div class="dtr-day-card dtr-date-row" onclick="showAccomplishmentDetail('${escapeHtml(report.id)}')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' ')showAccomplishmentDetail('${escapeHtml(report.id)}')">
+            <div style="display:flex;align-items:center;gap:14px;">
+                <span class="material-symbols-rounded" style="color:var(--sl-danger,#DC2626);font-size:26px;">calendar_month</span>
+                <div>
+                    <div style="font-size:1.05rem;font-weight:700;color:var(--sl-text,#1C1917);">
+                        ${escapeHtml(dateStr)} ${badgeHtml}
+                    </div>
+                    <div class="dtr-punch-meta" style="margin-top:3px;font-size:0.85rem;color:var(--sl-muted,#6B7280);">
+                        ${escapeHtml(report.summary || 'Duty Accomplishment Report')} · Submitted ${formatReportTimestamp(report.submitted_at)}
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;color:var(--sl-muted,#6B7280);">
+                <span style="font-size:0.85rem;font-weight:600;">View Report</span>
+                <span class="material-symbols-rounded" style="font-size:20px;">chevron_right</span>
+            </div>
+        </div>`;
+    }).join('');
+
+    listEl.innerHTML = `
+        <div style="margin-bottom:14px;font-size:0.9rem;font-weight:600;color:var(--sl-muted,#6B7280);">
+            Select a date to view the accomplishment report:
+        </div>
+        <div class="accomplishment-dates-container">
+            ${itemsHtml}
+        </div>
+    `;
+}
+
+function showAccomplishmentDetail(reportId, isTarget = false) {
+    const report = currentAccomplishmentData.find(item => item.id === reportId);
+    if (!report) return;
+
+    const listEl = document.getElementById('accomplishmentRecordsList');
+    const backBtn = `
+        <div style="margin-bottom:16px;">
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="renderAccomplishmentDateList()" style="display:inline-flex;align-items:center;gap:6px;border-radius:8px;font-weight:600;padding:6px 14px;">
+                <span class="material-symbols-rounded" style="font-size:18px;">arrow_back</span>
+                Back to date list
+            </button>
+        </div>
+    `;
+
+    listEl.innerHTML = backBtn + renderAccomplishmentReport(report, isTarget);
+    if (window.loadAccomplishmentPhotos) {
+        loadAccomplishmentPhotos(listEl, [report]);
+    }
+}
+
 async function viewAccomplishments(uid, targetReportId) {
     currentAccomplishmentGuardId = uid;
     currentAccomplishmentData = [];
@@ -3237,18 +3336,16 @@ async function viewAccomplishments(uid, targetReportId) {
         return;
     }
     currentAccomplishmentData = data || [];
-    listEl.innerHTML = currentAccomplishmentData.length
-        ? currentAccomplishmentData.map(report => renderAccomplishmentReport(report, report.id === targetReportId)).join('')
-        : '<div style="text-align:center;padding:32px;color:var(--sl-muted)">No accomplishment reports submitted yet.</div>';
-    if (window.loadAccomplishmentPhotos) loadAccomplishmentPhotos(listEl, currentAccomplishmentData);
+
+    if (!currentAccomplishmentData.length) {
+        listEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted)">No accomplishment reports submitted yet.</div>';
+        return;
+    }
 
     if (targetReportId) {
-        setTimeout(() => {
-            const card = document.getElementById(`accomplishment-${targetReportId}`);
-            if (card) {
-                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }, 200);
+        showAccomplishmentDetail(targetReportId, true);
+    } else {
+        renderAccomplishmentDateList();
     }
 }
 
@@ -3285,7 +3382,7 @@ async function reviewAccomplishment(reportId, button) {
                 p_review_note: values.reviewNote.trim(),
             });
             if (error) throw error;
-            await viewAccomplishments(currentAccomplishmentGuardId);
+            await viewAccomplishments(currentAccomplishmentGuardId, reportId);
         }, { label: 'Saving review…' });
         appDialog.toast('Accomplishment report review saved.', { tone: 'success' });
     } catch (error) {
