@@ -54,11 +54,11 @@ class _AccomplishmentReportScreenState
   bool _picking = false;
   AccomplishmentPhoto? _photo;
 
-  String _guardName = '';
-  String _clientName = '';
-  String _postName = '';
-  String _timeInStr = '';
-  String _timeOutStr = '';
+  String _guardName = 'Security Guard';
+  String _clientName = 'State University of Northern Negros';
+  String _postName = 'Roving and Assist';
+  String _timeInStr = '07:00 AM';
+  String _timeOutStr = '07:00 PM';
 
   bool get _locked =>
       _saving || _picking || (_photo?.submissionUncertain ?? false);
@@ -83,6 +83,7 @@ class _AccomplishmentReportScreenState
     try {
       final client = Supabase.instance.client;
       final user = client.auth.currentUser;
+      if (user == null || widget.pickPhoto != null) return;
 
       // 1. Guard profile name
       if (user != null) {
