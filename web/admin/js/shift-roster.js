@@ -10,6 +10,41 @@
   const combobox=document.getElementById('rosterCombobox'), siteMenu=document.getElementById('rosterSiteMenu'), comboboxToggle=document.getElementById('rosterComboboxToggle');
   const preview=document.getElementById('rosterPreview'), assigned=document.getElementById('assignedRoster');
   const button=document.getElementById('saveRoster');
+  const weeklyButton=document.getElementById('saveWeeklyRoster');
+
+  function parseLocalDate(str) {
+    if (!str) return new Date();
+    const parts = str.split('-').map(Number);
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+  }
+  function formatDateISO(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+  function getWeekRange(dateStr) {
+    const d = parseLocalDate(dateStr || todayDateString());
+    const day = d.getDay();
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+    const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diffToMonday);
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const cur = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+      days.push(formatDateISO(cur));
+    }
+    return {
+      start: days[0],
+      end: days[6],
+      days: days
+    };
+  }
+  function updateWeekRangePill() {
+    const pill = document.getElementById('rosterWeekRangePill');
+    if (!pill || !date) return;
+    const range = getWeekRange(date.value);
+    pill.textContent = `📅 Target Week: ${formatDate(range.start)} – ${formatDate(range.end)} (Mon–Sun · 7 Days)`;
+  }
   let saving=false,setupSaving=false,setupLoading=false;
   let savedSetups=[];
   let editingSetup=null,setupRevision=0,setupsLoaded=false;
@@ -33,7 +68,10 @@
       }
       if(!ended)remaining++;
     });
-    button.textContent=remaining===shifts.length?'Assign all shifts':'Assign remaining shifts';
+    button.textContent=remaining===shifts.length?'Assign this day only':'Assign remaining shifts today';
+    if (weeklyButton) {
+      weeklyButton.disabled = saving || !site.value;
+    }
   }
   const currentName=id=>guards.find(g=>g.id===id)?.name || 'Select a Guard';
   function summary(){
@@ -51,10 +89,11 @@
     }
     const ids=selected();
     const cutoff=SchedulePeriod.dtrPeriodForDate(date.value);
+    const week=getWeekRange(date.value);
     preview.innerHTML='<div class="roster-preview-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">'+
-      '<p class="mb-0"><strong>Selected guard shifts</strong></p>'+
+      '<p class="mb-0"><strong>Selected guard shifts (Weekly / Daily)</strong></p>'+
       '</div>'+
-      `<p class="mb-2 text-muted small">${cutoff ? `Duty date: ${escapeHtml(formatDate(date.value))} · DTR cut-off: ${escapeHtml(cutoff.label)}` : 'Choose a valid schedule date.'}</p>`+
+      `<p class="mb-2 text-muted small">${cutoff ? `Target Week: <strong>${escapeHtml(formatDate(week.start))} – ${escapeHtml(formatDate(week.end))}</strong> (7 Days: Mon–Sun) · Selected Date: ${escapeHtml(formatDate(date.value))} · DTR cut-off: ${escapeHtml(cutoff.label)}` : 'Choose a valid schedule date.'}</p>`+
       '<div class="roster-dtr-scroll" tabindex="0" aria-label="Planned guard shifts"><table class="roster-dtr-preview"><thead><tr><th scope="col">Shift and Guard</th><th scope="col">Scheduled IN</th><th scope="col">Scheduled OUT</th><th scope="col">Planned hours</th></tr></thead><tbody>'+
       periods().map((p,i)=>{
         const shift=SchedulePeriod.calculate(date.value,p[0],p[1]);
@@ -175,7 +214,31 @@
       summary();
       return;
     }
-    slots.innerHTML=periods().map((p,i)=>`<div class="schedule-field"><label class="form-label" for="rosterGuard${i}">${p[2]} <span class="req-star" aria-hidden="true">*</span></label><select id="rosterGuard${i}" class="form-select" aria-required="true" aria-describedby="rosterStatus${i}"><option value="">Select Guard ${i+1}</option>${guards.filter(g=>g.active&&g.role==='user').map(g=>`<option value="${escapeHtml(g.id)}">${escapeHtml(g.name)}</option>`).join('')}</select><p id="rosterStatus${i}" class="form-hint roster-slot-status"></p></div>`).join('');
+    const activeUserGuards = guards.filter(g => g.active && g.role === 'user');
+    const sortedGuards = [...activeUserGuards].sort((a, b) => {
+      const aLoc = a.assignedLocationId || a.assigned_location_id;
+      const bLoc = b.assignedLocationId || b.assigned_location_id;
+      const aSite = aLoc === site.value ? 0 : 1;
+      const bSite = bLoc === site.value ? 0 : 1;
+      if (aSite !== bSite) return aSite - bSite;
+      return (a.name || '').localeCompare(b.name || '');
+    });
+    const optionsHtml = sortedGuards.map(g => {
+      const isDeployedHere = (g.assignedLocationId || g.assigned_location_id) === site.value;
+      const prefix = isDeployedHere ? '★ ' : '';
+      return `<option value="${escapeHtml(g.id)}">${prefix}${escapeHtml(g.name)}</option>`;
+    }).join('');
+
+    slots.innerHTML = periods().map((p, i) => `
+      <div class="schedule-field">
+        <label class="form-label" for="rosterGuard${i}">${p[2]} <span class="req-star" aria-hidden="true">*</span></label>
+        <select id="rosterGuard${i}" class="form-select" aria-required="true" aria-describedby="rosterStatus${i}">
+          <option value="">Select Guard ${i+1}</option>
+          ${optionsHtml}
+        </select>
+        <p id="rosterStatus${i}" class="form-hint roster-slot-status"></p>
+      </div>
+    `).join('');
     slots.querySelectorAll('select').forEach((s,i)=>{
       s.value=ids[i]||'';
       s.disabled=saving;
@@ -218,13 +281,52 @@
     summary();
   };
   date.min=todayDateString();
-  date.value=todayDateString();
+  const initNow = new Date();
+  if (initNow.getDay() === 0) {
+    const nextMon = new Date(initNow.getFullYear(), initNow.getMonth(), initNow.getDate() + 1);
+    date.value = formatDateISO(nextMon);
+  } else {
+    date.value = todayDateString();
+  }
+  updateWeekRangePill();
+
   setup.addEventListener('change',()=>{
     if(editingSetup)resetEditor();
     customRosterShifts=null;
     window.renderShiftRoster();
   });
-  date.addEventListener('change',summary);
+  date.addEventListener('change', () => {
+    updateWeekRangePill();
+    summary();
+  });
+  date.addEventListener('input', () => {
+    updateWeekRangePill();
+    summary();
+  });
+
+  const thisWeekBtn = document.getElementById('rosterThisWeekBtn');
+  if (thisWeekBtn) {
+    thisWeekBtn.addEventListener('click', () => {
+      const n = new Date();
+      const currentMon = new Date(n.getFullYear(), n.getMonth(), n.getDate() + (n.getDay() === 0 ? -6 : 1 - n.getDay()));
+      date.value = formatDateISO(currentMon);
+      updateWeekRangePill();
+      summary();
+    });
+  }
+
+  const nextWeekBtn = document.getElementById('rosterNextWeekBtn');
+  if (nextWeekBtn) {
+    nextWeekBtn.addEventListener('click', () => {
+      const n = new Date();
+      const currentMon = new Date(n.getFullYear(), n.getMonth(), n.getDate() + (n.getDay() === 0 ? -6 : 1 - n.getDay()));
+      const nextMon = new Date(currentMon.getFullYear(), currentMon.getMonth(), currentMon.getDate() + 7);
+      date.value = formatDateISO(nextMon);
+      updateWeekRangePill();
+      summary();
+      appDialog.toast(`Selected next week (${formatDate(formatDateISO(nextMon))}). Auto-assign guards and click "Assign for whole week".`, { tone: 'info' });
+    });
+  }
 
   let activeContractInfo = null;
 
@@ -415,6 +517,138 @@
       closeSiteMenu();
     }
   });
+  if (weeklyButton) {
+    weeklyButton.addEventListener('click', async () => {
+      if (saving || setupSaving) return;
+      summary();
+      const chosenSetup = customSetup(), targetDay = date.value, location = site.value, now = new Date();
+      if (!location) {
+        appDialog.toast('Please select a Deployment site first.', { tone: 'warning' });
+        return;
+      }
+      if (!chosenSetup && !customRosterShifts) {
+        appDialog.toast('Please wait for the site shifting setup to load.', { tone: 'warning' });
+        return;
+      }
+      const shifts = periods();
+      const ids = selected();
+      const expected = shifts.length;
+
+      for (let i = 0; i < expected; i++) {
+        if (!ids[i]) {
+          appDialog.toast(`Please select a Guard for ${shifts[i][2]}.`, { tone: 'warning' });
+          return;
+        }
+      }
+      const uniqueSelected = new Set(ids);
+      if (uniqueSelected.size !== expected) {
+        appDialog.toast('Choose a different Guard for each shift slot.', { tone: 'warning' });
+        return;
+      }
+
+      const week = getWeekRange(targetDay);
+      const locObj = (window.locations || locations || []).find(l => l.id === location);
+      const siteName = locObj?.label || 'this site';
+
+      const guardNamesList = ids.map((id, i) => `• ${shifts[i][2]}: ${currentName(id)}`).join('\n');
+      const confirmMsg = `Assign weekly schedule for ${siteName}?\n\nTarget Week: ${formatDate(week.start)} – ${formatDate(week.end)} (7 Days: Mon–Sun)\n${guardNamesList}\n\nThis will assign these guards for all 7 days of the week.`;
+      const confirmed = await appDialog.confirm(confirmMsg, {
+        title: 'Confirm Weekly Schedule Assignment',
+        confirmText: 'Assign Weekly Roster',
+        icon: 'calendar_month'
+      });
+      if (!confirmed) return;
+
+      saving = true;
+      [setup, date, site, ...slots.querySelectorAll('select')].forEach(el => el.disabled = true);
+      if (siteFilter) siteFilter.disabled = true;
+      if (comboboxToggle) comboboxToggle.disabled = true;
+
+      try {
+        await appDialog.runBusy(weeklyButton, async () => {
+          let totalAssigned = 0;
+          let daysCompleted = 0;
+          let skippedDays = [];
+
+          for (const day of week.days) {
+            try {
+              let assignedData = null;
+              if (customRosterShifts) {
+                try {
+                  const { data, error } = await appSupabase.rpc('assign_custom_shift_roster', {
+                    p_location_id: location,
+                    p_duty_date: day,
+                    p_guard_ids: ids,
+                    p_shifts: customRosterShifts
+                  });
+                  if (!error && Array.isArray(data)) assignedData = data;
+                } catch (_) {}
+
+                if (!assignedData) {
+                  assignedData = [];
+                  for (let i = 0; i < ids.length; i++) {
+                    if (!available(day, shifts[i], now)) continue;
+                    const { data: dtrData, error: dtrErr } = await appSupabase.rpc('create_dtr_schedule', {
+                      p_user_id: ids[i],
+                      p_location_id: location,
+                      p_duty_date: day,
+                      p_periods: [{ period: 'auto', start_time: shifts[i][0], end_time: shifts[i][1], next_day: false }]
+                    });
+                    if (dtrErr) throw dtrErr;
+                    if (Array.isArray(dtrData)) assignedData.push(...dtrData);
+                    else if (dtrData) assignedData.push(dtrData);
+                  }
+                }
+              } else {
+                const args = {
+                  p_location_id: location,
+                  p_duty_date: day,
+                  p_guard_ids: ids,
+                  p_setup_id: chosenSetup.id,
+                  p_expected_version: chosenSetup.version
+                };
+                const { data, error } = await appSupabase.rpc('assign_saved_shift_roster', args);
+                if (error) throw error;
+                assignedData = data;
+              }
+
+              if (Array.isArray(assignedData) && assignedData.length) {
+                totalAssigned += assignedData.length;
+                daysCompleted++;
+              }
+            } catch (dayErr) {
+              skippedDays.push(`${formatDate(day)}: ${dayErr.message || 'skipped'}`);
+            }
+          }
+
+          if (chosenSetup) {
+            chosenSetup.in_use = true;
+            setupRevision++;
+            managementControls();
+          }
+
+          setScheduleListPeriod(week.start);
+          await refreshSchedules();
+
+          if (daysCompleted > 0) {
+            const note = skippedDays.length ? ` (${skippedDays.length} day(s) skipped/already scheduled)` : '';
+            appDialog.toast(`Weekly schedule assigned: ${totalAssigned} shifts created across ${daysCompleted} days (${formatDate(week.start)} – ${formatDate(week.end)})${note}.`, { tone: 'success' });
+          } else {
+            throw Error(skippedDays[0] || 'Could not assign weekly shifts. Please check for existing schedules.');
+          }
+        }, { label: 'Assigning weekly schedule…' });
+      } catch (err) {
+        appDialog.toast(err.message || 'Could not complete weekly assignment.', { tone: 'danger' });
+      } finally {
+        saving = false;
+        [setup, date, site].forEach(el => el.disabled = false);
+        if (siteFilter) siteFilter.disabled = false;
+        if (comboboxToggle) comboboxToggle.disabled = false;
+        summary();
+      }
+    });
+  }
+
   button.addEventListener('click',async()=>{
     if(saving||setupSaving)return;
     summary();
@@ -911,7 +1145,7 @@
     });
   }
 
-  // --- ITEM #10: AUTOMATED PERSONNEL DEPLOYMENT ---
+  // --- ITEM #10: AUTOMATED PERSONNEL DEPLOYMENT (CLIENT-STATIONED MATCH) ---
   function pickEligibleGuardsForShifts(targetSiteId, targetDate, shiftsList, alreadyTakenGuardIds = new Set()) {
     const now = new Date();
     const activeGuards = (window.guards || guards || []).filter(g => g.active && g.role === 'user');
@@ -926,6 +1160,12 @@
       }
     });
 
+    // Guards specifically stationed/deployed at targetSiteId
+    const deployedGuards = activeGuards.filter(g => {
+      const loc = g.assignedLocationId || g.assigned_location_id;
+      return loc && loc === targetSiteId;
+    });
+
     const chosen = [];
     for (let i = 0; i < shiftsList.length; i++) {
       const p = shiftsList[i];
@@ -938,20 +1178,32 @@
         chosen.push('');
         continue;
       }
-      const candidates = activeGuards.filter(g => {
+
+      // Priority 1: Stationed guards at this site
+      let candidates = deployedGuards.filter(g => {
         if (busyToday.has(g.id) || alreadyTakenGuardIds.has(g.id) || chosen.includes(g.id)) return false;
         const contractErr = ContractPeriod.dutyError(g, plan.periods[0].startAt, plan.periods[0].endAt);
         return !contractErr;
       });
+
+      // Priority 2: If site has NO deployed guards in system, fallback to unassigned guards only (never guards assigned to other sites!)
+      if (!candidates.length && !deployedGuards.length) {
+        candidates = activeGuards.filter(g => {
+          const loc = g.assignedLocationId || g.assigned_location_id;
+          if (loc) return false; // Do not take guards deployed to another client!
+          if (busyToday.has(g.id) || alreadyTakenGuardIds.has(g.id) || chosen.includes(g.id)) return false;
+          const contractErr = ContractPeriod.dutyError(g, plan.periods[0].startAt, plan.periods[0].endAt);
+          return !contractErr;
+        });
+      }
+
       candidates.sort((a, b) => {
-        const aSiteMatch = a.assignedLocationId && a.assignedLocationId === targetSiteId ? 0 : 1;
-        const bSiteMatch = b.assignedLocationId && b.assignedLocationId === targetSiteId ? 0 : 1;
-        if (aSiteMatch !== bSiteMatch) return aSiteMatch - bSiteMatch;
         const aCount = shiftCounts.get(a.id) || 0;
         const bCount = shiftCounts.get(b.id) || 0;
         if (aCount !== bCount) return aCount - bCount;
         return (a.name || '').localeCompare(b.name || '');
       });
+
       const winner = candidates[0];
       chosen.push(winner ? winner.id : '');
       if (winner) alreadyTakenGuardIds.add(winner.id);
@@ -969,6 +1221,7 @@
       if (unstaffedSite) {
         site.value = unstaffedSite.id;
         updateSiteOptions(unstaffedSite.id);
+        applySiteContractShifts(unstaffedSite.id);
       }
     }
     const shiftsList = periods();
@@ -986,85 +1239,16 @@
       }
     });
     summary();
+    const locObj = (window.locations || locations || []).find(l => l.id === site.value);
+    const siteLabel = locObj?.label || 'this site';
     if (filledCount > 0) {
-      appDialog.toast(`Auto-assigned ${filledCount} eligible ${filledCount === 1 ? 'guard' : 'guards'} to open shift slots. Click "Assign all shifts" to confirm.`, { tone: 'success' });
+      appDialog.toast(`Auto-assigned ${filledCount} guard${filledCount === 1 ? '' : 's'} stationed at ${siteLabel}. Click "Assign for whole week (7 days)" to confirm.`, { tone: 'success' });
     } else {
-      appDialog.toast('No available non-conflicting guards found for the remaining shifts on this date.', { tone: 'warning' });
-    }
-  };
-
-  window.autoDeployUnstaffedSites = async (btnEl) => {
-    if (saving || setupSaving) return;
-    const chosenSetup = customSetup();
-    const day = date.value || todayDateString();
-    const shiftsList = periods();
-    if (!chosenSetup || !shiftsList.length) {
-      appDialog.toast('Select a saved shifting setup before running multi-site automated deployment.', { tone: 'warning' });
-      return;
-    }
-    const allLocs = window.locations || locations || [];
-    const unstaffedLocs = allLocs.filter(loc => {
-      return !(window.schedules || schedules || []).some(s => ((s.locationId || s.location_id) === loc.id || s.locationLabel === loc.label) && s.date === day && s.approval_status !== 'cancelled');
-    });
-    if (!unstaffedLocs.length) {
-      appDialog.toast(`All ${allLocs.length} active deployment sites already have guards scheduled on ${formatDate(day)}.`, { tone: 'info' });
-      return;
-    }
-    const taken = new Set();
-    const planBundles = [];
-    for (const loc of unstaffedLocs) {
-      const picked = pickEligibleGuardsForShifts(loc.id, day, shiftsList, taken);
-      const activePicked = picked.filter((_, i) => available(day, shiftsList[i]));
-      if (activePicked.length && activePicked.every(Boolean)) {
-        planBundles.push({ loc, guardIds: picked.map((id, i) => available(day, shiftsList[i]) ? id : null) });
-      }
-    }
-    if (!planBundles.length) {
-      appDialog.toast('Not enough available, non-conflicting guards to staff a full site roster on this date.', { tone: 'warning' });
-      return;
-    }
-    const previewLines = planBundles.map(b => {
-      const names = b.guardIds.filter(Boolean).map(id => currentName(id)).join(', ');
-      return `• ${b.loc.label}: ${names}`;
-    }).join('\n');
-    const confirmed = await appDialog.confirm(
-      `Automatically deploy ${planBundles.length} unstaffed ${planBundles.length === 1 ? 'site' : 'sites'} on ${formatDate(day)}?\n\n${previewLines}`,
-      { title: 'Automated Personnel Deployment', confirmText: `Deploy ${planBundles.length} ${planBundles.length === 1 ? 'Site' : 'Sites'}`, icon: 'verified_user' }
-    );
-    if (!confirmed) return;
-    saving = true;
-    try {
-      await appDialog.runBusy(btnEl || button, async () => {
-        let totalShiftsCreated = 0;
-        for (const bundle of planBundles) {
-          const { data, error } = await appSupabase.rpc('assign_saved_shift_roster', {
-            p_location_id: bundle.loc.id,
-            p_duty_date: day,
-            p_guard_ids: bundle.guardIds,
-            p_setup_id: chosenSetup.id,
-            p_expected_version: chosenSetup.version
-          });
-          if (error) throw error;
-          totalShiftsCreated += Array.isArray(data) ? data.length : 0;
-        }
-        chosenSetup.in_use = true;
-        setupRevision++;
-        managementControls();
-        setScheduleListPeriod(day);
-        await refreshSchedules();
-        appDialog.toast(`Automated deployment complete: ${totalShiftsCreated} shifts assigned across ${planBundles.length} ${planBundles.length === 1 ? 'site' : 'sites'}.`, { tone: 'success' });
-      }, { label: 'Auto-deploying…' });
-    } catch (err) {
-      appDialog.toast(err.message || 'Automated deployment stopped due to a conflict. Refreshing schedule.', { tone: 'danger' });
-      await refreshSchedules();
-    } finally {
-      saving = false;
-      summary();
+      appDialog.toast(`No available stationed guards found for ${siteLabel}. Make sure guards are assigned to this site in Personnel.`, { tone: 'warning' });
     }
   };
 
   document.getElementById('autoAssignRosterBtn')?.addEventListener('click', () => window.autoAssignShiftRoster());
-  document.getElementById('autoDeployAllSitesBtn')?.addEventListener('click', (e) => window.autoDeployUnstaffedSites(e.currentTarget));
 
   if(editor)renderDraft();
   const clock=setInterval(()=>{if(!saving&&!document.hidden){summary();window.loadRosterSetups({silent:true});}},30000);

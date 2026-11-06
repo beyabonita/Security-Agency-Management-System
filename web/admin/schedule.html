@@ -72,18 +72,29 @@
             <select id="rosterSite" class="form-select roster-site-hidden-select" tabindex="-1" aria-hidden="true"><option value="">Select location</option></select>
           </div>
         </div>
-        <div class="schedule-field"><label class="form-label" for="rosterDate">Schedule date <span class="req-star" aria-hidden="true">*</span></label><input id="rosterDate" type="date" class="form-control" aria-required="true"></div>
+        <div class="schedule-field">
+          <label class="form-label" for="rosterDate">Schedule week / date <span class="req-star" aria-hidden="true">*</span></label>
+          <div class="d-flex align-items-center gap-2">
+            <input id="rosterDate" type="date" class="form-control" aria-required="true">
+            <div class="btn-group btn-group-sm" role="group" aria-label="Quick week navigation">
+              <button type="button" id="rosterThisWeekBtn" class="btn btn-outline-secondary text-nowrap" title="Jump to current week">This week</button>
+              <button type="button" id="rosterNextWeekBtn" class="btn btn-outline-danger text-nowrap" title="Jump to next week's schedule (e.g. prepared on Sunday)">Next week</button>
+            </div>
+          </div>
+          <div id="rosterWeekRangePill" class="mt-1" style="font-size:0.8rem; font-weight:600; color:var(--ax-accent, #dc2626);"></div>
+        </div>
         <div class="schedule-field" style="display:none;" aria-hidden="true">
           <label class="form-label" for="rosterSetup">Shifting setup</label>
           <select id="rosterSetup" class="form-select" disabled><option value="">Loading shifting setups…</option></select>
         </div>
       </div>
       <div class="roster-setup-loading" style="display:none;"><span id="rosterSetupsStatus" role="status"></span><button id="retryRosterSetups" type="button" class="btn btn-outline-secondary btn-sm" hidden>Reload saved setups</button></div>
-      <div class="auto-deploy-toolbar" id="autoDeployToolbar"><div class="auto-deploy-copy"><span class="material-symbols-rounded" aria-hidden="true">verified_user</span><div><strong>Automated Personnel Deployment</strong><div class="text-muted" style="font-size:0.75rem;">Automatically match active, contract-valid, non-conflicting guards to open shift slots or all unstaffed sites.</div></div></div><div class="auto-deploy-actions"><button type="button" id="autoAssignRosterBtn" class="btn-auto-assign"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;">groups</span> Auto-Assign Guards</button><button type="button" id="autoDeployAllSitesBtn" class="btn-auto-deploy-all"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;">business</span> Auto-Deploy Unstaffed Sites</button></div></div>
+      <div class="auto-deploy-toolbar" id="autoDeployToolbar"><div class="auto-deploy-copy"><span class="material-symbols-rounded" aria-hidden="true">verified_user</span><div><strong>Automated Personnel Deployment</strong><div class="text-muted" style="font-size:0.75rem;">Automatically match guards stationed at this client to open shift slots.</div></div></div><div class="auto-deploy-actions"><button type="button" id="autoAssignRosterBtn" class="btn-auto-assign"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:16px;">groups</span> Auto-Assign Guards</button></div></div>
       <div id="rosterGuards" class="schedule-form-grid" aria-label="Guards for each shift"></div>
       <div id="rosterPreview" role="status" aria-live="polite"></div>
-      <div class="schedule-form-actions">
-        <button id="saveRoster" type="button" class="btn btn-danger"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;">assignment_turned_in</span> Assign all shifts</button>
+      <div class="schedule-form-actions d-flex align-items-center gap-2 flex-wrap">
+        <button id="saveWeeklyRoster" type="button" class="btn btn-danger" style="font-weight:600;"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;">calendar_month</span> Assign for whole week (7 days)</button>
+        <button id="saveRoster" type="button" class="btn btn-outline-secondary" style="font-weight:600;"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;">assignment_turned_in</span> Assign this day only</button>
       </div>
       <div id="assignedRoster" aria-live="polite"></div>
     </div>
