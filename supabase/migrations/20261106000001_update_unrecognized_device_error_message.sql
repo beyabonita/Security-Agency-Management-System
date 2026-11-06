@@ -126,3 +126,4 @@ $$;
 
 revoke all on function public.register_device(text) from public, anon;
 grant execute on function public.register_device(text) to authenticated;
+

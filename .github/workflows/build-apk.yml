@@ -80,7 +80,7 @@ jobs:
             ### Features & Enhancements in this Build:
             - **Device Cellular/Hardware ID Verification**: Strict hardware binding against registered profile preventing multi-device spoofing.
             - **Geotagged & Timestamp Watermark Banner**: Real-time Philippine Time (PHT) + GPS coordinate stamp on evidence and front camera captures.
-            - **Live Front-Camera Selfie Face Verification**: In-app selfie verification sheet with embedded GPS stamp before Time In.
+            - **Full-Height Live Front-Camera Face Verification**: Expanded 92% screen-height camera preview with BoxFit.cover auto-scaling and floating GPS geotag stamp.
             - **Dual-Point Proximity Distance**: Live geofence distance calculation.
             - **Force Attendance Workflow**: Reason dialog and pending authorization queue when outside post boundary.
             - **Absence, Shift Swap & Overtime**: 3-way segmented duty request classification.
