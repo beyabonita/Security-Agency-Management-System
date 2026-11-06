@@ -203,14 +203,20 @@ class _AttendanceFaceCaptureSheetState
   @override
   Widget build(BuildContext context) {
     final palette = AppColors.of(context);
+    final screenHeight = MediaQuery.of(context).size.height;
     return Container(
+      height: screenHeight * 0.92,
       decoration: BoxDecoration(
         color: palette.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 20),
+      padding: EdgeInsets.fromLTRB(
+        20,
+        14,
+        20,
+        16 + MediaQuery.of(context).padding.bottom,
+      ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Center(
@@ -268,45 +274,67 @@ class _AttendanceFaceCaptureSheetState
             ],
           ),
           const SizedBox(height: 14),
-          SizedBox(
-            height: 300,
+          Expanded(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: _watermarkedPreview != null
-                  ? Image.memory(_watermarkedPreview!, fit: BoxFit.cover)
+                  ? Image.memory(
+                      _watermarkedPreview!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                    )
                   : _initializing
                   ? const Center(child: CircularProgressIndicator())
                   : (_controller != null && _controller!.value.isInitialized)
-                  ? Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        CameraPreview(_controller!),
-                        Positioned(
-                          bottom: 10,
-                          left: 10,
-                          right: 10,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.65),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              '📍 ${widget.locationLabel ?? "Scheduled Post"} • '
-                              '${widget.latitude != null ? "${widget.latitude!.toStringAsFixed(5)}, ${widget.longitude!.toStringAsFixed(5)}" : "GPS Active"}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
+                  ? LayoutBuilder(
+                      builder: (ctx, constraints) {
+                        return Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            SizedBox.expand(
+                              child: FittedBox(
+                                fit: BoxFit.cover,
+                                child: SizedBox(
+                                  width: _controller!.value.previewSize?.height ??
+                                      constraints.maxWidth,
+                                  height: _controller!.value.previewSize?.width ??
+                                      constraints.maxHeight,
+                                  child: CameraPreview(_controller!),
+                                ),
                               ),
-                              textAlign: TextAlign.center,
                             ),
-                          ),
-                        ),
-                      ],
+                            Positioned(
+                              bottom: 12,
+                              left: 12,
+                              right: 12,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.7),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                                child: Text(
+                                  '📍 ${widget.locationLabel ?? "Scheduled Post"} • '
+                                  '${widget.latitude != null ? "${widget.latitude!.toStringAsFixed(5)}, ${widget.longitude!.toStringAsFixed(5)}" : "GPS Active"}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
                     )
                   : Container(
                       color: palette.surfaceMuted,
@@ -321,7 +349,8 @@ class _AttendanceFaceCaptureSheetState
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            _error ?? 'Capture a live selfie to verify your identity.',
+                            _error ??
+                                'Capture a live selfie to verify your identity.',
                             style: TextStyle(
                               color: palette.textMuted,
                               fontSize: 13,
