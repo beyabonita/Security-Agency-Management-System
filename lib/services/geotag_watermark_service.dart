@@ -167,7 +167,6 @@ class GeotagWatermarkService {
     if (current.isNotEmpty) result.add(current.toString());
     return result;
   }
-  }
 
   /// Creates a compact base64 JPEG data URL with geotag watermark suitable for
   /// storing on `attendance_sessions.clock_in_face_photo`.
