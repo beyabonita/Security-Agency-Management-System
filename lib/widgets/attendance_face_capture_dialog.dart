@@ -21,24 +21,23 @@ Future<String?> captureAttendanceFaceVerification(
   String? deviceLabel,
   String actionLabel = 'Time In Face Verification',
 }) {
-  return showModalBottomSheet<String>(
-    context: context,
-    isScrollControlled: true,
-    useSafeArea: true,
-    backgroundColor: Colors.transparent,
-    builder: (ctx) => _AttendanceFaceCaptureSheet(
-      latitude: latitude,
-      longitude: longitude,
-      accuracyMeters: accuracyMeters,
-      locationLabel: locationLabel,
-      deviceLabel: deviceLabel,
-      actionLabel: actionLabel,
+  return Navigator.of(context).push<String>(
+    MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (ctx) => _AttendanceFaceCapturePage(
+        latitude: latitude,
+        longitude: longitude,
+        accuracyMeters: accuracyMeters,
+        locationLabel: locationLabel,
+        deviceLabel: deviceLabel,
+        actionLabel: actionLabel,
+      ),
     ),
   );
 }
 
-class _AttendanceFaceCaptureSheet extends StatefulWidget {
-  const _AttendanceFaceCaptureSheet({
+class _AttendanceFaceCapturePage extends StatefulWidget {
+  const _AttendanceFaceCapturePage({
     this.latitude,
     this.longitude,
     this.accuracyMeters,
@@ -55,12 +54,12 @@ class _AttendanceFaceCaptureSheet extends StatefulWidget {
   final String actionLabel;
 
   @override
-  State<_AttendanceFaceCaptureSheet> createState() =>
-      _AttendanceFaceCaptureSheetState();
+  State<_AttendanceFaceCapturePage> createState() =>
+      _AttendanceFaceCapturePageState();
 }
 
-class _AttendanceFaceCaptureSheetState
-    extends State<_AttendanceFaceCaptureSheet> {
+class _AttendanceFaceCapturePageState
+    extends State<_AttendanceFaceCapturePage> {
   CameraController? _controller;
   bool _initializing = true;
   String? _error;
@@ -202,218 +201,309 @@ class _AttendanceFaceCaptureSheetState
 
   @override
   Widget build(BuildContext context) {
-    final palette = AppColors.of(context);
-    final screenHeight = MediaQuery.of(context).size.height;
-    return Container(
-      height: screenHeight * 0.92,
-      decoration: BoxDecoration(
-        color: palette.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      padding: EdgeInsets.fromLTRB(
-        20,
-        14,
-        20,
-        16 + MediaQuery.of(context).padding.bottom,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    final mediaQuery = MediaQuery.of(context);
+    final topPadding = mediaQuery.padding.top;
+    final bottomPadding = mediaQuery.padding.bottom;
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        fit: StackFit.expand,
         children: [
-          Center(
-            child: Container(
-              width: 42,
-              height: 4,
-              decoration: BoxDecoration(
-                color: palette.border,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.verified_user_rounded,
-                  color: AppColors.primary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.actionLabel,
-                      style: TextStyle(
-                        color: palette.text,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    Text(
-                      'Live face photo + GPS geotag & device verification',
-                      style: TextStyle(
-                        color: palette.textMuted,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                onPressed: () => Navigator.of(context).pop(null),
-                icon: Icon(Icons.close_rounded, color: palette.textMuted),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: _watermarkedPreview != null
-                  ? Image.memory(
-                      _watermarkedPreview!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                    )
-                  : _initializing
-                  ? const Center(child: CircularProgressIndicator())
-                  : (_controller != null && _controller!.value.isInitialized)
-                  ? LayoutBuilder(
-                      builder: (ctx, constraints) {
-                        return Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            SizedBox.expand(
-                              child: FittedBox(
-                                fit: BoxFit.cover,
-                                child: SizedBox(
-                                  width: _controller!.value.previewSize?.height ??
-                                      constraints.maxWidth,
-                                  height: _controller!.value.previewSize?.width ??
-                                      constraints.maxHeight,
-                                  child: CameraPreview(_controller!),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 12,
-                              left: 12,
-                              right: 12,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.7),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.2),
-                                  ),
-                                ),
-                                child: Text(
-                                  '📍 ${widget.locationLabel ?? "Scheduled Post"} • '
-                                  '${widget.latitude != null ? "${widget.latitude!.toStringAsFixed(5)}, ${widget.longitude!.toStringAsFixed(5)}" : "GPS Active"}',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    )
-                  : Container(
-                      color: palette.surfaceMuted,
-                      padding: const EdgeInsets.all(20),
+          // ── Layer 1: Full-Screen Live Camera Preview or Captured Photo ──
+          Positioned.fill(
+            child: _watermarkedPreview != null
+                ? Image.memory(
+                    _watermarkedPreview!,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                  )
+                : _initializing
+                ? Container(
+                    color: Colors.black,
+                    child: const Center(
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            Icons.camera_front_rounded,
-                            size: 46,
-                            color: palette.accent,
-                          ),
-                          const SizedBox(height: 10),
+                          CircularProgressIndicator(color: Colors.white),
+                          SizedBox(height: 16),
                           Text(
-                            _error ??
-                                'Capture a live selfie to verify your identity.',
+                            'Initializing camera...',
                             style: TextStyle(
-                              color: palette.textMuted,
-                              fontSize: 13,
+                              color: Colors.white70,
+                              fontSize: 14,
                             ),
-                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
                     ),
+                  )
+                : (_controller != null && _controller!.value.isInitialized)
+                ? LayoutBuilder(
+                    builder: (ctx, constraints) {
+                      return SizedBox.expand(
+                        child: FittedBox(
+                          fit: BoxFit.cover,
+                          child: SizedBox(
+                            width: _controller!.value.previewSize?.height ??
+                                constraints.maxWidth,
+                            height: _controller!.value.previewSize?.width ??
+                                constraints.maxHeight,
+                            child: CameraPreview(_controller!),
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                : Container(
+                    color: Colors.black,
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.camera_front_rounded,
+                          size: 64,
+                          color: Colors.white54,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _error ??
+                              'Capture a live selfie to verify your identity.',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        FilledButton.icon(
+                          onPressed: _captureFallback,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 14,
+                            ),
+                          ),
+                          icon: const Icon(Icons.photo_camera_rounded),
+                          label: const Text('Open System Camera'),
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
+
+          // ── Layer 2: Subtle Face Framing Guide (when previewing) ──
+          if (_watermarkedPreview == null &&
+              _controller != null &&
+              _controller!.value.isInitialized)
+            Center(
+              child: Container(
+                width: 260,
+                height: 340,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(32),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.35),
+                    width: 2,
+                  ),
+                ),
+              ),
+            ),
+
+          // ── Layer 3: Top Full-Screen App Bar Overlay ──
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: EdgeInsets.fromLTRB(16, topPadding + 8, 16, 16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.75),
+                    Colors.black.withValues(alpha: 0.0),
+                  ],
+                ),
+              ),
+              child: Row(
+                children: [
+                  IconButton.filledTonal(
+                    onPressed: () => Navigator.of(context).pop(null),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.black.withValues(alpha: 0.5),
+                      foregroundColor: Colors.white,
+                    ),
+                    icon: const Icon(Icons.close_rounded, size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.actionLabel,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const Text(
+                          'Align your face inside the frame',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          const SizedBox(height: 14),
-          if (_watermarkedPreview == null)
-            FilledButton.icon(
-              onPressed: _capturing
-                  ? null
-                  : (_controller != null && _controller!.value.isInitialized)
-                  ? _captureFromPreview
-                  : _captureFallback,
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+
+          // ── Layer 4: Bottom Controls & Geotag Watermark Overlay ──
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              padding: EdgeInsets.fromLTRB(20, 20, 20, bottomPadding + 20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [
+                    Colors.black.withValues(alpha: 0.85),
+                    Colors.black.withValues(alpha: 0.0),
+                  ],
                 ),
               ),
-              icon: const Icon(Icons.camera_alt_rounded),
-              label: Text(
-                _capturing
-                    ? 'Applying Geotag Watermark...'
-                    : 'Capture Geotagged Face Photo',
-              ),
-            )
-          else
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _watermarkedPreview = null;
-                        _encodedDataUrl = null;
-                      });
-                    },
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('Retake'),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  flex: 2,
-                  child: FilledButton.icon(
-                    onPressed: () => Navigator.of(context).pop(_encodedDataUrl),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.success,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Geotag badge pill
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
                     ),
-                    icon: const Icon(Icons.check_circle_rounded),
-                    label: const Text('Confirm & Record'),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.7),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.25),
+                      ),
+                    ),
+                    child: Text(
+                      '📍 ${widget.locationLabel ?? "Scheduled Post"} • '
+                      '${widget.latitude != null ? "${widget.latitude!.toStringAsFixed(5)}, ${widget.longitude!.toStringAsFixed(5)}" : "GPS Active"}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ),
-              ],
+
+                  // Action Buttons
+                  if (_watermarkedPreview == null)
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: _capturing
+                            ? null
+                            : (_controller != null &&
+                                    _controller!.value.isInitialized)
+                                ? _captureFromPreview
+                                : _captureFallback,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 4,
+                        ),
+                        icon: _capturing
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.camera_alt_rounded, size: 22),
+                        label: Text(
+                          _capturing
+                              ? 'Applying Geotag Watermark...'
+                              : 'Capture Geotagged Face Photo',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    )
+                  else
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _watermarkedPreview = null;
+                                _encodedDataUrl = null;
+                              });
+                            },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Colors.white70),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            icon: const Icon(Icons.refresh_rounded),
+                            label: const Text('Retake'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 2,
+                          child: FilledButton.icon(
+                            onPressed: () =>
+                                Navigator.of(context).pop(_encodedDataUrl),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AppColors.success,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              elevation: 4,
+                            ),
+                            icon: const Icon(Icons.check_circle_rounded),
+                            label: const Text(
+                              'Confirm & Record',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
             ),
+          ),
         ],
       ),
     );
