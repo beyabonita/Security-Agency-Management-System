@@ -118,9 +118,9 @@ void main() {
       );
       await tester.enterText(find.byType(TextField).at(0), 'Patrol');
       await tester.enterText(find.byType(TextField).at(1), 'Checked');
-      await tester.tap(find.text('Upload photo report'));
+      await tester.tap(find.text('Capture live face report'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Replace photo'));
+      await tester.tap(find.text('Retake live face report'));
       await tester.pumpAndSettle();
       expect(find.text('report2.jpg'), findsOneWidget);
       expect(find.text('Patrol'), findsOneWidget);

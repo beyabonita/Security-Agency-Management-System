@@ -1147,7 +1147,10 @@ class _ScheduleTileState extends State<_ScheduleTile> {
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) =>
-                      AccomplishmentReportScreen(scheduleId: widget.scheduleId),
+                      AccomplishmentReportScreen(
+                        scheduleId: widget.scheduleId,
+                        scheduleData: s,
+                      ),
                 ),
               ),
               icon: const Icon(Icons.assignment_turned_in_outlined),

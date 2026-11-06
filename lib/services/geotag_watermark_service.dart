@@ -64,9 +64,10 @@ class GeotagWatermarkService {
 
       final dateLine = 'DATE: $dateFormatted';
       final timeLine = 'TIME: $timeStr';
-      final postLine = (locationLabel != null && locationLabel.trim().isNotEmpty)
-          ? 'POST: ${_sanitizeAscii(locationLabel.trim())}'
-          : 'POST: TwentyTwenty Security Agency';
+      final clientLine =
+          (locationLabel != null && locationLabel.trim().isNotEmpty)
+              ? 'CLIENT: ${_sanitizeAscii(locationLabel.trim())}'
+              : 'CLIENT: TwentyTwenty Security Agency';
       final gpsLine = (latitude != null && longitude != null)
           ? 'GPS: ${latitude.toStringAsFixed(6)}, ${longitude.toStringAsFixed(6)}'
                 '${accuracyMeters != null ? ' (+/-${accuracyMeters.round()}m)' : ''}'
@@ -88,10 +89,9 @@ class GeotagWatermarkService {
           ((canvas.width - (padding * 2)) / approxCharWidth).floor();
 
       final rawLines = <String>[
-        titleLine,
         dateLine,
         timeLine,
-        postLine,
+        clientLine,
         gpsLine,
         deviceLine,
       ];

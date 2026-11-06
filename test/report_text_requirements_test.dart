@@ -94,11 +94,14 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.text('Upload photo report'));
+      await tester.tap(find.text('Capture live face report'));
       await tester.pumpAndSettle();
       expect(find.textContaining('characters'), findsNothing);
-      await tester.enterText(find.byType(TextField).at(0), 'OK');
-      await tester.enterText(find.byType(TextField).at(1), 'Done');
+      await tester.enterText(find.byType(TextField).at(0), 'SG Jac');
+      await tester.enterText(find.byType(TextField).at(1), 'CHMSU');
+      await tester.enterText(find.byType(TextField).at(2), 'Main Gate');
+      await tester.enterText(find.byType(TextField).at(3), '07:00 AM');
+      await tester.enterText(find.byType(TextField).at(4), '07:00 PM');
       await tester.ensureVisible(find.text('Submit report'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Submit report'));
@@ -106,8 +109,8 @@ void main() {
       final reportCall = calls.singleWhere(
         (call) => call['path'] == '/rest/v1/rpc/submit_accomplishment_report',
       );
-      expect(reportCall['p_summary'], 'OK');
-      expect(reportCall['p_detailed_narrative'], 'Done');
+      expect(reportCall['p_summary'], contains('CHMSU'));
+      expect(reportCall['p_detailed_narrative'], contains('SG Jac'));
       expect(reportCall['p_photo_path'], startsWith('guard/'));
       expect(reportCall['p_photo_name'], 'report.jpg');
     },
@@ -126,15 +129,18 @@ void main() {
         ),
       ),
     );
-    await tester.tap(find.text('Upload photo report'));
+    await tester.tap(find.text('Capture live face report'));
     await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).at(0), '');
     await tester.ensureVisible(find.text('Submit report'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Submit report'));
     await tester.pump();
     expect(calls, isEmpty);
     expect(
-      find.text('Complete the required summary and detailed narrative.'),
+      find.text(
+        'Complete all required duty details (Guard, Client, Post, Time in, Time out).',
+      ),
       findsOneWidget,
     );
     await tester.pumpAndSettle();
