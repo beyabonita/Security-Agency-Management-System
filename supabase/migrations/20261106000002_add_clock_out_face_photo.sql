@@ -97,3 +97,4 @@ $$;
 
 revoke all on function public.attach_attendance_verification_metadata(uuid, text, text, text, double precision, text) from public, anon;
 grant execute on function public.attach_attendance_verification_metadata(uuid, text, text, text, double precision, text) to authenticated;
+
