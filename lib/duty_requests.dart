@@ -141,37 +141,47 @@ class _AccomplishmentReportScreenState
         }
       }
 
-      // 3. Attendance session for Time In & Time Out
-      try {
-        final sessionRow = await client
-            .from('attendance_sessions')
-            .select()
-            .eq('schedule_id', widget.scheduleId)
-            .maybeSingle();
-        if (sessionRow != null) {
-          final inAt = sessionRow['clock_in_at'] != null
-              ? DateTime.tryParse(sessionRow['clock_in_at'].toString())?.toLocal()
-              : null;
-          final outAt = sessionRow['clock_out_at'] != null
-              ? DateTime.tryParse(sessionRow['clock_out_at'].toString())?.toLocal()
-              : null;
-          if (inAt != null) _timeInStr = AttendanceService.formatTime(inAt);
-          if (outAt != null) _timeOutStr = AttendanceService.formatTime(outAt);
-        }
-      } catch (_) {}
+      // 3. Scheduled Shift Hours for Time In & Time Out (not actual punch/current time)
+      DateTime? schedStart;
+      DateTime? schedEnd;
 
-      // Fallbacks if not punched yet or using schedule times
-      if (_timeInStr.isEmpty && sched != null && sched['start_at'] != null) {
-        final st = DateTime.tryParse(sched['start_at'].toString())?.toLocal();
-        if (st != null) _timeInStr = AttendanceService.formatTime(st);
-      }
-      if (_timeOutStr.isEmpty) {
-        if (sched != null && sched['end_at'] != null) {
-          final et = DateTime.tryParse(sched['end_at'].toString())?.toLocal();
-          if (et != null) _timeOutStr = AttendanceService.formatTime(et);
-        } else {
-          _timeOutStr = AttendanceService.formatTime(DateTime.now());
+      if (sched != null) {
+        if (sched['start_at'] != null) {
+          schedStart =
+              DateTime.tryParse(sched['start_at'].toString())?.toLocal();
         }
+        if (sched['end_at'] != null) {
+          schedEnd = DateTime.tryParse(sched['end_at'].toString())?.toLocal();
+        }
+      }
+
+      if (schedStart == null || schedEnd == null) {
+        try {
+          final sessionRow = await client
+              .from('attendance_sessions')
+              .select('scheduled_start_at, scheduled_end_at')
+              .eq('schedule_id', widget.scheduleId)
+              .maybeSingle();
+          if (sessionRow != null) {
+            schedStart ??= sessionRow['scheduled_start_at'] != null
+                ? DateTime.tryParse(
+                    sessionRow['scheduled_start_at'].toString(),
+                  )?.toLocal()
+                : null;
+            schedEnd ??= sessionRow['scheduled_end_at'] != null
+                ? DateTime.tryParse(
+                    sessionRow['scheduled_end_at'].toString(),
+                  )?.toLocal()
+                : null;
+          }
+        } catch (_) {}
+      }
+
+      if (schedStart != null) {
+        _timeInStr = AttendanceService.formatTime(schedStart);
+      }
+      if (schedEnd != null) {
+        _timeOutStr = AttendanceService.formatTime(schedEnd);
       }
 
       if (_clientName.isEmpty) _clientName = 'State University of Northern Negros';
@@ -179,6 +189,10 @@ class _AccomplishmentReportScreenState
       if (_guardName.isEmpty) _guardName = 'Security Guard';
       if (_timeInStr.isEmpty) _timeInStr = '07:00 AM';
       if (_timeOutStr.isEmpty) _timeOutStr = '07:00 PM';
+
+      if (_photo != null && mounted) {
+        _populateFields();
+      }
     } catch (_) {}
   }
 
@@ -206,49 +220,63 @@ class _AccomplishmentReportScreenState
     required TextEditingController controller,
     required String placeholder,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF3D2D2),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: const Color(0xFFE2A4A4),
-          width: 1.2,
-        ),
-      ),
+    final theme = AppColors.of(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final containerColor = isDark ? theme.surfaceElevated : Colors.white;
+    final borderColor = isDark ? theme.border : const Color(0xFFE8DADA);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            label,
-            style: const TextStyle(
-              color: Color(0xFF8B2525),
-              fontSize: 13,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.2,
+            label.toUpperCase(),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
             ),
           ),
-          const SizedBox(height: 4),
-          TextField(
-            controller: controller,
-            enabled: !_locked,
-            style: const TextStyle(
-              color: Color(0xFF2A0808),
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
+          const SizedBox(height: 8),
+          Container(
+            decoration: BoxDecoration(
+              color: containerColor,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: borderColor, width: 1.2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-            decoration: InputDecoration(
-              isDense: true,
-              contentPadding: EdgeInsets.zero,
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              hintText: placeholder,
-              hintStyle: const TextStyle(
-                color: Color(0xFFA56666),
-                fontSize: 14,
-                fontWeight: FontWeight.normal,
+            child: TextField(
+              controller: controller,
+              enabled: !_locked,
+              style: TextStyle(
+                color: theme.text,
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+              ),
+              decoration: InputDecoration(
+                filled: false,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                hintText: placeholder,
+                hintStyle: TextStyle(
+                  color: theme.textHint,
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                ),
               ),
             ),
           ),
@@ -329,27 +357,27 @@ class _AccomplishmentReportScreenState
                       ),
                       const SizedBox(height: 16),
                       _buildFieldCard(
-                        label: 'Guard on Duty:',
+                        label: 'Guard on Duty',
                         controller: _guardOnDutyController,
                         placeholder: 'SG Guard Name',
                       ),
                       _buildFieldCard(
-                        label: 'Client:',
+                        label: 'Client',
                         controller: _clientController,
                         placeholder: 'State University of Northern Negros',
                       ),
                       _buildFieldCard(
-                        label: 'Post:',
+                        label: 'Post',
                         controller: _postController,
                         placeholder: 'Roving and Assist / Main Gate',
                       ),
                       _buildFieldCard(
-                        label: 'Time in:',
+                        label: 'Time in',
                         controller: _timeInController,
                         placeholder: '07:00 AM',
                       ),
                       _buildFieldCard(
-                        label: 'Time out:',
+                        label: 'Time out',
                         controller: _timeOutController,
                         placeholder: '07:00 PM',
                       ),
