@@ -8,7 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'models/accomplishment_photo.dart';
 import 'services/accomplishment_photo_picker.dart';
 import 'package:flutter_application_1/services/attendance_service.dart';
-import 'package:flutter_application_1/services/device_info_service.dart';
+import 'package:flutter_application_1/services/device_verification_service.dart';
 import 'package:flutter_application_1/services/duty_request_service.dart';
 import 'package:flutter_application_1/services/user_profile_service.dart';
 import 'package:flutter_application_1/theme/app_colors.dart';
@@ -402,8 +402,8 @@ class _AccomplishmentReportScreenState
           } catch (_) {}
         }
 
-        final devInfo = await DeviceInfoService.getDeviceName();
-        final devId = await DeviceInfoService.getDeviceId();
+        final devInfo = DeviceVerificationService.getDeviceInfoLabel();
+        final devId = await DeviceVerificationService.getDeviceId();
         final deviceLabel = '$devInfo ($devId)';
 
         final dataUrl = await captureAttendanceFaceVerification(
