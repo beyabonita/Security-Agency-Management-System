@@ -486,7 +486,7 @@
             if (dutyPrefix && dutyPrefix !== targetPrefix && !s.force_attendance_requested) return false;
             if (personnelId && s.user_id !== personnelId) return false;
             if (locationId && s.location_id !== locationId) return false;
-            return s.force_attendance_requested || s.clock_in_face_photo || s.device_id || s.distance_from_post_meters != null || s.clock_in_latitude != null;
+            return s.force_attendance_requested || s.clock_in_face_photo || s.clock_out_face_photo || s.device_id || s.distance_from_post_meters != null || s.clock_in_latitude != null;
         }).sort((a, b) => new Date(b.clock_in_at || 0) - new Date(a.clock_in_at || 0)).slice(0, 25);
 
         if (countBadge) countBadge.textContent = `${matchingSessions.length} sessions`;
@@ -526,11 +526,25 @@
                    </span>`
                 : '<span class="col-muted" style="font-size:11px;">Standard Mobile</span>';
 
-            const faceHtml = sess.clock_in_face_photo
-                ? `<button type="button" class="records-btn-export" style="padding:3px 8px;font-size:11px;" onclick="window.previewAttendanceFacePhoto('${escapeHtml(sess.id)}')">
-                     <span class="material-symbols-rounded" style="font-size:13px;">person</span> View Geotagged Face
-                   </button>`
-                : '<span class="col-muted" style="font-size:11px;">Verified on Device</span>';
+            let faceHtml = '<span class="col-muted" style="font-size:11px;">Verified on Device</span>';
+            if (sess.clock_in_face_photo && sess.clock_out_face_photo) {
+                faceHtml = `<div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <button type="button" class="records-btn-export" style="padding:2px 6px;font-size:10px;" onclick="window.previewAttendanceFacePhoto('${escapeHtml(sess.id)}', 'in')">
+                        <span class="material-symbols-rounded" style="font-size:12px;">person</span> In Face
+                    </button>
+                    <button type="button" class="records-btn-export" style="padding:2px 6px;font-size:10px;" onclick="window.previewAttendanceFacePhoto('${escapeHtml(sess.id)}', 'out')">
+                        <span class="material-symbols-rounded" style="font-size:12px;">person</span> Out Face
+                    </button>
+                </div>`;
+            } else if (sess.clock_in_face_photo) {
+                faceHtml = `<button type="button" class="records-btn-export" style="padding:3px 8px;font-size:11px;" onclick="window.previewAttendanceFacePhoto('${escapeHtml(sess.id)}', 'in')">
+                     <span class="material-symbols-rounded" style="font-size:13px;">person</span> View In Face
+                   </button>`;
+            } else if (sess.clock_out_face_photo) {
+                faceHtml = `<button type="button" class="records-btn-export" style="padding:3px 8px;font-size:11px;" onclick="window.previewAttendanceFacePhoto('${escapeHtml(sess.id)}', 'out')">
+                     <span class="material-symbols-rounded" style="font-size:13px;">person</span> View Out Face
+                   </button>`;
+            }
 
             let statusHtml = '<span class="rec-badge rec-badge-active">Within Geofence</span>';
             if (sess.force_attendance_requested) {
@@ -601,22 +615,30 @@
         }
     };
 
-    window.previewAttendanceFacePhoto = function(sessionId) {
+    window.previewAttendanceFacePhoto = function(sessionId, which = 'in') {
         const sess = allSessions.find(s => s.id === sessionId);
-        if (!sess || !sess.clock_in_face_photo) return;
+        if (!sess) return;
+        const photo = (which === 'out' && sess.clock_out_face_photo)
+            ? sess.clock_out_face_photo
+            : (sess.clock_in_face_photo || sess.clock_out_face_photo);
+        if (!photo) return;
         const bodyEl = document.getElementById('facePreviewModalBody');
         const modalEl = document.getElementById('facePreviewModal');
         if (bodyEl && modalEl) {
             bodyEl.innerHTML = '';
+            const title = document.createElement('div');
+            title.style.cssText = 'font-weight:700;font-size:14px;margin-bottom:8px;color:#0f172a;';
+            title.textContent = (which === 'out' ? 'Time Out' : 'Time In') + ' Geotagged Face Verification';
             const img = document.createElement('img');
-            img.src = String(sess.clock_in_face_photo).startsWith('data:image/')
-                ? sess.clock_in_face_photo
-                : 'data:image/jpeg;base64,' + sess.clock_in_face_photo;
+            img.src = String(photo).startsWith('data:image/')
+                ? photo
+                : 'data:image/jpeg;base64,' + photo;
             img.alt = 'Geotagged Face Verification';
-            img.style.cssText = 'max-width:100%;max-height:70vh;border-radius:12px;border:2px solid #dc2626;';
+            img.style.cssText = 'max-width:100%;max-height:68vh;border-radius:12px;border:2px solid #dc2626;';
             const meta = document.createElement('p');
             meta.style.cssText = 'margin:10px 0 0;font-size:12px;color:#64748b;';
             meta.textContent = `Device: ${sess.device_info || 'Mobile Device'} (${sess.device_id || 'Bound'})`;
+            bodyEl.appendChild(title);
             bodyEl.appendChild(img);
             bodyEl.appendChild(meta);
             if (window.bootstrap?.Modal) {

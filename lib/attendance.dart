@@ -456,7 +456,9 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
       }
 
       String? facePhotoDataUrl;
-      if (action == 'clock_in') {
+      final isClockIn = action == 'clock_in';
+      final isClockOut = action == 'clock_out';
+      if (isClockIn || isClockOut) {
         facePhotoDataUrl = await captureAttendanceFaceVerification(
           context,
           latitude: position.latitude,
@@ -464,11 +466,13 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
           accuracyMeters: position.accuracy,
           locationLabel: nearestSite?.label ?? _matchedSiteLabel,
           deviceLabel: '${devCheck.deviceInfo} (${devCheck.deviceId})',
-          actionLabel: 'Time In Face Verification',
+          actionLabel: isClockIn
+              ? 'Time In Face Verification'
+              : 'Time Out Face Verification',
         );
         if (!mounted || facePhotoDataUrl == null) {
           _showSnack(
-            'Live geotagged face verification photo is required to Time In.',
+            'Live geotagged face verification photo is required to ${isClockIn ? "Time In" : "Time Out"}.',
             isError: true,
           );
           return;
@@ -487,7 +491,8 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
           sessionId: recordedSession.id,
           deviceId: devCheck.deviceId,
           deviceInfo: devCheck.deviceInfo,
-          facePhotoDataUrl: facePhotoDataUrl,
+          facePhotoDataUrl: isClockIn ? facePhotoDataUrl : null,
+          clockOutFacePhotoDataUrl: isClockOut ? facePhotoDataUrl : null,
           distanceFromPostMeters: distMeters,
         );
       } catch (_) {}
@@ -571,18 +576,47 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
             FilledButton(
               onPressed: () => Navigator.of(ctx).pop(true),
               style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
-              child: const Text('Submit Force Time Out'),
+              child: const Text('Continue to Face Capture'),
             ),
           ],
         ),
       );
       if (confirmOut != true || !mounted) return;
+
+      final facePhotoDataUrl = await captureAttendanceFaceVerification(
+        context,
+        latitude: position.latitude,
+        longitude: position.longitude,
+        accuracyMeters: position.accuracy,
+        locationLabel:
+            '$siteLabel (FORCE TIME OUT - ${distanceMeters?.round() ?? 0}m)',
+        deviceLabel:
+            '${deviceVerification.deviceInfo} (${deviceVerification.deviceId})',
+        actionLabel: 'Time Out Face Verification',
+      );
+      if (!mounted || facePhotoDataUrl == null) {
+        _showSnack(
+          'Geotagged face verification photo is required to Time Out.',
+          isError: true,
+        );
+        return;
+      }
+
       final session = await AttendanceService.requestForceAttendanceClockOut(
         sessionId: openSession.id,
         latitude: position.latitude,
         longitude: position.longitude,
         claimOvertime: claimOvertime,
       );
+      try {
+        await AttendanceService.attachVerificationMetadata(
+          sessionId: session.id,
+          deviceId: deviceVerification.deviceId,
+          deviceInfo: deviceVerification.deviceInfo,
+          clockOutFacePhotoDataUrl: facePhotoDataUrl,
+          distanceFromPostMeters: distanceMeters,
+        );
+      } catch (_) {}
       _attendance.accept(session);
       widget.onAttendanceRecorded?.call();
       if (!mounted) return;

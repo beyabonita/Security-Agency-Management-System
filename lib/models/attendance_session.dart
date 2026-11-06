@@ -26,6 +26,7 @@ class AttendanceSession {
     this.deviceInfo,
     this.deviceVerified,
     this.clockInFacePhoto,
+    this.clockOutFacePhoto,
   });
 
   final String id;
@@ -52,6 +53,7 @@ class AttendanceSession {
   final String? deviceInfo;
   final bool? deviceVerified;
   final String? clockInFacePhoto;
+  final String? clockOutFacePhoto;
 
   bool get overtimeApprovalPending =>
       overtimeRequested == true && needsTimeoutReview;
@@ -155,6 +157,7 @@ class AttendanceSession {
       deviceInfo: row['device_info']?.toString(),
       deviceVerified: row['device_verified'] as bool?,
       clockInFacePhoto: row['clock_in_face_photo']?.toString(),
+      clockOutFacePhoto: row['clock_out_face_photo']?.toString(),
     );
   }
 }

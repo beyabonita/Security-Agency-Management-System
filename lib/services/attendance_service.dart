@@ -191,6 +191,7 @@ class AttendanceService {
     String? deviceId,
     String? deviceInfo,
     String? facePhotoDataUrl,
+    String? clockOutFacePhotoDataUrl,
     double? distanceFromPostMeters,
   }) async {
     final row = await Supabase.instance.client
@@ -202,6 +203,8 @@ class AttendanceService {
             'p_device_info': deviceInfo,
             'p_face_photo': facePhotoDataUrl,
             'p_distance_from_post_meters': distanceFromPostMeters,
+            if (clockOutFacePhotoDataUrl != null)
+              'p_clock_out_face_photo': clockOutFacePhotoDataUrl,
           },
         )
         .timeout(const Duration(seconds: 15));
