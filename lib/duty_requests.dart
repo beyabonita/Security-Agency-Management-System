@@ -6,7 +6,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'models/accomplishment_photo.dart';
-import 'services/accomplishment_photo_picker.dart';
 import 'package:flutter_application_1/services/attendance_service.dart';
 import 'package:flutter_application_1/services/device_verification_service.dart';
 import 'package:flutter_application_1/services/duty_request_service.dart';
@@ -301,7 +300,7 @@ class _AccomplishmentReportScreenState
                           _photo!.name,
                           style: TextStyle(
                             fontSize: 11,
-                            color: AppColors.of(context).textSecondary,
+                            color: AppColors.of(context).textMuted,
                           ),
                           textAlign: TextAlign.center,
                           maxLines: 1,
@@ -403,7 +402,7 @@ class _AccomplishmentReportScreenState
         }
 
         final devInfo = DeviceVerificationService.getDeviceInfoLabel();
-        final devId = await DeviceVerificationService.getDeviceId();
+        final devId = await DeviceVerificationService.getOrCreateDeviceId();
         final deviceLabel = '$devInfo ($devId)';
 
         final dataUrl = await captureAttendanceFaceVerification(
