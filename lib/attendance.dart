@@ -436,7 +436,7 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
       if (!devCheck.verified) {
         _showSnack(
           devCheck.message ??
-              'Device mismatch: Please use your registered mobile phone or ask your Operations Head to reset your device binding.',
+              "We couldn't recognize this device. Please try again using your authorized device.",
           isError: true,
         );
         return;
@@ -841,7 +841,7 @@ class _AttendanceState extends State<Attendance> with WidgetsBindingObserver {
                                 _deviceVerification!.verified
                                     ? 'Verified Device: ${_deviceVerification!.deviceInfo} (${_deviceVerification!.deviceId})'
                                     : (_deviceVerification!.message ??
-                                          'Unrecognized Device (${_deviceVerification!.deviceId})'),
+                                          "We couldn't recognize this device. Please try again using your authorized device."),
                                 style: TextStyle(
                                   fontSize: 11.5,
                                   fontWeight: FontWeight.w600,

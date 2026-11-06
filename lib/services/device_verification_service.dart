@@ -134,14 +134,26 @@ class DeviceVerificationService {
 
       if (res is Map) {
         final map = Map<String, dynamic>.from(res);
+        final rawMsg = map['message']?.toString();
+        final isVerified = map['verified'] == true;
+        final normalizedMessage = !isVerified
+            ? (rawMsg != null &&
+                    (rawMsg.contains('Unrecognized device') ||
+                        rawMsg.contains('recognize this device') ||
+                        rawMsg.contains('bound to') ||
+                        rawMsg.contains('mismatch'))
+                ? "We couldn't recognize this device. Please try again using your authorized device."
+                : (rawMsg ??
+                    "We couldn't recognize this device. Please try again using your authorized device."))
+            : rawMsg;
         final result = DeviceVerificationResult(
           deviceId: deviceId,
           deviceInfo: deviceInfo,
-          verified: map['verified'] == true,
+          verified: isVerified,
           status: map['status']?.toString() ?? 'matched',
           registeredDeviceId: map['registered_device_id']?.toString(),
           registeredDeviceInfo: map['registered_device_info']?.toString(),
-          message: map['message']?.toString(),
+          message: normalizedMessage,
         );
         _cachedUserId = user.id;
         _cachedResult = result;

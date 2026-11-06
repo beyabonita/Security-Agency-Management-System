@@ -97,9 +97,16 @@ class _LoginScreenState extends State<LoginScreen> {
       } catch (e) {
         await Supabase.instance.client.auth.signOut();
         if (!mounted) return;
+        final rawMsg = e.toString().replaceFirst('Exception: ', '').trim();
+        final displayMsg = (rawMsg.contains('registered to another device') ||
+                rawMsg.contains('recognize this device') ||
+                rawMsg.contains('unrecognized') ||
+                rawMsg.contains('authorized device'))
+            ? "We couldn't recognize this device. Please try again using your authorized device."
+            : rawMsg;
         setState(() {
           _isLoading = false;
-          _errorMessage = e.toString().replaceFirst('Exception: ', '');
+          _errorMessage = displayMsg;
         });
         return;
       }
