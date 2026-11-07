@@ -2378,7 +2378,6 @@ function renderAssignedPostCell(id, data, locationsById) {
 }
 
 function renderGuardRow(id, data, locationsById) {
-    const inspector = data.inspectorId ? personnelAccounts[data.inspectorId] : null;
     const isArchived = !!(data.removedAt || data.removed_at);
     const toggle = `<button type="button" class="action-btn ${data.active !== false ? 'btn-disable' : 'btn-enable'}" onclick="toggleUser('${id}', ${data.active !== false}, this)">${data.active !== false ? 'Disable' : 'Enable'}</button>`;
     const archiveBtn = isArchived
@@ -2390,9 +2389,7 @@ function renderGuardRow(id, data, locationsById) {
         archiveBtn,
         `<button type="button" class="action-btn btn-schedule-del" onclick="assignDeployment('${id}')">Assigned Post</button>`,
         `<button type="button" class="action-btn btn-history" onclick="viewAssignmentHistory('${id}')">History</button>`,
-        `<button type="button" class="action-btn btn-inspector" onclick="assignInspector('${id}', this)">Set Inspector</button>`,
         `<button type="button" class="action-btn btn-reports" onclick="viewAccomplishments('${id}')">Reports</button>`,
-
     ]);
     return `<tr${isArchived ? ' class="opacity-75"' : ''}>
         <td>${renderPersonnelIdentity(id, data)}</td>
@@ -2401,7 +2398,7 @@ function renderGuardRow(id, data, locationsById) {
         <td class="text-center font-monospace">${escapeHtml(String(data.dutyDaysTotal || 0))}</td>
         <td>${renderPersonnelStatus(data)}</td>
         <td>${renderAssignedPostCell(id, data, locationsById)}</td>
-        <td>${escapeHtml(inspector ? personnelDisplayName(inspector) : "Unassigned")}</td>
+        <td><span class="badge bg-light text-dark border px-2 py-1"><span class="material-symbols-rounded align-middle me-1" style="font-size:13px;" aria-hidden="true">groups</span>All Inspectors</span></td>
         <td class="text-end">
             <div class="personnel-action-cluster">
                 <button type="button" class="action-btn btn-dtr" onclick="viewDTR('${id}')" title="View DTR">View DTR</button>
@@ -4413,7 +4410,7 @@ function renderPersonnelProfileBody(uid) {
     const serviceLength = calculateServiceDuration(account.dateHired);
     const assignedLocation = account.assignedLocationId ? (personnelLocationsById[account.assignedLocationId] || "Assigned post unavailable") : "Not assigned";
     const inspectorAccount = account.inspectorId ? personnelAccounts[account.inspectorId] : null;
-    const inspectorName = inspectorAccount ? personnelDisplayName(inspectorAccount) : "Unassigned";
+    const inspectorName = inspectorAccount ? personnelDisplayName(inspectorAccount) : "All Inspectors (Agency-wide)";
 
     const dobFormatted = account.dateOfBirth ? new Date(account.dateOfBirth).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : "—";
     const dateHiredFormatted = account.dateHired ? new Date(account.dateHired).toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' }) : "—";

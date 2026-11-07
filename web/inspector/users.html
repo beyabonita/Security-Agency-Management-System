@@ -383,7 +383,7 @@ function loadGuards() {
         : Promise.resolve({ data: { locations: [] } });
 
     return Promise.all([
-        db.collection("users").where("role", "==", "user").where('inspector_id', '==', inspectorUserId).get(),
+        db.collection("users").where("role", "==", "user").get(),
         db.collection("schedules").get(),
         fetchLiveLocations
     ]).then(([userSnap, schedSnap, liveRes]) => {
@@ -437,7 +437,7 @@ function loadGuards() {
         });
 
         if (!html) {
-            html = `<tr><td colspan="5" class="empty-state">No Guards assigned to you yet. Ask Operations Head to assign your team.</td></tr>`;
+            html = `<tr><td colspan="5" class="empty-state">No Guards registered in the agency yet.</td></tr>`;
         }
         if (currentDTRUid && !personnelAccounts[currentDTRUid]) {
             currentDTRUid = null;

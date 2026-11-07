@@ -353,7 +353,7 @@ auth.onAuthStateChanged(async function(user) {
 async function loadDashboard() {
     try {
         const [guardSnapshot, locationSnapshot, scheduleSnapshot, incidentSnapshot] = await Promise.all([
-            db.collection("users").where("role", "==", "user").where('inspector_id', '==', inspectorUserId).get(),
+            db.collection("users").where("role", "==", "user").get(),
             db.collection("locations").where("active", "==", true).get(),
             db.collection("schedules").get(),
             db.collection("incidents").get().catch(() => ({ docs: [] })),
@@ -374,7 +374,7 @@ async function loadDashboard() {
             });
         });
         document.getElementById("activeGuards").innerText = active;
-        document.getElementById("activeGuardsLabel").innerText = assignedIds.size ? active + " currently active" : 'Operations Head has not assigned Guards to you yet.';
+        document.getElementById("activeGuardsLabel").innerText = assignedIds.size ? active + " currently active" : 'No active guards found.';
         document.getElementById("totalLocations").innerText = locationSnapshot.size;
         document.getElementById("totalSchedules").innerText = countAssignedGuardShifts(scheduleSnapshot.docs, assignedIds);
 
