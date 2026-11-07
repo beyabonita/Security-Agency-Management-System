@@ -21,11 +21,24 @@
   const reconcileMs=30000, realtimeBatchMs=1000, retryMs=500, requestTimeoutMs=10000;
   const AVATAR_PALETTE=['#b91c1c','#9f1239','#0f766e','#1d4ed8','#6d28d9','#b45309','#15803d','#334155'];
   const RING_HEX={green:'#16a34a',amber:'#f59e0b',gray:'#6b7280'};
-  let rows=[],siteLocations=[],assignedGuards=[],selectedSiteKey=null,map,layer,siteLayer,channel,timer,ageTimer,refreshTimer,client,authSubscription,stopped=false,loading=false,refreshAgain=false,connected=false,hasFit=false;
+  let rows=[],siteLocations=[],assignedGuards=[],siteSchedules=[],selectedSiteKey=null,map,layer,siteLayer,channel,timer,ageTimer,refreshTimer,client,authSubscription,stopped=false,loading=false,refreshAgain=false,connected=false,hasFit=false;
   let requestController,retryTimer,retryResolve,requestGeneration=0;
   let interrupted=false,lastAuthorizedAt=0,accessExpiryTimer;
   const empty=document.createElement('p'); empty.className='tracking-empty';
   empty.textContent='No matching guards are currently on duty.';
+
+  function formatShiftWindow(startIso, endIso) {
+    if (!startIso || !endIso) return '';
+    try {
+      const s = new Date(startIso);
+      const e = new Date(endIso);
+      if (isNaN(s.getTime()) || isNaN(e.getTime())) return '';
+      const fmt = (d) => d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+      return `${fmt(s)} – ${fmt(e)}`;
+    } catch (_) {
+      return '';
+    }
+  }
 
   function setText(element,value) { if(element.textContent!==value)element.textContent=value; }
 
@@ -366,9 +379,66 @@
           profile_photo_url: prof.profile_photo_url || '',
           location_label: targetGroup.label,
           location_address: targetGroup.address,
+          shiftTime: '',
+          dutyDate: '',
           onDuty: false,
           state: 'offline'
         });
+      }
+    }
+
+    // Include guards assigned via shift schedules across different times
+    for (const sched of (siteSchedules || [])) {
+      if (!sched || !sched.user_id) continue;
+      const uid = String(sched.user_id);
+      const prof = profileById.get(uid);
+      if (prof && prof.active === false) continue;
+      if (prof && prof.role && !['guard', 'user'].includes(prof.role)) continue;
+
+      let targetGroup = null;
+      if (sched.location_id && groups.has(String(sched.location_id))) {
+        targetGroup = groups.get(String(sched.location_id));
+      }
+      if (!targetGroup && sched.location_label) {
+        for (const grp of groups.values()) {
+          if (grp.label.toLowerCase() === String(sched.location_label).toLowerCase() ||
+              String(sched.location_label).toLowerCase().includes(grp.label.toLowerCase())) {
+            targetGroup = grp;
+            break;
+          }
+        }
+      }
+      if (targetGroup) {
+        const shiftWin = formatShiftWindow(sched.start_at, sched.end_at);
+        const dutyDate = sched.duty_date || (sched.start_at ? String(sched.start_at).slice(0, 10) : '');
+        const existing = targetGroup.guards.get(uid);
+        if (existing) {
+          if (shiftWin && (!existing.shiftTime || !existing.shiftTime.includes('–'))) {
+            existing.shiftTime = shiftWin;
+            existing.dutyDate = dutyDate;
+          }
+        } else {
+          targetGroup.guards.set(uid, {
+            user_id: uid,
+            guard_name: fullGuardName(prof) || prof?.username || sched.guard_name || 'Guard',
+            first_name: prof?.first_name || '',
+            last_name: prof?.last_name || '',
+            personnel_id: prof?.personnel_id || '',
+            employment_category: prof?.employment_category || 'regular',
+            contract_start_date: prof?.contract_start_date || '',
+            contract_end_date: prof?.contract_end_date || '',
+            mobile_number: prof?.mobile_number || prof?.contact_number || '',
+            complete_address: prof?.complete_address || '',
+            emergency_contact: prof?.emergency_contact || '',
+            profile_photo_url: prof?.profile_photo_url || '',
+            location_label: targetGroup.label,
+            location_address: targetGroup.address,
+            shiftTime: shiftWin,
+            dutyDate,
+            onDuty: false,
+            state: 'offline'
+          });
+        }
       }
     }
 
@@ -416,6 +486,7 @@
           targetGroup.lng = Number(row.longitude);
         }
         const existing = targetGroup.guards.get(String(row.user_id)) || {};
+        const shiftWin = row.shiftTime || existing.shiftTime || formatShiftWindow(row.start_at, row.duty_end_at || row.end_at);
         targetGroup.guards.set(String(row.user_id), {
           ...existing,
           user_id: String(row.user_id),
@@ -430,6 +501,7 @@
           profile_photo_url: row.profile_photo_url || existing.profile_photo_url || prof.profile_photo_url || '',
           location_label: row.location_label || targetGroup.label,
           location_address: row.location_address || targetGroup.address,
+          shiftTime: shiftWin || existing.shiftTime || '',
           ...row,
           onDuty: true,
           state: row.state || 'live'
@@ -664,7 +736,8 @@
       displayGuards = displayGuards.filter(g =>
         String(g.guard_name || '').toLowerCase().includes(query) ||
         String(g.mobile_number || '').includes(query) ||
-        String(g.personnel_id || '').toLowerCase().includes(query)
+        String(g.personnel_id || '').toLowerCase().includes(query) ||
+        String(g.shiftTime || '').toLowerCase().includes(query)
       );
     }
 
@@ -678,19 +751,70 @@
       return;
     }
 
-    // Sort: Online/live guards first, then off-duty
-    displayGuards.sort((a, b) => {
-      const aScore = a.onDuty && a.state === 'live' ? 3 : (a.onDuty ? 2 : 1);
-      const bScore = b.onDuty && b.state === 'live' ? 3 : (b.onDuty ? 2 : 1);
+    // Separate Online / On-Duty Guards from Other Assigned Guards (Different Shift Times)
+    const displayOnline = displayGuards.filter(g => g.onDuty && g.state !== 'offline');
+    const displayOther = displayGuards.filter(g => !(g.onDuty && g.state !== 'offline'));
+
+    // Sort Online guards by activity
+    displayOnline.sort((a, b) => {
+      const aScore = a.state === 'live' ? 2 : 1;
+      const bScore = b.state === 'live' ? 2 : 1;
       if (bScore !== aScore) return bScore - aScore;
       return String(a.guard_name || '').localeCompare(String(b.guard_name || ''));
     });
 
-    displayGuards.forEach(g => {
-      const entry = entries.get(g.user_id);
-      if (g.onDuty && entry && entry.item) {
-        list.appendChild(entry.item);
-      } else {
+    // Sort Other guards: those with scheduled shift times first, then alphabetically
+    displayOther.sort((a, b) => {
+      if (a.shiftTime && !b.shiftTime) return -1;
+      if (!a.shiftTime && b.shiftTime) return 1;
+      return String(a.guard_name || '').localeCompare(String(b.guard_name || ''));
+    });
+
+    // --- SECTION 1: CURRENTLY ONLINE GUARDS ---
+    const onlineSecHead = document.createElement('div');
+    onlineSecHead.className = 'tracking-roster-section-head';
+    const onlineTitle = document.createElement('h4');
+    onlineTitle.className = 'tracking-roster-section-title';
+    onlineTitle.textContent = `Currently Online (${displayOnline.length})`;
+    const liveTag = document.createElement('span');
+    liveTag.className = 'tracking-roster-live-tag';
+    liveTag.textContent = 'Live on Map';
+    onlineSecHead.append(onlineTitle, liveTag);
+    list.appendChild(onlineSecHead);
+
+    if (!displayOnline.length) {
+      const noOnline = document.createElement('div');
+      noOnline.className = 'tracking-roster-empty-notice';
+      noOnline.textContent = 'No guards are currently online or transmitting GPS at this client.';
+      list.appendChild(noOnline);
+    } else {
+      displayOnline.forEach(g => {
+        const entry = entries.get(g.user_id);
+        if (entry && entry.item) {
+          list.appendChild(entry.item);
+        }
+      });
+    }
+
+    // --- SECTION 2: OTHER ASSIGNED GUARDS (DIFFERENT SHIFT TIMES) ---
+    const otherSecHead = document.createElement('div');
+    otherSecHead.className = 'tracking-roster-section-head is-other';
+    const otherTitle = document.createElement('h4');
+    otherTitle.className = 'tracking-roster-section-title';
+    otherTitle.textContent = `Other Assigned Guards · Different Shift Times (${displayOther.length})`;
+    const schedTag = document.createElement('span');
+    schedTag.className = 'tracking-roster-sched-tag';
+    schedTag.textContent = 'Off Duty / Scheduled';
+    otherSecHead.append(otherTitle, schedTag);
+    list.appendChild(otherSecHead);
+
+    if (!displayOther.length) {
+      const noOther = document.createElement('div');
+      noOther.className = 'tracking-roster-empty-notice';
+      noOther.textContent = 'No other guards assigned to different shift times for this client.';
+      list.appendChild(noOther);
+    } else {
+      displayOther.forEach(g => {
         const card = document.createElement('div');
         card.className = 'tracking-guard is-offduty';
 
@@ -709,14 +833,20 @@
         const locRow = createInfoRow('Location:');
         setText(locRow.val, selectedGroup.address || '—');
 
+        const shiftRow = createInfoRow('Assigned Shift / Time:');
+        const shiftDisplay = g.shiftTime
+          ? `${g.shiftTime}${g.dutyDate ? ` · ${g.dutyDate}` : ''}`
+          : 'Stationed Post Assignment';
+        setText(shiftRow.val, shiftDisplay);
+
         const contactRow = createInfoRow('Contact Number:');
         setText(contactRow.val, (g.mobile_number || g.contact_number || '').trim() || '—');
 
         const statusRow = createInfoRow('Status:', 'tracking-status-row');
         statusRow.val.className = 'tracking-info-val tracking-offline';
-        statusRow.val.textContent = 'Off duty · Assigned to this client';
+        statusRow.val.textContent = g.shiftTime ? `Off duty · Shift: ${g.shiftTime}` : 'Off duty · Assigned to this client';
 
-        card.append(head, clientRow.row, locRow.row, contactRow.row, statusRow.row);
+        card.append(head, clientRow.row, locRow.row, shiftRow.row, contactRow.row, statusRow.row);
 
         const histBtn = document.createElement('button');
         histBtn.type = 'button';
@@ -729,8 +859,8 @@
         card.appendChild(histBtn);
 
         list.appendChild(card);
-      }
-    });
+      });
+    }
   }
 
 
@@ -773,6 +903,8 @@
         itemHead.append(listAvatar.root,name);
         const clientRow=createInfoRow('Client (Name of the Company):');
         const locRow=createInfoRow('Location:');
+        const shiftRow=createInfoRow('Assigned Shift / Time:');
+        shiftRow.row.hidden=true;
         const contactRow=createInfoRow('Contact Number:');
         const statusRow=createInfoRow('Status:', 'tracking-status-row');
         const detail=statusRow.val;
@@ -794,7 +926,7 @@
             onHistClick(ev);
           }
         };
-        item.append(itemHead,clientRow.row,locRow.row,contactRow.row,statusRow.row,waitingNote,listHistBtn);
+        item.append(itemHead,clientRow.row,locRow.row,shiftRow.row,contactRow.row,statusRow.row,waitingNote,listHistBtn);
 
         const popup=document.createElement('div'); popup.className='tracking-popup-card';
         const popupHead=document.createElement('div'); popupHead.className='tracking-popup-head';
@@ -803,16 +935,18 @@
         popupHead.append(popupAvatar.root,title);
         const popupClientRow=createInfoRow('Client (Name of the Company):');
         const popupLocRow=createInfoRow('Location:');
+        const popupShiftRow=createInfoRow('Assigned Shift / Time:');
+        popupShiftRow.row.hidden=true;
         const popupContactRow=createInfoRow('Contact Number:');
         const popupStatusRow=createInfoRow('Status:', 'tracking-status-row');
         const popupDetail=popupStatusRow.val;
         const popupWaitingNote=document.createElement('span'); popupWaitingNote.className='tracking-waiting-note';
         const popupHistBtn=document.createElement('button'); popupHistBtn.type='button'; popupHistBtn.className='tracking-focus-guard-btn'; popupHistBtn.textContent='Location History';
         popupHistBtn.onclick=(ev)=>{ev.stopPropagation();openGuardLocationHistory(row.user_id,entry.row||row);};
-        popup.append(popupHead,popupClientRow.row,popupLocRow.row,popupContactRow.row,popupStatusRow.row,popupWaitingNote,popupHistBtn);
+        popup.append(popupHead,popupClientRow.row,popupLocRow.row,popupShiftRow.row,popupContactRow.row,popupStatusRow.row,popupWaitingNote,popupHistBtn);
 
-        entry={item,listAvatar,name,clientRow,locRow,contactRow,statusRow,detail,waitingNote,
-               popup,popupAvatar,title,popupClientRow,popupLocRow,popupContactRow,popupStatusRow,popupDetail,popupWaitingNote,
+        entry={item,listAvatar,name,clientRow,locRow,shiftRow,contactRow,statusRow,detail,waitingNote,
+               popup,popupAvatar,title,popupClientRow,popupLocRow,popupShiftRow,popupContactRow,popupStatusRow,popupDetail,popupWaitingNote,
                markerAvatar:null, onMap:false};
         entries.set(row.user_id,entry);
       }
@@ -888,6 +1022,15 @@
       setText(entry.name,row.guard_name||'Guard');
       setText(entry.clientRow.val,parsedLoc.client);
       setText(entry.locRow.val,parsedLoc.location);
+      const guardShiftTime = row.shiftTime || groups.get(selectedSiteKey || '')?.guards?.get(String(row.user_id))?.shiftTime || formatShiftWindow(row.start_at, row.duty_end_at || row.end_at);
+      if (entry.shiftRow) {
+        if (guardShiftTime) {
+          entry.shiftRow.row.hidden = false;
+          setText(entry.shiftRow.val, guardShiftTime);
+        } else {
+          entry.shiftRow.row.hidden = true;
+        }
+      }
       setText(entry.contactRow.val,contactNumber);
 
       const detailClass=row.state==='offline'?'tracking-offline':`tracking-${row.state}`;
@@ -905,6 +1048,14 @@
       setText(entry.title,entry.name.textContent);
       setText(entry.popupClientRow.val,parsedLoc.client);
       setText(entry.popupLocRow.val,parsedLoc.location);
+      if (entry.popupShiftRow) {
+        if (guardShiftTime) {
+          entry.popupShiftRow.row.hidden = false;
+          setText(entry.popupShiftRow.val, guardShiftTime);
+        } else {
+          entry.popupShiftRow.row.hidden = true;
+        }
+      }
       setText(entry.popupContactRow.val,contactNumber);
       if(entry.popupDetail.className!==`tracking-info-val ${detailClass}`)entry.popupDetail.className=`tracking-info-val ${detailClass}`;
       setText(entry.popupDetail,statusText);
@@ -1124,12 +1275,19 @@
       try {
         const locQuery=client.from('locations')?.select('id,label,address,latitude,longitude,radius_meters,active');
         const guardQuery=client.from('profiles')?.select('id,first_name,middle_initial,last_name,username,personnel_id,employment_category,contract_start_date,contract_end_date,mobile_number,complete_address,emergency_contact,profile_photo_url,assigned_location_id,role,active');
+        const schedQuery=client.from('schedules')?.select('id,user_id,location_id,location_label,location_address,guard_name,start_at,end_at,duty_date').order('start_at', { ascending: false }).limit(200);
         if(typeof locQuery?.then==='function' && typeof guardQuery?.then==='function') {
-          const [locRes,guardRes]=await Promise.all([locQuery,guardQuery]);
+          const promises = [locQuery, guardQuery];
+          if (schedQuery && typeof schedQuery.then === 'function') promises.push(schedQuery);
+          const results = await Promise.all(promises);
+          const locRes = results[0];
+          const guardRes = results[1];
+          const schedRes = results[2];
           if(Array.isArray(locRes?.data)) {
             siteLocations=locRes.data.map(l=>({...l,radius:Number(l.radius_meters??l.radius)||100}));
           }
           if(Array.isArray(guardRes?.data)) assignedGuards=guardRes.data;
+          if(Array.isArray(schedRes?.data)) siteSchedules=schedRes.data;
           if(!stopped) render();
         }
       } catch(_) {}
