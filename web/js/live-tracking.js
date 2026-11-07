@@ -777,7 +777,24 @@
         const statusRow=createInfoRow('Status:', 'tracking-status-row');
         const detail=statusRow.val;
         const waitingNote=document.createElement('span'); waitingNote.className='tracking-waiting-note';
-        item.append(itemHead,clientRow.row,locRow.row,contactRow.row,statusRow.row,waitingNote);
+        const listHistBtn=document.createElement('span');
+        listHistBtn.setAttribute('role','button');
+        listHistBtn.tabIndex=0;
+        listHistBtn.className='tracking-focus-guard-btn';
+        listHistBtn.textContent='Location History';
+        const onHistClick=(ev)=>{
+          ev.stopPropagation();
+          ev.preventDefault();
+          const gData=entry.row||row;
+          openGuardLocationHistory(gData.user_id||row.user_id,gData);
+        };
+        listHistBtn.onclick=onHistClick;
+        listHistBtn.onkeydown=(ev)=>{
+          if(ev.key==='Enter'||ev.key===' '){
+            onHistClick(ev);
+          }
+        };
+        item.append(itemHead,clientRow.row,locRow.row,contactRow.row,statusRow.row,waitingNote,listHistBtn);
 
         const popup=document.createElement('div'); popup.className='tracking-popup-card';
         const popupHead=document.createElement('div'); popupHead.className='tracking-popup-head';

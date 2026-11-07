@@ -105,7 +105,11 @@
 .tracking-location-guard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
 .tracking-location-guard-card{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid var(--brand-border,#e5e7eb);border-radius:10px;background:var(--brand-surface,#f9fafb)}
 .tracking-guard-submeta{font-size:11.5px;font-weight:600;color:var(--brand-text-muted,#6b7280)}
-.tracking-focus-guard-btn{margin-top:6px;border:0;border-radius:6px;padding:6px 10px;font-size:11.5px;font-weight:700;background:#6b1515;color:#fff;cursor:pointer;align-self:flex-start}
+.tracking-focus-guard-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;margin-top:8px;border:0;border-radius:6px;padding:7px 12px;font-size:12px;font-weight:700;background:#6b1515;color:#fff;cursor:pointer;align-self:flex-start;text-decoration:none;transition:background .15s ease,transform .1s ease}
+.tracking-focus-guard-btn:hover{background:#991b1b;color:#fff}
+.tracking-focus-guard-btn:active{transform:scale(0.98)}
+[data-theme="dark"] .tracking-focus-guard-btn{background:#991b1b;color:#fff}
+[data-theme="dark"] .tracking-focus-guard-btn:hover{background:#b91c1c}
 [data-theme="dark"] .tracking-company-card{background:#1f2937;border-color:#374151;border-left-color:#dc2626;color:#f3f4f6}
 [data-theme="dark"] .tracking-company-card:hover,[data-theme="dark"] .tracking-company-card.is-active{background:rgba(220,38,38,.12);border-color:#ef4444}
 [data-theme="dark"] .tracking-company-name,[data-theme="dark"] .tracking-company-guard-meta strong{color:#f9fafb}
