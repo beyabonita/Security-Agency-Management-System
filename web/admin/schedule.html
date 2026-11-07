@@ -490,7 +490,7 @@ function loadGuards() {
             if (!["user", "inspector"].includes(d.role)) return;
             const fullName = [d.firstName, d.middleInitial ? d.middleInitial + "." : "", d.lastName]
                 .filter(Boolean).join(" ") || d.name || displayLoginId(d);
-            guards.push({ id: doc.id, name: fullName, active: d.active !== false, loginId: displayLoginId(d), role: d.role, employmentCategory: d.employmentCategory || "regular", contractStartDate: d.contractStartDate, contractEndDate: d.contractEndDate, assignedLocationId: d.assignedLocationId || "" });
+            guards.push({ id: doc.id, name: fullName, active: d.active !== false, loginId: displayLoginId(d), role: d.role, employmentCategory: d.employmentCategory || "regular", contractStartDate: d.contractStartDate, contractEndDate: d.contractEndDate, assignedLocationId: d.assignedLocationId || "", weeklyRestDay: d.weeklyRestDay ?? d.weekly_rest_day ?? d.restDay ?? d.rest_day ?? null });
         });
         document.getElementById('schedulePersonnelFilter').innerHTML = '<option value="">All guards</option>' + guards.filter(guard=>guard.role==='user').map(guard => `<option value="${escapeHtml(guard.id)}">${escapeHtml(guard.name)}</option>`).join('');
         initSchedulePersonnelCombobox();
@@ -868,6 +868,27 @@ function formatTimeStr12(timeStr) {
     return `${h12}:${String(m).padStart(2, '0')} ${period}`;
 }
 
+function isGuardSpecificRestDay(guard, dayDate) {
+    if (!guard || !dayDate) return false;
+    const dayOfWeek = dayDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const dayName = dayNames[dayOfWeek];
+
+    const targetRestDay = guard.weeklyRestDay ?? guard.weekly_rest_day ?? guard.restDay ?? guard.rest_day ?? null;
+    if (targetRestDay !== null && targetRestDay !== undefined && targetRestDay !== '' && targetRestDay !== -1 && targetRestDay !== '-1') {
+        if (typeof targetRestDay === 'number') {
+            return targetRestDay === dayOfWeek;
+        }
+        if (typeof targetRestDay === 'string') {
+            const trimmed = targetRestDay.trim().toLowerCase();
+            if (trimmed === dayName || trimmed === String(dayOfWeek)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 function getClientContractedShifts(loc) {
     if (!loc) {
         return [
@@ -1087,9 +1108,20 @@ function renderClientScheduleCalendar() {
             const guardShiftsOnDay = siteWeekSchedules.filter(s => s.userId === guard.id && s.date === dateStr);
 
             if (!guardShiftsOnDay.length) {
-                return `<td class="guard-calendar-day-cell text-muted" style="min-width:110px;">
-                    <span class="badge shift-color-rest" style="font-size:0.7rem; font-weight:600; padding:4px 8px; border-radius:6px;">REST</span>
-                </td>`;
+                const isExplicitRest = (schedules || []).some(s => 
+                    s.userId === guard.id && 
+                    s.date === dateStr && 
+                    (s.is_rest_day === true || s.status === 'rest' || s.shift === 'REST' || s.leave_type === 'REST')
+                );
+                const isSpecificRest = isExplicitRest || isGuardSpecificRestDay(guard, d);
+
+                if (isSpecificRest) {
+                    return `<td class="guard-calendar-day-cell text-muted" style="min-width:110px;">
+                        <span class="badge shift-color-rest" style="font-size:0.7rem; font-weight:600; padding:4px 8px; border-radius:6px;">REST</span>
+                    </td>`;
+                }
+
+                return `<td class="guard-calendar-day-cell text-muted" style="min-width:110px;"></td>`;
             }
 
             return `<td class="guard-calendar-day-cell" style="min-width:110px;">
