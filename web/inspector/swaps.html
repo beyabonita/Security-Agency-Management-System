@@ -57,7 +57,7 @@ function formatDutyRange(startAt, endAt) {
 async function load(){
   const el=document.getElementById('requests');
   const [requestResult, profileResult, scheduleResult] = await Promise.all([
-    appSupabase.from('shift_swap_requests').select().eq('inspector_id',me.uid).order('created_at',{ascending:false}),
+    appSupabase.from('shift_swap_requests').select().order('created_at',{ascending:false}),
     appSupabase.from('profiles').select('id,first_name,middle_initial,last_name,username'),
     appSupabase.from('schedules').select('id,start_at,end_at,location_label'),
   ]);

@@ -383,11 +383,15 @@ function loadGuards() {
         : Promise.resolve({ data: { locations: [] } });
 
     return Promise.all([
-        db.collection("users").where("role", "==", "user").get(),
+        db.collection("users").get(),
         db.collection("schedules").get(),
         fetchLiveLocations
     ]).then(([userSnap, schedSnap, liveRes]) => {
         if (refreshVersion !== guardRefreshVersion) return false;
+        const guardDocs = userSnap.docs.filter(d => {
+            const r = d.data().role;
+            return ['guard', 'user'].includes(r) || (!['admin', 'inspector', 'it_admin'].includes(r));
+        });
         const liveLocations = (liveRes && liveRes.data && Array.isArray(liveRes.data.locations)) ? liveRes.data.locations : [];
         const clockedInUserIds = new Set(liveLocations.map(l => l.user_id));
         const liveInfoByUser = new Map(liveLocations.map(l => [l.user_id, l]));
@@ -404,7 +408,7 @@ function loadGuards() {
 
         let html = "";
         personnelAccounts = {};
-        userSnap.forEach(doc => {
+        guardDocs.forEach(doc => {
             const data = doc.data();
             personnelAccounts[doc.id] = data;
             const fullName = personnelDisplayName(data);

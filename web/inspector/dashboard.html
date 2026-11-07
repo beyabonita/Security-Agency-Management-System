@@ -352,17 +352,21 @@ auth.onAuthStateChanged(async function(user) {
 
 async function loadDashboard() {
     try {
-        const [guardSnapshot, locationSnapshot, scheduleSnapshot, incidentSnapshot] = await Promise.all([
-            db.collection("users").where("role", "==", "user").get(),
+        const [userSnapshot, locationSnapshot, scheduleSnapshot, incidentSnapshot] = await Promise.all([
+            db.collection("users").get(),
             db.collection("locations").where("active", "==", true).get(),
             db.collection("schedules").get(),
             db.collection("incidents").get().catch(() => ({ docs: [] })),
         ]);
-        const assignedIds = new Set(guardSnapshot.docs.map(guard => guard.id));
+        const guardDocs = userSnapshot.docs.filter(d => {
+            const r = d.data().role;
+            return ['guard', 'user'].includes(r) || (!['admin', 'inspector', 'it_admin'].includes(r));
+        });
+        const assignedIds = new Set(guardDocs.map(guard => guard.id));
         document.getElementById("totalGuards").innerText = assignedIds.size;
         let active = 0;
         const assignedGuards = new Map();
-        guardSnapshot.forEach(d => {
+        guardDocs.forEach(d => {
             const u = d.data();
             if (u.active !== false) active++;
             const fullName = [u.firstName, u.middleInitial ? u.middleInitial + '.' : '', u.lastName].filter(Boolean).join(' ') || u.name || displayLoginId(u);
