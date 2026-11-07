@@ -28,9 +28,10 @@
 .shift-roster-card { padding: 24px; display: grid; gap: 20px; }
 .shift-roster-card .schedule-plan-settings { grid-template-columns: minmax(240px, 1.5fr) minmax(180px, 1fr); }
 #rosterGuards { grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); }
-#rosterPreview, #assignedRoster { padding: 16px; border: 1px solid var(--ax-border); border-radius: 12px; }
-#rosterPreview p, #assignedRoster p { margin: 0 0 8px; }
-#rosterPreview p:last-child, #assignedRoster p:last-child { margin-bottom: 0; }
+#rosterPreview { display: none !important; }
+#assignedRoster { padding: 16px; border: 1px solid var(--ax-border); border-radius: 12px; }
+#assignedRoster p { margin: 0 0 8px; }
+#assignedRoster p:last-child { margin-bottom: 0; }
 #saveRoster {
   justify-self: start;
   min-height: 42px;
