@@ -71,6 +71,12 @@
   color: var(--sl-danger, #b02a37); background: var(--sl-surface); border-color: currentColor;
 }
 .roster-setup-actions .btn:hover, #retryRosterSetups:hover { filter: brightness(.94); }
+#rosterGuards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
 @media(max-width:700px) {
   .shift-roster-card { padding: 16px; gap: 16px; }
   .shift-roster-card .schedule-plan-settings, #rosterGuards { grid-template-columns: minmax(0,1fr); }

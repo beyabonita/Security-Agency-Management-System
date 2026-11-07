@@ -45,6 +45,29 @@
     const range = getWeekRange(date.value);
     pill.textContent = `📅 Target Week: ${formatDate(range.start)} – ${formatDate(range.end)} (Mon–Sun · 7 Days)`;
   }
+  function updateStationedGuardsNotice() {
+    const noticeEl = document.getElementById('stationedGuardsNotice');
+    if (!noticeEl) return;
+    if (!site || !site.value) {
+      noticeEl.textContent = 'Select a client to view stationed guards.';
+      return;
+    }
+    const activeUserGuards = (window.guards || guards || []).filter(g => g.active && g.role === 'user');
+    const stationed = activeUserGuards.filter(g => (g.assignedLocationId || g.assigned_location_id) === site.value);
+    const locObj = (window.locations || locations || []).find(l => l.id === site.value);
+    const siteName = locObj?.label || 'this client';
+    if (stationed.length === 0) {
+      noticeEl.innerHTML = `<span class="text-warning">0 guards are stationed at ${escapeHtml(siteName)}.</span> <a href="users.html" class="small ms-1">Assign guards in Personnel</a>.`;
+    } else {
+      noticeEl.textContent = `${stationed.length} ${stationed.length === 1 ? 'guard is' : 'guards are'} stationed at ${siteName}.`;
+    }
+  }
+  function updateCutoffNotice() {
+    const pill = document.getElementById('rosterDateCutoffPill');
+    if (!pill || !date || !date.value) return;
+    const cutoff = SchedulePeriod.dtrPeriodForDate(date.value);
+    pill.textContent = cutoff ? `${cutoff.label}` : '';
+  }
   let saving=false,setupSaving=false,setupLoading=false;
   let savedSetups=[];
   let editingSetup=null,setupRevision=0,setupsLoaded=false;
@@ -75,6 +98,8 @@
   }
   const currentName=id=>guards.find(g=>g.id===id)?.name || 'Select a Guard';
   function summary(){
+    updateStationedGuardsNotice();
+    updateCutoffNotice();
     availability();
     managementControls();
     syncGuardSelections();
@@ -215,30 +240,30 @@
       return;
     }
     const activeUserGuards = guards.filter(g => g.active && g.role === 'user');
-    const sortedGuards = [...activeUserGuards].sort((a, b) => {
-      const aLoc = a.assignedLocationId || a.assigned_location_id;
-      const bLoc = b.assignedLocationId || b.assigned_location_id;
-      const aSite = aLoc === site.value ? 0 : 1;
-      const bSite = bLoc === site.value ? 0 : 1;
-      if (aSite !== bSite) return aSite - bSite;
-      return (a.name || '').localeCompare(b.name || '');
-    });
-    const optionsHtml = sortedGuards.map(g => {
-      const isDeployedHere = (g.assignedLocationId || g.assigned_location_id) === site.value;
-      const prefix = isDeployedHere ? '★ ' : '';
-      return `<option value="${escapeHtml(g.id)}">${prefix}${escapeHtml(g.name)}</option>`;
-    }).join('');
+    const stationedGuards = activeUserGuards.filter(g => (g.assignedLocationId || g.assigned_location_id) === site.value);
+    const candidateGuards = stationedGuards.length ? stationedGuards : activeUserGuards;
+    const sortedGuards = [...candidateGuards].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    const optionsHtml = sortedGuards.map(g => `<option value="${escapeHtml(g.id)}">${escapeHtml(g.name)}</option>`).join('');
 
-    slots.innerHTML = periods().map((p, i) => `
+    slots.innerHTML = periods().map((p, i) => {
+      let shiftPrefix = '';
+      if (periods().length === 2) {
+        shiftPrefix = i === 0 ? 'Day shift · ' : 'Night shift · ';
+      } else if (periods().length === 3) {
+        shiftPrefix = i === 0 ? 'First shift · ' : i === 1 ? 'Second shift · ' : 'Third shift · ';
+      }
+      const labelText = `${shiftPrefix}${p[2]}`;
+      return `
       <div class="schedule-field">
-        <label class="form-label" for="rosterGuard${i}">${p[2]} <span class="req-star" aria-hidden="true">*</span></label>
+        <label class="form-label fw-semibold" for="rosterGuard${i}">${escapeHtml(labelText)} <span class="req-star" aria-hidden="true">*</span></label>
         <select id="rosterGuard${i}" class="form-select" aria-required="true" aria-describedby="rosterStatus${i}">
-          <option value="">Select Guard ${i+1}</option>
+          <option value="">Select guard</option>
           ${optionsHtml}
         </select>
         <p id="rosterStatus${i}" class="form-hint roster-slot-status"></p>
       </div>
-    `).join('');
+    `;
+    }).join('');
     slots.querySelectorAll('select').forEach((s,i)=>{
       s.value=ids[i]||'';
       s.disabled=saving;
@@ -303,6 +328,7 @@
     updateWeekRangePill();
     summary();
   });
+  document.getElementById('weeklyRestDay')?.addEventListener('change', summary);
 
   const thisWeekBtn = document.getElementById('rosterThisWeekBtn');
   if (thisWeekBtn) {
@@ -550,11 +576,16 @@
       const locObj = (window.locations || locations || []).find(l => l.id === location);
       const siteName = locObj?.label || 'this site';
 
+      const restDayEl = document.getElementById('weeklyRestDay');
+      const restDayValue = Number(restDayEl ? restDayEl.value : -1);
+      const restDayNames = { 0: 'Sunday', 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday' };
+      const restDayText = restDayValue !== -1 ? `\n• Weekly Rest Day: Every ${restDayNames[restDayValue]} (skipped in schedule & shows as REST in DTR)` : '\n• Weekly Rest Day: None (7 days straight)';
+
       const guardNamesList = ids.map((id, i) => `• ${shifts[i][2]}: ${currentName(id)}`).join('\n');
-      const confirmMsg = `Assign weekly schedule for ${siteName}?\n\nTarget Week: ${formatDate(week.start)} – ${formatDate(week.end)} (7 Days: Mon–Sun)\n${guardNamesList}\n\nThis will assign these guards for all 7 days of the week.`;
+      const confirmMsg = `Assign weekly schedule for ${siteName}?\n\nTarget Week: ${formatDate(week.start)} – ${formatDate(week.end)}\n${guardNamesList}${restDayText}\n\nThis will assign these guards for the week.`;
       const confirmed = await appDialog.confirm(confirmMsg, {
         title: 'Confirm Weekly Schedule Assignment',
-        confirmText: 'Assign Weekly Roster',
+        confirmText: 'Assign Weekly Schedule',
         icon: 'calendar_month'
       });
       if (!confirmed) return;
@@ -569,8 +600,16 @@
           let totalAssigned = 0;
           let daysCompleted = 0;
           let skippedDays = [];
+          let restDaysSkipped = 0;
 
           for (const day of week.days) {
+            const curDate = parseLocalDate(day);
+            const curDayOfWeek = curDate.getDay();
+            if (restDayValue !== -1 && curDayOfWeek === restDayValue) {
+              restDaysSkipped++;
+              skippedDays.push(`${formatDate(day)}: Scheduled Rest Day (${restDayNames[curDayOfWeek]}) — REST`);
+              continue;
+            }
             try {
               let assignedData = null;
               if (customRosterShifts) {
@@ -631,8 +670,8 @@
           await refreshSchedules();
 
           if (daysCompleted > 0) {
-            const note = skippedDays.length ? ` (${skippedDays.length} day(s) skipped/already scheduled)` : '';
-            appDialog.toast(`Weekly schedule assigned: ${totalAssigned} shifts created across ${daysCompleted} days (${formatDate(week.start)} – ${formatDate(week.end)})${note}.`, { tone: 'success' });
+            const restNote = restDaysSkipped > 0 ? ` (with weekly rest day on ${restDayNames[restDayValue]})` : '';
+            appDialog.toast(`Weekly schedule assigned: ${totalAssigned} shifts created across ${daysCompleted} duty days${restNote}.`, { tone: 'success' });
           } else {
             throw Error(skippedDays[0] || 'Could not assign weekly shifts. Please check for existing schedules.');
           }
@@ -1242,7 +1281,7 @@
     const locObj = (window.locations || locations || []).find(l => l.id === site.value);
     const siteLabel = locObj?.label || 'this site';
     if (filledCount > 0) {
-      appDialog.toast(`Auto-assigned ${filledCount} guard${filledCount === 1 ? '' : 's'} stationed at ${siteLabel}. Click "Assign for whole week (7 days)" to confirm.`, { tone: 'success' });
+      appDialog.toast(`Auto-assigned ${filledCount} guard${filledCount === 1 ? '' : 's'} stationed at ${siteLabel}. Click "Assign weekly schedule" to confirm.`, { tone: 'success' });
     } else {
       appDialog.toast(`No available stationed guards found for ${siteLabel}. Make sure guards are assigned to this site in Personnel.`, { tone: 'warning' });
     }
