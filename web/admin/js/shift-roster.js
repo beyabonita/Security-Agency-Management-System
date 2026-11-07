@@ -622,8 +622,8 @@
       const guardNamesList = ids.map((id, i) => `• ${shifts[i][2]}: ${currentName(id)}`).join('\n');
       const confirmMsg = `Assign weekly schedule for ${siteName}?\n\nTarget Week: ${formatDate(week.start)} – ${formatDate(week.end)}\n${guardNamesList}${restDayText}\n\nThis will assign these guards for the week.`;
       const confirmed = await appDialog.confirm(confirmMsg, {
-        title: 'Confirm Weekly Schedule Assignment',
-        confirmText: 'Assign Weekly Schedule',
+        title: 'Confirm Schedule Assignment',
+        confirmText: 'Assign Schedule',
         icon: 'calendar_month'
       });
       if (!confirmed) return;
@@ -709,11 +709,11 @@
 
           if (daysCompleted > 0) {
             const restNote = restDaysSkipped > 0 ? ` (with weekly rest day on ${restDayNames[restDayValue]})` : '';
-            appDialog.toast(`Weekly schedule assigned: ${totalAssigned} shifts created across ${daysCompleted} duty days${restNote}.`, { tone: 'success' });
+            appDialog.toast(`Schedule assigned: ${totalAssigned} shifts created across ${daysCompleted} duty days${restNote}.`, { tone: 'success' });
           } else {
             throw Error(skippedDays[0] || 'Could not assign weekly shifts. Please check for existing schedules.');
           }
-        }, { label: 'Assigning weekly schedule…' });
+        }, { label: 'Assigning schedule…' });
       } catch (err) {
         appDialog.toast(err.message || 'Could not complete weekly assignment.', { tone: 'danger' });
       } finally {

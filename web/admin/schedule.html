@@ -120,15 +120,10 @@
       <h2 class="h5 fw-bold mb-3" style="color:var(--ax-text, #1C1917);">3. Assign the guards</h2>
       <div id="rosterGuards" class="schedule-form-grid" aria-label="Guards for each shift"></div>
       <p class="text-muted small mt-2 mb-3">Only guards stationed at the selected client are listed. A guard can't take both shifts.</p>
-      <div class="d-flex align-items-center gap-3 flex-wrap mb-3">
-        <button type="button" id="autoAssignRosterBtn" class="btn btn-outline-danger" style="border: 1.5px solid #dc2626; color: #dc2626; background: transparent; border-radius: 8px; font-weight: 600; padding: 7px 18px;">
-          Auto-assign guards
-        </button>
-      </div>
       <div id="rosterPreview" role="status" aria-live="polite" style="display:none !important;" hidden></div>
       <div class="schedule-form-actions d-flex align-items-center gap-2 flex-wrap mt-3">
-        <button id="saveWeeklyRoster" type="button" class="btn btn-danger" style="font-weight:600;"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;">calendar_month</span> Assign weekly schedule</button>
-        <button id="saveRoster" type="button" class="btn btn-outline-secondary" style="font-weight:600;"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;">assignment_turned_in</span> Assign this day only</button>
+        <button id="saveWeeklyRoster" type="button" class="btn btn-danger" style="font-weight:600; min-height:42px; padding: 10px 24px; border-radius:10px;"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;">calendar_month</span> Assign schedule</button>
+        <button id="saveRoster" type="button" style="display:none !important;" hidden></button>
       </div>
       <div id="assignedRoster" aria-live="polite"></div>
     </div>
