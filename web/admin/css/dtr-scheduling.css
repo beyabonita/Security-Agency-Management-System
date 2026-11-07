@@ -493,6 +493,128 @@
   border-color: var(--ax-accent, #dc2626);
   color: var(--ax-accent, #dc2626);
 }
+
+/* Company / Client Cards & Weekly Calendar (Photo 2) */
+.client-deployment-card {
+  border: 1px solid var(--ax-border);
+  border-radius: 12px;
+  background: var(--sl-surface, #fff);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+  user-select: none;
+}
+.client-deployment-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--ax-accent, #dc2626);
+  box-shadow: 0 8px 24px rgba(220, 38, 38, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.client-deployment-card:focus-visible {
+  outline: 2px solid var(--ax-accent, #dc2626);
+  outline-offset: 2px;
+}
+.guard-calendar-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--ax-border, #e2e8f0);
+  border-radius: 12px;
+  background: var(--sl-surface, #fff);
+}
+.guard-calendar-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 860px;
+}
+.guard-calendar-table th,
+.guard-calendar-table td {
+  border: 1px solid var(--ax-border, #e2e8f0);
+  padding: 10px 8px;
+  text-align: center;
+  vertical-align: middle;
+}
+.guard-calendar-table th {
+  background: var(--sl-surface-muted, #f8fafc);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ax-muted, #64748b);
+}
+.guard-calendar-table th.guard-col-header {
+  text-align: left;
+  padding-left: 16px;
+  width: 220px;
+  min-width: 200px;
+}
+.guard-calendar-guard-cell {
+  text-align: left !important;
+  padding: 12px 16px !important;
+  background: var(--sl-surface, #fff);
+}
+.guard-calendar-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #1e293b;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+.guard-calendar-name {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--ax-text, #1e293b);
+  line-height: 1.25;
+}
+.guard-calendar-role {
+  font-size: 0.72rem;
+  color: var(--ax-muted, #64748b);
+  line-height: 1.2;
+}
+.guard-calendar-day-cell {
+  padding: 8px !important;
+}
+.guard-shift-block {
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  line-height: 1.25;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: transform 0.12s ease;
+}
+.guard-shift-block:hover {
+  transform: scale(1.03);
+}
+.shift-color-morning {
+  background: #2563eb;
+  color: #ffffff;
+}
+.shift-color-afternoon {
+  background: #0d9488;
+  color: #ffffff;
+}
+.shift-color-night {
+  background: #d97706;
+  color: #ffffff;
+}
+.shift-color-rest {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border: 1px dashed #cbd5e1;
+}
 @media (max-width: 760px) {
   .bundled-deployments-bar,
   .bundled-deployments-grid {

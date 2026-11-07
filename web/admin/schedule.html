@@ -164,8 +164,15 @@
             </div>
         </div>
         <p class="schedule-list-note">Philippine time (UTC+8)</p>
-        <div class="bundled-deployments-bar" id="bundledDeploymentsBar"><div class="d-flex align-items-center gap-2 flex-wrap"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;color:var(--ax-accent,#dc2626);">business</span><strong style="font-size:0.86rem;">Company / Site Deployment Bundles</strong><span id="bundledDeploymentsSummary" class="bundle-pill bundle-pill-neutral">0 bundles</span></div><div class="d-flex align-items-center gap-2 flex-wrap"><button type="button" class="bundle-quick-btn" onclick="toggleAllDeploymentBundles(true)">Expand all</button><button type="button" class="bundle-quick-btn" onclick="toggleAllDeploymentBundles(false)">Collapse all</button></div></div>
-        <div id="bundledDeploymentsContainer" class="bundled-deployments-grid" aria-label="Bundled deployment sites"></div>
+        <div class="bundled-deployments-bar" id="bundledDeploymentsBar">
+            <div class="d-flex align-items-center gap-2">
+                <span class="material-symbols-rounded" aria-hidden="true" style="font-size:20px;color:var(--ax-accent,#dc2626);">business</span>
+                <strong style="font-size:0.95rem; font-weight:700; color:var(--ax-text, #1C1917);">Company / Client</strong>
+                <span id="bundledDeploymentsSummary" class="bundle-pill bundle-pill-neutral ms-1" style="font-size:0.75rem;">0 clients</span>
+            </div>
+            <div class="text-muted small">Click any client to view its weekly guard schedule calendar</div>
+        </div>
+        <div id="bundledDeploymentsContainer" class="bundled-deployments-grid" aria-label="Company and client deployment sites"></div>
         <div class="table-responsive" tabindex="0" aria-label="Scheduled guard shifts">
             <table class="schedule-table schedule-dtr-table">
                 <thead><tr>
@@ -774,111 +781,311 @@ function formatScheduleDisplay(s) {
 }
 
 // =====================================
-// ITEM #18: BUNDLED DEPLOYMENT VIEW
+// COMPANY / CLIENT SELECTION & WEEKLY CALENDAR (Photo 2)
 // =====================================
-function renderBundledDeployments(filtered) {
+let currentCalendarSiteId = null;
+let currentCalendarWeekStart = null;
+
+function renderBundledDeployments() {
     const container = document.getElementById('bundledDeploymentsContainer');
     const summaryEl = document.getElementById('bundledDeploymentsSummary');
     if (!container) return;
 
-    const bundleMap = new Map();
     const siteFilterEl = document.getElementById('scheduleSiteFilter');
     const selectedSiteId = siteFilterEl ? siteFilterEl.value : '';
 
-    (locations || []).forEach(loc => {
-        if (selectedSiteId && loc.id !== selectedSiteId) return;
-        bundleMap.set(loc.label || loc.id, {
-            id: loc.id,
-            label: loc.label || loc.id,
-            address: loc.address || '',
-            items: []
-        });
+    const activeUserGuards = (guards || []).filter(g => g.active && g.role === 'user');
+
+    const clientList = (locations || []).filter(loc => {
+        if (selectedSiteId && loc.id !== selectedSiteId) return false;
+        return true;
     });
 
-    (filtered || []).forEach(schedule => {
-        const locLabel = schedule.locationLabel || schedule.company || schedule.area || 'Unassigned Deployment Site';
-        if (!bundleMap.has(locLabel)) {
-            const matchedLoc = (locations || []).find(l => l.id === (schedule.locationId || schedule.location_id) || l.label === locLabel);
-            bundleMap.set(locLabel, {
-                id: matchedLoc?.id || schedule.locationId || schedule.location_id || '',
-                label: locLabel,
-                address: schedule.locationAddress || matchedLoc?.address || '',
-                items: []
-            });
-        }
-        bundleMap.get(locLabel).items.push(schedule);
-    });
-
-    const bundles = [...bundleMap.values()].filter(b => b.items.length > 0 || !document.getElementById('schedulePersonnelFilter')?.value);
-    bundles.sort((a, b) => (b.items.length - a.items.length) || a.label.localeCompare(b.label));
+    clientList.sort((a, b) => (a.label || '').localeCompare(b.label || ''));
 
     if (summaryEl) {
-        const activeBundles = bundles.filter(b => b.items.length > 0).length;
-        summaryEl.textContent = `${activeBundles} active ${activeBundles === 1 ? 'bundle' : 'bundles'} · ${(filtered || []).length} ${(filtered || []).length === 1 ? 'shift' : 'shifts'}`;
+        summaryEl.textContent = `${clientList.length} ${clientList.length === 1 ? 'client' : 'clients'}`;
     }
 
-    if (!bundles.length) {
-        container.innerHTML = '';
+    if (!clientList.length) {
+        container.innerHTML = '<div class="text-muted p-4 text-center w-100" style="grid-column: 1 / -1; font-size:0.875rem;">No clients found matching the selected filter.</div>';
         return;
     }
 
-    container.innerHTML = bundles.map((bundle, idx) => {
-        const uniqueGuards = new Set(bundle.items.map(s => s.userId)).size;
-        const sortedItems = [...bundle.items].sort((l, r) => (l.date || '').localeCompare(r.date || '') || (toDate(l.startAt) - toDate(r.startAt)));
-        const isOpen = bundle.items.length > 0 && idx < 4 ? ' open' : '';
-        return `<details class="deployment-bundle-card"${isOpen} data-bundle-site="${escapeHtml(bundle.label)}">
-            <summary class="deployment-bundle-summary">
-                <div class="deployment-bundle-title-wrap">
-                    <span class="deployment-bundle-icon"><span class="material-symbols-rounded" aria-hidden="true">business</span></span>
-                    <div>
-                        <div class="deployment-bundle-title">${escapeHtml(bundle.label)}</div>
-                        <div class="deployment-bundle-sub">${escapeHtml(bundle.address || 'Company deployment bundle')}</div>
-                    </div>
+    container.innerHTML = clientList.map(loc => {
+        const stationedGuards = activeUserGuards.filter(g => (g.assignedLocationId || g.assigned_location_id) === loc.id);
+        const count = stationedGuards.length;
+        return `<div class="client-deployment-card" onclick="openClientScheduleCalendar('${escapeHtml(loc.id)}')" role="button" tabindex="0" title="Click to view weekly schedule calendar for ${escapeHtml(loc.label || 'this client')}">
+            <div class="deployment-bundle-title-wrap">
+                <span class="deployment-bundle-icon"><span class="material-symbols-rounded" aria-hidden="true">business</span></span>
+                <div>
+                    <div class="deployment-bundle-title">${escapeHtml(loc.label || loc.id)}</div>
+                    <div class="deployment-bundle-sub">${escapeHtml(loc.address || 'Deployment site')}</div>
                 </div>
-                <div class="deployment-bundle-badges">
-                    <span class="bundle-pill"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:13px;">groups</span> ${uniqueGuards} ${uniqueGuards === 1 ? 'Guard' : 'Guards'}</span>
-                    <span class="bundle-pill bundle-pill-neutral">${bundle.items.length} ${bundle.items.length === 1 ? 'Shift' : 'Shifts'}</span>
-                    ${bundle.id ? `<button type="button" class="bundle-quick-btn" onclick="event.preventDefault();event.stopPropagation();quickDeploySiteBundle('${escapeHtml(bundle.id)}')">Deploy Roster</button>` : ''}
-                </div>
-            </summary>
-            <div class="deployment-bundle-body">
-                ${sortedItems.length ? sortedItems.map(item => {
-                    const person = guards.find(g => g.id === item.userId);
-                    const start = toDate(item.startAt);
-                    const end = toDate(item.endAt);
-                    const timeRange = start && end ? `${formatTime(start)} – ${formatTime(end)}` : 'Shift';
-                    const dur = start && end ? formatDurationBetween(start, end) : '';
-                    return `<div class="bundle-shift-item">
-                        <div>
-                            <div class="bundle-shift-guard">${escapeHtml(person?.name || item.guardName || 'Guard')}</div>
-                            <div class="bundle-shift-meta">${escapeHtml(formatDate(item.date))} · ${escapeHtml(timeRange)}${dur ? ' · ' + escapeHtml(dur) : ''}</div>
-                        </div>
-                    </div>`;
-                }).join('') : `<div class="bundle-shift-meta">No shifts scheduled in this cut-off yet. Click <strong>Deploy Roster</strong> to assign guards to this site.</div>`}
             </div>
-        </details>`;
+            <div class="deployment-bundle-badges">
+                <span class="bundle-pill"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:13px;">groups</span> ${count} ${count === 1 ? 'Guard' : 'Guards'}</span>
+            </div>
+        </div>`;
     }).join('');
 }
 
-function toggleAllDeploymentBundles(open) {
-    document.querySelectorAll('#bundledDeploymentsContainer .deployment-bundle-card').forEach(el => {
-        el.open = Boolean(open);
-    });
+function getWeekMonday(dateInput) {
+    const d = new Date(dateInput);
+    d.setHours(0, 0, 0, 0);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(d.setDate(diff));
 }
 
-function quickDeploySiteBundle(siteId) {
-    const siteSelect = document.getElementById('rosterSite');
-    if (!siteSelect || !siteId) return;
-    siteSelect.value = siteId;
-    siteSelect.dispatchEvent(new Event('change'));
-    document.querySelector('.shift-roster-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    window.autoAssignShiftRoster?.();
+function formatCalendarDateStr(d) {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 }
+
+function openClientScheduleCalendar(siteId) {
+    currentCalendarSiteId = siteId;
+    const rosterDateEl = document.getElementById('rosterDate');
+    const baseDate = rosterDateEl?.value ? parseLocalDate(rosterDateEl.value) : new Date();
+    currentCalendarWeekStart = getWeekMonday(baseDate);
+
+    renderClientScheduleCalendar();
+
+    const modalEl = document.getElementById('clientScheduleCalendarModal');
+    if (modalEl && window.bootstrap) {
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    }
+}
+
+function navigateCalendarWeek(direction) {
+    if (!currentCalendarWeekStart) currentCalendarWeekStart = getWeekMonday(new Date());
+    if (direction === 0) {
+        currentCalendarWeekStart = getWeekMonday(new Date());
+    } else {
+        currentCalendarWeekStart.setDate(currentCalendarWeekStart.getDate() + (direction * 7));
+    }
+    renderClientScheduleCalendar();
+}
+
+function renderClientScheduleCalendar() {
+    if (!currentCalendarSiteId) return;
+    const loc = (locations || []).find(l => l.id === currentCalendarSiteId);
+    const siteTitleEl = document.getElementById('clientCalendarModalTitle');
+    const siteSubEl = document.getElementById('clientCalendarModalSub');
+    const weekPillEl = document.getElementById('clientCalendarWeekPill');
+    const headerRow = document.getElementById('clientCalendarHeaderRow');
+    const tbody = document.getElementById('clientCalendarBody');
+
+    if (siteTitleEl) siteTitleEl.textContent = `${loc?.label || 'Client'} — Schedule`;
+    if (siteSubEl) siteSubEl.textContent = loc?.address || 'Deployment Site Calendar';
+
+    const weekDays = [];
+    for (let i = 0; i < 7; i++) {
+        const dayDate = new Date(currentCalendarWeekStart);
+        dayDate.setDate(dayDate.getDate() + i);
+        weekDays.push(dayDate);
+    }
+
+    const startMonth = weekDays[0].toLocaleDateString('en-US', { month: 'short' });
+    const endMonth = weekDays[6].toLocaleDateString('en-US', { month: 'short' });
+    const startDay = weekDays[0].getDate();
+    const endDay = weekDays[6].getDate();
+    const year = weekDays[6].getFullYear();
+    if (weekPillEl) {
+        weekPillEl.textContent = `${startMonth} ${startDay} – ${endMonth} ${endDay}, ${year}`;
+    }
+
+    const dayNames = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+    if (headerRow) {
+        headerRow.innerHTML = `
+            <th class="guard-col-header" scope="col">GUARD / PERSONNEL</th>
+            ${weekDays.map((d, idx) => {
+                const dayNum = d.getDate();
+                const isToday = d.toDateString() === new Date().toDateString();
+                return `<th scope="col" class="${isToday ? 'bg-danger-subtle text-danger fw-bold' : ''}">
+                    <div style="font-size:0.75rem; letter-spacing:0.04em;">${dayNames[idx]}</div>
+                    <div style="font-size:1.05rem; font-weight:800; line-height:1.2;">${dayNum}</div>
+                </th>`;
+            }).join('')}
+        `;
+    }
+
+    const activeUserGuards = (guards || []).filter(g => g.active && g.role === 'user');
+    const stationedGuards = activeUserGuards.filter(g => (g.assignedLocationId || g.assigned_location_id) === currentCalendarSiteId);
+
+    const weekDateStrs = weekDays.map(d => formatCalendarDateStr(d));
+    const siteWeekSchedules = (schedules || []).filter(s => {
+        const sLocId = s.locationId || s.location_id;
+        return sLocId === currentCalendarSiteId && weekDateStrs.includes(s.date) && s.approval_status !== 'cancelled';
+    });
+
+    const otherScheduledGuardIds = new Set(siteWeekSchedules.map(s => s.userId));
+    const allRelevantGuards = [...stationedGuards];
+    otherScheduledGuardIds.forEach(uId => {
+        if (!allRelevantGuards.some(g => g.id === uId)) {
+            const found = activeUserGuards.find(g => g.id === uId);
+            if (found) allRelevantGuards.push(found);
+        }
+    });
+
+    allRelevantGuards.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+    if (!tbody) return;
+
+    if (!allRelevantGuards.length) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted p-5">
+            <span class="material-symbols-rounded text-danger" style="font-size:32px;" aria-hidden="true">event_busy</span>
+            <div class="mt-2 fw-semibold">No guards are currently stationed or scheduled at ${escapeHtml(loc?.label || 'this client')} for this week.</div>
+            <div class="small text-muted mt-1">Assign guards in the Scheduling panel above or Personnel management.</div>
+        </td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = allRelevantGuards.map(guard => {
+        const initials = (guard.name || 'Guard').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+        const isStationed = (guard.assignedLocationId || guard.assigned_location_id) === currentCalendarSiteId;
+
+        const dayCells = weekDays.map((d, dayIdx) => {
+            const dateStr = formatCalendarDateStr(d);
+            const guardShiftsOnDay = siteWeekSchedules.filter(s => s.userId === guard.id && s.date === dateStr);
+
+            if (!guardShiftsOnDay.length) {
+                return `<td class="guard-calendar-day-cell text-muted" style="min-width:110px;">
+                    <span class="badge shift-color-rest" style="font-size:0.7rem; font-weight:600; padding:4px 8px; border-radius:6px;">REST</span>
+                </td>`;
+            }
+
+            return `<td class="guard-calendar-day-cell" style="min-width:110px;">
+                ${guardShiftsOnDay.map(shift => {
+                    const start = toDate(shift.startAt);
+                    const end = toDate(shift.endAt);
+                    const timeRange = start && end ? `${formatTime(start)} – ${formatTime(end)}` : 'Shift';
+                    const dur = start && end ? formatDurationBetween(start, end) : '';
+
+                    const startH = start ? start.getHours() : 6;
+                    let colorClass = 'shift-color-morning';
+                    let shiftBadge = 'M';
+                    let shiftType = 'Day Shift';
+                    if (startH >= 12 && startH < 18) {
+                        colorClass = 'shift-color-afternoon';
+                        shiftBadge = 'A';
+                        shiftType = 'Afternoon';
+                    } else if (startH >= 18 || startH < 6) {
+                        colorClass = 'shift-color-night';
+                        shiftBadge = 'N';
+                        shiftType = 'Night Shift';
+                    }
+
+                    return `<div class="guard-shift-block ${colorClass}" title="${escapeHtml(timeRange)}">
+                        <div class="d-flex align-items-center justify-content-between gap-1" style="font-size:0.68rem; opacity:0.92;">
+                            <span class="fw-bold">${shiftBadge}</span>
+                            <span>${dur}</span>
+                        </div>
+                        <div class="fw-bold" style="font-size:0.74rem; white-space:nowrap;">${escapeHtml(timeRange)}</div>
+                        <div style="font-size:0.66rem; opacity:0.9;">${shiftType}</div>
+                    </div>`;
+                }).join('')}
+            </td>`;
+        }).join('');
+
+        return `<tr>
+            <td class="guard-calendar-guard-cell">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="guard-calendar-avatar">${escapeHtml(initials)}</div>
+                    <div>
+                        <div class="guard-calendar-name">${escapeHtml(guard.name || 'Guard')}</div>
+                        <div class="guard-calendar-role">${isStationed ? 'Stationed Guard' : 'Scheduled Guard'}</div>
+                    </div>
+                </div>
+            </td>
+            ${dayCells}
+        </tr>`;
+    }).join('');
+}
+
+function selectSiteForSchedulingFromModal() {
+    if (!currentCalendarSiteId) return;
+    const modalEl = document.getElementById('clientScheduleCalendarModal');
+    if (modalEl && window.bootstrap) {
+        bootstrap.Modal.getInstance(modalEl)?.hide();
+    }
+    const siteSelect = document.getElementById('rosterSite');
+    if (siteSelect) {
+        siteSelect.value = currentCalendarSiteId;
+        siteSelect.dispatchEvent(new Event('change'));
+    }
+    if (currentCalendarWeekStart) {
+        const dateInput = document.getElementById('rosterDate');
+        if (dateInput) {
+            dateInput.value = formatCalendarDateStr(currentCalendarWeekStart);
+            dateInput.dispatchEvent(new Event('change'));
+        }
+    }
+    document.querySelector('.shift-roster-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toggleAllDeploymentBundles() {}
+function quickDeploySiteBundle(siteId) { openClientScheduleCalendar(siteId); }
 
 function _unusedEndHelper() {
 }
 
 </script>
+
+<!-- Client Weekly Guard Schedule Calendar Modal (Photo 2) -->
+<div class="modal fade guard-calendar-modal" id="clientScheduleCalendarModal" tabindex="-1" aria-labelledby="clientCalendarModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content glass-card shadow-lg" style="border-radius:16px; overflow:hidden;">
+            <div class="modal-header border-bottom py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="deployment-bundle-icon" style="width:40px; height:40px;">
+                        <span class="material-symbols-rounded" aria-hidden="true" style="font-size:22px;">calendar_month</span>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fs-6 fw-bold mb-0" id="clientCalendarModalTitle">Client Guard Schedule</h5>
+                        <p class="text-muted small mb-0" id="clientCalendarModalSub">Weekly assignment overview</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <div class="btn-group btn-group-sm">
+                        <button type="button" class="btn btn-outline-secondary" onclick="navigateCalendarWeek(-1)" title="Previous week"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_back</span></button>
+                        <button type="button" class="btn btn-outline-secondary fw-semibold px-3" onclick="navigateCalendarWeek(0)">Today</button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="navigateCalendarWeek(1)" title="Next week"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_forward</span></button>
+                    </div>
+                    <span id="clientCalendarWeekPill" class="badge bg-light text-dark border px-3 py-2 fw-semibold" style="font-size:0.82rem;"></span>
+                    <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="modal-body p-4" style="background:var(--sl-surface-muted, #f8fafc);">
+                <div class="guard-calendar-table-wrap shadow-sm">
+                    <table class="guard-calendar-table" id="clientCalendarTable">
+                        <thead>
+                            <tr id="clientCalendarHeaderRow">
+                                <!-- Generated dynamically -->
+                            </tr>
+                        </thead>
+                        <tbody id="clientCalendarBody">
+                            <!-- Generated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3 pt-2">
+                    <div class="d-flex align-items-center gap-3 flex-wrap small">
+                        <span class="d-flex align-items-center gap-1"><span class="badge shift-color-morning" style="width:12px; height:12px; border-radius:3px; padding:0;"></span> Morning / Day</span>
+                        <span class="d-flex align-items-center gap-1"><span class="badge shift-color-afternoon" style="width:12px; height:12px; border-radius:3px; padding:0;"></span> Afternoon / Evening</span>
+                        <span class="d-flex align-items-center gap-1"><span class="badge shift-color-night" style="width:12px; height:12px; border-radius:3px; padding:0;"></span> Night Shift</span>
+                        <span class="d-flex align-items-center gap-1 text-muted"><span class="badge shift-color-rest" style="width:12px; height:12px; border-radius:3px; padding:0;"></span> REST</span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger fw-semibold" onclick="selectSiteForSchedulingFromModal()">
+                        <span class="material-symbols-rounded align-middle" style="font-size:16px;">calendar_month</span> Set Schedule for this Client
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Edit Roster Shift Times Modal -->
 <div class="modal fade" id="editRosterTimesModal" tabindex="-1" aria-labelledby="editRosterTimesModalLabel" aria-hidden="true">
