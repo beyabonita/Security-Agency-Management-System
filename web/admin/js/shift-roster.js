@@ -66,7 +66,18 @@
     const pill = document.getElementById('rosterDateCutoffPill');
     if (!pill || !date || !date.value) return;
     const cutoff = SchedulePeriod.dtrPeriodForDate(date.value);
-    pill.textContent = cutoff ? `${cutoff.label}` : '';
+    if (!cutoff) {
+      pill.textContent = '';
+      return;
+    }
+    const dStart = new Date(date.value + 'T00:00:00');
+    const dEnd = new Date(cutoff.endDate + 'T00:00:00');
+    const startMonth = dStart.toLocaleDateString("en-US", { month: "short" });
+    const endMonth = dEnd.toLocaleDateString("en-US", { month: "short" });
+    const startDay = dStart.getDate();
+    const endDay = dEnd.getDate();
+    const endYear = dEnd.getFullYear();
+    pill.textContent = `${startMonth} ${startDay} – ${endMonth} ${endDay}, ${endYear}`;
   }
   let saving=false,setupSaving=false,setupLoading=false;
   let savedSetups=[];
