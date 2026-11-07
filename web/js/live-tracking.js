@@ -133,19 +133,17 @@
     return { row, label, val };
   }
 
-  function ensureLocationProfilesUi() {
-    const mapWrap = document.getElementById('trackingMap')?.parentElement;
-    if (!mapWrap) return null;
-    let sitesBar = document.getElementById('trackingSiteChips');
-    if (!sitesBar) {
-      sitesBar = document.createElement('div');
-      sitesBar.id = 'trackingSiteChips';
-      sitesBar.className = 'tracking-site-chips';
-      sitesBar.setAttribute('aria-label', 'Client locations');
-      sitesBar.hidden = true;
-      mapWrap.insertBefore(sitesBar, document.getElementById('trackingMap'));
+  function removeObsoleteUi() {
+    const chips = document.getElementById('trackingSiteChips');
+    if (chips) chips.remove();
+    const panel = document.getElementById('locationGuardsPanel');
+    if (panel) panel.remove();
+    const dir = document.getElementById('trackingCompanyDirectory');
+    if (dir) dir.remove();
+    if (siteLayer && typeof siteLayer.clearLayers === 'function') {
+      siteLayer.clearLayers();
     }
-    return { sitesBar };
+    siteEntries.clear();
   }
 
   function haversineMeters(lat1, lng1, lat2, lng2) {
@@ -735,89 +733,7 @@
     });
   }
 
-  function renderLocationMarkersAndChips(visibleRows, groups) {
-    if (!siteLocations.length) return;
-    const ui = ensureLocationProfilesUi();
-    if (!ui) return;
-    const currentGroups = groups || buildLocationGroups(allOnDutyRows());
-    const query = search?.value || '';
-    const matchingGroups = [...currentGroups.entries()].filter(([, grp]) => groupMatchesQuery(grp, query));
 
-    ui.sitesBar.replaceChildren();
-    if (!currentGroups.size) {
-      ui.sitesBar.hidden = true;
-      return;
-    }
-
-    // Top Quick-Jump Chips Bar above the Map
-    ui.sitesBar.hidden = false;
-    const labelSpan = document.createElement('span');
-    labelSpan.className = 'tracking-site-chips-label';
-    labelSpan.textContent = `Clients & Sites:`;
-    ui.sitesBar.appendChild(labelSpan);
-
-    if (selectedSiteKey) {
-      const allBtn = document.createElement('button');
-      allBtn.type = 'button';
-      allBtn.className = 'tracking-site-chip';
-      allBtn.textContent = '← Show All Clients';
-      allBtn.onclick = clearSelectedClient;
-      ui.sitesBar.appendChild(allBtn);
-    }
-
-    for (const [key, grp] of matchingGroups) {
-      const onlineCount = [...grp.guards.values()].filter(g => g.onDuty && g.state !== 'offline').length;
-      const chip = document.createElement('button');
-      chip.type = 'button';
-      chip.className = 'tracking-site-chip' + (selectedSiteKey === key ? ' is-active' : '');
-      chip.dataset.siteKey = key;
-      chip.textContent = `${grp.label} (${onlineCount} online)`;
-      chip.onclick = () => selectClient(key, true);
-      ui.sitesBar.appendChild(chip);
-    }
-
-    // Map Building / Company Markers
-    for (const [existingKey, existingEntry] of siteEntries) {
-      if (!currentGroups.has(existingKey)) {
-        if (siteLayer && typeof siteLayer.removeLayer === 'function') {
-          siteLayer.removeLayer(existingEntry.marker);
-        }
-        siteEntries.delete(existingKey);
-      }
-    }
-    for (const [key, grp] of currentGroups) {
-      const onlineCount = [...grp.guards.values()].filter(g => g.onDuty && g.state !== 'offline').length;
-      if (map && siteLayer && Number.isFinite(grp.lat) && Number.isFinite(grp.lng) && !siteEntries.has(key)) {
-        const pinEl = document.createElement('div');
-        pinEl.className = 'tracking-site-pin' + (selectedSiteKey === key ? ' is-active' : '');
-        pinEl.title = `${grp.label} (${onlineCount} online)`;
-        pinEl.textContent = `${grp.label} (${onlineCount})`;
-        const icon = typeof L.divIcon === 'function'
-          ? L.divIcon({ className: 'tracking-site-pin-shell', html: pinEl, iconSize: [130, 30], iconAnchor: [65, 15] })
-          : undefined;
-        const sMarker = typeof L.marker === 'function' && icon
-          ? L.marker([grp.lat, grp.lng], { icon })
-          : L.circleMarker([grp.lat, grp.lng], { radius: 9, color: '#991b1b', fillColor: '#dc2626', fillOpacity: 0.9 });
-        sMarker.addTo(siteLayer);
-        if (typeof sMarker.on === 'function') {
-          sMarker.on('click', () => selectClient(key, true));
-        }
-        pinEl.addEventListener('click', (ev) => {
-          ev.stopPropagation();
-          selectClient(key, true);
-        });
-        siteEntries.set(key, { marker: sMarker, pinEl });
-      } else if (siteEntries.has(key)) {
-        const entryObj = siteEntries.get(key);
-        if (Number.isFinite(grp.lat) && Number.isFinite(grp.lng)) {
-          entryObj.marker?.setLatLng?.([grp.lat, grp.lng]);
-        }
-        entryObj.pinEl.textContent = `${grp.label} (${onlineCount})`;
-        entryObj.pinEl.title = `${grp.label} (${onlineCount} online)`;
-        entryObj.pinEl.classList.toggle('is-active', selectedSiteKey === key);
-      }
-    }
-  }
 
   function clear(message) { clearTimeout(accessExpiryTimer);rows=[]; render(); status.textContent=message; }
 
@@ -1007,7 +923,7 @@
     });
 
     renderSidebar(visible, groups);
-    renderLocationMarkersAndChips(visible, groups);
+    removeObsoleteUi();
 
     if(map&&!hasFit&&(visible.some(r=>r.state!=='waiting')||siteLocations.some(l=>l.active!==false&&Number.isFinite(Number(l.latitude??l.lat))&&Number.isFinite(Number(l.longitude??l.lng))))) { fit();hasFit=true; }
   }
