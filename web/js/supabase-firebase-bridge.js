@@ -88,7 +88,11 @@
 
   const storeLocationShifts = (id, label, shiftModel, customShiftHours) => {
     try {
-      const model = shiftModel || '2_shifts_12h';
+      let model = shiftModel || '2_shifts_12h';
+      if (Array.isArray(customShiftHours)) {
+        if (customShiftHours.length === 3) model = '3_shifts_8h';
+        else if (customShiftHours.length === 1) model = '1_shift_8h';
+      }
       const expectedCount = model === '1_shift_8h' ? 1 : (model === '3_shifts_8h' ? 3 : 2);
       const cleanCustom = Array.isArray(customShiftHours) ? customShiftHours.slice(0, expectedCount) : null;
       const payload = JSON.stringify({
@@ -131,7 +135,7 @@
     };
     const allowed = {
       users: ['id', 'username', 'email', 'first_name', 'middle_initial', 'middle_name', 'last_name', 'role', 'organization_id', 'active', 'device_id', 'device_locked', 'created_at', 'personnel_id', 'date_of_birth', 'gender', 'civil_status', 'complete_address', 'emergency_contact', 'profile_photo_url', 'date_hired', 'contract_status', 'license_security_url', 'license_firearms_url', 'mobile_number', 'employment_category', 'contract_start_date', 'contract_end_date', 'assigned_location_id', 'inspector_id', 'removed_at'],
-      locations: ['id', 'label', 'address', 'latitude', 'longitude', 'radius_meters', 'active', 'created_at'],
+      locations: ['id', 'label', 'address', 'latitude', 'longitude', 'radius_meters', 'active', 'created_at', 'shift_model', 'custom_shift_hours'],
       schedules: ['id', 'user_id', 'location_id', 'location_label', 'location_address', 'guard_name', 'start_at', 'end_at', 'duty_date', 'dtr_period', 'duty_category', 'duty_days', 'approval_status', 'marked_done', 'completed_at', 'completed_by', 'created_at'],
       incidents: ['id', 'user_id', 'guard_name', 'guard_email', 'category', 'description', 'photo_data', 'latitude', 'longitude', 'location_label', 'status', 'status_note', 'created_at', 'updated_at', 'updated_by', 'deletion_requested_at', 'archived_at'],
     };
@@ -183,17 +187,25 @@
     if (row && (row.radius_meters !== undefined || row.latitude !== undefined || row.address !== undefined)) {
       const cached = getStoredLocationShifts(row.id, row.label);
       if (cached) {
-        if (!result.shiftModel && !result.shift_model) {
-          result.shiftModel = cached.shiftModel || '2_shifts_12h';
-          result.shift_model = cached.shift_model || '2_shifts_12h';
+        const cachedModel = cached.shiftModel || cached.shift_model;
+        const cachedCustom = cached.customShiftHours || cached.custom_shift_hours;
+        if (!result.shiftModel && !result.shift_model || (result.shift_model === '2_shifts_12h' && cachedModel && cachedModel !== '2_shifts_12h')) {
+          result.shiftModel = cachedModel || '2_shifts_12h';
+          result.shift_model = cachedModel || '2_shifts_12h';
         }
-        if (!result.customShiftHours && !result.custom_shift_hours && (cached.customShiftHours || cached.custom_shift_hours)) {
-          const raw = cached.customShiftHours || cached.custom_shift_hours;
-          const m = result.shiftModel || result.shift_model || '2_shifts_12h';
+        if (!result.customShiftHours && !result.custom_shift_hours && cachedCustom) {
+          const raw = cachedCustom;
+          let m = result.shiftModel || result.shift_model || '2_shifts_12h';
+          if (Array.isArray(raw) && raw.length === 3) m = '3_shifts_8h';
           const maxCount = m === '1_shift_8h' ? 1 : (m === '3_shifts_8h' ? 3 : 2);
           result.customShiftHours = Array.isArray(raw) ? raw.slice(0, maxCount) : raw;
           result.custom_shift_hours = result.customShiftHours;
         }
+      }
+      const customArray = result.customShiftHours || result.custom_shift_hours;
+      if (Array.isArray(customArray) && customArray.length === 3) {
+        result.shiftModel = '3_shifts_8h';
+        result.shift_model = '3_shifts_8h';
       }
     }
     return result;

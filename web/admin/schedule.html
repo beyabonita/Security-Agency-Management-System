@@ -503,8 +503,11 @@ function loadLocations() {
             const d = doc.data();
             const label = d.label || doc.id;
             const address = d.address || "";
-            const shiftModel = d.shiftModel || d.shift_model || "2_shifts_12h";
+            let shiftModel = d.shiftModel || d.shift_model || "2_shifts_12h";
             const customShiftHours = d.customShiftHours || d.custom_shift_hours || null;
+            if (Array.isArray(customShiftHours) && customShiftHours.length === 3) {
+                shiftModel = "3_shifts_8h";
+            }
             locations.push({ id: doc.id, label, address, shiftModel, shift_model: shiftModel, customShiftHours, custom_shift_hours: customShiftHours });
         });
         initScheduleSiteCombobox();

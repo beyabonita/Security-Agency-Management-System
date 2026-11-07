@@ -397,7 +397,34 @@
 
     let model = loc.shift_model || loc.shiftModel || '2_shifts_12h';
     if (model === '2_shifts_12h_07') model = '2_shifts_12h';
-    const customHours = loc.custom_shift_hours || loc.customShiftHours;
+    let customHours = loc.custom_shift_hours || loc.customShiftHours;
+
+    // If customHours was previously sliced to 2 shifts of 8 hours (06:00-14:00 & 14:00-22:00), restore the 3rd shift (22:00-06:00)
+    if (Array.isArray(customHours) && customHours.length === 2) {
+      const s0 = customHours[0];
+      const s1 = customHours[1];
+      if (s0?.start_time === '06:00' && s0?.end_time === '14:00' && s1?.start_time === '14:00' && s1?.end_time === '22:00') {
+        model = '3_shifts_8h';
+        loc.shift_model = '3_shifts_8h';
+        loc.shiftModel = '3_shifts_8h';
+        customHours = [
+          { start_time: '06:00', end_time: '14:00', label: s0.label || 'First Shift' },
+          { start_time: '14:00', end_time: '22:00', label: s1.label || 'Second Shift' },
+          { start_time: '22:00', end_time: '06:00', label: 'Third Shift' }
+        ];
+        loc.custom_shift_hours = customHours;
+        loc.customShiftHours = customHours;
+      }
+    }
+
+    // Auto-detect 3 shifts or 1 shift if customHours array has 3 or 1 items
+    if (Array.isArray(customHours)) {
+      if (customHours.length === 3) {
+        model = '3_shifts_8h';
+      } else if (customHours.length === 1) {
+        model = '1_shift_8h';
+      }
+    }
 
     let targetShifts = null;
     let modelLabel = '';

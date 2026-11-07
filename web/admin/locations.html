@@ -1425,6 +1425,10 @@ async function editLocation(id, button) {
                 const cLen = Array.isArray(d.customShiftHours || d.custom_shift_hours) ? (d.customShiftHours || d.custom_shift_hours).length : 2;
                 rawModel = cLen === 1 ? "1_shift_8h" : (cLen === 3 ? "3_shifts_8h" : "2_shifts_12h");
             }
+            const cHours = d.customShiftHours || d.custom_shift_hours;
+            if (Array.isArray(cHours) && cHours.length === 3) {
+                rawModel = "3_shifts_8h";
+            }
             shiftModelSelect.value = rawModel;
             const customHours = d.customShiftHours || d.custom_shift_hours;
             onSiteShiftModelChange(customHours);
@@ -1801,6 +1805,10 @@ function getSiteShiftRowsData() {
         data.push({ start_time, end_time, label });
     });
     const expectedCount = model === "1_shift_8h" ? 1 : (model === "3_shifts_8h" ? 3 : 2);
+    if (!data.length) {
+        const defaults = SHIFT_MODEL_DEFAULTS[model] || SHIFT_MODEL_DEFAULTS['2_shifts_12h'];
+        return defaults.slice(0, expectedCount);
+    }
     return data.slice(0, expectedCount);
 }
 
