@@ -1508,3 +1508,11 @@
   - Node tests (`password_policy_test.js`, `official_supabase_client_test.js`, `dtr_report_test.js`, `schedule_period_test.js`) -> All passed.
 - **Pending / Next Steps**:
   - Awaiting user review and confirmation before committing/pushing.
+
+### [2026-11-08 01:47] - Streamline Inspector Dashboard (Remove Redundant Shift Roster & Quick Access)
+
+- **Scope & Objective**: Clean up and streamline the Inspector Dashboard (`web/inspector/dashboard.html`) by removing redundant "Quick Access" links (already accessible on sidebar) and "Today's Guard Shift Roster" (already accessible on Guard Tracker), focusing the inspector overview on high-priority KPIs and Active Field Investigations.
+- **Files Modified**:
+  - [`web/inspector/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/dashboard.html): Removed `#liveRosterPanel`, `#liveRosterList`, and Quick Access panel (`My Guards & DTR`, `Duty sites`, `Emergency alerts`), along with unused `formatShiftTime`, `renderLiveRoster`, and roster mapping loops.
+  - [`web/tests/inspector_team.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/inspector_team.spec.js): Updated overview test to verify clean loading without `#liveRosterList`.
+
