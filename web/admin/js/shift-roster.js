@@ -266,8 +266,8 @@
       const labelText = `${shiftPrefix}${p[2]}`;
       return `
       <div class="schedule-field">
-        <label class="form-label fw-semibold" for="rosterGuard${i}">${escapeHtml(labelText)} <span class="req-star" aria-hidden="true">*</span></label>
-        <select id="rosterGuard${i}" class="form-select" aria-required="true" aria-describedby="rosterStatus${i}">
+        <label class="form-label fw-semibold" for="rosterGuard${i}">${escapeHtml(labelText)}</label>
+        <select id="rosterGuard${i}" class="form-select" aria-describedby="rosterStatus${i}">
           <option value="">Select guard</option>
           ${optionsHtml}
         </select>
@@ -596,16 +596,14 @@
       }
       const shifts = periods();
       const ids = selected();
-      const expected = shifts.length;
+      const selectedGuards = ids.filter(Boolean);
 
-      for (let i = 0; i < expected; i++) {
-        if (!ids[i]) {
-          appDialog.toast(`Please select a Guard for ${shifts[i][2]}.`, { tone: 'warning' });
-          return;
-        }
+      if (selectedGuards.length === 0) {
+        appDialog.toast('Please select at least one Guard to assign.', { tone: 'warning' });
+        return;
       }
-      const uniqueSelected = new Set(ids);
-      if (uniqueSelected.size !== expected) {
+      const uniqueSelected = new Set(selectedGuards);
+      if (uniqueSelected.size !== selectedGuards.length) {
         appDialog.toast('Choose a different Guard for each shift slot.', { tone: 'warning' });
         return;
       }
@@ -619,8 +617,13 @@
       const restDayNames = { 0: 'Sunday', 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday' };
       const restDayText = restDayValue !== -1 ? `\n• Weekly Rest Day: Every ${restDayNames[restDayValue]} (skipped in schedule & shows as REST in DTR)` : '\n• Weekly Rest Day: None (7 days straight)';
 
-      const guardNamesList = ids.map((id, i) => `• ${shifts[i][2]}: ${currentName(id)}`).join('\n');
-      const confirmMsg = `Assign weekly schedule for ${siteName}?\n\nTarget Week: ${formatDate(week.start)} – ${formatDate(week.end)}\n${guardNamesList}${restDayText}\n\nThis will assign these guards for the week.`;
+      const assignedEntries = [];
+      shifts.forEach((s, i) => {
+        if (ids[i]) assignedEntries.push(`• ${s[2]}: ${currentName(ids[i])}`);
+        else assignedEntries.push(`• ${s[2]}: (Unassigned)`);
+      });
+      const guardNamesList = assignedEntries.join('\n');
+      const confirmMsg = `Assign weekly schedule for ${siteName}?\n\nTarget Week: ${formatDate(week.start)} – ${formatDate(week.end)}\n${guardNamesList}${restDayText}\n\nThis will assign the selected guard(s) for the week.`;
       const confirmed = await appDialog.confirm(confirmMsg, {
         title: 'Confirm Schedule Assignment',
         confirmText: 'Assign Schedule',
@@ -639,6 +642,7 @@
           let daysCompleted = 0;
           let skippedDays = [];
           let restDaysSkipped = 0;
+          const hasAllGuards = shifts.every((_, i) => !!ids[i]);
 
           for (const day of week.days) {
             const curDate = parseLocalDate(day);
@@ -650,43 +654,47 @@
             }
             try {
               let assignedData = null;
-              if (customRosterShifts) {
-                try {
-                  const { data, error } = await appSupabase.rpc('assign_custom_shift_roster', {
-                    p_location_id: location,
-                    p_duty_date: day,
-                    p_guard_ids: ids,
-                    p_shifts: customRosterShifts
-                  });
-                  if (!error && Array.isArray(data)) assignedData = data;
-                } catch (_) {}
-
-                if (!assignedData) {
-                  assignedData = [];
-                  for (let i = 0; i < ids.length; i++) {
-                    if (!available(day, shifts[i], now)) continue;
-                    const { data: dtrData, error: dtrErr } = await appSupabase.rpc('create_dtr_schedule', {
-                      p_user_id: ids[i],
+              if (hasAllGuards) {
+                if (customRosterShifts) {
+                  try {
+                    const { data, error } = await appSupabase.rpc('assign_custom_shift_roster', {
                       p_location_id: location,
                       p_duty_date: day,
-                      p_periods: [{ period: 'auto', start_time: shifts[i][0], end_time: shifts[i][1], next_day: false }]
+                      p_guard_ids: ids,
+                      p_shifts: customRosterShifts
                     });
-                    if (dtrErr) throw dtrErr;
-                    if (Array.isArray(dtrData)) assignedData.push(...dtrData);
-                    else if (dtrData) assignedData.push(dtrData);
-                  }
+                    if (!error && Array.isArray(data)) assignedData = data;
+                  } catch (_) {}
+                } else if (chosenSetup) {
+                  try {
+                    const args = {
+                      p_location_id: location,
+                      p_duty_date: day,
+                      p_guard_ids: ids,
+                      p_setup_id: chosenSetup.id,
+                      p_expected_version: chosenSetup.version
+                    };
+                    const { data, error } = await appSupabase.rpc('assign_saved_shift_roster', args);
+                    if (!error && Array.isArray(data)) assignedData = data;
+                  } catch (_) {}
                 }
-              } else {
-                const args = {
-                  p_location_id: location,
-                  p_duty_date: day,
-                  p_guard_ids: ids,
-                  p_setup_id: chosenSetup.id,
-                  p_expected_version: chosenSetup.version
-                };
-                const { data, error } = await appSupabase.rpc('assign_saved_shift_roster', args);
-                if (error) throw error;
-                assignedData = data;
+              }
+
+              if (!assignedData) {
+                assignedData = [];
+                for (let i = 0; i < ids.length; i++) {
+                  if (!ids[i]) continue;
+                  if (!available(day, shifts[i], now)) continue;
+                  const { data: dtrData, error: dtrErr } = await appSupabase.rpc('create_dtr_schedule', {
+                    p_user_id: ids[i],
+                    p_location_id: location,
+                    p_duty_date: day,
+                    p_periods: [{ period: 'auto', start_time: shifts[i][0], end_time: shifts[i][1], next_day: false }]
+                  });
+                  if (dtrErr) throw dtrErr;
+                  if (Array.isArray(dtrData)) assignedData.push(...dtrData);
+                  else if (dtrData) assignedData.push(dtrData);
+                }
               }
 
               if (Array.isArray(assignedData) && assignedData.length) {
@@ -707,7 +715,7 @@
           setScheduleListPeriod(week.start);
           await refreshSchedules();
 
-          if (daysCompleted > 0) {
+          if (daysCompleted > 0 || totalAssigned > 0) {
             const restNote = restDaysSkipped > 0 ? ` (with weekly rest day on ${restDayNames[restDayValue]})` : '';
             appDialog.toast(`Schedule assigned: ${totalAssigned} shifts created across ${daysCompleted} duty days${restNote}.`, { tone: 'success' });
           } else {
@@ -732,13 +740,14 @@
     const chosenSetup=customSetup(),day=date.value,location=site.value,now=new Date();
     if(!chosenSetup && !customRosterShifts)return;
     const shifts=periods(),ids=selected().map((id,i)=>available(day,shifts[i],now)?id:null);
-    const active=ids.filter((_,i)=>available(day,shifts[i],now)),expected=active.length;
-    if(!location||!day||day<todayDateString()||active.some(id=>!id)||new Set(active).size!==expected){
-      appDialog.toast('Choose a site, today or a future date, and a different Guard for every shift.',{tone:'warning'});return;
+    const selectedActive=ids.filter(Boolean);
+    if(!location||!day||day<todayDateString()||selectedActive.length===0||new Set(selectedActive).size!==selectedActive.length){
+      appDialog.toast('Choose a site, today or a future date, and at least one Guard for an active shift.',{tone:'warning'});return;
     }
-    if(!expected){appDialog.toast('No ongoing or upcoming shifts remain on this date. Choose today or a future date.',{tone:'warning'});return;}
+    const availableSlots = shifts.filter(p => available(day, p, now));
+    if(!availableSlots.length){appDialog.toast('No ongoing or upcoming shifts remain on this date. Choose today or a future date.',{tone:'warning'});return;}
     for(const [i,p] of periods().entries()){
-      if(!available(day,p,now))continue;
+      if(!available(day,p,now)||!ids[i])continue;
       const plan=SchedulePeriod.buildDutyPlan(day,[{period:'auto',start_time:p[0],end_time:p[1],next_day:false}]);
       const guard=guards.find(g=>g.id===ids[i]);
       const error=plan.error || (!guard?.active?'Choose active Guards.':ContractPeriod.dutyError(guard,plan.periods[0].startAt,plan.periods[0].endAt));
@@ -752,53 +761,54 @@
     try{
       await appDialog.runBusy(button,async()=>{
         let assignedData = null;
-        if (customRosterShifts) {
-          try {
-            const { data, error } = await appSupabase.rpc('assign_custom_shift_roster', {
-              p_location_id: location,
-              p_duty_date: day,
-              p_guard_ids: ids,
-              p_shifts: customRosterShifts
-            });
-            if (!error && Array.isArray(data)) {
-              assignedData = data;
-            } else if (error && error.code !== 'PGRST202' && !error.message?.includes('assign_custom_shift_roster')) {
-              throw error;
-            }
-          } catch (rpcErr) {
-            if (rpcErr.code !== 'PGRST202' && !rpcErr.message?.includes('assign_custom_shift_roster')) {
-              throw rpcErr;
-            }
-          }
-
-          if (!assignedData) {
-            assignedData = [];
-            for (let i = 0; i < ids.length; i++) {
-              if (!available(day, shifts[i], now)) continue;
-              const { data: dtrData, error: dtrErr } = await appSupabase.rpc('create_dtr_schedule', {
-                p_user_id: ids[i],
+        const hasAllActive = periods().every((p, i) => !available(day, p, now) || !!ids[i]);
+        if (hasAllActive) {
+          if (customRosterShifts) {
+            try {
+              const { data, error } = await appSupabase.rpc('assign_custom_shift_roster', {
                 p_location_id: location,
                 p_duty_date: day,
-                p_periods: [{ period: 'auto', start_time: shifts[i][0], end_time: shifts[i][1], next_day: false }]
+                p_guard_ids: ids,
+                p_shifts: customRosterShifts
               });
-              if (dtrErr) throw dtrErr;
-              if (Array.isArray(dtrData)) assignedData.push(...dtrData);
-              else if (dtrData) assignedData.push(dtrData);
-            }
+              if (!error && Array.isArray(data)) {
+                assignedData = data;
+              }
+            } catch (_) {}
+          } else if (chosenSetup) {
+            try {
+              const args={p_location_id:location,p_duty_date:day,p_guard_ids:ids};
+              args.p_setup_id=chosenSetup.id;args.p_expected_version=chosenSetup.version;
+              const {data,error}=await appSupabase.rpc('assign_saved_shift_roster',args);
+              if(!error && Array.isArray(data)) {
+                assignedData = data;
+                chosenSetup.in_use=true;setupRevision++;managementControls();
+              }
+            } catch (_) {}
           }
+        }
 
-          if (!Array.isArray(assignedData) || assignedData.length !== expected) {
-            throw Error('Could not confirm all assignments. Refresh the schedule before retrying.');
+        if (!assignedData) {
+          assignedData = [];
+          for (let i = 0; i < ids.length; i++) {
+            if (!ids[i]) continue;
+            if (!available(day, shifts[i], now)) continue;
+            const { data: dtrData, error: dtrErr } = await appSupabase.rpc('create_dtr_schedule', {
+              p_user_id: ids[i],
+              p_location_id: location,
+              p_duty_date: day,
+              p_periods: [{ period: 'auto', start_time: shifts[i][0], end_time: shifts[i][1], next_day: false }]
+            });
+            if (dtrErr) throw dtrErr;
+            if (Array.isArray(dtrData)) assignedData.push(...dtrData);
+            else if (dtrData) assignedData.push(dtrData);
           }
-          customRosterShifts = null;
-        } else {
-          const args={p_location_id:location,p_duty_date:day,p_guard_ids:ids};
-          args.p_setup_id=chosenSetup.id;args.p_expected_version=chosenSetup.version;
-          const {data,error}=await appSupabase.rpc('assign_saved_shift_roster',args);
-          if(error)throw error;
-          if(!Array.isArray(data)||data.length!==expected)throw Error('Could not confirm all assignments. Refresh the schedule before retrying.');
-          chosenSetup.in_use=true;setupRevision++;managementControls();
-          assignedData = data;
+        }
+
+        if (chosenSetup) {
+          chosenSetup.in_use = true;
+          setupRevision++;
+          managementControls();
         }
 
         setScheduleListPeriod(day);await refreshSchedules();
