@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:flutter_application_1/widgets/duty_tracking_scope.dart';
 import 'package:flutter_application_1/models/contract_period.dart';
 
@@ -79,6 +80,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _showIncomingNotification(AppNotification notification) async {
+    try {
+      SystemSound.play(SystemSoundType.alert);
+      HapticFeedback.mediumImpact();
+    } catch (_) {}
     if (notification.isCritical &&
         notification.needsAcknowledgement &&
         !_criticalDialogOpen) {

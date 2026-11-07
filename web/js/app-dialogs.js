@@ -88,9 +88,69 @@
     }
   }
 
+  function playNotificationSound(tone) {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const audio = new AudioCtx();
+      if (audio.state === 'suspended') {
+        audio.resume().catch(function () {});
+      }
+      const now = audio.currentTime;
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+
+      osc.type = 'sine';
+
+      if (tone === 'danger') {
+        osc.frequency.setValueAtTime(480, now);
+        osc.frequency.setValueAtTime(360, now + 0.12);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.12, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+        osc.connect(gain);
+        gain.connect(audio.destination);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else {
+        const osc2 = audio.createOscillator();
+        osc2.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, now);
+        osc2.frequency.setValueAtTime(783.99, now + 0.1);
+
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.1, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.32);
+
+        osc.connect(gain);
+        osc2.connect(gain);
+        gain.connect(audio.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.12);
+        osc2.start(now + 0.1);
+        osc2.stop(now + 0.32);
+
+        osc2.addEventListener('ended', function () {
+          try { audio.close(); } catch (_) {}
+        });
+        return;
+      }
+
+      osc.addEventListener('ended', function () {
+        try { audio.close(); } catch (_) {}
+      });
+    } catch (_) {
+      // Browsers may block audio until the page has received user interaction
+    }
+  }
+
   function toast(message, options) {
     const opts = options || {};
     const tone = opts.tone || 'info';
+    if (!opts.silent) {
+      playNotificationSound(tone);
+    }
     const icons = { success: 'check_circle', danger: 'error', warning: 'warning', info: 'info' };
     const item = document.createElement('div');
     item.className = 'sl-toast';
@@ -272,6 +332,7 @@
   const appDialog = {
     open: open,
     toast: toast,
+    playSound: playNotificationSound,
     setBusy: setBusy,
     runBusy: runBusy,
     alert: function (message, options) {
