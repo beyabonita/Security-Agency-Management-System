@@ -1187,21 +1187,22 @@
       clear('Only active Operations Heads and assigned Inspectors can view live locations.');return;
     }
     authSubscription=client.auth.onAuthStateChange(event=>{if(event==='SIGNED_OUT')stop();}).data?.subscription;
-    function loadSiteAndProfileCatalog() {
+    async function loadSiteAndProfileCatalog() {
       try {
-        const locQuery=client.from('locations')?.select('id,label,address,latitude,longitude,radius,active');
+        const locQuery=client.from('locations')?.select('id,label,address,latitude,longitude,radius_meters,active');
         const guardQuery=client.from('profiles')?.select('id,first_name,middle_initial,last_name,username,personnel_id,employment_category,contract_start_date,contract_end_date,mobile_number,complete_address,emergency_contact,profile_photo_url,assigned_location_id,role,active');
         if(typeof locQuery?.then==='function' && typeof guardQuery?.then==='function') {
-          Promise.all([locQuery,guardQuery]).then(([locRes,guardRes])=>{
-            if(Array.isArray(locRes?.data)) siteLocations=locRes.data;
-            if(Array.isArray(guardRes?.data)) assignedGuards=guardRes.data;
-            if(!stopped) render();
-          }).catch(()=>{});
+          const [locRes,guardRes]=await Promise.all([locQuery,guardQuery]);
+          if(Array.isArray(locRes?.data)) {
+            siteLocations=locRes.data.map(l=>({...l,radius:Number(l.radius_meters??l.radius)||100}));
+          }
+          if(Array.isArray(guardRes?.data)) assignedGuards=guardRes.data;
+          if(!stopped) render();
         }
       } catch(_) {}
     }
     refreshButton.onclick=()=>{ loadSiteAndProfileCatalog(); refresh(); };
-    loadSiteAndProfileCatalog();
+    await loadSiteAndProfileCatalog();
     channel=client.channel('live-guards:'+data.user.id,{config:{private:true}}).on('broadcast',{
       event:'location_changed'
     },scheduleRefresh).subscribe(state=>{
