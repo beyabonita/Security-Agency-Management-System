@@ -49,7 +49,7 @@
     const noticeEl = document.getElementById('stationedGuardsNotice');
     if (!noticeEl) return;
     if (!site || !site.value) {
-      noticeEl.textContent = 'Select a client to view stationed guards.';
+      noticeEl.textContent = '';
       return;
     }
     const activeUserGuards = (window.guards || guards || []).filter(g => g.active && g.role === 'user');
@@ -57,7 +57,7 @@
     const locObj = (window.locations || locations || []).find(l => l.id === site.value);
     const siteName = locObj?.label || 'this client';
     if (stationed.length === 0) {
-      noticeEl.innerHTML = `<span class="text-warning">0 guards are stationed at ${escapeHtml(siteName)}.</span> <a href="users.html" class="small ms-1">Assign guards in Personnel</a>.`;
+      noticeEl.textContent = '';
     } else {
       noticeEl.textContent = `${stationed.length} ${stationed.length === 1 ? 'guard is' : 'guards are'} stationed at ${siteName}.`;
     }

@@ -56,10 +56,10 @@
 
     <div class="section-title">Assign a 24-hour guard roster</div>
     
-    <div class="row g-3 mb-3">
+    <div class="row g-3 mb-3" style="position: relative; z-index: 30;">
       <!-- Step 1: Choose the client -->
-      <div class="col-lg-6">
-        <div class="glass-card p-4 h-100" style="border-radius:14px;">
+      <div class="col-lg-6" style="position: relative; z-index: 30;">
+        <div class="glass-card p-4 h-100" style="border-radius:14px; position: relative; z-index: 30; overflow: visible;">
           <h2 class="h5 fw-bold mb-3" style="color:var(--ax-text, #1C1917);">1. Choose the client</h2>
           <div class="schedule-field roster-site-field mb-0">
             <label class="form-label fw-semibold" for="rosterSite">Client</label>
@@ -75,7 +75,7 @@
               <div id="rosterSiteMenu" class="roster-combobox-menu" role="listbox" hidden></div>
               <select id="rosterSite" class="form-select roster-site-hidden-select" tabindex="-1" aria-hidden="true"><option value="">Select location</option></select>
             </div>
-            <div id="stationedGuardsNotice" class="text-muted small mt-2">Select a client to view stationed guards.</div>
+            <div id="stationedGuardsNotice" class="text-muted small mt-2"></div>
           </div>
           <div class="schedule-field" style="display:none;" aria-hidden="true">
             <label class="form-label" for="rosterSetup">Shifting setup</label>
@@ -116,7 +116,7 @@
     </div>
 
     <!-- Step 3: Assign the guards -->
-    <div class="glass-card mb-4 p-4 shift-roster-card" style="border-radius:14px;">
+    <div class="glass-card mb-4 p-4 shift-roster-card" style="border-radius:14px; position: relative; z-index: 1;">
       <h2 class="h5 fw-bold mb-3" style="color:var(--ax-text, #1C1917);">3. Assign the guards</h2>
       <div id="rosterGuards" class="schedule-form-grid" aria-label="Guards for each shift"></div>
       <p class="text-muted small mt-2 mb-3">Only guards stationed at the selected client are listed. A guard can't take both shifts.</p>
