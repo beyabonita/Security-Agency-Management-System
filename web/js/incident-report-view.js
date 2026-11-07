@@ -168,8 +168,7 @@
     const history = Array.isArray(incident.reviewHistory) ? incident.reviewHistory : [];
     const roles = { inspector: 'Inspector', admin: 'Operations Head', operations_head: 'Operations Head', it_admin: 'IT Admin', user: 'Guard', guard: 'Guard' };
     if (!history.length) {
-      return '<div class="incident-response-block"><span class="incident-response-label">Reviewer</span><p class="incident-report-copy">'
-        + (incident.updatedBy ? 'Reviewer details not recorded for this earlier update.' : 'No recorded review yet.') + '</p></div>';
+      return '';
     }
     return history.slice().reverse().filter(entry => entry && typeof entry === 'object').map(entry => {
       const action = entry.status === 'under_investigation'
@@ -276,7 +275,6 @@
           <section class="incident-report-card" aria-labelledby="incidentResponseHeading">
             <div class="incident-report-card-head"><h3 id="incidentResponseHeading">Response and review</h3><span>${escapeHtml(updatedAt)}</span></div>
             <div class="incident-report-card-body">
-              <div class="incident-response-block"><span class="incident-response-label">Immediate action</span><p class="incident-report-copy">${escapeHtml(immediateAction)}</p></div>
               ${Array.isArray(incident.reviewHistory) && incident.reviewHistory.length ? '' : `<div class="incident-response-block"><span class="incident-response-label">Reviewer note</span><p class="incident-report-copy">${escapeHtml(statusNote)}</p></div>`}
               ${reviewHistoryMarkup(incident, formatWhen)}
             </div>
