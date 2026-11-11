@@ -1791,8 +1791,50 @@ let allGuards              = [];
 let allInspectors          = [];
 let guardSchedulesByUserId = {};
 let guardHistoryShiftByUserId = {};
+let guardAssignmentHistoryByGuardId = {};
 let guardSearchDebounceTimer = null;
 let inspectorSearchDebounceTimer = null;
+
+function resolveGuardPost(guardId, data, locationsById) {
+    let locId = data?.assignedLocationId || data?.assigned_location_id || null;
+    let companyName = "";
+    let locationAddress = "";
+
+    // 1. Direct explicit assignedLocationId from profile
+    if (locId) {
+        const details = (personnelLocationDetailsById && personnelLocationDetailsById[locId]) || {};
+        companyName = details.label || (locationsById && locationsById[locId]) || "";
+        locationAddress = details.address || "";
+    }
+
+    // 2. If not found or empty, look up in guard's active / upcoming / latest schedules
+    if (!companyName) {
+        const scheds = (guardSchedulesByUserId && guardSchedulesByUserId[guardId]) || [];
+        const activeScheds = scheds.filter(s => s.approval_status !== 'cancelled' && (s.location_id || s.location_label));
+        if (activeScheds.length) {
+            const todayStr = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+            const sched = activeScheds.find(s => s.duty_date === todayStr) ||
+                          activeScheds.find(s => s.duty_date >= todayStr) ||
+                          activeScheds[0];
+            if (sched) {
+                const sLocId = sched.location_id;
+                const details = (sLocId && personnelLocationDetailsById && personnelLocationDetailsById[sLocId]) || {};
+                companyName = details.label || sched.location_label || (sLocId && locationsById && locationsById[sLocId]) || "";
+                locationAddress = details.address || sched.location_address || "";
+            }
+        }
+    }
+
+    // 3. If still not found, check active guard_assignment_history
+    if (!companyName && guardAssignmentHistoryByGuardId && guardAssignmentHistoryByGuardId[guardId]) {
+        const histLocId = guardAssignmentHistoryByGuardId[guardId];
+        const details = (personnelLocationDetailsById && personnelLocationDetailsById[histLocId]) || {};
+        companyName = details.label || (locationsById && locationsById[histLocId]) || "";
+        locationAddress = details.address || "";
+    }
+
+    return companyName ? { companyName, locationAddress } : null;
+}
 
 function getGuardContractStatus(data, today) {
     if (data.employmentCategory !== 'contract') return 'regular';
@@ -1946,10 +1988,9 @@ function matchesGuardSearch(data, searchQuery) {
         ? "@" + rawEmail
         : "";
 
-    const locId = data.assignedLocationId || data.assigned_location_id || "";
-    const locDetails = (locId && personnelLocationDetailsById && personnelLocationDetailsById[locId]) || {};
-    const postLabel = locId ? (locDetails.label || (personnelLocationsById && personnelLocationsById[locId]) || "") : "";
-    const postAddress = locId ? (locDetails.address || "") : "";
+    const resolvedPost = resolveGuardPost(data.id, data, personnelLocationsById);
+    const postLabel = resolvedPost ? resolvedPost.companyName : "";
+    const postAddress = resolvedPost ? resolvedPost.locationAddress : "";
 
     const candidates = [
         displayFullName,
@@ -2250,12 +2291,18 @@ async function loadUsers() {
         }
 
         guardHistoryShiftByUserId = {};
+        guardAssignmentHistoryByGuardId = {};
         for (const h of (historyResult.data || [])) {
-            if (!h.guard_id || guardHistoryShiftByUserId[h.guard_id]) continue;
-            if (/night\s*shift/i.test(h.remarks || '')) {
-                guardHistoryShiftByUserId[h.guard_id] = 'Night Shift';
-            } else if (/day\s*shift/i.test(h.remarks || '')) {
-                guardHistoryShiftByUserId[h.guard_id] = 'Day Shift';
+            if (!h.guard_id) continue;
+            if (!guardHistoryShiftByUserId[h.guard_id]) {
+                if (/night\s*shift/i.test(h.remarks || '')) {
+                    guardHistoryShiftByUserId[h.guard_id] = 'Night Shift';
+                } else if (/day\s*shift/i.test(h.remarks || '')) {
+                    guardHistoryShiftByUserId[h.guard_id] = 'Day Shift';
+                }
+            }
+            if (!guardAssignmentHistoryByGuardId[h.guard_id] && !h.ended_at && h.location_id) {
+                guardAssignmentHistoryByGuardId[h.guard_id] = h.location_id;
             }
         }
 
@@ -2352,28 +2399,17 @@ function renderContractStatusCell(data) {
 }
 
 function renderAssignedPostCell(id, data, locationsById) {
-    const locId = data.assignedLocationId;
-    if (!locId) {
+    const post = resolveGuardPost(id, data, locationsById);
+    if (!post || !post.companyName) {
         return `<span class="text-muted">Not assigned</span>`;
     }
-    const locDetails = (personnelLocationDetailsById && personnelLocationDetailsById[locId]) || {};
-    const companyName = locDetails.label || (locationsById && locationsById[locId]) || "Assigned post unavailable";
-    const locationAddress = locDetails.address || "";
-    const shift = resolveGuardShift(id, data);
-    const isNight = shift === "Night Shift";
 
     return `<div class="assigned-post-cell">
         <div class="assigned-post-company">
             <span class="material-symbols-rounded align-middle me-1" style="font-size:15px;color:var(--sl-danger);" aria-hidden="true">business</span>
-            <strong>${escapeHtml(companyName)}</strong>
+            <strong>${escapeHtml(post.companyName)}</strong>
         </div>
-        ${locationAddress ? `<div class="assigned-post-location small text-muted"><span class="material-symbols-rounded align-middle me-1" style="font-size:13px;" aria-hidden="true">location_on</span>${escapeHtml(locationAddress)}</div>` : ''}
-        <div class="assigned-post-shift mt-1">
-            <span class="badge ${isNight ? 'badge-shift-night' : 'badge-shift-day'}">
-                <span class="material-symbols-rounded align-middle me-1" style="font-size:13px;" aria-hidden="true">${isNight ? 'dark_mode' : 'light_mode'}</span>
-                ${escapeHtml(shift)}
-            </span>
-        </div>
+        ${post.locationAddress ? `<div class="assigned-post-location small text-muted"><span class="material-symbols-rounded align-middle me-1" style="font-size:13px;" aria-hidden="true">location_on</span>${escapeHtml(post.locationAddress)}</div>` : ''}
     </div>`;
 }
 
@@ -2652,7 +2688,8 @@ async function viewAssignmentHistory(guardId) {
     const statusClass = account.active !== false ? "badge-active" : "badge-disabled";
     const personnelId = account.personnelId || ('SEC-' + guardId.slice(0, 8).toUpperCase());
     const initials = (account.firstName?.[0] || "") + (account.lastName?.[0] || "") || "G";
-    const currentPostLabel = account.assignedLocationId ? (personnelLocationsById[account.assignedLocationId] || "Assigned post") : "Unassigned";
+    const resolvedHistoryPost = resolveGuardPost(guardId, account, personnelLocationsById);
+    const currentPostLabel = resolvedHistoryPost ? resolvedHistoryPost.companyName : "Unassigned";
 
     // Update Header
     document.getElementById('assignmentHistoryGuardName').textContent = fullName;
@@ -4408,7 +4445,8 @@ function renderPersonnelProfileBody(uid) {
     const statusClass = account.active !== false ? "badge-active" : "badge-disabled";
     const contractStatus = account.contractStatus || (account.active !== false ? "Active" : "Inactive");
     const serviceLength = calculateServiceDuration(account.dateHired);
-    const assignedLocation = account.assignedLocationId ? (personnelLocationsById[account.assignedLocationId] || "Assigned post unavailable") : "Not assigned";
+    const resolvedProfilePost = resolveGuardPost(uid, account, personnelLocationsById);
+    const assignedLocation = resolvedProfilePost ? resolvedProfilePost.companyName : "Not assigned";
     const inspectorAccount = account.inspectorId ? personnelAccounts[account.inspectorId] : null;
     const inspectorName = inspectorAccount ? personnelDisplayName(inspectorAccount) : "All Inspectors (Agency-wide)";
 
