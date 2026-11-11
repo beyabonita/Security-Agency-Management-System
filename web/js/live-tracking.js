@@ -244,17 +244,64 @@
 
     let totalDistanceMeters = 0;
     for (let i = 0; i < points.length - 1; i++) {
-      totalDistanceMeters += haversineMeters(points[i].latitude, points[i].longitude, points[i + 1].latitude, points[i + 1].longitude);
+      const stepDist = haversineMeters(points[i].latitude, points[i].longitude, points[i + 1].latitude, points[i + 1].longitude);
+      // Filter out stationary GPS noise (< 15 meters) from movement tally
+      if (stepDist >= 15) {
+        totalDistanceMeters += stepDist;
+      }
     }
 
+    let activePinMarker = null;
     if (map && window.L) {
       if (!historyLayer && typeof L.layerGroup === 'function') historyLayer = L.layerGroup().addTo(map);
       if (historyLayer && typeof historyLayer.clearLayers === 'function') historyLayer.clearLayers();
-      if (points.length >= 2 && typeof L.polyline === 'function' && historyLayer) {
-        L.polyline(points.map(p => [p.latitude, p.longitude]), { color: '#2563eb', weight: 3, dashArray: '6, 6', opacity: 0.85 }).addTo(historyLayer);
-      }
-      if (points.length && typeof map.setView === 'function') {
-        map.setView([points[0].latitude, points[0].longitude], 17);
+
+      if (points.length) {
+        // 1. Initial point (start of tracking history) - Green Checkpoint Pin
+        const initialPt = points[points.length - 1];
+        const initialTime = new Date(initialPt.captured_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' });
+        L.circleMarker([initialPt.latitude, initialPt.longitude], {
+          radius: 7,
+          fillColor: '#16a34a',
+          color: '#ffffff',
+          weight: 2,
+          fillOpacity: 0.95
+        }).bindPopup(`<strong>Initial Checkpoint</strong><br>${initialTime}<br>Accuracy: ±${Math.round(initialPt.accuracy_meters)} m`).addTo(historyLayer);
+
+        // 2. Intermediate waypoints - only plot distinct stops if guard moved >= 15m
+        let lastPlotted = points[points.length - 1];
+        for (let i = points.length - 2; i > 0; i--) {
+          const pt = points[i];
+          const dist = haversineMeters(pt.latitude, pt.longitude, lastPlotted.latitude, lastPlotted.longitude);
+          if (dist >= 15) {
+            const timeStr = new Date(pt.captured_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' });
+            L.circleMarker([pt.latitude, pt.longitude], {
+              radius: 5,
+              fillColor: '#64748b',
+              color: '#ffffff',
+              weight: 1.5,
+              fillOpacity: 0.85
+            }).bindPopup(`<strong>Checkpoint #${points.length - i}</strong><br>${timeStr}<br>Displacement: +${Math.round(dist)} m`).addTo(historyLayer);
+            lastPlotted = pt;
+          }
+        }
+
+        // 3. Latest point - Blue Pulse Pin (if distinct from initial)
+        if (points.length > 1) {
+          const latestPt = points[0];
+          const latestTime = new Date(latestPt.captured_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' });
+          L.circleMarker([latestPt.latitude, latestPt.longitude], {
+            radius: 8,
+            fillColor: '#2563eb',
+            color: '#ffffff',
+            weight: 2.5,
+            fillOpacity: 0.95
+          }).bindPopup(`<strong>Latest Position</strong><br>${latestTime}<br>Accuracy: ±${Math.round(latestPt.accuracy_meters)} m`).addTo(historyLayer);
+        }
+
+        if (typeof map.setView === 'function') {
+          map.setView([points[0].latitude, points[0].longitude], 17);
+        }
       }
     }
 
@@ -268,7 +315,9 @@
     title.textContent = `${guardName} — Location History (${points.length} pts)`;
     const sub = document.createElement('p');
     sub.className = 'tracking-location-panel-sub';
-    sub.textContent = `Total tracked movement: ${Math.round(totalDistanceMeters)} m · Stored in Guard Location History`;
+    sub.textContent = totalDistanceMeters >= 15
+      ? `Total tracked movement: ${Math.round(totalDistanceMeters)} m · Stored in Guard Location History`
+      : `Stationary at post (no significant displacement) · Stored in Guard Location History`;
     titleWrap.append(title, sub);
 
     const closeBtn = document.createElement('button');
@@ -314,7 +363,21 @@
       jumpBtn.style.marginTop = '0';
       jumpBtn.textContent = 'Pin on Map';
       jumpBtn.onclick = () => {
-        map?.setView([pt.latitude, pt.longitude], 18);
+        if (map && window.L) {
+          map.setView([pt.latitude, pt.longitude], 18);
+          if (activePinMarker && historyLayer) historyLayer.removeLayer(activePinMarker);
+          activePinMarker = L.circleMarker([pt.latitude, pt.longitude], {
+            radius: 10,
+            fillColor: '#f59e0b',
+            color: '#ffffff',
+            weight: 3,
+            fillOpacity: 0.95
+          }).bindPopup(`<strong>Checkpoint #${points.length - idx}</strong><br>${timeLabel}<br>±${Math.round(pt.accuracy_meters)} m`);
+          if (historyLayer) {
+            activePinMarker.addTo(historyLayer);
+            activePinMarker.openPopup();
+          }
+        }
       };
       item.append(info, jumpBtn);
       listWrap.appendChild(item);
