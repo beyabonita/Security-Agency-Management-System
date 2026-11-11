@@ -224,6 +224,19 @@
         if (Array.isArray(res?.data)) dbPoints = res.data;
       } catch (_) {}
     }
+
+    let punchRows = [];
+    if (client && typeof client.from === 'function' && /^[0-9a-f-]{32,36}$/i.test(uid)) {
+      try {
+        const { data } = await client.from('attendance_punches')
+          .select('*')
+          .eq('user_id', uid)
+          .order('punched_at', { ascending: false })
+          .limit(10);
+        if (Array.isArray(data) && data.length) punchRows = data;
+      } catch (_) {}
+    }
+
     const localPoints = guardHistoryMap.get(uid) || [];
     const mergedMap = new Map();
     [...dbPoints, ...localPoints].forEach(pt => {
@@ -242,66 +255,93 @@
     });
     const points = [...mergedMap.values()].sort((a, b) => Date.parse(b.captured_at) - Date.parse(a.captured_at));
 
-    let totalDistanceMeters = 0;
-    for (let i = 0; i < points.length - 1; i++) {
-      const stepDist = haversineMeters(points[i].latitude, points[i].longitude, points[i + 1].latitude, points[i + 1].longitude);
-      // Filter out stationary GPS noise (< 15 meters) from movement tally
-      if (stepDist >= 15) {
-        totalDistanceMeters += stepDist;
-      }
+    // Derive ONLY 2 Key Checkpoints: Clock-In and Clock-Out (or Current Active)
+    let clockInEvent = null;
+    let clockOutEvent = null;
+
+    const inPunch = punchRows.find(p => p.punch_type && /in/i.test(p.punch_type) && Number.isFinite(Number(p.latitude)));
+    if (inPunch) {
+      clockInEvent = {
+        type: 'clock_in',
+        label: 'Clock-In Checkpoint',
+        time: inPunch.punched_at,
+        latitude: Number(inPunch.latitude),
+        longitude: Number(inPunch.longitude),
+        accuracy_meters: 15,
+        location_label: inPunch.location_label || fallbackGuard?.location_label || 'Assigned Post',
+        within_geofence: inPunch.within_geofence,
+        color: '#16a34a'
+      };
+    } else if (points.length) {
+      const initPt = points[points.length - 1];
+      clockInEvent = {
+        type: 'clock_in',
+        label: 'Clock-In / Duty Start',
+        time: initPt.captured_at,
+        latitude: initPt.latitude,
+        longitude: initPt.longitude,
+        accuracy_meters: initPt.accuracy_meters || 15,
+        location_label: initPt.location_label || fallbackGuard?.location_label || 'Assigned Post',
+        within_geofence: true,
+        color: '#16a34a'
+      };
     }
 
+    const outPunch = punchRows.find(p => p.punch_type && /out/i.test(p.punch_type) && Number.isFinite(Number(p.latitude)));
+    if (outPunch) {
+      clockOutEvent = {
+        type: 'clock_out',
+        label: 'Clock-Out Checkpoint',
+        time: outPunch.punched_at,
+        latitude: Number(outPunch.latitude),
+        longitude: Number(outPunch.longitude),
+        accuracy_meters: 15,
+        location_label: outPunch.location_label || fallbackGuard?.location_label || 'Assigned Post',
+        within_geofence: outPunch.within_geofence,
+        color: '#dc2626'
+      };
+    } else if (points.length > 1) {
+      const latestPt = points[0];
+      clockOutEvent = {
+        type: 'current',
+        label: 'Current Active Position',
+        time: latestPt.captured_at,
+        latitude: latestPt.latitude,
+        longitude: latestPt.longitude,
+        accuracy_meters: latestPt.accuracy_meters || 15,
+        location_label: latestPt.location_label || fallbackGuard?.location_label || 'Assigned Post',
+        within_geofence: true,
+        color: '#2563eb'
+      };
+    }
+
+    const checkpointEvents = [clockInEvent, clockOutEvent].filter(Boolean);
+
     let activePinMarker = null;
+    const markerMap = new Map();
     if (map && window.L) {
       if (!historyLayer && typeof L.layerGroup === 'function') historyLayer = L.layerGroup().addTo(map);
       if (historyLayer && typeof historyLayer.clearLayers === 'function') historyLayer.clearLayers();
 
-      if (points.length) {
-        // 1. Initial point (start of tracking history) - Green Checkpoint Pin
-        const initialPt = points[points.length - 1];
-        const initialTime = new Date(initialPt.captured_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' });
-        L.circleMarker([initialPt.latitude, initialPt.longitude], {
-          radius: 7,
-          fillColor: '#16a34a',
+      checkpointEvents.forEach((evt, idx) => {
+        const timeStr = new Date(evt.time).toLocaleTimeString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+        const iconSymbol = evt.type === 'clock_in' ? '🟢' : (evt.type === 'clock_out' ? '🔴' : '🔵');
+        const marker = L.circleMarker([evt.latitude, evt.longitude], {
+          radius: evt.type === 'clock_in' ? 9 : 8,
+          fillColor: evt.color,
           color: '#ffffff',
-          weight: 2,
+          weight: 2.5,
           fillOpacity: 0.95
-        }).bindPopup(`<strong>Initial Checkpoint</strong><br>${initialTime}<br>Accuracy: ±${Math.round(initialPt.accuracy_meters)} m`).addTo(historyLayer);
+        }).bindPopup(`<strong>${iconSymbol} ${evt.label}</strong><br>Time: ${timeStr}<br>Location: ${evt.location_label}<br>Status: ${evt.within_geofence !== false ? 'Verified Geofence' : 'Outside Geofence'}`);
+        marker.addTo(historyLayer);
+        markerMap.set(idx, marker);
+      });
 
-        // 2. Intermediate waypoints - only plot distinct stops if guard moved >= 15m
-        let lastPlotted = points[points.length - 1];
-        for (let i = points.length - 2; i > 0; i--) {
-          const pt = points[i];
-          const dist = haversineMeters(pt.latitude, pt.longitude, lastPlotted.latitude, lastPlotted.longitude);
-          if (dist >= 15) {
-            const timeStr = new Date(pt.captured_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' });
-            L.circleMarker([pt.latitude, pt.longitude], {
-              radius: 5,
-              fillColor: '#64748b',
-              color: '#ffffff',
-              weight: 1.5,
-              fillOpacity: 0.85
-            }).bindPopup(`<strong>Checkpoint #${points.length - i}</strong><br>${timeStr}<br>Displacement: +${Math.round(dist)} m`).addTo(historyLayer);
-            lastPlotted = pt;
-          }
-        }
-
-        // 3. Latest point - Blue Pulse Pin (if distinct from initial)
-        if (points.length > 1) {
-          const latestPt = points[0];
-          const latestTime = new Date(latestPt.captured_at).toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' });
-          L.circleMarker([latestPt.latitude, latestPt.longitude], {
-            radius: 8,
-            fillColor: '#2563eb',
-            color: '#ffffff',
-            weight: 2.5,
-            fillOpacity: 0.95
-          }).bindPopup(`<strong>Latest Position</strong><br>${latestTime}<br>Accuracy: ±${Math.round(latestPt.accuracy_meters)} m`).addTo(historyLayer);
-        }
-
-        if (typeof map.setView === 'function') {
-          map.setView([points[0].latitude, points[0].longitude], 17);
-        }
+      if (checkpointEvents.length >= 2 && typeof L.latLngBounds === 'function' && typeof map.fitBounds === 'function') {
+        const bounds = L.latLngBounds(checkpointEvents.map(e => [e.latitude, e.longitude]));
+        map.fitBounds(bounds, { maxZoom: 18, padding: [50, 50] });
+      } else if (checkpointEvents.length === 1 && typeof map.setView === 'function') {
+        map.setView([checkpointEvents[0].latitude, checkpointEvents[0].longitude], 18);
       }
     }
 
@@ -312,12 +352,12 @@
     const titleWrap = document.createElement('div');
     const title = document.createElement('h3');
     title.className = 'tracking-location-panel-title';
-    title.textContent = `${guardName} — Location History (${points.length} pts)`;
+    title.textContent = `${guardName} — Attendance Checkpoints`;
     const sub = document.createElement('p');
     sub.className = 'tracking-location-panel-sub';
-    sub.textContent = totalDistanceMeters >= 15
-      ? `Total tracked movement: ${Math.round(totalDistanceMeters)} m · Stored in Guard Location History`
-      : `Stationary at post (no significant displacement) · Stored in Guard Location History`;
+    sub.textContent = checkpointEvents.length >= 2
+      ? `Shift Verification: Clock-In & ${clockOutEvent.type === 'clock_out' ? 'Clock-Out' : 'Current Active Position'}`
+      : (checkpointEvents.length === 1 ? 'Shift Verification: Clock-In recorded' : 'No recorded attendance checkpoints yet');
     titleWrap.append(title, sub);
 
     const closeBtn = document.createElement('button');
@@ -332,29 +372,28 @@
     head.append(titleWrap, closeBtn);
     histPanel.appendChild(head);
 
-    if (!points.length) {
+    if (!checkpointEvents.length) {
       const emptyEl = document.createElement('p');
       emptyEl.className = 'tracking-location-empty';
-      emptyEl.textContent = 'No GPS location history points recorded for this guard yet.';
+      emptyEl.textContent = 'No attendance clock-in or clock-out locations recorded for this guard yet.';
       histPanel.appendChild(emptyEl);
       return;
     }
 
     const listWrap = document.createElement('div');
     listWrap.className = 'tracking-history-list';
-    points.forEach((pt, idx) => {
-      const prevPt = points[idx + 1];
-      const stepDist = prevPt ? Math.round(haversineMeters(pt.latitude, pt.longitude, prevPt.latitude, prevPt.longitude)) : 0;
+    checkpointEvents.forEach((evt, idx) => {
       const item = document.createElement('div');
       item.className = 'tracking-history-item';
-      const ts = new Date(pt.captured_at);
-      const timeLabel = Number.isNaN(ts.getTime()) ? String(pt.captured_at) : ts.toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit' });
+      const ts = new Date(evt.time);
+      const timeLabel = Number.isNaN(ts.getTime()) ? String(evt.time) : ts.toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit' });
       const info = document.createElement('div');
       const strong = document.createElement('strong');
-      strong.textContent = `${idx === 0 ? 'Latest · ' : `#${points.length - idx} · `}${timeLabel}`;
+      const iconSymbol = evt.type === 'clock_in' ? '🟢' : (evt.type === 'clock_out' ? '🔴' : '🔵');
+      strong.textContent = `${iconSymbol} ${evt.label} · ${timeLabel}`;
       const meta = document.createElement('div');
       meta.className = 'tracking-history-meta';
-      meta.textContent = `${pt.latitude.toFixed(5)}, ${pt.longitude.toFixed(5)} · ±${Math.round(pt.accuracy_meters)} m${prevPt ? ` · Moved ${stepDist} m` : ' · Initial point'}`;
+      meta.textContent = `${evt.location_label} (${evt.latitude.toFixed(5)}, ${evt.longitude.toFixed(5)}) · ${evt.within_geofence !== false ? 'Verified Geofence' : 'Outside Geofence'}`;
       info.append(strong, meta);
 
       const jumpBtn = document.createElement('button');
@@ -364,19 +403,9 @@
       jumpBtn.textContent = 'Pin on Map';
       jumpBtn.onclick = () => {
         if (map && window.L) {
-          map.setView([pt.latitude, pt.longitude], 18);
-          if (activePinMarker && historyLayer) historyLayer.removeLayer(activePinMarker);
-          activePinMarker = L.circleMarker([pt.latitude, pt.longitude], {
-            radius: 10,
-            fillColor: '#f59e0b',
-            color: '#ffffff',
-            weight: 3,
-            fillOpacity: 0.95
-          }).bindPopup(`<strong>Checkpoint #${points.length - idx}</strong><br>${timeLabel}<br>±${Math.round(pt.accuracy_meters)} m`);
-          if (historyLayer) {
-            activePinMarker.addTo(historyLayer);
-            activePinMarker.openPopup();
-          }
+          map.setView([evt.latitude, evt.longitude], 18);
+          const marker = markerMap.get(idx);
+          if (marker) marker.openPopup();
         }
       };
       item.append(info, jumpBtn);
