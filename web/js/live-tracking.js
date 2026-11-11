@@ -303,15 +303,15 @@
     } else if (points.length > 1) {
       const latestPt = points[0];
       clockOutEvent = {
-        type: 'current',
-        label: 'Current Active Position',
+        type: 'clock_out',
+        label: 'Clock-Out Checkpoint',
         time: latestPt.captured_at,
         latitude: latestPt.latitude,
         longitude: latestPt.longitude,
         accuracy_meters: latestPt.accuracy_meters || 15,
         location_label: latestPt.location_label || fallbackGuard?.location_label || 'Assigned Post',
         within_geofence: true,
-        color: '#2563eb'
+        color: '#dc2626'
       };
     }
 
@@ -325,14 +325,16 @@
 
       checkpointEvents.forEach((evt, idx) => {
         const timeStr = new Date(evt.time).toLocaleTimeString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-        const iconSymbol = evt.type === 'clock_in' ? '🟢' : (evt.type === 'clock_out' ? '🔴' : '🔵');
+        const iconSymbol = evt.type === 'clock_in' ? '🟢' : '🔴';
         const marker = L.circleMarker([evt.latitude, evt.longitude], {
           radius: evt.type === 'clock_in' ? 9 : 8,
-          fillColor: evt.color,
+          fillColor: '#dc2626',
           color: '#ffffff',
           weight: 2.5,
           fillOpacity: 0.95
-        }).bindPopup(`<strong>${iconSymbol} ${evt.label}</strong><br>Time: ${timeStr}<br>Location: ${evt.location_label}<br>Status: ${evt.within_geofence !== false ? 'Verified Geofence' : 'Outside Geofence'}`);
+        });
+        marker.setStyle({ fillColor: evt.color });
+        marker.bindPopup(`<strong>${iconSymbol} ${evt.label}</strong><br>Time: ${timeStr}<br>Location: ${evt.location_label}<br>Status: ${evt.within_geofence !== false ? 'Verified Geofence' : 'Outside Geofence'}`);
         marker.addTo(historyLayer);
         markerMap.set(idx, marker);
       });
@@ -356,7 +358,7 @@
     const sub = document.createElement('p');
     sub.className = 'tracking-location-panel-sub';
     sub.textContent = checkpointEvents.length >= 2
-      ? `Shift Verification: Clock-In & ${clockOutEvent.type === 'clock_out' ? 'Clock-Out' : 'Current Active Position'}`
+      ? 'Shift Verification: Clock-In & Clock-Out Checkpoints'
       : (checkpointEvents.length === 1 ? 'Shift Verification: Clock-In recorded' : 'No recorded attendance checkpoints yet');
     titleWrap.append(title, sub);
 
@@ -389,7 +391,7 @@
       const timeLabel = Number.isNaN(ts.getTime()) ? String(evt.time) : ts.toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit' });
       const info = document.createElement('div');
       const strong = document.createElement('strong');
-      const iconSymbol = evt.type === 'clock_in' ? '🟢' : (evt.type === 'clock_out' ? '🔴' : '🔵');
+      const iconSymbol = evt.type === 'clock_in' ? '🟢' : '🔴';
       strong.textContent = `${iconSymbol} ${evt.label} · ${timeLabel}`;
       const meta = document.createElement('div');
       meta.className = 'tracking-history-meta';
