@@ -1314,9 +1314,6 @@ function renderLocations() {
         const badge = d.active
             ? '<span class="badge-active">Active</span>'
             : '<span class="badge-inactive">Disabled</span>';
-        const assignedBadge = deployedCount > 0
-            ? `<button type="button" class="badge-guards-assigned has-guards" onclick="viewDeployedGuards('${doc.id}', '${escapeHtml(d.label || 'Deployment Site')}')" title="Click to view ${deployedCount} assigned guard(s)"><span class="material-symbols-rounded badge-guards-assigned-icon" aria-hidden="true">${deployedCount > 1 ? 'groups' : 'person'}</span>${deployedCount} ${deployedCount === 1 ? 'Guard assigned' : 'Guards assigned'}</button>`
-            : '';
         const addressText = d.address
             ? escapeHtml(d.address)
             : (d.latitude != null && d.longitude != null
@@ -1332,7 +1329,7 @@ function renderLocations() {
             </td>
             <td><div class="loc-address">${addressText}${coordsFallback}</div></td>
             <td style="color:var(--sl-muted);">${d.radius ? d.radius + ' m' : '—'}</td>
-            <td><div class="loc-status-cell">${badge}${assignedBadge}</div></td>
+            <td><div class="loc-status-cell">${badge}</div></td>
             <td><div class="d-flex gap-2 justify-content-center">
                 <button class="action-btn btn-view-guards" onclick="viewDeployedGuards('${doc.id}', '${escapeHtml(d.label || 'Deployment Site')}')">View Guards</button>
                 <button class="action-btn btn-edit" onclick="editLocation('${doc.id}', this)" title="${deployedCount > 0 ? 'Geofence locked (' + deployedCount + ' active guard(s) deployed)' : 'Edit deployment site'}">
