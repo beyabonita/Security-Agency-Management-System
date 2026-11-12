@@ -13,10 +13,8 @@ assert.match(source, /isHr && !FIELD_ROLES\.includes/);
 assert.match(source, /isPlatformAdmin[\s\S]*!PLATFORM_ROLES\.includes/);
 assert.match(source, /beneficiaryOrganizationId\(service\)/);
 assert.doesNotMatch(source, /body\.organizationId/);
-assert.match(source, /const authEmail = `\$\{username\}@\$\{AUTH_EMAIL_DOMAIN\}`/);
-assert.match(source, /requestedEmail && requestedEmail !== authEmail/);
-assert.match(source, /\.eq\(["']username["'], username\)\s*\.maybeSingle\(\)/);
-assert.match(source, /usernameValid\(username\)/);
+assert.match(source, /emailValid\(authEmail\)/);
+assert.match(source, /\.eq\(["']email["'], authEmail\)\s*\.maybeSingle\(\)/);
 assert.match(source, /service\.auth\.admin\.deleteUser\(\s*targetId/);
 assert.match(source, /\.select\(["']id["']\)\s*\.maybeSingle\(\)/);
 

@@ -502,7 +502,7 @@
                 <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
             </div>
             <div class="modal-body">
-                <p class="modal-guard-meta mb-3">Deployment Site: <strong id="deployedGuardsSiteName" style="color:var(--sl-danger); font-size: 0.95rem;"></strong></p>
+                <p class="modal-guard-meta mb-3">Deployment Site: <strong id="deployedGuardsSiteName" style="color:var(--sl-danger); font-size: 0.95rem;"></strong> <span id="deployedGuardsCountBadge" class="badge rounded-pill ms-2" style="font-size:0.75rem; vertical-align:middle; display:none; padding:4px 10px;"></span></p>
                 <div id="deployedGuardsList">
                     <div style="text-align:center;padding:32px;color:var(--sl-muted);">Loading deployed guards…</div>
                 </div>
@@ -1316,7 +1316,7 @@ function renderLocations() {
             : '<span class="badge-inactive">Disabled</span>';
         const assignedBadge = deployedCount > 0
             ? `<button type="button" class="badge-guards-assigned has-guards" onclick="viewDeployedGuards('${doc.id}', '${escapeHtml(d.label || 'Deployment Site')}')" title="Click to view ${deployedCount} assigned guard(s)"><span class="material-symbols-rounded badge-guards-assigned-icon" aria-hidden="true">${deployedCount > 1 ? 'groups' : 'person'}</span>${deployedCount} ${deployedCount === 1 ? 'Guard assigned' : 'Guards assigned'}</button>`
-            : `<span class="badge-guards-assigned no-guards" title="No guards assigned to this establishment"><span class="material-symbols-rounded badge-guards-assigned-icon" aria-hidden="true">person</span>0 Guards assigned</span>`;
+            : '';
         const addressText = d.address
             ? escapeHtml(d.address)
             : (d.latitude != null && d.longitude != null
@@ -1630,6 +1630,11 @@ let deployedGuardsModal = null;
 
 async function viewDeployedGuards(siteId, siteLabel) {
     document.getElementById("deployedGuardsSiteName").textContent = siteLabel || "Deployment Site";
+    const countBadgeEl = document.getElementById("deployedGuardsCountBadge");
+    if (countBadgeEl) {
+        countBadgeEl.style.display = "none";
+        countBadgeEl.textContent = "";
+    }
     const listEl = document.getElementById("deployedGuardsList");
     listEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted);"><div class="spinner-border spinner-border-sm text-danger me-2"></div> Loading guards…</div>';
 
@@ -1647,6 +1652,13 @@ async function viewDeployedGuards(siteId, siteLabel) {
         });
 
         if (!guards.length) {
+            if (countBadgeEl) {
+                countBadgeEl.textContent = "0 Deployed";
+                countBadgeEl.style.display = "inline-block";
+                countBadgeEl.style.backgroundColor = "var(--sl-surface-muted, #f1f5f9)";
+                countBadgeEl.style.color = "var(--sl-muted, #64748b)";
+                countBadgeEl.style.border = "1px solid var(--sl-line, #e2e8f0)";
+            }
             listEl.innerHTML = `
                 <div style="text-align:center;padding:36px 20px;color:var(--sl-muted);">
                     <span class="material-symbols-rounded d-block mb-2" style="font-size:36px;opacity:0.4;">person</span>
@@ -1654,6 +1666,14 @@ async function viewDeployedGuards(siteId, siteLabel) {
                     <div style="font-size:0.78rem;margin-top:6px;opacity:0.8;">No personnel are assigned to this site. Assign guards in the <a href="users.html" style="color:var(--sl-danger);text-decoration:underline;">Personnel</a> tab.</div>
                 </div>`;
             return;
+        }
+
+        if (countBadgeEl) {
+            countBadgeEl.textContent = `${guards.length} ${guards.length === 1 ? 'Guard Deployed' : 'Guards Deployed'}`;
+            countBadgeEl.style.display = "inline-block";
+            countBadgeEl.style.backgroundColor = "rgba(16, 185, 129, 0.12)";
+            countBadgeEl.style.color = "#047857";
+            countBadgeEl.style.border = "1px solid rgba(16, 185, 129, 0.3)";
         }
 
         guards.sort((a, b) => {

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Figure 4: Data Flow Diagram Level 1 — Panel Corrections Applied</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .action-bar {
+            background: #ffffff;
+            padding: 16px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .title-group h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .title-group p {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            border: none;
+            padding: 9px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background-color: #009051;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #007340;
+        }
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .card-header {
+            padding: 14px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .card-header h2 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #334155;
+        }
+        .corrections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            padding: 20px;
+        }
+        .correction-box {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 14px 18px;
+            background: #f8fafc;
+        }
+        .correction-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+        .correction-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+        .correction-text {
+            font-size: 0.82rem;
+            color: #475569;
+            line-height: 1.45;
+        }
+        .diagram-container {
+            padding: 20px;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: auto;
+        }
+        .diagram-container img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+        .manuscript-sheet {
+            background: #ffffff;
+            padding: 40px 50px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            line-height: 2;
+            color: #000000;
+            text-align: justify;
+        }
+        .manuscript-heading {
+            font-size: 13pt;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .manuscript-caption {
+            text-align: center;
+            font-weight: bold;
+            font-size: 12pt;
+            margin: 18px 0;
+            line-height: 1.4;
+        }
+        .manuscript-p {
+            text-indent: 0.5in;
+            margin-bottom: 16px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1e293b;
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Action Toolbar -->
+        <div class="action-bar">
+            <div class="title-group">
+                <h1>Figure 4: Data Flow Diagram Level 1 Explosion</h1>
+                <p>Complying with all panel remarks: single entity &amp; single data store instances</p>
+            </div>
+            <div class="btn-group">
+                <a href="dfd-level-1-updated.svg" download="Figure_4_DFD_Level_1.svg" class="btn btn-secondary">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download SVG
+                </a>
+                <button onclick="copyManuscriptText()" class="btn btn-primary">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Copy Narrative for Word
+                </button>
+            </div>
+        </div>
+
+        <!-- Panel Corrections Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Panel Handwritten Remarks &amp; Exact Solutions</h2>
+                <span style="font-size: 0.8rem; color: #166534; background: #dcfce7; padding: 2px 8px; border-radius: 4px; font-weight: 600;">100% Resolved</span>
+            </div>
+            <div class="corrections-grid">
+                <div class="correction-box">
+                    <span class="correction-badge">CORRECTION 1</span>
+                    <div class="correction-title">1 (one) External Entity instance only</div>
+                    <p class="correction-text"><strong>Issue:</strong> Guard, Operations Head, and Inspector were repeated up to 4 times down the left side.<br><strong>Solution:</strong> Grouped into exactly <strong>4 distinct entities</strong> on the far left: <code>Super Admin</code>, <code>Operations Head</code>, <code>Field Inspector</code>, and <code>Security Guard</code>. Each entity appears only once.</p>
+                </div>
+                <div class="correction-box">
+                    <span class="correction-badge">CORRECTION 2</span>
+                    <div class="correction-title">1 (one) Data Store instance only</div>
+                    <p class="correction-text"><strong>Issue:</strong> <code>D3 Schedules</code> was drawn twice (once near 3.0 and again near 7.0).<br><strong>Solution:</strong> Each data store (D1 to D6) appears <strong>exactly once</strong> on the right column. Process 7.0 (Generate DTR) routes its input line directly to the single <code>D3 Schedules</code> data store.</p>
+                </div>
+                <div class="correction-box">
+                    <span class="correction-badge">CORRECTION 3</span>
+                    <div class="correction-title">Connected to 7.0 since incidents could affect DTR?</div>
+                    <p class="correction-text"><strong>Issue:</strong> An erroneous arrow connected <code>D6 Incidents</code> to <code>7.0 Generate DTR</code>.<br><strong>Solution:</strong> Decoupled completely. In reality, incident reports do not modify payroll hours. DTR is strictly generated from <code>D4 Attendance</code>, <code>D3 Schedules</code>, and <code>D1 Profiles</code>.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Diagram Preview Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Figure 4: Updated Level 1 DFD Explosion Diagram Preview</h2>
+                <span style="font-size: 0.8rem; color: #64748b;">1800 × 1350 High-Resolution Vector Graphic</span>
+            </div>
+            <div class="diagram-container">
+                <img src="dfd-level-1-updated.svg" alt="Figure 4: Data Flow Diagram Level 1 Explosion">
+            </div>
+        </div>
+
+        <!-- Narrative Section Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Updated Section 3.4 Narrative (Ready to Copy for Thesis Manuscript)</h2>
+                <span style="font-size: 0.8rem; color: #64748b;">Times New Roman 12pt, Double Spaced</span>
+            </div>
+            <div class="manuscript-sheet" id="manuscript-content">
+                <div class="manuscript-caption">
+                    Figure 4<br>
+                    <u>Data Flow Diagram Level 1 Explosion</u>
+                </div>
+
+                <p class="manuscript-p">Figure 4 illustrates the Level 1 Data Flow Diagram (DFD) explosion of the Web-Based Security Agency Management System with Mobile Application for Real-Time Monitoring, detailing the movement of data between the four external entities, seven core system processes, and six central data stores. Each external entity and data store appears as a single instance to preserve standard structural hierarchy.</p>
+
+                <p class="manuscript-p">System access begins with Process 1.0 (Authenticate User), where login credentials from the Security Guard, Operations Head, Field Inspector, and Super Admin are validated against D1: Profiles. Administrative account governance is handled in Process 2.0 (Manage Accounts) to maintain personnel records and platform privileges. Process 3.0 (Manage Schedules) allows the Operations Head to configure deployment site boundaries in D2: Sites and formulate shift schedules in D3: Schedules, while also supplying approved duty schedules to security guards and field inspectors.</p>
+
+                <p class="manuscript-p">Field operations are managed through Process 4.0 (Record Attendance), where the Security Guard submits timekeeping punches paired with GPS coordinates and live face capture selfies, verifying presence against D2: Sites and D3: Schedules before committing timestamps to D4: Attendance. Process 5.0 (Process Duty Requests) handles absence filings and shift swaps with attached authorization letters; when the Operations Head approves a shift swap, the update is piped directly into Process 3.0 to automatically update D3: Schedules. In Process 6.0 (Review Incidents), incident documentation with photos and video is saved to D6: Incidents for investigation and status tracking by the Field Inspector and Operations Head. Finally, Process 7.0 (Generate DTR) compiles verified work hours by cross-referencing punch timestamps from D4: Attendance with scheduled baselines from D3: Schedules and guard profile data from D1: Profiles, generating automated Daily Time Records for payroll auditing and export.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Text copied to clipboard! Ready to paste into Word.</div>
+
+    <script>
+        function copyManuscriptText() {
+            const textToCopy = `Figure 4
+Data Flow Diagram Level 1 Explosion
+
+Figure 4 illustrates the Level 1 Data Flow Diagram (DFD) explosion of the Web-Based Security Agency Management System with Mobile Application for Real-Time Monitoring, detailing the movement of data between the four external entities, seven core system processes, and six central data stores. Each external entity and data store appears as a single instance to preserve standard structural hierarchy.
+
+System access begins with Process 1.0 (Authenticate User), where login credentials from the Security Guard, Operations Head, Field Inspector, and Super Admin are validated against D1: Profiles. Administrative account governance is handled in Process 2.0 (Manage Accounts) to maintain personnel records and platform privileges. Process 3.0 (Manage Schedules) allows the Operations Head to configure deployment site boundaries in D2: Sites and formulate shift schedules in D3: Schedules, while also supplying approved duty schedules to security guards and field inspectors.
+
+Field operations are managed through Process 4.0 (Record Attendance), where the Security Guard submits timekeeping punches paired with GPS coordinates and live face capture selfies, verifying presence against D2: Sites and D3: Schedules before committing timestamps to D4: Attendance. Process 5.0 (Process Duty Requests) handles absence filings and shift swaps with attached authorization letters; when the Operations Head approves a shift swap, the update is piped directly into Process 3.0 to automatically update D3: Schedules. In Process 6.0 (Review Incidents), incident documentation with photos and video is saved to D6: Incidents for investigation and status tracking by the Field Inspector and Operations Head. Finally, Process 7.0 (Generate DTR) compiles verified work hours by cross-referencing punch timestamps from D4: Attendance with scheduled baselines from D3: Schedules and guard profile data from D1: Profiles, generating automated Daily Time Records for payroll auditing and export.`;
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 3000);
+            }).catch(err => {
+                alert('Could not auto-copy. Please select the text manually and press Ctrl+C.');
+            });
+        }
+    </script>
+</body>
+</html>
+

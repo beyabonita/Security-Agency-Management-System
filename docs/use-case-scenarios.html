@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3.14 Use Case Scenario — Sentinel Link</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+            padding: 30px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 850px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .action-bar {
+            background: #ffffff;
+            padding: 16px 24px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid #e2e8f0;
+            position: sticky;
+            top: 15px;
+            z-index: 100;
+        }
+        .title-group h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .title-group p {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            border: none;
+            padding: 9px 18px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background-color: #009051;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #007340;
+        }
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+        .table-nav {
+            background: #ffffff;
+            padding: 12px 18px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 0.82rem;
+            align-items: center;
+        }
+        .table-nav span {
+            font-weight: 700;
+            color: #475569;
+            margin-right: 4px;
+        }
+        .table-nav a {
+            color: #0284c7;
+            text-decoration: none;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            transition: background 0.15s;
+        }
+        .table-nav a:hover {
+            background: #e0f2fe;
+            border-color: #bae6fd;
+        }
+        .paper-sheet {
+            background: #ffffff;
+            width: 100%;
+            padding: 50px 60px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            font-family: 'Times New Roman', Times, serif;
+            color: #111827;
+            line-height: 1.5;
+        }
+        .section-header {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        .section-header h2 {
+            font-size: 15pt;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .use-case-card {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .table-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .table-label {
+            font-size: 12pt;
+            font-weight: 700;
+            color: #111827;
+        }
+        .copy-single-btn {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .copy-single-btn:hover {
+            background: #009051;
+            color: #ffffff;
+            border-color: #009051;
+        }
+        table.original-format-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 11pt;
+            border: 1.5px solid #111827;
+        }
+        table.original-format-table th {
+            border: 1px solid #111827;
+            padding: 8px 12px;
+            background-color: #ffffff;
+            text-align: left;
+            font-size: 11pt;
+            font-weight: 700;
+        }
+        table.original-format-table td {
+            border: 1px solid #111827;
+            padding: 12px 14px;
+            text-align: left;
+            vertical-align: top;
+            font-size: 11pt;
+            line-height: 1.5;
+        }
+        .content-item {
+            margin-bottom: 8px;
+        }
+        .content-item strong {
+            font-weight: 700;
+        }
+        .flow-step {
+            margin-left: 12px;
+            margin-bottom: 4px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1e293b;
+            color: #ffffff;
+            padding: 12px 22px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        @media print {
+            body {
+                background: #ffffff;
+                padding: 0;
+            }
+            .action-bar, .table-nav, .copy-single-btn {
+                display: none !important;
+            }
+            .container {
+                max-width: 100%;
+            }
+            .paper-sheet {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+            }
+            .use-case-card {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Top Action Bar -->
+    <div class="action-bar">
+        <div class="title-group">
+            <h1>3.14 Use Case Scenario (Tables 3 to 15)</h1>
+            <p>Simple Original Thesis Format &bull; Ready to Copy &amp; Paste</p>
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="copyAllContent()">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></svg>
+                Copy All Tables
+            </button>
+            <button class="btn btn-secondary" onclick="window.print()">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.5 8a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1z"/><path d="M5 1a2 2 0 0 0-2 2v2H2a2 2 0 0 0-2 2v3a2 2 0 0 0 2 2h1v1a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-1h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1V3a2 2 0 0 0-2-2H5zM4 3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2H4V3zm1 5a2 2 0 0 0-2 2v1H2a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v-1a2 2 0 0 0-2-2H5zm7 2v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1z"/></svg>
+                Print / Save PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Quick Navigation Bar -->
+    <div class="table-nav">
+        <span>Quick Jump:</span>
+        <a href="#table-3">Table 3</a>
+        <a href="#table-4">Table 4</a>
+        <a href="#table-5">Table 5</a>
+        <a href="#table-6">Table 6</a>
+        <a href="#table-7">Table 7</a>
+        <a href="#table-8">Table 8</a>
+        <a href="#table-9">Table 9</a>
+        <a href="#table-10">Table 10</a>
+        <a href="#table-11">Table 11</a>
+        <a href="#table-12">Table 12</a>
+        <a href="#table-13">Table 13</a>
+        <a href="#table-14">Table 14</a>
+        <a href="#table-15">Table 15</a>
+    </div>
+
+    <!-- Paper Sheet Document Content -->
+    <div class="paper-sheet" id="document-content">
+        <div class="section-header">
+            <h2>3.14 Use Case Scenario</h2>
+        </div>
+
+        <!-- Table 3: Login -->
+        <div class="use-case-card" id="table-3">
+            <div class="table-label-row">
+                <span class="table-label">Table 3: Login</span>
+                <button class="copy-single-btn" onclick="copySpecificTable('table-3-table', 'Table 3: Login')">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></svg>
+                    Copy Table 3
+                </button>
+            </div>
+            <table class="original-format-table" id="table-3-table">
+                <thead>
+                    <tr>
+                        <th>Use Case 1: Login</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="content-item"><strong>Use Case Goal:</strong> To verify user identity, enforce registered device checking, and grant access to role-specific system features.</div>
+                            <div class="content-item"><strong>Scenario 1:</strong> Successful Login</div>
+                            <div class="content-item"><strong>Actor:</strong> Guard, Operations Head, Inspector, Super Admin</div>
+                            <div class="content-item"><strong>Pre-condition:</strong> User has an active account. Security Guard must use their registered device.</div>
+                            <div class="content-item"><strong>Main Flow:</strong></div>
+                            <div class="flow-step">Step 1: User enters Email and Password.</div>
+                            <div class="flow-step">Step 2: System triggers &lt;&lt;include&gt;&gt; Authenticate User.</div>
+                            <div class="flow-step">Step 3: System verifies credentials against the database and checks registered device ID for Guard.</div>
+                            <div class="flow-step">Step 4: System determines user role and redirects to the appropriate dashboard.</div>
+                            <div class="content-item" style="margin-top: 8px;"><strong>User Action:</strong> Inputs credentials and clicks "Login."</div>
+                            <div class="content-item"><strong>System Response:</strong> Grants access, validates device binding, and loads the role-specific interface.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table 4: Manage Accounts -->
+        <div class="use-case-card" id="table-4">
+            <div class="table-label-row">
+                <span class="table-label">Table 4: Manage Accounts</span>
+                <button class="copy-single-btn" onclick="copySpecificTable('table-4-table', 'Table 4: Manage Accounts')">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></svg>
+                    Copy Table 4
+                </button>
+            </div>
+            <table class="original-format-table" id="table-4-table">
+                <thead>
+                    <tr>
+                        <th>Use Case 2: Manage Accounts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="content-item"><strong>Use Case Goal:</strong> To provision administrative accounts, update user information, and manage platform permissions.</div>
+                            <div class="content-item"><strong>Scenario 1:</strong> Account Management &amp; Provisioning</div>
+                            <div class="content-item"><strong>Actor:</strong> Super Admin</div>
+                            <div class="content-item"><strong>Pre-condition:</strong> Super Admin is logged in with administrative access.</div>
+                            <div class="content-item"><strong>Main Flow:</strong></div>
+                            <div class="flow-step">Step 1: Super Admin navigates to the "User Management / Account Access" section.</div>
+                            <div class="flow-step">Step 2: System triggers &lt;&lt;include&gt;&gt; Add Account when Super Admin clicks "Add New User."</div>
+                            <div class="flow-step">Step 3: Super Admin selects the specific role (Operations Head or Super Admin).</div>
+                            <div class="flow-step">Step 4: Super Admin enters personal details: Name, Email, Mobile Number, and Password.</div>
+                            <div class="flow-step">Step 5: Super Admin clicks "Register / Create Account."</div>
+                            <div class="flow-step">Step 6: Super Admin updates details or permissions and clicks "Save Changes."</div>
+                            <div class="content-item" style="margin-top: 8px;"><strong>User Action:</strong> Fills out the form, modifies permissions, and submits.</div>
+                            <div class="content-item"><strong>System Response:</strong> Validates data, updates user database, and returns confirmation.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table 5: Execute System Check -->
+        <div class="use-case-card" id="table-5">
+            <div class="table-label-row">
+                <span class="table-label">Table 5: Execute System Check</span>
+                <button class="copy-single-btn" onclick="copySpecificTable('table-5-table', 'Table 5: Execute System Check')">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></svg>
+                    Copy Table 5
+                </button>
+            </div>
+            <table class="original-format-table" id="table-5-table">
+                <thead>
+                    <tr>
+                        <th>Use Case 3: Execute System Check</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="content-item"><strong>Use Case Goal:</strong> To test platform integrity, database response times, and system diagnostic health.</div>
+                            <div class="content-item"><strong>Scenario 1:</strong> Comprehensive Diagnostic Routine</div>
+                            <div class="content-item"><strong>Actor:</strong> Super Admin</div>
+                            <div class="content-item"><strong>Pre-condition:</strong> Super Admin is logged in with administrative oversight privileges.</div>
+                            <div class="content-item"><strong>Main Flow:</strong></div>
+                            <div class="flow-step">Step 1: Super Admin opens the "System Controls" dashboard and selects "System Diagnostics."</div>
+                            <div class="flow-step">Step 2: Super Admin clicks "Execute System Check."</div>
+                            <div class="flow-step">Step 3: System tests database connectivity, active services, and cloud storage health.</div>
+                            <div class="flow-step">Step 4: System displays diagnostic summary with ping latency and operational status indicators.</div>
+                            <div class="content-item" style="margin-top: 8px;"><strong>User Action:</strong> Clicks "Execute System Check" to initiate diagnostics.</div>
+                            <div class="content-item"><strong>System Response:</strong> Performs automated checks across system layers and renders live operational status.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table 6: Manage Personnel -->
+        <div class="use-case-card" id="table-6">
+            <div class="table-label-row">
+                <span class="table-label">Table 6: Manage Personnel</span>
+                <button class="copy-single-btn" onclick="copySpecificTable('table-6-table', 'Table 6: Manage Personnel')">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></svg>
+                    Copy Table 6
+                </button>
+            </div>
+            <table class="original-format-table" id="table-6-table">
+                <thead>
+                    <tr>
+                        <th>Use Case 4: Manage Personnel</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="content-item"><strong>Use Case Goal:</strong> To maintain security guard and inspector personnel records, employment contracts, and license uploads.</div>
+                            <div class="content-item"><strong>Scenario 1:</strong> Add and Manage Personnel</div>
+                            <div class="content-item"><strong>Actor:</strong> Operations Head</div>
+                            <div class="content-item"><strong>Pre-condition:</strong> Operations Head is logged in and navigates to Personnel module.</div>
+                            <div class="content-item"><strong>Main Flow:</strong></div>
+                            <div class="flow-step">Step 1: Operations Head opens "Personnel" and clicks "Add Personnel."</div>
+                            <div class="flow-step">Step 2: System triggers &lt;&lt;include&gt;&gt; Add Personnel and auto-generates Personnel ID.</div>
+                            <div class="flow-step">Step 3: Operations Head selects role (Guard or Inspector) and duty type (Regular or Contract).</div>
+                            <div class="flow-step">Step 4: Operations Head enters personal details: Name, Email, Mobile Number, and Contract Dates.</div>
+                            <div class="flow-step">Step 5: Operations Head uploads license documents and clicks "Save Personnel."</div>
+                            <div class="flow-step">Step 6: System triggers &lt;&lt;extended&gt;&gt; Archive Personnel when an inactive personnel profile is selected for removal.</div>
+                            <div class="content-item" style="margin-top: 8px;"><strong>User Action:</strong> Enters personnel details, updates profiles, or archives personnel.</div>
+                            <div class="content-item"><strong>System Response:</strong> Validates duplicate numbers, saves profile to the database, and updates active roster.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table 7: Manage Sites -->
+        <div class="use-case-card" id="table-7">
+            <div class="table-label-row">
+                <span class="table-label">Table 7: Manage Sites</span>
+                <button class="copy-single-btn" onclick="copySpecificTable('table-7-table', 'Table 7: Manage Sites')">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></svg>
+                    Copy Table 7
+                </button>
+            </div>
+            <table class="original-format-table" id="table-7-table">
+                <thead>
+                    <tr>
+                        <th>Use Case 5: Manage Sites</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="content-item"><strong>Use Case Goal:</strong> To define client deployment locations and geographical geofence boundaries for security posts.</div>
+                            <div class="content-item"><strong>Scenario 1:</strong> New Deployment Site and Geofence Setup</div>
+                            <div class="content-item"><strong>Actor:</strong> Operations Head</div>
+                            <div class="content-item"><strong>Pre-condition:</strong> Post location is known.</div>
+                            <div class="content-item"><strong>Main Flow:</strong></div>
+                            <div class="flow-step">Step 1: Operations Head navigates to "Deployment Sites" and clicks "Add Company."</div>
+                            <div class="flow-step">Step 2: System triggers &lt;&lt;include&gt;&gt; Add Locations to record site name and address.</div>
+                            <div class="flow-step">Step 3: Operations Head inputs GPS coordinates or selects the location on the interactive map.</div>
+                            <div class="flow-step">Step 4: System triggers &lt;&lt;extended&gt;&gt; Set Radius to configure the geofence perimeter (e.g., 100 meters).</div>
+                            <div class="flow-step">Step 5: Operations Head clicks "Save Deployment Site."</div>
+                            <div class="content-item" style="margin-top: 8px;"><strong>User Action:</strong> Sets coordinates and radius then saves.</div>
+                            <div class="content-item"><strong>System Response:</strong> Maps the virtual geofence boundary and links it to the specific client site.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table 8: Manage Duty Schedules -->
+        <div class="use-case-card" id="table-8">
+            <div class="table-label-row">
+                <span class="table-label">Table 8: Manage Duty Schedules</span>
+                <button class="copy-single-btn" onclick="copySpecificTable('table-8-table', 'Table 8: Manage Duty Schedules')">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></svg>
+                    Copy Table 8
+                </button>
+            </div>
+            <table class="original-format-table" id="table-8-table">
+                <thead>
+                    <tr>
+                        <th>Use Case 6: Manage Duty Schedules</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="content-item"><strong>Use Case Goal:</strong> To designate guards to specific posts, build weekly duty schedules, and assign rest days.</div>
+                            <div class="content-item"><strong>Scenario 1:</strong> Successful Assignment &amp; Schedule Modification</div>
+                            <div class="content-item"><strong>Actor:</strong> Operations Head, Inspector</div>
+                            <div class="content-item"><strong>Pre-condition:</strong> Guard and Deployment Site exist in the system.</div>
+                            <div class="content-item"><strong>Main Flow:</strong></div>
+                            <div class="flow-step">Step 1: User opens the "Duty Scheduling" module and selects the Client site.</div>
+                            <div class="flow-step">Step 2: System triggers &lt;&lt;include&gt;&gt; Choose Date and Time to set 7-day schedule and shift hours.</div>
+                            <div class="flow-step">Step 3: System triggers &lt;&lt;include&gt;&gt; Assign Guard to select a stationed Guard for each shift slot.</div>
+                            <div class="flow-step">Step 4: User designates weekly rest days and checks for scheduling conflicts.</div>
+                            <div class="flow-step">Step 5: User clicks "Assign Schedule."</div>
+                            <div class="flow-step">Step 6: System triggers &lt;&lt;extended&gt;&gt; Change Schedule when an existing schedule requires modification.</div>
+                            <div class="content-item" style="margin-top: 8px;"><strong>User Action:</strong> Selects parameters, assigns guards, and confirms roster.</div>
+                            <div class="content-item"><strong>System Response:</strong> Updates schedule database, checks for conflicts, and notifies assigned Security guards.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table 9: Process Duty Requests -->
+        <div class="use-case-card" id="table-9">
+            <div class="table-label-row">
+                <span class="table-label">Table 9: Process Duty Requests</span>
+                <button class="copy-single-btn" onclick="copySpecificTable('table-9-table', 'Table 9: Process Duty Requests')">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></svg>
+                    Copy Table 9
+                </button>
+            </div>
+            <table class="original-format-table" id="table-9-table">
+                <thead>
+                    <tr>
+                        <th>Use Case 7: Process Duty Requests</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="content-item"><strong>Use Case Goal:</strong> To review and process guard absence, shift swap, and overtime requests.</div>
+                            <div class="content-item"><strong>Scenario 1:</strong> Request Submission and Approval</div>
+                            <div class="content-item"><strong>Actor:</strong> Guard (submits), Operations Head (reviews &amp; approves)</div>
+                            <div class="content-item"><strong>Pre-condition:</strong> Guard has an assigned shift and submits a formal request via the mobile app.</div>
+                            <div class="content-item"><strong>Main Flow:</strong></div>
+                            <div class="flow-step">Step 1: Guard opens "Duty Requests" in mobile app, selects request type (Absence, Swap, or Overtime), and attaches optional letter.</div>
+                            <div class="flow-step">Step 2: Operations Head navigates to the "Duty Requests" module on the web portal.</div>
+                            <div class="flow-step">Step 3: Operations Head examines request details, replacement guard availability, and attached letter.</div>
+                            <div class="flow-step">Step 4: Operations Head clicks "Approve."</div>
+                            <div class="flow-step">Step 5: System triggers &lt;&lt;include&gt;&gt; Approve Request.</div>
+                            <div class="flow-step">Step 6: System automatically updates the roster (swapping assignments or excusing absence) and notifies the guards.</div>
+                            <div class="content-item" style="margin-top: 8px;"><strong>User Action:</strong> Guard files request; Operations Head reviews details and clicks approve.</div>
+                            <div class="content-item"><strong>System Response:</strong> Updates schedule database in real time and sends automated notifications to the guards.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table 10: Attendance Punch -->
+        <div class="use-case-card" id="table-10">
+            <div class="table-label-row">
+                <span class="table-label">Table 10: Attendance Punch</span>
+                <button class="copy-single-btn" onclick="copySpecificTable('table-10-table', 'Table 10: Attendance Punch')">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></svg>
+                    Copy Table 10
+                </button>
+            </div>
+            <table class="original-format-table" id="table-10-table">
+                <thead>
+                    <tr>
+                        <th>Use Case 8: Attendance Punch</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="content-item"><strong>Use Case Goal:</strong> To record the official time-in and time-out of security personnel with geofence and live face verification.</div>
+                            <div class="content-item"><strong>Scenario 1:</strong> Successful Time-In within Geofence with Live Face Capture</div>
+                            <div class="content-item"><strong>Actor:</strong> Guard</div>
+                            <div class="content-item"><strong>Pre-condition:</strong> Guard is at the assigned post, shift is active, and device is verified.</div>
+                            <div class="content-item"><strong>Main Flow:</strong></div>
+                            <div class="flow-step">Step 1: Guard opens the mobile app and clicks the "Time-In" (or "Time-Out") button.</div>
+                            <div class="flow-step">Step 2: System compares device GPS coordinates with the stored Geofence radius.</div>
+                            <div class="flow-step">Step 3: System triggers &lt;&lt;include&gt;&gt; Capture Face Photo using the in-app camera.</div>
+                            <div class="flow-step">Step 4: Guard takes a live selfie photo; system stamps geotag watermark overlay.</div>
+                            <div class="flow-step">Step 5: System records the exact server time, GPS coordinates, and photo evidence.</div>
+                            <div class="flow-step">Step 6: System triggers &lt;&lt;extended&gt;&gt; Force Attendance if guard is outside geofence during emergency.</div>
+                            <div class="content-item" style="margin-top: 8px;"><strong>User Action:</strong> Clicks "Time-In," allows GPS access, and takes live selfie photo.</div>
+                            <div class="content-item"><strong>System Response:</strong> Displays "Time-In Successful," records attendance log, and updates live tracker.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table 11: Report Incident -->
+        <div class="use-case-card" id="table-11">
+            <div class="table-label-row">
+                <span class="table-label">Table 11: Report Incident</span>
+                <button class="copy-single-btn" onclick="copySpecificTable('table-11-table', 'Table 11: Report Incident')">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></svg>
+                    Copy Table 11
+                </button>
+            </div>
+            <table class="original-format-table" id="table-11-table">
+                <thead>
+                    <tr>
+                        <th>Use Case 9: Report Incident</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="content-item"><strong>Use Case Goal:</strong> To provide a detailed account of security issues encountered on site with attached photo or video evidence.</div>
+                            <div class="content-item"><strong>Scenario 1:</strong> Standard Incident Reporting</div>
+                            <div class="content-item"><strong>Actor:</strong> Guard</div>
+                            <div class="content-item"><strong>Pre-condition:</strong> Guard is logged in and on an active clocked-in shift.</div>
+                            <div class="content-item"><strong>Main Flow:</strong></div>
+                            <div class="flow-step">Step 1: Guard selects "Create Incident Report" from the mobile menu.</div>
+                            <div class="flow-step">Step 2: Guard selects Incident Category (e.g., Theft, Trespassing, Fire, Medical, Damage).</div>
+                            <div class="flow-step">Step 3: Guard enters title and types a detailed narrative description of the event.</div>
+                            <div class="flow-step">Step 4: System triggers &lt;&lt;include&gt;&gt; Attach Photo/Video.</div>
+                            <div class="flow-step">Step 5: Guard uses the camera to capture photo or video evidence.</div>
+                            <div class="flow-step">Step 6: Guard reviews the summary and clicks "Submit."</div>
+                            <div class="content-item" style="margin-top: 8px;"><strong>User Action:</strong> Fills out the form, takes photo/video, and confirms submission.</div>
+                            <div class="content-item"><strong>System Response:</strong> Uploads data to Incident Database, sets status to "Under investigation," and alerts supervisors.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table 12: Manage Report Incident -->
+        <div class="use-case-card" id="table-12">
+            <div class="table-label-row">
+                <span class="table-label">Table 12: Manage Report Incident</span>
+                <button class="copy-single-btn" onclick="copySpecificTable('table-12-table', 'Table 12: Manage Report Incident')">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></svg>
+                    Copy Table 12
+                </button>
+            </div>
+            <table class="original-format-table" id="table-12-table">
+                <thead>
+                    <tr>
+                        <th>Use Case 10: Manage Report Incident</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="content-item"><strong>Use Case Goal:</strong> To allow supervisors to validate, evaluate, and update the resolution status of incident reports.</div>
+                            <div class="content-item"><strong>Scenario 1:</strong> Evaluating, Reviewing, and Resolving Incident Report</div>
+                            <div class="content-item"><strong>Actor:</strong> Operations Head, Inspector</div>
+                            <div class="content-item"><strong>Pre-condition:</strong> Incident reports are submitted and pending review in the system.</div>
+                            <div class="content-item"><strong>Main Flow:</strong></div>
+                            <div class="flow-step">Step 1: Inspector or Operations Head navigates to the "Incidents" section on the web console.</div>
+                            <div class="flow-step">Step 2: User clicks on a specific report to open full details and examine photo/video evidence.</div>
+                            <div class="flow-step">Step 3: User examines the timestamp, description, GPS location, and evidence media.</div>
+                            <div class="flow-step">Step 4: User enters findings in the "Reviewer Note" field.</div>
+                            <div class="flow-step">Step 5: User updates status (Under investigation, Escalated, or Resolved) and clicks "Save Review."</div>
+                            <div class="flow-step">Step 6: System triggers &lt;&lt;extended&gt;&gt; Archive Incident when moving resolved records to archives.</div>
+                            <div class="content-item" style="margin-top: 8px;"><strong>User Action:</strong> Opens report, reviews data and evidence, enters notes, and updates status.</div>
+                            <div class="content-item"><strong>System Response:</strong> Saves reviewer note, updates incident status in the database, and syncs across consoles.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table 13: View Incident -->
+        <div class="use-case-card" id="table-13">
+            <div class="table-label-row">
+                <span class="table-label">Table 13: View Incident</span>
+                <button class="copy-single-btn" onclick="copySpecificTable('table-13-table', 'Table 13: View Incident')">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></svg>
+                    Copy Table 13
+                </button>
+            </div>
+            <table class="original-format-table" id="table-13-table">
+                <thead>
+                    <tr>
+                        <th>Use Case 11: View Incident</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="content-item"><strong>Use Case Goal:</strong> To examine historical incident records, risk areas, and view attached photographic evidence.</div>
+                            <div class="content-item"><strong>Scenario 1:</strong> Incident History &amp; Area Risk Inspection</div>
+                            <div class="content-item"><strong>Actor:</strong> Inspector, Operations Head</div>
+                            <div class="content-item"><strong>Pre-condition:</strong> Incident logs exist in the system.</div>
+                            <div class="content-item"><strong>Main Flow:</strong></div>
+                            <div class="flow-step">Step 1: User opens the "View Incidents / Incident Logs" feed on the web portal.</div>
+                            <div class="flow-step">Step 2: User applies filters by date range, post location, category, or status.</div>
+                            <div class="flow-step">Step 3: System displays matching incident summary entries and area risk indicators.</div>
+                            <div class="flow-step">Step 4: User clicks an entry to view full incident details, location map, and photo/video evidence.</div>
+                            <div class="content-item" style="margin-top: 8px;"><strong>User Action:</strong> Applies filters and selects incident records for inspection.</div>
+                            <div class="content-item"><strong>System Response:</strong> Displays full incident details, location coordinates, and photo/video evidence.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table 14: View DTR -->
+        <div class="use-case-card" id="table-14">
+            <div class="table-label-row">
+                <span class="table-label">Table 14: View DTR</span>
+                <button class="copy-single-btn" onclick="copySpecificTable('table-14-table', 'Table 14: View DTR')">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></svg>
+                    Copy Table 14
+                </button>
+            </div>
+            <table class="original-format-table" id="table-14-table">
+                <thead>
+                    <tr>
+                        <th>Use Case 12: View DTR</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="content-item"><strong>Use Case Goal:</strong> To inspect Daily Time Records, rendered work hours, tardiness, and undertime logs.</div>
+                            <div class="content-item"><strong>Scenario 1:</strong> Checking Daily Time Records &amp; Punctuality</div>
+                            <div class="content-item"><strong>Actor:</strong> Guard, Operations Head, Inspector</div>
+                            <div class="content-item"><strong>Pre-condition:</strong> Attendance records exist in the database.</div>
+                            <div class="content-item"><strong>Main Flow:</strong></div>
+                            <div class="flow-step">Step 1: Guard opens "Duty Logs / DTR" in mobile app, or Supervisor opens "DTR Monitoring" on web portal.</div>
+                            <div class="flow-step">Step 2: User selects the Month and Cut-off period (1st–15th or 16th–end of month).</div>
+                            <div class="flow-step">Step 3: System compares actual punch times against scheduled shift hours.</div>
+                            <div class="flow-step">Step 4: System displays attendance table with dates, actual punch times, tardiness, undertime, overtime, and total hours.</div>
+                            <div class="content-item" style="margin-top: 8px;"><strong>User Action:</strong> Selects pay period and reviews attendance logs.</div>
+                            <div class="content-item"><strong>System Response:</strong> Calculates cumulative hours, applies tardiness/undertime formulas, and displays detailed DTR table.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Table 15: Export DTRs -->
+        <div class="use-case-card" id="table-15">
+            <div class="table-label-row">
+                <span class="table-label">Table 15: Export DTRs</span>
+                <button class="copy-single-btn" onclick="copySpecificTable('table-15-table', 'Table 15: Export DTRs')">
+                    <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M13 0H6a2 2 0 0 0-2 2 2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2 2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 13V4a2 2 0 0 0-2-2H5a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1zM3 4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4z"/></svg>
+                    Copy Table 15
+                </button>
+            </div>
+            <table class="original-format-table" id="table-15-table">
+                <thead>
+                    <tr>
+                        <th>Use Case 13: Export DTRs</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="content-item"><strong>Use Case Goal:</strong> To produce formal PDF documents of guard Daily Time Records for payroll and auditing.</div>
+                            <div class="content-item"><strong>Scenario 1:</strong> Exporting DTR to PDF</div>
+                            <div class="content-item"><strong>Actor:</strong> Operations Head</div>
+                            <div class="content-item"><strong>Pre-condition:</strong> Attendance logs exist in the system for the selected cutoff period.</div>
+                            <div class="content-item"><strong>Main Flow:</strong></div>
+                            <div class="flow-step">Step 1: Operations Head navigates to the "Export DTRs / Attendance Reports" section.</div>
+                            <div class="flow-step">Step 2: Operations Head selects cutoff period and client post or guard filter.</div>
+                            <div class="flow-step">Step 3: System triggers &lt;&lt;include&gt;&gt; Generate PDF to compile 6-column DTR summary with certified signature lines.</div>
+                            <div class="flow-step">Step 4: Operations Head clicks "Download / Export DTR."</div>
+                            <div class="content-item" style="margin-top: 8px;"><strong>User Action:</strong> Selects filters and clicks export.</div>
+                            <div class="content-item"><strong>System Response:</strong> Generates and downloads a formatted, print-ready PDF file for the user.</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+    <svg width="18" height="18" fill="#4ade80" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>
+    <span id="toast-msg">Copied to clipboard!</span>
+</div>
+
+<script>
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        const msgSpan = document.getElementById('toast-msg');
+        msgSpan.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2200);
+    }
+
+    async function copyElementHTML(element, successMessage) {
+        try {
+            const htmlBlob = new Blob([element.outerHTML || element.innerHTML], { type: 'text/html' });
+            const textBlob = new Blob([element.innerText], { type: 'text/plain' });
+            const data = [new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })];
+            await navigator.clipboard.write(data);
+            showToast(successMessage);
+        } catch (err) {
+            const range = document.createRange();
+            range.selectNode(element);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            try {
+                document.execCommand('copy');
+                showToast(successMessage);
+            } catch (fallbackErr) {
+                alert('Please manually select and copy the text.');
+            }
+            window.getSelection().removeAllRanges();
+        }
+    }
+
+    function copyAllContent() {
+        const content = document.getElementById('document-content');
+        copyElementHTML(content, 'All tables copied! Ready to paste into Word.');
+    }
+
+    function copySpecificTable(tableId, tableName) {
+        const target = document.getElementById(tableId);
+        copyElementHTML(target, `${tableName} copied! Ready to paste into Word.`);
+    }
+</script>
+
+</body>
+</html>

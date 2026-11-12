@@ -1,0 +1,216 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="880" viewBox="0 0 1600 880" role="img" aria-labelledby="title desc">
+  <title id="title">Operational Framework of Web-Based Security Agency Management System with Mobile Application for Real-Time Monitoring</title>
+  <desc id="desc">Simplified, uncrowded Operational Framework showing Security Guard with Android Device, Network, Backend Server, PostgreSQL Database, Staff Web Portal, and Administrators.</desc>
+  <defs>
+    <style>
+      .title { font: 700 26px 'Times New Roman', Times, serif; fill: #111827; text-decoration: underline; text-underline-offset: 5px; }
+      .figure-label { font: 700 22px 'Times New Roman', Times, serif; fill: #111827; }
+      .actor-title { font: 700 16px Arial, Helvetica, sans-serif; fill: #111827; }
+      .component-title { font: 700 16px Arial, Helvetica, sans-serif; fill: #111827; }
+      .component-sub { font: 400 13px Arial, Helvetica, sans-serif; fill: #4b5563; }
+      .flow-text { font: 400 12.5px Arial, Helvetica, sans-serif; fill: #1f2937; }
+      .shape { fill: #ffffff; stroke: #111827; stroke-width: 2.2; stroke-linejoin: round; stroke-linecap: round; }
+      .shape-fill { fill: #f9fafb; stroke: #111827; stroke-width: 2.2; }
+      .server-box { fill: #ffffff; stroke: #111827; stroke-width: 2.2; rx: 6px; }
+      .line { fill: none; stroke: #111827; stroke-width: 1.8; marker-end: url(#arrow); }
+      .both { fill: none; stroke: #111827; stroke-width: 1.8; marker-start: url(#arrowStart); marker-end: url(#arrow); }
+      .foot-note { font: italic 13px 'Times New Roman', Times, serif; fill: #4b5563; }
+    </style>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L8,3.5 L0,7 Z" fill="#111827"/></marker>
+    <marker id="arrowStart" markerWidth="9" markerHeight="9" refX="1" refY="3.5" orient="auto"><path d="M8,0 L0,3.5 L8,7 Z" fill="#111827"/></marker>
+  </defs>
+
+  <!-- Clean Background -->
+  <rect width="1600" height="880" fill="#ffffff"/>
+
+  <!-- Title Header -->
+  <text class="figure-label" x="800" y="44" text-anchor="middle">Figure 2</text>
+  <text class="title" x="800" y="78" text-anchor="middle">Operational Framework of Web-Based Security Agency Management</text>
+  <text class="title" x="800" y="110" text-anchor="middle">System with Mobile Application for Real-Time Monitoring</text>
+
+  <!-- ======================================================== -->
+  <!-- 1. POSTGRESQL DATABASE (Top Center)                      -->
+  <!-- ======================================================== -->
+  <g transform="translate(800, 200)">
+    <path class="shape-fill" d="M -55,-16 V 22 C -55 36 55 36 55 22 V -16 Z"/>
+    <path class="shape-fill" d="M -55,-16 C -55 -2 55 -2 55 -16 C 55 -30 -55 -30 -55 -16 Z"/>
+    <path d="M -55,-16 C -55 -2 55 -2 55 -16 C 55 -30 -55 -30 -55 -16" fill="none" stroke="#111827" stroke-width="2.2"/>
+    <ellipse cx="0" cy="-16" rx="55" ry="13" class="shape"/>
+    <text class="component-title" x="0" y="7" text-anchor="middle">PostgreSQL Database</text>
+    <text class="component-sub" x="0" y="24" text-anchor="middle">(System Records &amp; Logs)</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 2. SECURITY GUARD (Far Left)                             -->
+  <!-- ======================================================== -->
+  <g transform="translate(100, 500)">
+    <ellipse cx="0" cy="-55" rx="18" ry="19" class="shape"/>
+    <!-- Guard Cap -->
+    <path d="M -20,-60 Q 0,-70 20,-60 Q 24,-53 18,-51 Q 0,-57 -18,-51 Z" fill="#111827"/>
+    <path class="shape" d="M 0,-36 L 0,16 M -30,-14 L 0,-26 L 30,-14 M 0,16 L -24,56 M 0,16 L 24,56"/>
+    <polygon points="0,-14 4,-8 2,-2 -2,-2 -4,-8" fill="#009051"/>
+    <text class="actor-title" x="0" y="86" text-anchor="middle">Security Guard</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 3. ANDROID DEVICE (Mobile App)                           -->
+  <!-- ======================================================== -->
+  <g transform="translate(280, 500)">
+    <rect class="shape" x="-30" y="-64" width="60" height="128" rx="10"/>
+    <rect x="-23" y="-50" width="46" height="96" rx="3" fill="#111827"/>
+    <line x1="-8" y1="-56" x2="8" y2="-56" stroke="#111827" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="0" cy="54" r="4" fill="#ffffff"/>
+    <text class="component-title" x="0" y="88" text-anchor="middle">Android Device</text>
+    <text class="component-sub" x="0" y="106" text-anchor="middle">(Mobile App)</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 4. NETWORK (Separate Network Cloud)                      -->
+  <!-- ======================================================== -->
+  <g transform="translate(530, 500)">
+    <path class="shape-fill" d="M -60,12 C -75,12 -85,-4 -75,-18 C -80,-32 -65,-46 -48,-42 C -36,-58 -10,-58 4,-44 C 16,-56 44,-50 48,-32 C 65,-32 76,-16 68,2 C 78,12 68,30 52,30 L -52,30 C -66,30 -70,18 -60,12 Z"/>
+    <path d="M -12,-8 A 16 16 0 0 1 12,-8 M -18,-15 A 24 24 0 0 1 18,-15 M -6,-1 A 8 8 0 0 1 6,-1" fill="none" stroke="#009051" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="0" cy="5" r="2.5" fill="#009051"/>
+    <text class="component-title" x="0" y="18" text-anchor="middle">Network</text>
+    <text class="component-sub" x="0" y="34" text-anchor="middle">(Internet / Wi-Fi)</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 5. SECURED BACKEND SERVER (Separate Server Box)          -->
+  <!-- ======================================================== -->
+  <g transform="translate(800, 500)">
+    <rect class="server-box" x="-62" y="-55" width="124" height="110"/>
+    <!-- Server Shelf 1 -->
+    <rect x="-54" y="-46" width="108" height="26" rx="3" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+    <circle cx="-42" cy="-33" r="3" fill="#22c55e"/>
+    <circle cx="-32" cy="-33" r="3" fill="#3b82f6"/>
+    <line x1="-20" y1="-33" x2="42" y2="-33" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+    <!-- Server Shelf 2 -->
+    <rect x="-54" y="-12" width="108" height="26" rx="3" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+    <circle cx="-42" cy="1" r="3" fill="#22c55e"/>
+    <circle cx="-32" cy="1" r="3" fill="#eab308"/>
+    <line x1="-20" y1="1" x2="42" y2="1" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+    <!-- Server Shelf 3 -->
+    <rect x="-54" y="20" width="108" height="26" rx="3" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.2"/>
+    <circle cx="-42" cy="33" r="3" fill="#22c55e"/>
+    <circle cx="-32" cy="33" r="3" fill="#3b82f6"/>
+    <line x1="-20" y1="33" x2="42" y2="33" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+
+    <text class="component-title" x="0" y="80" text-anchor="middle">Backend Server</text>
+    <text class="component-sub" x="0" y="98" text-anchor="middle">(Supabase Cloud Server)</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 6. STAFF WEB PORTAL (Monitor)                            -->
+  <!-- ======================================================== -->
+  <g transform="translate(1080, 500)">
+    <rect class="shape" x="-54" y="-48" width="108" height="72" rx="4"/>
+    <rect x="-46" y="-40" width="92" height="56" rx="2" fill="#ffffff" stroke="#111827" stroke-width="1.5"/>
+    <rect x="-46" y="-40" width="92" height="12" fill="#b91c1c"/>
+    <line x1="-46" y1="-12" x2="46" y2="-12" stroke="#e5e7eb" stroke-width="1"/>
+    <line x1="-14" y1="-28" x2="38" y2="-28" stroke="#9ca3af" stroke-width="2"/>
+    <line x1="-14" y1="-20" x2="26" y2="-20" stroke="#9ca3af" stroke-width="2"/>
+    <rect x="-40" y="-24" width="18" height="30" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1"/>
+    <!-- Stand -->
+    <path d="M -10,24 L -15,44 L 15,44 L 10,24 Z" fill="#111827"/>
+    <rect class="shape" x="-28" y="44" width="56" height="5" rx="2"/>
+    <text class="component-title" x="0" y="72" text-anchor="middle">Staff Web Portal</text>
+    <text class="component-sub" x="0" y="90" text-anchor="middle">(Web Management Console)</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 7. THREE ADMINISTRATIVE ACTORS                           -->
+  <!-- ======================================================== -->
+
+  <!-- IT Administrator -->
+  <g transform="translate(1440, 280)">
+    <ellipse cx="0" cy="-40" rx="17" ry="18" class="shape"/>
+    <path class="shape" d="M 0,-22 L 0,20 M -26,-4 L 0,-15 L 26,-4 M 0,20 L -22,56 M 0,20 L 22,56"/>
+    <polygon points="0,-12 3,-5 2,6 -2,6 -3,-5" fill="#111827"/>
+    <text class="actor-title" x="0" y="80" text-anchor="middle">IT Administrator</text>
+  </g>
+
+  <!-- Operations Head -->
+  <g transform="translate(1440, 500)">
+    <ellipse cx="0" cy="-40" rx="17" ry="18" class="shape"/>
+    <path class="shape" d="M 0,-22 L 0,20 M -26,-4 L 0,-15 L 26,-4 M 0,20 L -22,56 M 0,20 L 22,56"/>
+    <polygon points="0,-12 3,-5 2,6 -2,6 -3,-5" fill="#b91c1c"/>
+    <text class="actor-title" x="0" y="80" text-anchor="middle">Operations Head</text>
+  </g>
+
+  <!-- Field Inspector -->
+  <g transform="translate(1440, 720)">
+    <ellipse cx="0" cy="-40" rx="17" ry="18" class="shape"/>
+    <path d="M -18,-45 Q 0,-54 18,-45 Q 22,-39 16,-37 Q 0,-42 -16,-37 Z" fill="#111827"/>
+    <path class="shape" d="M 0,-22 L 0,20 M -26,-4 L 0,-15 L 26,-4 M 0,20 L -22,56 M 0,20 L 22,56"/>
+    <polygon points="0,-12 3,-5 2,6 -2,6 -3,-5" fill="#0f766e"/>
+    <text class="actor-title" x="0" y="80" text-anchor="middle">Field Inspector</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- SIMPLE, UN-CROWDED FLOW LABELS                           -->
+  <!-- ======================================================== -->
+
+  <!-- Flow 1: Guard <-> Android Device -->
+  <path class="line" d="M 140,475 H 235"/>
+  <text class="flow-text" x="187" y="445" text-anchor="middle">Time-In / Time-Out</text>
+  <text class="flow-text" x="187" y="465" text-anchor="middle">Incident Reports</text>
+
+  <path class="line" d="M 235,525 H 140"/>
+  <text class="flow-text" x="187" y="548" text-anchor="middle">Duty Schedule</text>
+  <text class="flow-text" x="187" y="568" text-anchor="middle">Notifications</text>
+
+  <!-- Flow 2: Android Device <-> Network -->
+  <path class="line" d="M 325,475 H 445"/>
+  <text class="flow-text" x="385" y="445" text-anchor="middle">Upload DTR &amp; Photos</text>
+  <text class="flow-text" x="385" y="465" text-anchor="middle">GPS Coordinates</text>
+
+  <path class="line" d="M 445,525 H 325"/>
+  <text class="flow-text" x="385" y="548" text-anchor="middle">Duty Rosters</text>
+  <text class="flow-text" x="385" y="568" text-anchor="middle">System Alerts</text>
+
+  <!-- Flow 3: Network <-> Backend Server -->
+  <path class="line" d="M 615,475 H 725"/>
+  <text class="flow-text" x="670" y="445" text-anchor="middle">Data Requests</text>
+  <text class="flow-text" x="670" y="465" text-anchor="middle">Geofence Validation</text>
+
+  <path class="line" d="M 725,525 H 615"/>
+  <text class="flow-text" x="670" y="548" text-anchor="middle">Server Responses</text>
+  <text class="flow-text" x="670" y="568" text-anchor="middle">Realtime Updates</text>
+
+  <!-- Flow 4: Backend Server <-> PostgreSQL Database -->
+  <path class="line" d="M 770,430 V 270"/>
+  <text class="flow-text" x="758" y="355" text-anchor="end">Store Records</text>
+
+  <path class="line" d="M 830,270 V 430"/>
+  <text class="flow-text" x="842" y="355" text-anchor="start">Retrieve Records</text>
+
+  <!-- Flow 5: Backend Server <-> Staff Web Portal -->
+  <path class="line" d="M 875,475 H 1010"/>
+  <text class="flow-text" x="942" y="445" text-anchor="middle">Schedules &amp; Geofences</text>
+  <text class="flow-text" x="942" y="465" text-anchor="middle">Duty Approvals</text>
+
+  <path class="line" d="M 1010,525 H 875"/>
+  <text class="flow-text" x="942" y="548" text-anchor="middle">DTR &amp; Incident Reports</text>
+  <text class="flow-text" x="942" y="568" text-anchor="middle">Live Guard Tracker</text>
+
+  <!-- Flow 6: Web Portal <-> IT Administrator -->
+  <path class="both" d="M 1145,465 L 1355,305"/>
+  <text class="flow-text" x="1235" y="365" text-anchor="middle">Platform Settings</text>
+  <text class="flow-text" x="1235" y="385" text-anchor="middle">User Accounts</text>
+
+  <!-- Flow 7: Web Portal <-> Operations Head -->
+  <path class="both" d="M 1145,500 H 1355"/>
+  <text class="flow-text" x="1250" y="455" text-anchor="middle">Personnel Management</text>
+  <text class="flow-text" x="1250" y="475" text-anchor="middle">Duty Rosters &amp; Approvals</text>
+  <text class="flow-text" x="1250" y="545" text-anchor="middle">Guard Tracker &amp; DTR</text>
+
+  <!-- Flow 8: Web Portal <-> Field Inspector -->
+  <path class="both" d="M 1145,535 L 1355,695"/>
+  <text class="flow-text" x="1235" y="625" text-anchor="middle">Field Investigations</text>
+  <text class="flow-text" x="1235" y="645" text-anchor="middle">Spot Inspections</text>
+  <text class="flow-text" x="1235" y="665" text-anchor="middle">Attendance Records</text>
+
+  <!-- Simple Academic Footnote -->
+  <text class="foot-note" x="800" y="850" text-anchor="middle">Figure 2: Operational Framework of the System</text>
+</svg>

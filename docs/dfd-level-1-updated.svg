@@ -1,0 +1,370 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1350" viewBox="0 0 1800 1350" role="img" aria-labelledby="title desc">
+  <title id="title">Figure 4: Data Flow Diagram Level 1 Explosion</title>
+  <desc id="desc">Updated DFD Level 1 Explosion aligned to Sentinel Link, resolving panel corrections: single entity instances, single data store instances, and decoupled incident-DTR flows.</desc>
+  <defs>
+    <style>
+      .doc-title { font: 700 28px 'Times New Roman', Times, serif; fill: #111827; }
+      .doc-sub { font: 700 22px 'Times New Roman', Times, serif; fill: #111827; text-decoration: underline; text-underline-offset: 5px; }
+      .entity-title { font: 700 15px Arial, Helvetica, sans-serif; fill: #111827; }
+      .entity-sub { font: 400 11.5px Arial, Helvetica, sans-serif; fill: #4b5563; }
+      .process-num { font: 700 13px Arial, Helvetica, sans-serif; fill: #111827; }
+      .process-title { font: 700 14px Arial, Helvetica, sans-serif; fill: #111827; }
+      .store-id { font: 700 13px Arial, Helvetica, sans-serif; fill: #111827; }
+      .store-name { font: 700 14px Arial, Helvetica, sans-serif; fill: #111827; }
+      .flow-label { font: 400 11.5px Arial, Helvetica, sans-serif; fill: #1f2937; }
+      .flow-label-bold { font: 700 11.5px Arial, Helvetica, sans-serif; fill: #0f172a; }
+      
+      /* Element Styles */
+      .entity-box { fill: #ffffff; stroke: #111827; stroke-width: 2.2; rx: 4px; }
+      .process-box { fill: #ffffff; stroke: #111827; stroke-width: 2.2; rx: 14px; }
+      .process-divider { stroke: #111827; stroke-width: 1.8; }
+      .store-box { fill: #ffffff; stroke: #111827; stroke-width: 2; }
+      .store-cap { stroke: #111827; stroke-width: 2.2; }
+      
+      /* Flow Lines */
+      .flow-line { fill: none; stroke: #111827; stroke-width: 1.6; marker-end: url(#arrow); }
+      .flow-line-curve { fill: none; stroke: #111827; stroke-width: 1.6; marker-end: url(#arrow); }
+      .foot-note { font: italic 13.5px 'Times New Roman', Times, serif; fill: #374151; }
+    </style>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3.5" orient="auto">
+      <path d="M0,0 L8,3.5 L0,7 Z" fill="#111827"/>
+    </marker>
+  </defs>
+
+  <!-- Clean Background -->
+  <rect width="1800" height="1350" fill="#ffffff"/>
+
+  <!-- Title Header -->
+  <text class="doc-title" x="900" y="46" text-anchor="middle">Figure 4</text>
+  <text class="doc-sub" x="900" y="80" text-anchor="middle">Data Flow Diagram Level 1 Explosion</text>
+
+  <!-- ======================================================== -->
+  <!-- 1. EXTERNAL ENTITIES (Left Column - ONLY ONE INSTANCE EACH)-->
+  <!-- ======================================================== -->
+
+  <!-- Entity 1: Super Admin (it_admin) -->
+  <g id="entity-super-admin" transform="translate(60, 150)">
+    <rect class="entity-box" width="160" height="74"/>
+    <line x1="0" y1="20" x2="20" y2="0" stroke="#111827" stroke-width="1.8"/>
+    <text class="entity-title" x="80" y="38" text-anchor="middle">Super Admin</text>
+    <text class="entity-sub" x="80" y="56" text-anchor="middle">(IT Administrator)</text>
+  </g>
+
+  <!-- Entity 2: Operations Head (admin) -->
+  <g id="entity-operations-head" transform="translate(60, 420)">
+    <rect class="entity-box" width="160" height="74"/>
+    <line x1="0" y1="20" x2="20" y2="0" stroke="#111827" stroke-width="1.8"/>
+    <text class="entity-title" x="80" y="38" text-anchor="middle">Operations Head</text>
+    <text class="entity-sub" x="80" y="56" text-anchor="middle">(System Admin)</text>
+  </g>
+
+  <!-- Entity 3: Field Inspector (inspector) -->
+  <g id="entity-inspector" transform="translate(60, 720)">
+    <rect class="entity-box" width="160" height="74"/>
+    <line x1="0" y1="20" x2="20" y2="0" stroke="#111827" stroke-width="1.8"/>
+    <text class="entity-title" x="80" y="38" text-anchor="middle">Field Inspector</text>
+    <text class="entity-sub" x="80" y="56" text-anchor="middle">(Field Oversight)</text>
+  </g>
+
+  <!-- Entity 4: Security Guard (user) -->
+  <g id="entity-guard" transform="translate(60, 1030)">
+    <rect class="entity-box" width="160" height="74"/>
+    <line x1="0" y1="20" x2="20" y2="0" stroke="#111827" stroke-width="1.8"/>
+    <text class="entity-title" x="80" y="38" text-anchor="middle">Security Guard</text>
+    <text class="entity-sub" x="80" y="56" text-anchor="middle">(Mobile Field User)</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 2. CORE PROCESSES (Center Column: 1.0 to 7.0)            -->
+  <!-- ======================================================== -->
+
+  <!-- Process 1.0: Authenticate User -->
+  <g id="process-1" transform="translate(730, 140)">
+    <rect class="process-box" width="220" height="80"/>
+    <line class="process-divider" x1="0" y1="26" x2="220" y2="26"/>
+    <text class="process-num" x="110" y="19" text-anchor="middle">1.0</text>
+    <text class="process-title" x="110" y="54" text-anchor="middle">Authenticate User</text>
+  </g>
+
+  <!-- Process 2.0: Manage Accounts -->
+  <g id="process-2" transform="translate(730, 310)">
+    <rect class="process-box" width="220" height="80"/>
+    <line class="process-divider" x1="0" y1="26" x2="220" y2="26"/>
+    <text class="process-num" x="110" y="19" text-anchor="middle">2.0</text>
+    <text class="process-title" x="110" y="54" text-anchor="middle">Manage Accounts</text>
+  </g>
+
+  <!-- Process 3.0: Manage Schedules -->
+  <g id="process-3" transform="translate(730, 480)">
+    <rect class="process-box" width="220" height="80"/>
+    <line class="process-divider" x1="0" y1="26" x2="220" y2="26"/>
+    <text class="process-num" x="110" y="19" text-anchor="middle">3.0</text>
+    <text class="process-title" x="110" y="54" text-anchor="middle">Manage Schedules</text>
+  </g>
+
+  <!-- Process 4.0: Record Attendance -->
+  <g id="process-4" transform="translate(730, 660)">
+    <rect class="process-box" width="220" height="80"/>
+    <line class="process-divider" x1="0" y1="26" x2="220" y2="26"/>
+    <text class="process-num" x="110" y="19" text-anchor="middle">4.0</text>
+    <text class="process-title" x="110" y="54" text-anchor="middle">Record Attendance</text>
+  </g>
+
+  <!-- Process 5.0: Process Duty Requests -->
+  <g id="process-5" transform="translate(730, 830)">
+    <rect class="process-box" width="220" height="80"/>
+    <line class="process-divider" x1="0" y1="26" x2="220" y2="26"/>
+    <text class="process-num" x="110" y="19" text-anchor="middle">5.0</text>
+    <text class="process-title" x="110" y="54" text-anchor="middle">Process Duty Requests</text>
+  </g>
+
+  <!-- Process 6.0: Review Incidents -->
+  <g id="process-6" transform="translate(730, 1000)">
+    <rect class="process-box" width="220" height="80"/>
+    <line class="process-divider" x1="0" y1="26" x2="220" y2="26"/>
+    <text class="process-num" x="110" y="19" text-anchor="middle">6.0</text>
+    <text class="process-title" x="110" y="54" text-anchor="middle">Review Incidents</text>
+  </g>
+
+  <!-- Process 7.0: Generate DTR -->
+  <g id="process-7" transform="translate(730, 1170)">
+    <rect class="process-box" width="220" height="80"/>
+    <line class="process-divider" x1="0" y1="26" x2="220" y2="26"/>
+    <text class="process-num" x="110" y="19" text-anchor="middle">7.0</text>
+    <text class="process-title" x="110" y="54" text-anchor="middle">Generate DTR</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 3. DATA STORES (Right Column - ONLY ONE INSTANCE EACH)   -->
+  <!-- ======================================================== -->
+
+  <!-- D1: Profiles -->
+  <g id="store-d1" transform="translate(1440, 200)">
+    <path class="store-cap" d="M 0,0 H 220 M 0,54 H 220" fill="none"/>
+    <line x1="45" y1="0" x2="45" y2="54" stroke="#111827" stroke-width="1.8"/>
+    <text class="store-id" x="22" y="32" text-anchor="middle">D1</text>
+    <text class="store-name" x="132" y="32" text-anchor="middle">Profiles</text>
+  </g>
+
+  <!-- D2: Sites (Locations & Geofences) -->
+  <g id="store-d2" transform="translate(1440, 380)">
+    <path class="store-cap" d="M 0,0 H 220 M 0,54 H 220" fill="none"/>
+    <line x1="45" y1="0" x2="45" y2="54" stroke="#111827" stroke-width="1.8"/>
+    <text class="store-id" x="22" y="32" text-anchor="middle">D2</text>
+    <text class="store-name" x="132" y="32" text-anchor="middle">Sites &amp; Geofences</text>
+  </g>
+
+  <!-- D3: Schedules -->
+  <g id="store-d3" transform="translate(1440, 560)">
+    <path class="store-cap" d="M 0,0 H 220 M 0,54 H 220" fill="none"/>
+    <line x1="45" y1="0" x2="45" y2="54" stroke="#111827" stroke-width="1.8"/>
+    <text class="store-id" x="22" y="32" text-anchor="middle">D3</text>
+    <text class="store-name" x="132" y="32" text-anchor="middle">Schedules</text>
+  </g>
+
+  <!-- D4: Attendance -->
+  <g id="store-d4" transform="translate(1440, 740)">
+    <path class="store-cap" d="M 0,0 H 220 M 0,54 H 220" fill="none"/>
+    <line x1="45" y1="0" x2="45" y2="54" stroke="#111827" stroke-width="1.8"/>
+    <text class="store-id" x="22" y="32" text-anchor="middle">D4</text>
+    <text class="store-name" x="132" y="32" text-anchor="middle">Attendance</text>
+  </g>
+
+  <!-- D5: Duty Requests -->
+  <g id="store-d5" transform="translate(1440, 920)">
+    <path class="store-cap" d="M 0,0 H 220 M 0,54 H 220" fill="none"/>
+    <line x1="45" y1="0" x2="45" y2="54" stroke="#111827" stroke-width="1.8"/>
+    <text class="store-id" x="22" y="32" text-anchor="middle">D5</text>
+    <text class="store-name" x="132" y="32" text-anchor="middle">Duty Requests</text>
+  </g>
+
+  <!-- D6: Incidents -->
+  <g id="store-d6" transform="translate(1440, 1080)">
+    <path class="store-cap" d="M 0,0 H 220 M 0,54 H 220" fill="none"/>
+    <line x1="45" y1="0" x2="45" y2="54" stroke="#111827" stroke-width="1.8"/>
+    <text class="store-id" x="22" y="32" text-anchor="middle">D6</text>
+    <text class="store-name" x="132" y="32" text-anchor="middle">Incidents</text>
+  </g>
+
+  <!-- ======================================================== -->
+  <!-- 4. DATA FLOWS & ARROWS                                   -->
+  <!-- ======================================================== -->
+
+  <!-- Process 1.0 (Authenticate User) Flows -->
+  <!-- From Super Admin -->
+  <path class="flow-line" d="M 220,165 H 730"/>
+  <text class="flow-label" x="460" y="158" text-anchor="middle">Super Admin Credentials</text>
+  <path class="flow-line" d="M 730,175 H 220"/>
+  <text class="flow-label" x="460" y="190" text-anchor="middle">Admin Session Token</text>
+
+  <!-- From Operations Head -->
+  <path class="flow-line" d="M 220,435 L 490,435 L 490,195 L 730,195"/>
+  <text class="flow-label" x="380" y="428" text-anchor="middle">Staff Credentials</text>
+  <path class="flow-line" d="M 730,205 L 510,205 L 510,445 L 220,445"/>
+  <text class="flow-label" x="380" y="460" text-anchor="middle">Staff Session Token</text>
+
+  <!-- From Inspector -->
+  <path class="flow-line" d="M 220,735 L 470,735 L 470,215 L 730,215"/>
+  <text class="flow-label" x="350" y="728" text-anchor="middle">Inspector Credentials</text>
+
+  <!-- From Guard -->
+  <path class="flow-line" d="M 220,1045 L 450,1045 L 450,225 L 730,225"/>
+  <text class="flow-label" x="340" y="1038" text-anchor="middle">Guard Credentials &amp; Device ID</text>
+
+  <!-- Process 1.0 <-> D1 Profiles -->
+  <path class="flow-line" d="M 950,165 H 1440"/>
+  <text class="flow-label" x="1195" y="158" text-anchor="middle">Query User Credentials</text>
+  <path class="flow-line" d="M 1440,185 H 950"/>
+  <text class="flow-label" x="1195" y="180" text-anchor="middle">Return Profile &amp; Role</text>
+
+  <!-- ======================================================== -->
+  <!-- Process 2.0 (Manage Accounts) Flows                      -->
+  <!-- ======================================================== -->
+  <!-- Super Admin -> 2.0 -->
+  <path class="flow-line" d="M 220,195 L 480,195 L 480,330 H 730"/>
+  <text class="flow-label" x="360" y="322" text-anchor="middle">Admin Account Credentials</text>
+
+  <!-- Operations Head -> 2.0 -->
+  <path class="flow-line" d="M 220,455 H 730"/>
+  <text class="flow-label" x="480" y="360" text-anchor="middle">Personnel Details (Guards &amp; Inspectors)</text>
+  <path class="flow-line" d="M 730,370 L 530,370 L 530,465 H 220"/>
+  <text class="flow-label" x="480" y="388" text-anchor="middle">Account Confirmation</text>
+
+  <!-- 2.0 <-> D1 Profiles -->
+  <path class="flow-line" d="M 950,340 L 1440,220"/>
+  <text class="flow-label" x="1180" y="270" text-anchor="middle">Insert/Update Account Profile</text>
+  <path class="flow-line" d="M 1440,235 L 950,360"/>
+  <text class="flow-label" x="1180" y="315" text-anchor="middle">Profile Status</text>
+
+  <!-- ======================================================== -->
+  <!-- Process 3.0 (Manage Schedules) Flows                     -->
+  <!-- ======================================================== -->
+  <!-- Operations Head -> 3.0 -->
+  <path class="flow-line" d="M 220,480 H 730"/>
+  <text class="flow-label" x="480" y="500" text-anchor="middle">Site Coordinates, Geofences &amp; Shift Times</text>
+
+  <!-- 3.0 -> Security Guard -->
+  <path class="flow-line" d="M 730,520 L 520,520 L 520,1060 H 220"/>
+  <text class="flow-label" x="360" y="1055" text-anchor="middle">Assigned Duty Schedule</text>
+
+  <!-- 3.0 -> Field Inspector -->
+  <path class="flow-line" d="M 730,535 L 540,535 L 540,755 H 220"/>
+  <text class="flow-label" x="370" y="750" text-anchor="middle">Agency Shift Schedules</text>
+
+  <!-- 3.0 <-> D1 Profiles (Read Guards) -->
+  <path class="flow-line" d="M 1440,250 L 950,490"/>
+  <text class="flow-label" x="1220" y="375" text-anchor="middle">Query Active Guards &amp; Rest Days</text>
+
+  <!-- 3.0 <-> D2 Sites (Write/Read Sites) -->
+  <path class="flow-line" d="M 950,510 L 1440,405"/>
+  <text class="flow-label" x="1195" y="445" text-anchor="middle">Save Geofence Polygon &amp; Shift Models</text>
+
+  <!-- 3.0 <-> D3 Schedules (Write/Read Schedules) -->
+  <path class="flow-line" d="M 950,530 H 1440"/>
+  <text class="flow-label" x="1195" y="522" text-anchor="middle">Save Scheduled Duty Shifts</text>
+  <path class="flow-line" d="M 1440,580 L 950,550"/>
+  <text class="flow-label" x="1195" y="585" text-anchor="middle">Retrieve Shift Roster</text>
+
+  <!-- ======================================================== -->
+  <!-- Process 4.0 (Record Attendance) Flows                    -->
+  <!-- ======================================================== -->
+  <!-- Security Guard -> 4.0 -->
+  <path class="flow-line" d="M 220,1075 L 550,1075 L 550,685 H 730"/>
+  <text class="flow-label" x="380" y="1070" text-anchor="middle">Punch Request (Time In/Out, GPS, Live Face Photo)</text>
+  <path class="flow-line" d="M 730,710 L 560,710 L 560,1090 H 220"/>
+  <text class="flow-label" x="380" y="1105" text-anchor="middle">Attendance Punch Status</text>
+
+  <!-- 4.0 <-> D2 Sites (Read Geofence) -->
+  <path class="flow-line" d="M 1440,425 L 950,675"/>
+  <text class="flow-label" x="1235" y="540" text-anchor="middle">Validate Geofence Perimeter</text>
+
+  <!-- 4.0 <-> D3 Schedules (Read Shift Times) -->
+  <path class="flow-line" d="M 1440,595 L 950,695"/>
+  <text class="flow-label" x="1225" y="640" text-anchor="middle">Verify Shift Eligibility Window</text>
+
+  <!-- 4.0 -> D4 Attendance (Write Session) -->
+  <path class="flow-line" d="M 950,715 L 1440,755"/>
+  <text class="flow-label" x="1195" y="730" text-anchor="middle">Write Attendance Session (GPS &amp; Selfies)</text>
+
+  <!-- ======================================================== -->
+  <!-- Process 5.0 (Process Duty Requests) Flows                -->
+  <!-- ======================================================== -->
+  <!-- Security Guard -> 5.0 -->
+  <path class="flow-line" d="M 220,1105 L 570,1105 L 570,855 H 730"/>
+  <text class="flow-label" x="390" y="1120" text-anchor="middle">File Request (Absence, Shift Swap, OT Letter)</text>
+
+  <!-- Operations Head <-> 5.0 -->
+  <path class="flow-line" d="M 730,870 L 580,870 L 580,480 L 220,480"/>
+  <text class="flow-label" x="380" y="475" text-anchor="middle">Pending Request Details</text>
+  <path class="flow-line" d="M 220,495 L 590,495 L 590,885 H 730"/>
+  <text class="flow-label" x="380" y="515" text-anchor="middle">Admin Decision (Approve / Reject)</text>
+
+  <!-- 5.0 <-> D5 Duty Requests -->
+  <path class="flow-line" d="M 950,860 L 1440,935"/>
+  <text class="flow-label" x="1195" y="890" text-anchor="middle">Log Request Details &amp; Consent</text>
+  <path class="flow-line" d="M 1440,955 L 950,885"/>
+  <text class="flow-label" x="1195" y="930" text-anchor="middle">Pending Requests</text>
+
+  <!-- 5.0 -> 3.0 (Update Schedule upon approved swap) -->
+  <path class="flow-line" d="M 840,830 V 560"/>
+  <text class="flow-label-bold" x="850" y="700" text-anchor="start">Approved Shift Swap Update</text>
+
+  <!-- ======================================================== -->
+  <!-- Process 6.0 (Review Incidents) Flows                     -->
+  <!-- ======================================================== -->
+  <!-- Security Guard -> 6.0 -->
+  <path class="flow-line" d="M 220,1125 L 600,1125 L 600,1025 H 730"/>
+  <text class="flow-label" x="400" y="1140" text-anchor="middle">Submit Incident (GPS, Narrative, Photo/Video)</text>
+
+  <!-- Field Inspector <-> 6.0 -->
+  <path class="flow-line" d="M 730,1040 L 610,1040 L 610,775 H 220"/>
+  <text class="flow-label" x="380" y="770" text-anchor="middle">Incident Details &amp; Evidence</text>
+  <path class="flow-line" d="M 220,785 L 620,785 L 620,1055 H 730"/>
+  <text class="flow-label" x="380" y="800" text-anchor="middle">Field Investigation Notes &amp; Status</text>
+
+  <!-- Operations Head -> 6.0 -->
+  <path class="flow-line" d="M 730,1020 L 500,1020 L 500,505 L 220,505"/>
+  <text class="flow-label" x="340" y="525" text-anchor="middle">Incident Escalation Alert</text>
+
+  <!-- 6.0 <-> D6 Incidents -->
+  <path class="flow-line" d="M 950,1030 L 1440,1095"/>
+  <text class="flow-label" x="1195" y="1055" text-anchor="middle">Store Incident Log &amp; Media Reference</text>
+  <path class="flow-line" d="M 1440,1115 L 950,1050"/>
+  <text class="flow-label" x="1195" y="1095" text-anchor="middle">Retrieve Incident Feed</text>
+
+  <!-- ======================================================== -->
+  <!-- Process 7.0 (Generate DTR) Flows                         -->
+  <!-- (Notice: D6 is DECOUPLED! DTR reads from D4, D3, and D1) -->
+  <!-- ======================================================== -->
+  <!-- Operations Head <-> 7.0 -->
+  <path class="flow-line" d="M 220,515 L 460,515 L 460,1190 H 730"/>
+  <text class="flow-label" x="330" y="535" text-anchor="middle">DTR Cutoff Request</text>
+  <path class="flow-line" d="M 730,1210 L 440,1210 L 440,415 L 220,415"/>
+  <text class="flow-label" x="310" y="410" text-anchor="middle">Master DTR Report (PDF/CSV)</text>
+
+  <!-- Field Inspector <-> 7.0 -->
+  <path class="flow-line" d="M 730,1225 L 430,1225 L 430,710 L 220,710"/>
+  <text class="flow-label" x="310" y="705" text-anchor="middle">Audited DTR File</text>
+
+  <!-- Security Guard <-> 7.0 -->
+  <path class="flow-line" d="M 220,1140 L 630,1140 L 630,1240 H 730"/>
+  <text class="flow-label" x="420" y="1155" text-anchor="middle">View Personal DTR</text>
+  <path class="flow-line" d="M 730,1245 L 640,1245 L 640,1150 H 220"/>
+  <text class="flow-label" x="420" y="1170" text-anchor="middle">Personal DTR PDF</text>
+
+  <!-- 7.0 <-> D1 Profiles (Read Guard Info) -->
+  <path class="flow-line" d="M 1440,240 L 1720,240 L 1720,1180 L 950,1180"/>
+  <text class="flow-label" x="1350" y="1170" text-anchor="middle">Guard Profile Details</text>
+
+  <!-- 7.0 <-> D3 Schedules (Read Scheduled Baseline) -->
+  <path class="flow-line" d="M 1440,605 L 1700,605 L 1700,1205 L 950,1205"/>
+  <text class="flow-label" x="1350" y="1198" text-anchor="middle">Scheduled Shift Baseline</text>
+
+  <!-- 7.0 <-> D4 Attendance (Read Timestamps & Hours) -->
+  <path class="flow-line" d="M 1440,780 L 1680,780 L 1680,1230 L 950,1230"/>
+  <text class="flow-label" x="1350" y="1222" text-anchor="middle">Verified Punch In/Out Timestamps</text>
+
+  <!-- Bottom Academic Footnote -->
+  <text class="foot-note" x="900" y="1320" text-anchor="middle">Figure 4: Updated Level 1 DFD Explosion — Complying with single external entity and single data store instances, with decoupled incident records.</text>
+</svg>
+

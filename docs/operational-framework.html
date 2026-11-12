@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3.2 Operational Framework — Clean &amp; Simple</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 1050px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .action-bar {
+            background: #ffffff;
+            padding: 16px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        .title-group h1 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .title-group p {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            border: none;
+            padding: 9px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background-color: #009051;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #007340;
+        }
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .card-header {
+            padding: 14px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card-header h2 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #334155;
+        }
+        .diagram-container {
+            padding: 20px;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: auto;
+        }
+        .diagram-container img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+        }
+        .manuscript-sheet {
+            background: #ffffff;
+            padding: 40px 50px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            line-height: 2;
+            color: #000000;
+            text-align: justify;
+        }
+        .manuscript-heading {
+            font-size: 13pt;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .manuscript-caption {
+            text-align: center;
+            font-weight: bold;
+            font-size: 12pt;
+            margin: 18px 0;
+            line-height: 1.4;
+        }
+        .manuscript-p {
+            text-indent: 0.5in;
+            margin-bottom: 16px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1e293b;
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Action Toolbar -->
+        <div class="action-bar">
+            <div class="title-group">
+                <h1>Figure 2 &amp; Section 3.2: Operational Framework</h1>
+                <p>Simple, uncrowded layout with panel corrections applied</p>
+            </div>
+            <div class="btn-group">
+                <a href="operational-framework-updated.svg" download="Figure_2_Operational_Framework.svg" class="btn btn-secondary">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download SVG
+                </a>
+                <button onclick="copyManuscriptText()" class="btn btn-primary">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Copy Text for Word
+                </button>
+            </div>
+        </div>
+
+        <!-- Diagram Preview Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Figure 2: Simplified Operational Framework Diagram</h2>
+                <span style="font-size: 0.8rem; color: #166534; background: #dcfce7; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Clean &amp; Uncrowded</span>
+            </div>
+            <div class="diagram-container">
+                <img src="operational-framework-updated.svg" alt="Figure 2: Operational Framework of Web-Based Security Agency Management System with Mobile Application for Real-Time Monitoring">
+            </div>
+        </div>
+
+        <!-- Manuscript Section 3.2 Card -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Section 3.2 Narrative (Simple, Direct Text for Thesis Manuscript)</h2>
+                <span style="font-size: 0.8rem; color: #64748b;">Times New Roman 12pt, Double Spaced</span>
+            </div>
+            <div class="manuscript-sheet" id="manuscript-content">
+                <div class="manuscript-heading">3.2 Operational Framework</div>
+                
+                <p class="manuscript-p">The Operational Framework illustrates how the proposed security agency management system connects different user roles, devices, and software components. The system allows security guards in the field and administrators in the office to interact seamlessly through a secure network and centralized cloud infrastructure.</p>
+
+                <div class="manuscript-caption">
+                    Figure 2<br>
+                    <u>Operational Framework of Web-Based Security Agency Management System with Mobile Application for Real-Time Monitoring</u>
+                </div>
+
+                <p class="manuscript-p">As shown in Figure 2, security guards use an Android Device running the mobile application. The app allows guards to record their daily attendance through live camera face capture and GPS geofence validation, ensuring that time-in and time-out transactions occur only within their assigned post perimeters. Guards also use the mobile app to view duty schedules, submit duty requests such as absences or shift swaps, and send incident reports with photos. All mobile data is transmitted across the Network (cellular data or Wi-Fi) to the Backend Server powered by Supabase.</p>
+
+                <p class="manuscript-p">The backend server processes system requests, verifies geofence rules, and stores operational records in the PostgreSQL Database, which holds user accounts, shift rosters, attendance logs, GPS history, and incident reports. Administrative personnel access the system through the Staff Web Portal on their office computers. The IT Administrator manages system settings and accounts; the Operations Head creates shift rosters, approves duty requests, monitors active guards on the Guard Tracker map, and exports DTR attendance reports; and the Field Inspector conducts spot inspections, investigates incident reports, and reviews attendance. Through this framework, the system provides real-time monitoring, verified attendance tracking, and organized management of security operations.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Text copied to clipboard! Ready to paste into Word.</div>
+
+    <script>
+        function copyManuscriptText() {
+            const textToCopy = `3.2 Operational Framework
+
+The Operational Framework illustrates how the proposed security agency management system connects different user roles, devices, and software components. The system allows security guards in the field and administrators in the office to interact seamlessly through a secure network and centralized cloud infrastructure.
+
+Figure 2
+Operational Framework of Web-Based Security Agency Management System with Mobile Application for Real-Time Monitoring
+
+As shown in Figure 2, security guards use an Android Device running the mobile application. The app allows guards to record their daily attendance through live camera face capture and GPS geofence validation, ensuring that time-in and time-out transactions occur only within their assigned post perimeters. Guards also use the mobile app to view duty schedules, submit duty requests such as absences or shift swaps, and send incident reports with photos. All mobile data is transmitted across the Network (cellular data or Wi-Fi) to the Backend Server powered by Supabase.
+
+The backend server processes system requests, verifies geofence rules, and stores operational records in the PostgreSQL Database, which holds user accounts, shift rosters, attendance logs, GPS history, and incident reports. Administrative personnel access the system through the Staff Web Portal on their office computers. The IT Administrator manages system settings and accounts; the Operations Head creates shift rosters, approves duty requests, monitors active guards on the Guard Tracker map, and exports DTR attendance reports; and the Field Inspector conducts spot inspections, investigates incident reports, and reviews attendance. Through this framework, the system provides real-time monitoring, verified attendance tracking, and organized management of security operations.`;
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 3000);
+            }).catch(err => {
+                alert('Could not auto-copy. Please select the text manually and press Ctrl+C.');
+            });
+        }
+    </script>
+</body>
+</html>
