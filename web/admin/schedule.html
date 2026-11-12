@@ -171,7 +171,7 @@
                 <strong style="font-size:0.95rem; font-weight:700; color:var(--ax-text, #1C1917);">Company / Client</strong>
                 <span id="bundledDeploymentsSummary" class="bundle-pill bundle-pill-neutral ms-1" style="font-size:0.75rem;">0 clients</span>
             </div>
-            <div class="text-muted small">Click any client to view its weekly guard schedule calendar</div>
+            <div class="text-muted small">Click any client to view its monthly guard schedule calendar</div>
         </div>
         <div id="bundledDeploymentsContainer" class="bundled-deployments-grid" aria-label="Company and client deployment sites"></div>
         <div class="table-responsive" tabindex="0" aria-label="Scheduled guard shifts">
@@ -782,9 +782,10 @@ function formatScheduleDisplay(s) {
 }
 
 // =====================================
-// COMPANY / CLIENT SELECTION & WEEKLY CALENDAR (Photo 2)
+// COMPANY / CLIENT SELECTION & MONTHLY CALENDAR
 // =====================================
 let currentCalendarSiteId = null;
+let currentCalendarMonthStart = null;
 let currentCalendarWeekStart = null;
 
 function renderBundledDeployments() {
@@ -816,7 +817,7 @@ function renderBundledDeployments() {
     container.innerHTML = clientList.map(loc => {
         const stationedGuards = activeUserGuards.filter(g => (g.assignedLocationId || g.assigned_location_id) === loc.id);
         const count = stationedGuards.length;
-        return `<div class="client-deployment-card" data-site-id="${escapeHtml(loc.id)}" onclick="openClientScheduleCalendar(this.dataset.siteId)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openClientScheduleCalendar(this.dataset.siteId);}" role="button" tabindex="0" title="Click to view weekly schedule calendar for ${escapeHtml(loc.label || 'this client')}">
+        return `<div class="client-deployment-card" data-site-id="${escapeHtml(loc.id)}" onclick="openClientScheduleCalendar(this.dataset.siteId)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openClientScheduleCalendar(this.dataset.siteId);}" role="button" tabindex="0" title="Click to view monthly schedule calendar for ${escapeHtml(loc.label || 'this client')}">
             <div class="deployment-bundle-title-wrap">
                 <span class="deployment-bundle-icon"><span class="material-symbols-rounded" aria-hidden="true">business</span></span>
                 <div>
@@ -951,6 +952,7 @@ function openClientScheduleCalendar(siteId) {
     currentCalendarSiteId = siteId;
     const rosterDateEl = document.getElementById('rosterDate');
     const baseDate = rosterDateEl?.value ? parseScheduleDate(rosterDateEl.value) : new Date();
+    currentCalendarMonthStart = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
     currentCalendarWeekStart = getWeekMonday(baseDate);
 
     renderClientScheduleCalendar();
@@ -995,14 +997,23 @@ function closeClientScheduleCalendar() {
     document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
 }
 
-function navigateCalendarWeek(direction) {
-    if (!currentCalendarWeekStart) currentCalendarWeekStart = getWeekMonday(new Date());
-    if (direction === 0) {
-        currentCalendarWeekStart = getWeekMonday(new Date());
-    } else {
-        currentCalendarWeekStart.setDate(currentCalendarWeekStart.getDate() + (direction * 7));
+function navigateCalendarMonth(direction) {
+    if (!currentCalendarMonthStart) {
+        const now = new Date();
+        currentCalendarMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     }
+    if (direction === 0) {
+        const now = new Date();
+        currentCalendarMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    } else {
+        currentCalendarMonthStart.setMonth(currentCalendarMonthStart.getMonth() + direction);
+    }
+    currentCalendarWeekStart = getWeekMonday(currentCalendarMonthStart);
     renderClientScheduleCalendar();
+}
+
+function navigateCalendarWeek(direction) {
+    navigateCalendarMonth(direction);
 }
 
 function renderClientScheduleCalendar() {
@@ -1017,31 +1028,36 @@ function renderClientScheduleCalendar() {
     if (siteTitleEl) siteTitleEl.textContent = `${loc?.label || 'Client'} — Schedule`;
     if (siteSubEl) siteSubEl.textContent = loc?.address || 'Deployment Site Calendar';
 
-    const weekDays = [];
-    for (let i = 0; i < 7; i++) {
-        const dayDate = new Date(currentCalendarWeekStart);
-        dayDate.setDate(dayDate.getDate() + i);
-        weekDays.push(dayDate);
+    if (!currentCalendarMonthStart) {
+        const now = new Date();
+        currentCalendarMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     }
 
-    const startMonth = weekDays[0].toLocaleDateString('en-US', { month: 'short' });
-    const endMonth = weekDays[6].toLocaleDateString('en-US', { month: 'short' });
-    const startDay = weekDays[0].getDate();
-    const endDay = weekDays[6].getDate();
-    const year = weekDays[6].getFullYear();
+    const year = currentCalendarMonthStart.getFullYear();
+    const month = currentCalendarMonthStart.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const monthDays = [];
+    for (let day = 1; day <= daysInMonth; day++) {
+        monthDays.push(new Date(year, month, day));
+    }
+
+    const monthName = currentCalendarMonthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     if (weekPillEl) {
-        weekPillEl.textContent = `${startMonth} ${startDay} – ${endMonth} ${endDay}, ${year}`;
+        weekPillEl.textContent = monthName;
     }
 
-    const dayNames = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+    const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
     if (headerRow) {
         headerRow.innerHTML = `
             <th class="guard-col-header" scope="col">GUARD / PERSONNEL</th>
-            ${weekDays.map((d, idx) => {
+            ${monthDays.map(d => {
                 const dayNum = d.getDate();
+                const dayName = dayNames[d.getDay()];
                 const isToday = d.toDateString() === new Date().toDateString();
-                return `<th scope="col" class="${isToday ? 'bg-danger-subtle text-danger fw-bold' : ''}">
-                    <div style="font-size:0.75rem; letter-spacing:0.04em;">${dayNames[idx]}</div>
+                const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+                return `<th scope="col" class="${isToday ? 'bg-danger-subtle text-danger fw-bold' : (isWeekend ? 'bg-light text-muted' : '')}" style="min-width:115px;">
+                    <div style="font-size:0.72rem; letter-spacing:0.04em;">${dayName}</div>
                     <div style="font-size:1.05rem; font-weight:800; line-height:1.2;">${dayNum}</div>
                 </th>`;
             }).join('')}
@@ -1051,13 +1067,13 @@ function renderClientScheduleCalendar() {
     const activeUserGuards = (guards || []).filter(g => g.active && g.role === 'user');
     const stationedGuards = activeUserGuards.filter(g => (g.assignedLocationId || g.assigned_location_id) === currentCalendarSiteId);
 
-    const weekDateStrs = weekDays.map(d => formatCalendarDateStr(d));
-    const siteWeekSchedules = (schedules || []).filter(s => {
+    const monthDateStrs = monthDays.map(d => formatCalendarDateStr(d));
+    const siteMonthSchedules = (schedules || []).filter(s => {
         const sLocId = s.locationId || s.location_id;
-        return sLocId === currentCalendarSiteId && weekDateStrs.includes(s.date) && s.approval_status !== 'cancelled';
+        return sLocId === currentCalendarSiteId && monthDateStrs.includes(s.date) && s.approval_status !== 'cancelled';
     });
 
-    const otherScheduledGuardIds = new Set(siteWeekSchedules.map(s => s.userId));
+    const otherScheduledGuardIds = new Set(siteMonthSchedules.map(s => s.userId));
     const allRelevantGuards = [...stationedGuards];
     otherScheduledGuardIds.forEach(uId => {
         if (!allRelevantGuards.some(g => g.id === uId)) {
@@ -1070,12 +1086,12 @@ function renderClientScheduleCalendar() {
 
     if (!tbody) return;
 
-    // If no guards are assigned/stationed, render the client's shifts as rows with open slots across MON-SUN
+    // If no guards are assigned/stationed, render the client's shifts as rows with open slots across the month
     if (!allRelevantGuards.length) {
         const contractedShifts = getClientContractedShifts(loc);
         tbody.innerHTML = contractedShifts.map(shift => {
-            const dayCells = weekDays.map(d => {
-                return `<td class="guard-calendar-day-cell text-muted" style="min-width:110px;">
+            const dayCells = monthDays.map(d => {
+                return `<td class="guard-calendar-day-cell text-muted" style="min-width:115px;">
                     <div class="d-flex flex-column align-items-center justify-content-center py-2 px-1" style="min-height:56px; border:1px dashed var(--sl-border, #cbd5e1); border-radius:8px; background:var(--sl-surface, #ffffff); opacity:0.85;">
                         <span style="font-size:0.68rem; font-weight:600; color:var(--sl-muted, #64748b);">Unassigned</span>
                         <span style="font-size:0.62rem; color:var(--sl-muted, #94a3b8);">${escapeHtml(shift.label)}</span>
@@ -1103,9 +1119,9 @@ function renderClientScheduleCalendar() {
         const initials = (guard.name || 'Guard').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
         const isStationed = (guard.assignedLocationId || guard.assigned_location_id) === currentCalendarSiteId;
 
-        const dayCells = weekDays.map((d, dayIdx) => {
+        const dayCells = monthDays.map(d => {
             const dateStr = formatCalendarDateStr(d);
-            const guardShiftsOnDay = siteWeekSchedules.filter(s => s.userId === guard.id && s.date === dateStr);
+            const guardShiftsOnDay = siteMonthSchedules.filter(s => s.userId === guard.id && s.date === dateStr);
 
             if (!guardShiftsOnDay.length) {
                 const isExplicitRest = (schedules || []).some(s => 
@@ -1116,15 +1132,15 @@ function renderClientScheduleCalendar() {
                 const isSpecificRest = isExplicitRest || isGuardSpecificRestDay(guard, d);
 
                 if (isSpecificRest) {
-                    return `<td class="guard-calendar-day-cell text-muted" style="min-width:110px;">
+                    return `<td class="guard-calendar-day-cell text-muted" style="min-width:115px;">
                         <span class="badge shift-color-rest" style="font-size:0.7rem; font-weight:600; padding:4px 8px; border-radius:6px;">REST</span>
                     </td>`;
                 }
 
-                return `<td class="guard-calendar-day-cell text-muted" style="min-width:110px;"></td>`;
+                return `<td class="guard-calendar-day-cell text-muted" style="min-width:115px;"></td>`;
             }
 
-            return `<td class="guard-calendar-day-cell" style="min-width:110px;">
+            return `<td class="guard-calendar-day-cell" style="min-width:115px;">
                 ${guardShiftsOnDay.map(shift => {
                     const start = toDate(shift.startAt);
                     const end = toDate(shift.endAt);
@@ -1180,19 +1196,23 @@ function selectSiteForSchedulingFromModal() {
         siteSelect.value = currentCalendarSiteId;
         siteSelect.dispatchEvent(new Event('change'));
     }
-    if (currentCalendarWeekStart) {
-        const dateInput = document.getElementById('rosterDate');
-        if (dateInput) {
-            dateInput.value = formatCalendarDateStr(currentCalendarWeekStart);
-            dateInput.dispatchEvent(new Event('change'));
-        }
+    const dateInput = document.getElementById('rosterDate');
+    if (dateInput && currentCalendarMonthStart) {
+        const today = new Date();
+        const initialDate = (today.getFullYear() === currentCalendarMonthStart.getFullYear() && today.getMonth() === currentCalendarMonthStart.getMonth())
+            ? today
+            : currentCalendarMonthStart;
+        dateInput.value = formatCalendarDateStr(initialDate);
+        dateInput.dispatchEvent(new Event('change'));
     }
     document.querySelector('.shift-roster-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 window.openClientScheduleCalendar = openClientScheduleCalendar;
 window.closeClientScheduleCalendar = closeClientScheduleCalendar;
-window.navigateCalendarWeek = navigateCalendarWeek;
+window.navigateCalendarMonth = navigateCalendarMonth;
+window.navigateCalendarWeek = navigateCalendarMonth;
+window.selectSiteForSchedulingFromModal = selectSiteForSchedulingFromModal;
 window.selectSiteForSchedulingFromModal = selectSiteForSchedulingFromModal;
 
 function toggleAllDeploymentBundles() {}
@@ -1203,9 +1223,9 @@ function _unusedEndHelper() {
 
 </script>
 
-<!-- Client Weekly Guard Schedule Calendar Modal (Photo 2) -->
+<!-- Client Monthly Guard Schedule Calendar Modal (Photo 2) -->
 <div class="modal fade guard-calendar-modal" id="clientScheduleCalendarModal" tabindex="-1" aria-labelledby="clientCalendarModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-dialog modal-dialog-centered modal-xl" style="max-width:96vw;">
         <div class="modal-content glass-card shadow-lg" style="border-radius:16px; overflow:hidden;">
             <div class="modal-header border-bottom py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
                 <div class="d-flex align-items-center gap-3">
@@ -1214,14 +1234,14 @@ function _unusedEndHelper() {
                     </div>
                     <div>
                         <h5 class="modal-title fs-6 fw-bold mb-0" id="clientCalendarModalTitle">Client Guard Schedule</h5>
-                        <p class="text-muted small mb-0" id="clientCalendarModalSub">Weekly assignment overview</p>
+                        <p class="text-muted small mb-0" id="clientCalendarModalSub">Monthly assignment overview</p>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
                     <div class="btn-group btn-group-sm">
-                        <button type="button" class="btn btn-outline-secondary" onclick="navigateCalendarWeek(-1)" title="Previous week"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_back</span></button>
-                        <button type="button" class="btn btn-outline-secondary fw-semibold px-3" onclick="navigateCalendarWeek(0)">Today</button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="navigateCalendarWeek(1)" title="Next week"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_forward</span></button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="navigateCalendarMonth(-1)" title="Previous month"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_back</span></button>
+                        <button type="button" class="btn btn-outline-secondary fw-semibold px-3" onclick="navigateCalendarMonth(0)">Today</button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="navigateCalendarMonth(1)" title="Next month"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_forward</span></button>
                     </div>
                     <span id="clientCalendarWeekPill" class="badge bg-light text-dark border px-3 py-2 fw-semibold" style="font-size:0.82rem;"></span>
                     <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close" onclick="closeClientScheduleCalendar()"></button>
