@@ -1022,8 +1022,7 @@ function renderClientScheduleCalendar() {
     const siteTitleEl = document.getElementById('clientCalendarModalTitle');
     const siteSubEl = document.getElementById('clientCalendarModalSub');
     const weekPillEl = document.getElementById('clientCalendarWeekPill');
-    const headerRow = document.getElementById('clientCalendarHeaderRow');
-    const tbody = document.getElementById('clientCalendarBody');
+    const gridEl = document.getElementById('clientCalendarMonthGrid');
 
     if (siteTitleEl) siteTitleEl.textContent = `${loc?.label || 'Client'} — Schedule`;
     if (siteSubEl) siteSubEl.textContent = loc?.address || 'Deployment Site Calendar';
@@ -1035,157 +1034,122 @@ function renderClientScheduleCalendar() {
 
     const year = currentCalendarMonthStart.getFullYear();
     const month = currentCalendarMonthStart.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    const monthDays = [];
-    for (let day = 1; day <= daysInMonth; day++) {
-        monthDays.push(new Date(year, month, day));
-    }
-
     const monthName = currentCalendarMonthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     if (weekPillEl) {
         weekPillEl.textContent = monthName;
     }
 
-    const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    if (headerRow) {
-        headerRow.innerHTML = `
-            <th class="guard-col-header" scope="col">GUARD / PERSONNEL</th>
-            ${monthDays.map(d => {
-                const dayNum = d.getDate();
-                const dayName = dayNames[d.getDay()];
-                const isToday = d.toDateString() === new Date().toDateString();
-                const isWeekend = d.getDay() === 0 || d.getDay() === 6;
-                return `<th scope="col" class="${isToday ? 'bg-danger-subtle text-danger fw-bold' : (isWeekend ? 'bg-light text-muted' : '')}" style="min-width:115px;">
-                    <div style="font-size:0.72rem; letter-spacing:0.04em;">${dayName}</div>
-                    <div style="font-size:1.05rem; font-weight:800; line-height:1.2;">${dayNum}</div>
-                </th>`;
-            }).join('')}
-        `;
-    }
+    if (!gridEl) return;
+
+    // First day index (0 = Sun, 1 = Mon, ... 6 = Sat)
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const prevMonthDays = new Date(year, month, 0).getDate();
 
     const activeUserGuards = (guards || []).filter(g => g.active && g.role === 'user');
     const stationedGuards = activeUserGuards.filter(g => (g.assignedLocationId || g.assigned_location_id) === currentCalendarSiteId);
+    const contractedShifts = getClientContractedShifts(loc);
 
-    const monthDateStrs = monthDays.map(d => formatCalendarDateStr(d));
-    const siteMonthSchedules = (schedules || []).filter(s => {
-        const sLocId = s.locationId || s.location_id;
-        return sLocId === currentCalendarSiteId && monthDateStrs.includes(s.date) && s.approval_status !== 'cancelled';
-    });
+    const totalCells = Math.ceil((firstDayIndex + daysInMonth) / 7) * 7;
+    const todayStr = formatCalendarDateStr(new Date());
 
-    const otherScheduledGuardIds = new Set(siteMonthSchedules.map(s => s.userId));
-    const allRelevantGuards = [...stationedGuards];
-    otherScheduledGuardIds.forEach(uId => {
-        if (!allRelevantGuards.some(g => g.id === uId)) {
-            const found = activeUserGuards.find(g => g.id === uId);
-            if (found) allRelevantGuards.push(found);
+    let cellsHtml = '';
+
+    for (let i = 0; i < totalCells; i++) {
+        let cellDate;
+        let isOutside = false;
+        let dayNum;
+
+        if (i < firstDayIndex) {
+            dayNum = prevMonthDays - firstDayIndex + 1 + i;
+            cellDate = new Date(year, month - 1, dayNum);
+            isOutside = true;
+        } else if (i < firstDayIndex + daysInMonth) {
+            dayNum = i - firstDayIndex + 1;
+            cellDate = new Date(year, month, dayNum);
+            isOutside = false;
+        } else {
+            dayNum = i - (firstDayIndex + daysInMonth) + 1;
+            cellDate = new Date(year, month + 1, dayNum);
+            isOutside = true;
         }
-    });
 
-    allRelevantGuards.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        const dateStr = formatCalendarDateStr(cellDate);
+        const isToday = dateStr === todayStr;
 
-    if (!tbody) return;
+        const daySchedules = (schedules || []).filter(s => {
+            const sLocId = s.locationId || s.location_id;
+            return sLocId === currentCalendarSiteId && s.date === dateStr && s.approval_status !== 'cancelled';
+        });
 
-    // If no guards are assigned/stationed, render the client's shifts as rows with open slots across the month
-    if (!allRelevantGuards.length) {
-        const contractedShifts = getClientContractedShifts(loc);
-        tbody.innerHTML = contractedShifts.map(shift => {
-            const dayCells = monthDays.map(d => {
-                return `<td class="guard-calendar-day-cell text-muted" style="min-width:115px;">
-                    <div class="d-flex flex-column align-items-center justify-content-center py-2 px-1" style="min-height:56px; border:1px dashed var(--sl-border, #cbd5e1); border-radius:8px; background:var(--sl-surface, #ffffff); opacity:0.85;">
-                        <span style="font-size:0.68rem; font-weight:600; color:var(--sl-muted, #64748b);">Unassigned</span>
-                        <span style="font-size:0.62rem; color:var(--sl-muted, #94a3b8);">${escapeHtml(shift.label)}</span>
-                    </div>
-                </td>`;
-            }).join('');
+        let eventPillsHtml = '';
 
-            return `<tr>
-                <td class="guard-calendar-guard-cell">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="guard-calendar-avatar ${shift.colorClass}" style="opacity:0.9;">${shift.badge}</div>
-                        <div>
-                            <div class="guard-calendar-name">${escapeHtml(shift.label)}</div>
-                            <div class="guard-calendar-role text-muted">${escapeHtml(shift.timeRange)} · 0 guards</div>
-                        </div>
-                    </div>
-                </td>
-                ${dayCells}
-            </tr>`;
-        }).join('');
-        return;
-    }
+        if (daySchedules.length > 0) {
+            daySchedules.forEach(s => {
+                const start = toDate(s.startAt);
+                const end = toDate(s.endAt);
+                const timeRange = start && end ? `${formatTime(start)}–${formatTime(end)}` : 'Shift';
+                const gName = s.guard_name || (activeUserGuards.find(g => g.id === s.userId)?.name) || 'Guard';
 
-    tbody.innerHTML = allRelevantGuards.map(guard => {
-        const initials = (guard.name || 'Guard').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-        const isStationed = (guard.assignedLocationId || guard.assigned_location_id) === currentCalendarSiteId;
-
-        const dayCells = monthDays.map(d => {
-            const dateStr = formatCalendarDateStr(d);
-            const guardShiftsOnDay = siteMonthSchedules.filter(s => s.userId === guard.id && s.date === dateStr);
-
-            if (!guardShiftsOnDay.length) {
-                const isExplicitRest = (schedules || []).some(s => 
-                    s.userId === guard.id && 
-                    s.date === dateStr && 
-                    (s.is_rest_day === true || s.status === 'rest' || s.shift === 'REST' || s.leave_type === 'REST')
-                );
-                const isSpecificRest = isExplicitRest || isGuardSpecificRestDay(guard, d);
-
-                if (isSpecificRest) {
-                    return `<td class="guard-calendar-day-cell text-muted" style="min-width:115px;">
-                        <span class="badge shift-color-rest" style="font-size:0.7rem; font-weight:600; padding:4px 8px; border-radius:6px;">REST</span>
-                    </td>`;
+                const startH = start ? start.getHours() : 6;
+                let colorClass = 'is-morning';
+                if (startH >= 12 && startH < 18) {
+                    colorClass = 'is-afternoon';
+                } else if (startH >= 18 || startH < 6) {
+                    colorClass = 'is-night';
                 }
 
-                return `<td class="guard-calendar-day-cell text-muted" style="min-width:115px;"></td>`;
-            }
-
-            return `<td class="guard-calendar-day-cell" style="min-width:115px;">
-                ${guardShiftsOnDay.map(shift => {
-                    const start = toDate(shift.startAt);
-                    const end = toDate(shift.endAt);
-                    const timeRange = start && end ? `${formatTime(start)} – ${formatTime(end)}` : 'Shift';
-                    const dur = start && end ? formatDurationBetween(start, end) : '';
-
-                    const startH = start ? start.getHours() : 6;
-                    let colorClass = 'shift-color-morning';
-                    let shiftBadge = 'M';
-                    let shiftType = 'Day Shift';
-                    if (startH >= 12 && startH < 18) {
-                        colorClass = 'shift-color-afternoon';
-                        shiftBadge = 'A';
-                        shiftType = 'Afternoon';
-                    } else if (startH >= 18 || startH < 6) {
-                        colorClass = 'shift-color-night';
-                        shiftBadge = 'N';
-                        shiftType = 'Night Shift';
-                    }
-
-                    return `<div class="guard-shift-block ${colorClass}" title="${escapeHtml(timeRange)}">
-                        <div class="d-flex align-items-center justify-content-between gap-1" style="font-size:0.68rem; opacity:0.92;">
-                            <span class="fw-bold">${shiftBadge}</span>
-                            <span>${dur}</span>
-                        </div>
-                        <div class="fw-bold" style="font-size:0.74rem; white-space:nowrap;">${escapeHtml(timeRange)}</div>
-                        <div style="font-size:0.66rem; opacity:0.9;">${shiftType}</div>
-                    </div>`;
-                }).join('')}
-            </td>`;
-        }).join('');
-
-        return `<tr>
-            <td class="guard-calendar-guard-cell">
-                <div class="d-flex align-items-center gap-2">
-                    <div class="guard-calendar-avatar">${escapeHtml(initials)}</div>
-                    <div>
-                        <div class="guard-calendar-name">${escapeHtml(guard.name || 'Guard')}</div>
-                        <div class="guard-calendar-role">${isStationed ? 'Stationed Guard' : 'Scheduled Guard'}</div>
+                eventPillsHtml += `
+                    <div class="gcal-event-pill ${colorClass}" title="${escapeHtml(gName)} (${escapeHtml(timeRange)})" onclick="event.stopPropagation();">
+                        <span>● ${escapeHtml(timeRange)}: <strong>${escapeHtml(gName)}</strong></span>
                     </div>
+                `;
+            });
+        }
+
+        if (!isOutside) {
+            stationedGuards.forEach(g => {
+                const hasShift = daySchedules.some(s => s.userId === g.id);
+                if (!hasShift) {
+                    const isExplicitRest = (schedules || []).some(s => 
+                        s.userId === g.id && 
+                        s.date === dateStr && 
+                        (s.is_rest_day === true || s.status === 'rest' || s.shift === 'REST' || s.leave_type === 'REST')
+                    );
+                    if (isExplicitRest || isGuardSpecificRestDay(g, cellDate)) {
+                        eventPillsHtml += `
+                            <div class="gcal-event-pill is-rest" title="Rest day for ${escapeHtml(g.name)}" onclick="event.stopPropagation();">
+                                <span>REST: ${escapeHtml(g.name)}</span>
+                            </div>
+                        `;
+                    }
+                }
+            });
+
+            if (!daySchedules.length && !stationedGuards.length && contractedShifts.length) {
+                contractedShifts.forEach(shift => {
+                    eventPillsHtml += `
+                        <div class="gcal-event-pill is-unassigned" title="Unassigned slot" onclick="event.stopPropagation();">
+                            <span>Unassigned: ${escapeHtml(shift.label)}</span>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        cellsHtml += `
+            <div class="gcal-day-cell ${isOutside ? 'is-outside' : ''} ${isToday ? 'is-today' : ''}" data-date="${dateStr}">
+                <div class="gcal-day-header">
+                    <span class="gcal-day-num">${dayNum}</span>
                 </div>
-            </td>
-            ${dayCells}
-        </tr>`;
-    }).join('');
+                <div class="d-flex flex-column gap-1 overflow-auto">
+                    ${eventPillsHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    gridEl.innerHTML = cellsHtml;
 }
 
 function selectSiteForSchedulingFromModal() {
@@ -1237,28 +1201,32 @@ function _unusedEndHelper() {
                         <p class="text-muted small mb-0" id="clientCalendarModalSub">Monthly assignment overview</p>
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-2 flex-wrap">
-                    <div class="btn-group btn-group-sm">
-                        <button type="button" class="btn btn-outline-secondary" onclick="navigateCalendarMonth(-1)" title="Previous month"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_back</span></button>
-                        <button type="button" class="btn btn-outline-secondary fw-semibold px-3" onclick="navigateCalendarMonth(0)">Today</button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="navigateCalendarMonth(1)" title="Next month"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_forward</span></button>
+                <div class="d-flex align-items-center gap-3 flex-wrap">
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold px-3 rounded-pill" onclick="navigateCalendarMonth(0)">Today</button>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-secondary" onclick="navigateCalendarMonth(-1)" title="Previous month"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_back</span></button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="navigateCalendarMonth(1)" title="Next month"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_forward</span></button>
+                        </div>
+                        <h6 class="mb-0 fw-bold ms-1" id="clientCalendarWeekPill" style="font-size:1rem; min-width:140px;"></h6>
                     </div>
-                    <span id="clientCalendarWeekPill" class="badge bg-light text-dark border px-3 py-2 fw-semibold" style="font-size:0.82rem;"></span>
                     <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close" onclick="closeClientScheduleCalendar()"></button>
                 </div>
             </div>
-            <div class="modal-body p-4" style="background:var(--sl-surface-muted, #f8fafc);">
-                <div class="guard-calendar-table-wrap shadow-sm">
-                    <table class="guard-calendar-table" id="clientCalendarTable">
-                        <thead>
-                            <tr id="clientCalendarHeaderRow">
-                                <!-- Generated dynamically -->
-                            </tr>
-                        </thead>
-                        <tbody id="clientCalendarBody">
-                            <!-- Generated dynamically -->
-                        </tbody>
-                    </table>
+            <div class="modal-body p-3 p-md-4" style="background:var(--sl-surface-muted, #f8fafc);">
+                <div class="gcal-month-wrap shadow-sm">
+                    <div class="gcal-weekdays-row" aria-hidden="true">
+                        <div class="gcal-weekday-header">SUN</div>
+                        <div class="gcal-weekday-header">MON</div>
+                        <div class="gcal-weekday-header">TUE</div>
+                        <div class="gcal-weekday-header">WED</div>
+                        <div class="gcal-weekday-header">THU</div>
+                        <div class="gcal-weekday-header">FRI</div>
+                        <div class="gcal-weekday-header">SAT</div>
+                    </div>
+                    <div class="gcal-month-grid" id="clientCalendarMonthGrid" role="grid" aria-label="Monthly client guard schedule calendar">
+                        <!-- Populated dynamically -->
+                    </div>
                 </div>
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3 pt-2">
                     <div class="d-flex align-items-center gap-3 flex-wrap small">
