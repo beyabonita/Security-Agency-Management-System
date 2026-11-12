@@ -1594,8 +1594,9 @@
                             <span>Shift</span>
                             <select id="deploymentShiftFilter">
                                 <option value="">All shifts</option>
-                                <option value="day">Day</option>
-                                <option value="night">Night</option>
+                                <option value="1">1st Shift</option>
+                                <option value="2">2nd Shift</option>
+                                <option value="3">3rd Shift</option>
                             </select>
                         </label>
                         <label>
@@ -1927,9 +1928,15 @@ function renderDeploymentInfographic(schedules, locations) {
         const siteName = schedule.location_label || location.label || 'Unassigned site';
         const address = schedule.location_address || location.address || '-';
         const shift = dashboardShiftKind(schedule.start_at);
+        const shiftSlot = dashboardShiftSlot(schedule.start_at, location);
         const haystack = (siteName + ' ' + address).toLowerCase();
         if (siteFilter && locationId !== siteFilter) return;
-        if (shiftFilter && shift !== shiftFilter) return;
+        if (shiftFilter) {
+            const matchesSlot = shiftFilter === shiftSlot;
+            const matchesLegacy = (shiftFilter === 'day' && (shiftSlot === '1' || shift === 'day')) ||
+                                  (shiftFilter === 'night' && (shiftSlot === '2' || shiftSlot === '3' || shift === 'night'));
+            if (!matchesSlot && !matchesLegacy) return;
+        }
         if (search && !haystack.includes(search)) return;
         const key = locationId || siteName;
         if (!grouped.has(key)) grouped.set(key, { siteName, address, day: new Set(), night: new Set() });
@@ -2347,6 +2354,38 @@ function dashboardShiftKind(startAt) {
     const hourText = date.toLocaleString('en-PH', { timeZone: 'Asia/Manila', hour: '2-digit', hour12: false });
     const hour = Number.isNaN(date.getTime()) ? 8 : Number(hourText);
     return hour >= 18 || hour < 6 ? 'night' : 'day';
+}
+
+function dashboardShiftSlot(startAt, location) {
+    const date = new Date(startAt);
+    if (Number.isNaN(date.getTime())) return '1';
+    const hourText = date.toLocaleString('en-PH', { timeZone: 'Asia/Manila', hour: '2-digit', hour12: false });
+    const hour = Number(hourText);
+
+    const customHours = location ? (location.custom_shift_hours || location.customShiftHours) : null;
+    if (Array.isArray(customHours) && customHours.length > 0) {
+        for (let i = 0; i < customHours.length; i++) {
+            const ch = customHours[i];
+            if (ch && ch.start_time) {
+                const sHour = parseInt(ch.start_time.split(':')[0], 10);
+                const eHour = ch.end_time ? parseInt(ch.end_time.split(':')[0], 10) : (sHour + 8) % 24;
+                if (sHour <= eHour) {
+                    if (hour >= sHour && hour < eHour) return String(i + 1);
+                } else {
+                    if (hour >= sHour || hour < eHour) return String(i + 1);
+                }
+            }
+        }
+    }
+
+    const model = location ? (location.shift_model || location.shiftModel) : null;
+    if (model === '3_shifts_8h') {
+        if (hour >= 4 && hour < 12) return '1';
+        if (hour >= 12 && hour < 20) return '2';
+        return '3';
+    }
+
+    return (hour >= 18 || hour < 6) ? '2' : '1';
 }
 
 function localDateString(date) {

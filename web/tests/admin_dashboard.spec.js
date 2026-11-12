@@ -97,7 +97,7 @@ test('Operations Head dashboard renders infographic KPIs, deployment bars, donut
   await expect(page.locator('#deploymentInfographicList .ig-deploy-bar-night')).toHaveCount(1);
 
   // Filter interactivity on deployment infographic
-  await page.selectOption('#deploymentShiftFilter', 'day');
+  await page.selectOption('#deploymentShiftFilter', '1');
   await expect(page.locator('#deployTotalAssigned')).toHaveText('1');
   await expect(page.locator('#deployNightTotal')).toHaveText('0');
   await page.selectOption('#deploymentShiftFilter', '');
