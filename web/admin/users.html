@@ -2426,6 +2426,7 @@ function renderGuardRow(id, data, locationsById) {
         `<button type="button" class="action-btn btn-schedule-del" onclick="assignDeployment('${id}')">Assigned Post</button>`,
         `<button type="button" class="action-btn btn-history" onclick="viewAssignmentHistory('${id}')">History</button>`,
         `<button type="button" class="action-btn btn-reports" onclick="viewAccomplishments('${id}')">Reports</button>`,
+        `<button type="button" class="action-btn btn-delete text-danger fw-semibold" onclick="deletePersonnel('${id}', this)"><span class="material-symbols-rounded align-middle me-1" style="font-size:15px;" aria-hidden="true">delete</span>Delete</button>`,
     ]);
     return `<tr${isArchived ? ' class="opacity-75"' : ''}>
         <td>${renderPersonnelIdentity(id, data)}</td>
@@ -2449,7 +2450,7 @@ function renderInspectorRow(id, data) {
     const actions = renderPersonnelActions(id, [
         `<button type="button" class="action-btn btn-locations" onclick="editPersonnel('${id}', this)">Edit</button>`,
         toggle,
-
+        `<button type="button" class="action-btn btn-delete text-danger fw-semibold" onclick="deletePersonnel('${id}', this)"><span class="material-symbols-rounded align-middle me-1" style="font-size:15px;" aria-hidden="true">delete</span>Delete</button>`,
     ]);
     return `<tr>
         <td>${renderPersonnelIdentity(id, data)}</td>
@@ -3527,6 +3528,35 @@ async function archivePersonnel(uid, shouldArchive, button) {
         appDialog.toast(shouldArchive ? `Guard "${name}" archived successfully.` : `Guard "${name}" restored.`, { tone: 'success' });
     } catch (error) {
         appDialog.toast("Could not update guard status: " + (error.message || 'Please try again.'), { tone: "danger" });
+    }
+}
+
+async function deletePersonnel(uid, button) {
+    const account = personnelAccounts[uid];
+    const name = account ? personnelDisplayName(account) : 'this personnel';
+    const badge = (account && (account.personnelId || account.personnel_id)) ? ` (${account.personnelId || account.personnel_id})` : '';
+
+    const approved = await appDialog.confirm(
+        `Permanently delete "${name}"${badge}?\n\nThis will permanently purge this account, login access, and associated records from the database. This action cannot be undone.`,
+        {
+            title: "Delete Personnel Account",
+            confirmText: "Delete Account",
+            danger: true,
+            icon: "delete"
+        }
+    );
+    if (!approved) return;
+
+    try {
+        await appDialog.runBusy(button, async () => {
+            await managePersonnelAccount({ action: "purge", userId: uid });
+            delete personnelAccounts[uid];
+            await loadUsers();
+        }, { label: 'Deleting…' });
+        appDialog.toast(`"${name}" was deleted successfully.`, { tone: "success" });
+    } catch (error) {
+        console.error("Delete personnel error:", error);
+        appDialog.toast("Could not delete personnel: " + (error.message || 'Please try again.'), { tone: "danger" });
     }
 }
 
