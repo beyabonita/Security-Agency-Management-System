@@ -1079,17 +1079,9 @@ function renderClientScheduleCalendar() {
                     colorClass = 'is-night';
                 }
 
-                const history = scheduleHistoryState(s);
-                const canDelete = !history.reason;
-
                 eventPillsHtml += `
-                    <div class="gcal-event-pill ${colorClass} d-flex align-items-center justify-content-between" title="${escapeHtml(gName)} (${escapeHtml(timeRange)})${history.reason ? ' — ' + escapeHtml(history.reason) : ''}">
+                    <div class="gcal-event-pill ${colorClass}" title="${escapeHtml(gName)} (${escapeHtml(timeRange)})" onclick="event.stopPropagation();">
                         <span class="text-truncate">● ${escapeHtml(timeRange)}: <strong>${escapeHtml(gName)}</strong></span>
-                        ${canDelete ? `
-                            <button type="button" class="gcal-pill-del" onclick="event.stopPropagation(); deleteSchedule('${escapeHtml(s.firestoreId)}', this)" title="Delete this shift schedule" aria-label="Delete schedule for ${escapeHtml(gName)}">
-                                <span class="material-symbols-rounded" style="font-size:13px; line-height:1;">close</span>
-                            </button>
-                        ` : ''}
                     </div>
                 `;
             });
