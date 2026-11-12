@@ -85,21 +85,20 @@ test('Operations Head dashboard renders infographic KPIs, deployment bars, donut
   await expect(page.locator('#totalInspectors')).toHaveText('1');
   await expect(page.locator('#inspectorPctPill')).toHaveText('1 : 2 guards');
 
-  // 2. Client Deployment Infographic Banner & Stacked Bar Cards
+  // 2. Client Deployment Infographic Banner & Shift Distribution Cards
   await expect(page.locator('#deploySiteCount')).toHaveText('1');
   await expect(page.locator('#deployTotalAssigned')).toHaveText('2');
-  await expect(page.locator('#deployDayTotal')).toHaveText('1');
-  await expect(page.locator('#deployNightTotal')).toHaveText('1');
-  await expect(page.locator('#deployDayPctLabel')).toHaveText('Day shift 50%');
+  await expect(page.locator('#deploy2ShiftCount')).toHaveText('1');
   await expect(page.locator('#deploymentInfographicList')).toContainText('State University of Northern Negros');
   await expect(page.locator('#deploymentInfographicList')).toContainText('Sagay');
-  await expect(page.locator('#deploymentInfographicList .ig-deploy-bar-day')).toHaveCount(1);
-  await expect(page.locator('#deploymentInfographicList .ig-deploy-bar-night')).toHaveCount(1);
+  await expect(page.locator('#deploymentInfographicList .ig-deploy-bar-fill')).toHaveCount(1);
+  await expect(page.locator('#deploymentInfographicList .badge-shift-contract')).toContainText('2 Shifts');
 
   // Filter interactivity on deployment infographic
+  await page.selectOption('#deploymentShiftFilter', '2');
+  await expect(page.locator('#deployTotalAssigned')).toHaveText('2');
   await page.selectOption('#deploymentShiftFilter', '1');
-  await expect(page.locator('#deployTotalAssigned')).toHaveText('1');
-  await expect(page.locator('#deployNightTotal')).toHaveText('0');
+  await expect(page.locator('#deploymentInfographicList .ig-empty-state')).toContainText('No deployment records match the filters.');
   await page.selectOption('#deploymentShiftFilter', '');
   await page.fill('#deploymentSearch', 'nonexistent-site');
   await expect(page.locator('#deploymentInfographicList .ig-empty-state')).toContainText('No deployment records match the filters.');

@@ -326,10 +326,11 @@
 
         /* 2. Client Deployment Infographic */
         body[data-ax-page="dashboard"] .ig-deploy-summary {
-            display: grid;
-            grid-template-columns: auto minmax(220px, 1fr) auto;
+            display: flex;
             align-items: center;
-            gap: 22px;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 18px;
             padding: 14px 18px;
             margin-bottom: 18px;
             border-radius: 12px;
@@ -577,6 +578,33 @@
             overflow: hidden;
             gap: 2px;
             transition: width 0.35s ease;
+        }
+
+        body[data-ax-page="dashboard"] .ig-deploy-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #991b1b 0%, #dc2626 100%);
+            border-radius: 999px;
+            transition: width 0.35s ease;
+        }
+
+        .badge-shift-contract {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(30, 41, 59, 0.05);
+            border: 1px solid rgba(30, 41, 59, 0.15);
+            color: #334155;
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 0.74rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        [data-theme="dark"] .badge-shift-contract {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
         }
 
         body[data-ax-page="dashboard"] .ig-deploy-bar-day {
@@ -1580,7 +1608,7 @@
                         <span class="ig-section-badge" aria-hidden="true"><span class="material-symbols-rounded">location_on</span></span>
                         <div>
                             <h2 id="deploymentHeading">Deployment</h2>
-                            <p class="ig-section-sub">Client post coverage &amp; day/night shift distribution</p>
+                            <p class="ig-section-sub">Client post coverage &amp; shift deployment</p>
                         </div>
                     </div>
                     <div class="dashboard-filter-bar" aria-label="Deployment filters">
@@ -1594,9 +1622,9 @@
                             <span>Shift</span>
                             <select id="deploymentShiftFilter">
                                 <option value="">All shifts</option>
-                                <option value="1">1st Shift</option>
-                                <option value="2">2nd Shift</option>
-                                <option value="3">3rd Shift</option>
+                                <option value="1">1 Shift</option>
+                                <option value="2">2 Shifts</option>
+                                <option value="3">3 Shifts</option>
                             </select>
                         </label>
                         <label>
@@ -1618,19 +1646,20 @@
                             <span>Assigned Slots</span>
                         </div>
                     </div>
-                    <div class="ig-shift-balance">
-                        <div class="ig-shift-balance-labels">
-                            <span id="deployDayPctLabel">Day shift 0%</span>
-                            <span id="deployNightPctLabel">Night shift 0%</span>
-                        </div>
-                        <div class="ig-shift-balance-track" aria-hidden="true">
-                            <div class="ig-shift-seg-day" id="deployDaySeg" style="width:50%"></div>
-                            <div class="ig-shift-seg-night" id="deployNightSeg" style="width:50%"></div>
+                    <div class="ig-shift-models-summary">
+                        <div class="ig-shift-legend-pills">
+                            <span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 1 Shift: <strong id="deploy1ShiftCount" class="ms-1">0</strong></span>
+                            <span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts: <strong id="deploy2ShiftCount" class="ms-1">0</strong></span>
+                            <span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 3 Shifts: <strong id="deploy3ShiftCount" class="ms-1">0</strong></span>
                         </div>
                     </div>
-                    <div class="ig-shift-legend-pills">
-                        <span class="ig-shift-chip is-day"><span class="material-symbols-rounded" aria-hidden="true">light_mode</span> Day <strong id="deployDayTotal">0</strong></span>
-                        <span class="ig-shift-chip is-night"><span class="material-symbols-rounded" aria-hidden="true">dark_mode</span> Night <strong id="deployNightTotal">0</strong></span>
+                    <div style="display:none;" aria-hidden="true">
+                        <span id="deployDayTotal">0</span>
+                        <span id="deployNightTotal">0</span>
+                        <span id="deployDayPctLabel"></span>
+                        <span id="deployNightPctLabel"></span>
+                        <div id="deployDaySeg"></div>
+                        <div id="deployNightSeg"></div>
                     </div>
                 </div>
 
@@ -1816,7 +1845,7 @@ async function loadDashboard() {
         ).catch(() => ({ data: [] }));
         const [profilesResult, locationsResult, schedulesResult, attendanceResult, incidentsResult, swapsResult] = await Promise.all([
             appSupabase.from('profiles').select('id,first_name,middle_initial,last_name,role,active,assigned_location_id,employment_category,contract_start_date,contract_end_date'),
-            appSupabase.from('locations').select('id,label,address,active').order('label', { ascending: true }),
+            appSupabase.from('locations').select('id,label,address,active,shift_model,custom_shift_hours').order('label', { ascending: true }).then(r => r.error ? appSupabase.from('locations').select('id,label,address,active').order('label', { ascending: true }) : r).catch(() => appSupabase.from('locations').select('id,label,address,active').order('label', { ascending: true })),
             appSupabase.from('schedules').select('id,user_id,location_id,location_label,location_address,guard_name,start_at,end_at,duty_date,approval_status').order('start_at', { ascending: false }).limit(500),
             appSupabase.from('attendance_sessions').select('id,user_id,schedule_id,location_id,location_label,duty_date,scheduled_start_at,clock_in_at,clock_out_at,status').order('duty_date', { ascending: false }).limit(500),
             appSupabase.from('incidents').select('id,user_id,category,location_label,status,created_at,captured_at').order('created_at', { ascending: false }).limit(200),
@@ -1915,6 +1944,48 @@ function populateDeploymentFilters(locations) {
     select.value = [...select.options].some(option => option.value === current) ? current : '';
 }
 
+function getSiteShiftDetails(location, siteSchedules) {
+    let count = 2;
+    let label = '2 Shifts (12h)';
+
+    if (location) {
+        const cHours = location.custom_shift_hours || location.customShiftHours;
+        const model = location.shift_model || location.shiftModel;
+        if (Array.isArray(cHours) && cHours.length > 0) {
+            count = cHours.length;
+            if (count === 1) label = '1 Shift';
+            else if (count === 3) label = '3 Shifts (8h)';
+            else label = '2 Shifts (12h)';
+        } else if (model === '1_shift_8h') {
+            count = 1;
+            label = '1 Shift';
+        } else if (model === '3_shifts_8h') {
+            count = 3;
+            label = '3 Shifts (8h)';
+        } else if (model === '2_shifts_12h') {
+            count = 2;
+            label = '2 Shifts (12h)';
+        }
+    }
+
+    if (Array.isArray(siteSchedules) && siteSchedules.length > 0) {
+        const distinctHours = new Set();
+        siteSchedules.forEach(s => {
+            const d = new Date(s.start_at);
+            if (!Number.isNaN(d.getTime())) distinctHours.add(d.getHours());
+        });
+        if (distinctHours.size >= 3) {
+            count = 3;
+            label = '3 Shifts (8h)';
+        } else if (distinctHours.size === 1 && (!location || (!location.shift_model && !location.custom_shift_hours))) {
+            count = 1;
+            label = '1 Shift';
+        }
+    }
+
+    return { count, label };
+}
+
 function renderDeploymentInfographic(schedules, locations) {
     const siteFilter = document.getElementById('deploymentSiteFilter').value;
     const shiftFilter = document.getElementById('deploymentShiftFilter').value;
@@ -1922,54 +1993,83 @@ function renderDeploymentInfographic(schedules, locations) {
     const locationById = new Map(locations.map(location => [location.id, location]));
     const grouped = new Map();
 
+    const schedulesBySite = new Map();
+    schedules.forEach(schedule => {
+        const locationId = schedule.location_id || '';
+        const location = locationById.get(locationId) || {};
+        const siteName = schedule.location_label || location.label || 'Unassigned site';
+        const key = locationId || siteName;
+        if (!schedulesBySite.has(key)) schedulesBySite.set(key, []);
+        schedulesBySite.get(key).push(schedule);
+    });
+
     schedules.forEach(schedule => {
         const locationId = schedule.location_id || '';
         const location = locationById.get(locationId) || {};
         const siteName = schedule.location_label || location.label || 'Unassigned site';
         const address = schedule.location_address || location.address || '-';
-        const shift = dashboardShiftKind(schedule.start_at);
-        const shiftSlot = dashboardShiftSlot(schedule.start_at, location);
+        const key = locationId || siteName;
+        const siteSchedules = schedulesBySite.get(key) || [];
+        const shiftDetails = getSiteShiftDetails(location, siteSchedules);
+
         const haystack = (siteName + ' ' + address).toLowerCase();
         if (siteFilter && locationId !== siteFilter) return;
-        if (shiftFilter) {
-            const matchesSlot = shiftFilter === shiftSlot;
-            const matchesLegacy = (shiftFilter === 'day' && (shiftSlot === '1' || shift === 'day')) ||
-                                  (shiftFilter === 'night' && (shiftSlot === '2' || shiftSlot === '3' || shift === 'night'));
-            if (!matchesSlot && !matchesLegacy) return;
-        }
+        if (shiftFilter && String(shiftDetails.count) !== String(shiftFilter)) return;
         if (search && !haystack.includes(search)) return;
-        const key = locationId || siteName;
-        if (!grouped.has(key)) grouped.set(key, { siteName, address, day: new Set(), night: new Set() });
-        grouped.get(key)[shift].add(schedule.user_id || schedule.guard_name || schedule.id);
+
+        if (!grouped.has(key)) {
+            grouped.set(key, {
+                siteName,
+                address,
+                shiftCount: shiftDetails.count,
+                shiftLabel: shiftDetails.label,
+                guards: new Set()
+            });
+        }
+        grouped.get(key).guards.add(schedule.user_id || schedule.guard_name || schedule.id);
     });
 
     const rows = [...grouped.values()].sort((a, b) => {
-        const totalDiff = (b.day.size + b.night.size) - (a.day.size + a.night.size);
+        const totalDiff = b.guards.size - a.guards.size;
         return totalDiff !== 0 ? totalDiff : a.siteName.localeCompare(b.siteName);
     });
 
-    let totalDay = 0;
-    let totalNight = 0;
+    let grandTotal = 0;
     let maxSiteTotal = 1;
-    rows.forEach(row => {
-        const day = row.day.size;
-        const night = row.night.size;
-        totalDay += day;
-        totalNight += night;
-        if (day + night > maxSiteTotal) maxSiteTotal = day + night;
-    });
-    const grandTotal = totalDay + totalNight;
-    const dayPct = grandTotal ? Math.round((totalDay / grandTotal) * 100) : 0;
-    const nightPct = grandTotal ? (100 - dayPct) : 0;
+    let count1Shift = 0;
+    let count2Shift = 0;
+    let count3Shift = 0;
 
-    document.getElementById('deploySiteCount').innerText = rows.length;
-    document.getElementById('deployTotalAssigned').innerText = grandTotal;
-    document.getElementById('deployDayTotal').innerText = totalDay;
-    document.getElementById('deployNightTotal').innerText = totalNight;
-    document.getElementById('deployDayPctLabel').innerText = 'Day shift ' + dayPct + '%';
-    document.getElementById('deployNightPctLabel').innerText = 'Night shift ' + nightPct + '%';
-    document.getElementById('deployDaySeg').style.width = (grandTotal ? dayPct : 0) + '%';
-    document.getElementById('deployNightSeg').style.width = (grandTotal ? nightPct : 0) + '%';
+    rows.forEach(row => {
+        const total = row.guards.size;
+        grandTotal += total;
+        if (total > maxSiteTotal) maxSiteTotal = total;
+        if (row.shiftCount === 1) count1Shift++;
+        else if (row.shiftCount === 3) count3Shift++;
+        else count2Shift++;
+    });
+
+    const siteCountEl = document.getElementById('deploySiteCount');
+    if (siteCountEl) siteCountEl.innerText = rows.length;
+    const totalAssignedEl = document.getElementById('deployTotalAssigned');
+    if (totalAssignedEl) totalAssignedEl.innerText = grandTotal;
+
+    const count1El = document.getElementById('deploy1ShiftCount');
+    if (count1El) count1El.innerText = count1Shift;
+    const count2El = document.getElementById('deploy2ShiftCount');
+    if (count2El) count2El.innerText = count2Shift;
+    const count3El = document.getElementById('deploy3ShiftCount');
+    if (count3El) count3El.innerText = count3Shift;
+
+    // Backward-compatibility hidden elements
+    const dayTotalEl = document.getElementById('deployDayTotal');
+    if (dayTotalEl) dayTotalEl.innerText = grandTotal;
+    const nightTotalEl = document.getElementById('deployNightTotal');
+    if (nightTotalEl) nightTotalEl.innerText = '0';
+    const dayPctEl = document.getElementById('deployDayPctLabel');
+    if (dayPctEl) dayPctEl.innerText = 'Total ' + grandTotal;
+    const nightPctEl = document.getElementById('deployNightPctLabel');
+    if (nightPctEl) nightPctEl.innerText = '';
 
     const container = document.getElementById('deploymentInfographicList');
     if (!rows.length) {
@@ -1982,12 +2082,8 @@ function renderDeploymentInfographic(schedules, locations) {
     }
 
     container.innerHTML = rows.map(row => {
-        const day = row.day.size;
-        const night = row.night.size;
-        const siteTotal = day + night;
+        const siteTotal = row.guards.size;
         const scalePct = Math.max(12, Math.round((siteTotal / maxSiteTotal) * 100));
-        const dayShare = siteTotal ? Math.round((day / siteTotal) * 100) : 0;
-        const nightShare = siteTotal ? (100 - dayShare) : 0;
         const forceSharePct = grandTotal ? Math.round((siteTotal / grandTotal) * 100) : 0;
 
         return '<article class="ig-deploy-card ig-clickable" role="button" tabindex="0" data-drilldown="site" data-site-name="' + escapeHtml(row.siteName) + '">' +
@@ -2006,15 +2102,11 @@ function renderDeploymentInfographic(schedules, locations) {
             '</div>' +
             '<div class="ig-deploy-bar-track" aria-hidden="true">' +
                 '<div class="ig-deploy-bar-group" style="width:' + scalePct + '%">' +
-                    (day > 0 ? '<div class="ig-deploy-bar-day" style="width:' + dayShare + '%"></div>' : '') +
-                    (night > 0 ? '<div class="ig-deploy-bar-night" style="width:' + nightShare + '%"></div>' : '') +
+                    '<div class="ig-deploy-bar-fill" style="width:100%"></div>' +
                 '</div>' +
             '</div>' +
             '<div class="ig-deploy-card-foot">' +
-                '<div class="ig-shift-legend-pills">' +
-                    '<span class="ig-shift-chip is-day"><span class="material-symbols-rounded" aria-hidden="true">light_mode</span> Day <strong>' + day + '</strong></span>' +
-                    '<span class="ig-shift-chip is-night"><span class="material-symbols-rounded" aria-hidden="true">dark_mode</span> Night <strong>' + night + '</strong></span>' +
-                '</div>' +
+                '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> ' + escapeHtml(row.shiftLabel) + '</span>' +
                 '<span class="ig-deploy-share">' + forceSharePct + '% of deployment</span>' +
             '</div>' +
         '</article>';
