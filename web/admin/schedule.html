@@ -1048,7 +1048,6 @@ function renderClientScheduleCalendar() {
 
     const activeUserGuards = (guards || []).filter(g => g.active && g.role === 'user');
     const stationedGuards = activeUserGuards.filter(g => (g.assignedLocationId || g.assigned_location_id) === currentCalendarSiteId);
-    const contractedShifts = getClientContractedShifts(loc);
 
     const totalCells = Math.ceil((firstDayIndex + daysInMonth) / 7) * 7;
     const todayStr = formatCalendarDateStr(new Date());
@@ -1125,16 +1124,6 @@ function renderClientScheduleCalendar() {
                     }
                 }
             });
-
-            if (!daySchedules.length && !stationedGuards.length && contractedShifts.length) {
-                contractedShifts.forEach(shift => {
-                    eventPillsHtml += `
-                        <div class="gcal-event-pill is-unassigned" title="Unassigned slot" onclick="event.stopPropagation();">
-                            <span>Unassigned: ${escapeHtml(shift.label)}</span>
-                        </div>
-                    `;
-                });
-            }
         }
 
         cellsHtml += `
