@@ -735,6 +735,29 @@
   border: 1px solid #cbd5e1;
 }
 
+.gcal-pill-del {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity 0.15s ease, background 0.15s ease;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+
+.gcal-pill-del:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.2);
+}
+
 .gcal-event-pill.is-unassigned {
   background: #fff;
   color: #94a3b8;

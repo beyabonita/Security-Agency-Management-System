@@ -174,7 +174,7 @@
             <div class="text-muted small">Click any client to view its monthly guard schedule calendar</div>
         </div>
         <div id="bundledDeploymentsContainer" class="bundled-deployments-grid" aria-label="Company and client deployment sites"></div>
-        <div class="table-responsive" tabindex="0" aria-label="Scheduled guard shifts">
+        <div class="table-responsive d-none" tabindex="0" aria-label="Scheduled guard shifts" hidden>
             <table class="schedule-table schedule-dtr-table">
                 <thead><tr>
                     <th scope="col">Personnel</th><th scope="col">Duty date</th>
@@ -183,33 +183,6 @@
                     <th scope="col">Actions</th>
                 </tr></thead>
                 <tbody id="scheduleTable">
-                    <tr class="ax-skeleton-tr">
-                        <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-avatar"></span><span class="ax-skeleton ax-skeleton-line" style="width:120px;"></span></div></td>
-                        <td><span class="ax-skeleton ax-skeleton-line" style="width:90px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-line" style="width:75px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-line" style="width:75px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-pill" style="width:60px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-line" style="width:130px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-btn" style="width:60px;"></span></td>
-                    </tr>
-                    <tr class="ax-skeleton-tr">
-                        <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-avatar"></span><span class="ax-skeleton ax-skeleton-line" style="width:135px;"></span></div></td>
-                        <td><span class="ax-skeleton ax-skeleton-line" style="width:90px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-line" style="width:75px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-line" style="width:75px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-pill" style="width:60px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-line" style="width:115px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-btn" style="width:60px;"></span></td>
-                    </tr>
-                    <tr class="ax-skeleton-tr">
-                        <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-avatar"></span><span class="ax-skeleton ax-skeleton-line" style="width:110px;"></span></div></td>
-                        <td><span class="ax-skeleton ax-skeleton-line" style="width:90px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-line" style="width:75px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-line" style="width:75px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-pill" style="width:60px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-line" style="width:140px;"></span></td>
-                        <td><span class="ax-skeleton ax-skeleton-btn" style="width:60px;"></span></td>
-                    </tr>
                 </tbody>
             </table>
         </div>
@@ -577,7 +550,7 @@ function renderSchedules() {
     const tbody = document.getElementById("scheduleTable");
 
     if (schedulesLoadFailed) {
-        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Schedule history could not be loaded.</p><button type="button" class="action-btn" onclick="refreshSchedules()">Retry loading schedules</button></div></td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Schedule history could not be loaded.</p><button type="button" class="action-btn" onclick="refreshSchedules()">Retry loading schedules</button></div></td></tr>';
         return;
     }
 
@@ -598,35 +571,37 @@ function renderSchedules() {
     });
     if (!filtered.length) {
         renderBundledDeployments([]);
-        tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon material-symbols-rounded" aria-hidden="true">event_note</div><div>No scheduled duty for this cut-off.<br>Choose another period or assign a guard roster above.</div></div></td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon material-symbols-rounded" aria-hidden="true">event_note</div><div>No scheduled duty for this cut-off.<br>Choose another period or assign a guard roster above.</div></div></td></tr>';
         return;
     }
 
     renderBundledDeployments(filtered);
-    tbody.innerHTML = [...filtered].sort((left,right) =>
-        left.date.localeCompare(right.date) || toDate(left.startAt)-toDate(right.startAt)
-    ).map(schedule => {
-        const person=guards.find(guard=>guard.id===schedule.userId);
-        const start=toDate(schedule.startAt),end=toDate(schedule.endAt);
-        const punch=time=>{
-            if(!time)return '—';
-            const dayOffset=Math.round((Date.parse(SchedulePeriod.toLocalDateString(time)+'T00:00:00Z')-Date.parse(schedule.date+'T00:00:00Z'))/86400000);
-            const timeStr=escapeHtml(formatTime(time));
-            if(dayOffset===1)return `${timeStr} <span class="badge-next-day">(next day)</span>`;
-            if(dayOffset>1)return `${timeStr} <span class="badge-next-day">(${dayOffset} days later)</span>`;
-            return timeStr;
-        };
-        const cancelled=schedule.approval_status==='cancelled';
-        return `<tr>
-            <td><strong>${escapeHtml(person?.name||schedule.guardName||'Personnel unavailable')}</strong></td>
-            <td>${escapeHtml(formatDate(schedule.date))}</td>
-            <td class="schedule-dtr-time">${punch(start)}</td>
-            <td class="schedule-dtr-time">${punch(end)}</td>
-            <td>${cancelled?'—':escapeHtml(formatDurationBetween(start,end))}</td>
-            <td>${formatLocationCell(schedule)}</td>
-            <td class="schedule-period-actions">${renderPeriodAction(schedule)}</td>
-        </tr>`;
-    }).join('');
+    if (tbody) {
+        tbody.innerHTML = [...filtered].sort((left,right) =>
+            left.date.localeCompare(right.date) || toDate(left.startAt)-toDate(right.startAt)
+        ).map(schedule => {
+            const person=guards.find(guard=>guard.id===schedule.userId);
+            const start=toDate(schedule.startAt),end=toDate(schedule.endAt);
+            const punch=time=>{
+                if(!time)return '—';
+                const dayOffset=Math.round((Date.parse(SchedulePeriod.toLocalDateString(time)+'T00:00:00Z')-Date.parse(schedule.date+'T00:00:00Z'))/86400000);
+                const timeStr=escapeHtml(formatTime(time));
+                if(dayOffset===1)return `${timeStr} <span class="badge-next-day">(next day)</span>`;
+                if(dayOffset>1)return `${timeStr} <span class="badge-next-day">(${dayOffset} days later)</span>`;
+                return timeStr;
+            };
+            const cancelled=schedule.approval_status==='cancelled';
+            return `<tr>
+                <td><strong>${escapeHtml(person?.name||schedule.guardName||'Personnel unavailable')}</strong></td>
+                <td>${escapeHtml(formatDate(schedule.date))}</td>
+                <td class="schedule-dtr-time">${punch(start)}</td>
+                <td class="schedule-dtr-time">${punch(end)}</td>
+                <td>${cancelled?'—':escapeHtml(formatDurationBetween(start,end))}</td>
+                <td>${formatLocationCell(schedule)}</td>
+                <td class="schedule-period-actions">${renderPeriodAction(schedule)}</td>
+            </tr>`;
+        }).join('');
+    }
 }
 
 function renderPeriodAction(schedule) {
@@ -638,10 +613,13 @@ function renderPeriodAction(schedule) {
 
 }
 
-document.getElementById('scheduleTable').addEventListener('click', event => {
-    const button = event.target.closest('[data-delete-schedule]');
-    if (button) deleteSchedule(button.dataset.deleteSchedule, button);
-});
+const schedTableEl = document.getElementById('scheduleTable');
+if (schedTableEl) {
+    schedTableEl.addEventListener('click', event => {
+        const button = event.target.closest('[data-delete-schedule]');
+        if (button) deleteSchedule(button.dataset.deleteSchedule, button);
+    });
+}
 
 
 // =====================================
@@ -693,6 +671,9 @@ async function deleteSchedule(firestoreId, button) {
         schedules = schedules.filter(item => item.firestoreId !== firestoreId);
         renderSchedules();
         window.renderShiftRoster?.();
+        if (currentCalendarSiteId) {
+            renderClientScheduleCalendar();
+        }
         appDialog.toast("Schedule removed.", { tone: "success" });
     } catch (error) {
         const protectedHistory = /^SCHEDULE_.*_HISTORY$/.test(error.details || '') || error.code === '23503';
@@ -1098,9 +1079,17 @@ function renderClientScheduleCalendar() {
                     colorClass = 'is-night';
                 }
 
+                const history = scheduleHistoryState(s);
+                const canDelete = !history.reason;
+
                 eventPillsHtml += `
-                    <div class="gcal-event-pill ${colorClass}" title="${escapeHtml(gName)} (${escapeHtml(timeRange)})" onclick="event.stopPropagation();">
-                        <span>● ${escapeHtml(timeRange)}: <strong>${escapeHtml(gName)}</strong></span>
+                    <div class="gcal-event-pill ${colorClass} d-flex align-items-center justify-content-between" title="${escapeHtml(gName)} (${escapeHtml(timeRange)})${history.reason ? ' — ' + escapeHtml(history.reason) : ''}">
+                        <span class="text-truncate">● ${escapeHtml(timeRange)}: <strong>${escapeHtml(gName)}</strong></span>
+                        ${canDelete ? `
+                            <button type="button" class="gcal-pill-del" onclick="event.stopPropagation(); deleteSchedule('${escapeHtml(s.firestoreId)}', this)" title="Delete this shift schedule" aria-label="Delete schedule for ${escapeHtml(gName)}">
+                                <span class="material-symbols-rounded" style="font-size:13px; line-height:1;">close</span>
+                            </button>
+                        ` : ''}
                     </div>
                 `;
             });
