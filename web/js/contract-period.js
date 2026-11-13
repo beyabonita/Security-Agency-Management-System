@@ -29,7 +29,39 @@
         const status = today < start ? 'Not started' : today > end ? 'Expired' : 'Active contract';
         return start + ' – ' + end + ' · ' + status;
     }
-    const api = { validate, dutyError, label };
+    function isExpired(guard, dateOrNow = new Date()) {
+        if (!guard) return true;
+        if (guard.active === false) return true;
+        const status = (guard.contractStatus || guard.contract_status || '').toString().trim().toLowerCase();
+        if (['expired', 'terminated', 'completed', 'resigned', 'inactive'].includes(status)) {
+            return true;
+        }
+        let refDateStr = '';
+        if (typeof dateOrNow === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateOrNow)) {
+            refDateStr = dateOrNow;
+        } else {
+            const d = dateOrNow instanceof Date ? dateOrNow : new Date();
+            refDateStr = new Date(d.getTime() + 8 * 3600000).toISOString().slice(0, 10);
+        }
+        const todayStr = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+        const end = guard.contractEndDate || guard.contract_end_date;
+        if (end && typeof end === 'string') {
+            if (end < todayStr || (refDateStr && end < refDateStr)) {
+                return true;
+            }
+        }
+        if (guard.employmentCategory === 'contract') {
+            const start = guard.contractStartDate || guard.contract_start_date;
+            if (!start || !end || end < start) {
+                return true;
+            }
+            if (end < todayStr || (refDateStr && end < refDateStr)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    const api = { validate, dutyError, label, isExpired };
     root.ContractPeriod = api;
     if (typeof module !== 'undefined') module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

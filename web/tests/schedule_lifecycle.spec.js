@@ -750,6 +750,29 @@ test('scheduled shifts personnel and deployment site combobox filters open, filt
   await expect(page.locator('#scheduleTable')).toContainText('Branch B');
 });
 
+test('expired guard accounts do not appear in the deploy guard select dropdown', async ({ page }) => {
+  await page.evaluate(() => {
+    guards.push(
+      { id: 'expired-status-guard', role: 'user', name: 'Expired Status Guard', active: true, contractStatus: 'Expired', assignedLocationId: 'test-site' },
+      { id: 'expired-date-guard', role: 'user', name: 'Expired Date Guard', active: true, contractEndDate: '2026-08-01', employmentCategory: 'contract', assignedLocationId: 'test-site' },
+      { id: 'active-contract-guard', role: 'user', name: 'Active Contract Guard', active: true, contractStartDate: '2026-09-01', contractEndDate: '2026-12-31', employmentCategory: 'contract', assignedLocationId: 'test-site' }
+    );
+    const siteSelect = document.getElementById('rosterSite');
+    siteSelect.value = 'test-site';
+    window.renderShiftRoster();
+  });
+
+  const select = page.locator('#rosterGuards select').first();
+  await expect(select).toBeVisible();
+
+  const optionTexts = await select.locator('option').allTextContents();
+  expect(optionTexts).toContain('Select guard');
+  expect(optionTexts).toContain('Active Contract Guard');
+  expect(optionTexts).not.toContain('Expired Status Guard');
+  expect(optionTexts).not.toContain('Expired Date Guard');
+});
+
+
 
 
 

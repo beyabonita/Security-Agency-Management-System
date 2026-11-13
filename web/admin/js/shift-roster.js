@@ -45,6 +45,21 @@
     const range = getWeekRange(date.value);
     pill.textContent = `📅 Target Week: ${formatDate(range.start)} – ${formatDate(range.end)} (Mon–Sun · 7 Days)`;
   }
+  function isGuardExpired(guard, targetDate) {
+    if (!guard) return true;
+    if (typeof ContractPeriod !== 'undefined' && typeof ContractPeriod.isExpired === 'function') {
+      return ContractPeriod.isExpired(guard, targetDate);
+    }
+    if (guard.active === false) return true;
+    const status = (guard.contractStatus || guard.contract_status || '').toString().trim().toLowerCase();
+    if (['expired', 'terminated', 'completed', 'resigned', 'inactive'].includes(status)) return true;
+    const today = todayDateString();
+    const end = guard.contractEndDate || guard.contract_end_date;
+    if (end && (end < today || (targetDate && end < targetDate))) return true;
+    if (guard.employmentCategory === 'contract' && (!end || end < today || (targetDate && end < targetDate))) return true;
+    return false;
+  }
+
   function updateStationedGuardsNotice() {
     const noticeEl = document.getElementById('stationedGuardsNotice');
     if (!noticeEl) return;
@@ -52,7 +67,8 @@
       noticeEl.textContent = '';
       return;
     }
-    const activeUserGuards = (window.guards || guards || []).filter(g => g.active && g.role === 'user');
+    const targetDate = date ? date.value : todayDateString();
+    const activeUserGuards = (window.guards || guards || []).filter(g => g.active && g.role === 'user' && !isGuardExpired(g, targetDate));
     const stationed = activeUserGuards.filter(g => (g.assignedLocationId || g.assigned_location_id) === site.value);
     const locObj = (window.locations || locations || []).find(l => l.id === site.value);
     const siteName = locObj?.label || 'this client';
@@ -250,7 +266,8 @@
       summary();
       return;
     }
-    const activeUserGuards = guards.filter(g => g.active && g.role === 'user');
+    const targetDate = date ? date.value : todayDateString();
+    const activeUserGuards = guards.filter(g => g.active && g.role === 'user' && !isGuardExpired(g, targetDate));
     const stationedGuards = activeUserGuards.filter(g => (g.assignedLocationId || g.assigned_location_id) === site.value);
     const candidateGuards = stationedGuards.length ? stationedGuards : activeUserGuards;
     const sortedGuards = [...candidateGuards].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
@@ -333,11 +350,11 @@
   });
   date.addEventListener('change', () => {
     updateWeekRangePill();
-    summary();
+    window.renderShiftRoster();
   });
   date.addEventListener('input', () => {
     updateWeekRangePill();
-    summary();
+    window.renderShiftRoster();
   });
   document.getElementById('weeklyRestDay')?.addEventListener('change', summary);
 
@@ -348,7 +365,7 @@
       const currentMon = new Date(n.getFullYear(), n.getMonth(), n.getDate() + (n.getDay() === 0 ? -6 : 1 - n.getDay()));
       date.value = formatDateISO(currentMon);
       updateWeekRangePill();
-      summary();
+      window.renderShiftRoster();
     });
   }
 
@@ -360,7 +377,7 @@
       const nextMon = new Date(currentMon.getFullYear(), currentMon.getMonth(), currentMon.getDate() + 7);
       date.value = formatDateISO(nextMon);
       updateWeekRangePill();
-      summary();
+      window.renderShiftRoster();
       appDialog.toast(`Selected next week (${formatDate(formatDateISO(nextMon))}). Auto-assign guards and click "Assign for whole week".`, { tone: 'info' });
     });
   }
@@ -602,6 +619,13 @@
         appDialog.toast('Please select at least one Guard to assign.', { tone: 'warning' });
         return;
       }
+      for (const gId of selectedGuards) {
+        const g = guards.find(guard => guard.id === gId);
+        if (isGuardExpired(g, targetDay)) {
+          appDialog.toast(`${g?.name || 'Selected guard'} has an expired contract/account and cannot be deployed.`, { tone: 'warning' });
+          return;
+        }
+      }
       const uniqueSelected = new Set(selectedGuards);
       if (uniqueSelected.size !== selectedGuards.length) {
         appDialog.toast('Choose a different Guard for each shift slot.', { tone: 'warning' });
@@ -750,6 +774,10 @@
       if(!available(day,p,now)||!ids[i])continue;
       const plan=SchedulePeriod.buildDutyPlan(day,[{period:'auto',start_time:p[0],end_time:p[1],next_day:false}]);
       const guard=guards.find(g=>g.id===ids[i]);
+      if (isGuardExpired(guard, day)) {
+        appDialog.toast(`${guard?.name || 'Selected guard'} has an expired contract/account and cannot be deployed.`, { tone: 'warning' });
+        return;
+      }
       const error=plan.error || (!guard?.active?'Choose active Guards.':ContractPeriod.dutyError(guard,plan.periods[0].startAt,plan.periods[0].endAt));
       if(error){appDialog.toast(error,{tone:'warning'});return;}
     }
