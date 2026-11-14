@@ -72,74 +72,99 @@
         body[data-ax-page="dashboard"] .ig-kpi-grid {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 16px;
+            gap: 18px;
             margin-bottom: 24px;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-card {
             position: relative;
             overflow: hidden;
-            background: #dc2626;
-            border: 1px solid #b91c1c;
-            border-radius: var(--ig-card-radius);
-            padding: 22px 20px 20px;
+            background: var(--ax-surface, #ffffff);
+            border: 1px solid rgba(127, 16, 25, 0.08);
+            border-top: 3px solid #c81e2a;
+            border-radius: 16px;
+            padding: 20px 22px 22px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
+            align-items: flex-start;
+            justify-content: flex-start;
+            text-align: left;
             gap: 12px;
-            box-shadow: 0 4px 16px rgba(220, 38, 38, 0.16);
+            box-shadow: 0 8px 24px rgba(44, 15, 18, 0.06);
             min-width: 0;
-            color: #ffffff;
+            color: var(--ax-text);
+        }
+
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .ig-kpi-card {
+            border-color: var(--ax-border);
+            border-top-color: #ef4444;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-card:hover,
         body[data-ax-page="dashboard"] .ig-kpi-card:focus-visible {
             transform: translateY(-2px);
-            background: #b91c1c;
-            border-color: #991b1b;
-            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.32);
+            background: var(--ax-surface, #ffffff);
+            border-color: rgba(200, 30, 42, 0.22);
+            border-top-color: #c81e2a;
+            box-shadow: 0 12px 28px rgba(44, 15, 18, 0.1);
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-card.is-emerald,
         body[data-ax-page="dashboard"] .ig-kpi-card.is-amber,
         body[data-ax-page="dashboard"] .ig-kpi-card.is-indigo {
-            background: #dc2626;
-            border-color: #b91c1c;
+            background: var(--ax-surface, #ffffff);
+            border-color: rgba(127, 16, 25, 0.08);
+            border-top: 3px solid #c81e2a;
+        }
+
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .ig-kpi-card.is-emerald,
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .ig-kpi-card.is-amber,
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .ig-kpi-card.is-indigo {
+            border-color: var(--ax-border);
+            border-top-color: #ef4444;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-top {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             width: 100%;
+            gap: 12px;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
+            width: 42px;
+            height: 42px;
+            border-radius: 11px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.32);
+            background: #fce8e8;
+            color: #b91c1c;
+            border: none;
             flex-shrink: 0;
+        }
+
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .ig-kpi-icon,
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .ig-kpi-card.is-emerald .ig-kpi-icon,
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .ig-kpi-card.is-amber .ig-kpi-icon,
+        html[data-theme="dark"] body[data-ax-page="dashboard"] .ig-kpi-card.is-indigo .ig-kpi-icon {
+            background: rgba(239, 68, 68, 0.16);
+            color: #fca5a5;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-card.is-emerald .ig-kpi-icon,
         body[data-ax-page="dashboard"] .ig-kpi-card.is-amber .ig-kpi-icon,
         body[data-ax-page="dashboard"] .ig-kpi-card.is-indigo .ig-kpi-icon {
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            border-color: rgba(255, 255, 255, 0.32);
+            background: #fce8e8;
+            color: #b91c1c;
+            border: none;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-icon .material-symbols-rounded {
-            font-size: 24px;
-            color: #ffffff;
+            font-size: 21px;
+            color: inherit;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-pill,
@@ -161,46 +186,53 @@
             white-space: nowrap;
         }
 
+        body[data-ax-page="dashboard"] .ig-kpi-top .ax-stat-lbl,
+        body[data-ax-page="dashboard"] .ig-kpi-main .ax-stat-lbl {
+            margin: 0;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            color: var(--ax-muted);
+            text-transform: uppercase;
+            text-align: right;
+        }
+
         body[data-ax-page="dashboard"] .ig-kpi-main {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
+            align-items: flex-start;
+            justify-content: flex-start;
+            text-align: left;
             width: 100%;
-            gap: 4px;
+            gap: 6px;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-main > div {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
+            align-items: flex-start;
+            justify-content: flex-start;
+            text-align: left;
             width: 100%;
+            gap: 8px;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-main .ax-stat-num {
-            font-size: 2.3rem;
+            font-size: 2.35rem;
             font-weight: 800;
-            letter-spacing: -0.02em;
-            color: #ffffff;
+            letter-spacing: -0.03em;
+            color: var(--ax-text);
             line-height: 1;
-            text-align: center;
+            text-align: left;
         }
 
-        body[data-ax-page="dashboard"] .ig-kpi-main .ax-stat-lbl {
-            margin-top: 6px;
-            font-size: 0.74rem;
-            font-weight: 700;
-            letter-spacing: 0.07em;
-            color: rgba(255, 255, 255, 0.9);
-            text-transform: uppercase;
-            text-align: center;
-        }
-
-        body[data-ax-page="dashboard"] .ig-kpi-card .ax-skeleton {
-            background: rgba(255, 255, 255, 0.35);
+        body[data-ax-page="dashboard"] .ig-kpi-sub {
+            margin: 0;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--ax-muted);
+            line-height: 1.35;
+            text-align: left;
         }
 
         body[data-ax-page="dashboard"] .ig-kpi-meter {
@@ -1480,12 +1512,13 @@
                 <div class="ig-kpi-card ig-clickable" role="button" tabindex="0" data-drilldown="kpi-guards" aria-label="View detailed total guards information">
                     <div class="ig-kpi-top">
                         <span class="ig-kpi-icon" aria-hidden="true"><span class="material-symbols-rounded">groups</span></span>
+                        <div class="ax-stat-lbl">Total guards</div>
                         <span class="ig-kpi-pill" id="guardsPctPill">—</span>
                     </div>
                     <div class="ig-kpi-main">
                         <div>
                             <div class="ax-stat-num" id="totalGuards"><span class="ax-skeleton ax-skeleton-stat"></span></div>
-                            <div class="ax-stat-lbl">Total guards</div>
+                            <div class="ig-kpi-sub">Registered personnel</div>
                         </div>
                     </div>
                     <div class="ig-kpi-meter">
@@ -1500,12 +1533,13 @@
                 <div class="ig-kpi-card is-emerald ig-clickable" role="button" tabindex="0" data-drilldown="kpi-deployed" aria-label="View detailed deployed guards information">
                     <div class="ig-kpi-top">
                         <span class="ig-kpi-icon" aria-hidden="true"><span class="material-symbols-rounded">verified_user</span></span>
+                        <div class="ax-stat-lbl">Deployed</div>
                         <span class="ig-kpi-pill" id="deployedPctPill">—</span>
                     </div>
                     <div class="ig-kpi-main">
                         <div>
                             <div class="ax-stat-num" id="totalDeployed"><span class="ax-skeleton ax-skeleton-stat"></span></div>
-                            <div class="ax-stat-lbl">Deployed</div>
+                            <div class="ig-kpi-sub">On active duty</div>
                         </div>
                     </div>
                     <div class="ig-kpi-meter">
@@ -1520,12 +1554,13 @@
                 <div class="ig-kpi-card is-amber ig-clickable" role="button" tabindex="0" data-drilldown="kpi-locations" aria-label="View detailed client locations information">
                     <div class="ig-kpi-top">
                         <span class="ig-kpi-icon" aria-hidden="true"><span class="material-symbols-rounded">business</span></span>
+                        <div class="ax-stat-lbl">Number of clients</div>
                         <span class="ig-kpi-pill" id="locationsPctPill">—</span>
                     </div>
                     <div class="ig-kpi-main">
                         <div>
                             <div class="ax-stat-num" id="totalLocations"><span class="ax-skeleton ax-skeleton-stat"></span></div>
-                            <div class="ax-stat-lbl">Number of clients</div>
+                            <div class="ig-kpi-sub">Active accounts</div>
                         </div>
                     </div>
                     <div class="ig-kpi-meter">
@@ -1539,13 +1574,14 @@
 
                 <div class="ig-kpi-card is-indigo ig-clickable" role="button" tabindex="0" data-drilldown="kpi-inspectors" aria-label="View detailed inspector personnel information">
                     <div class="ig-kpi-top">
-                        <span class="ig-kpi-icon" aria-hidden="true"><span class="material-symbols-rounded">policy</span></span>
+                        <span class="ig-kpi-icon" aria-hidden="true"><span class="material-symbols-rounded">search</span></span>
+                        <div class="ax-stat-lbl">Inspectors</div>
                         <span class="ig-kpi-pill" id="inspectorPctPill">—</span>
                     </div>
                     <div class="ig-kpi-main">
                         <div>
                             <div class="ax-stat-num" id="totalInspectors"><span class="ax-skeleton ax-skeleton-stat"></span></div>
-                            <div class="ax-stat-lbl">Inspector</div>
+                            <div class="ig-kpi-sub">Field supervisors</div>
                         </div>
                     </div>
                     <div class="ig-kpi-meter">

@@ -33,6 +33,7 @@
 
 | File Path | Related Item(s) | Change Summary | Git / Push Status | Commit Reference |
 | :--- | :---: | :--- | :---: | :---: |
+| [`web/admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html) | UI / UX | Restyled Operations Head Dashboard KPI cards to match clean white card design with red top border (`3px solid #c81e2a`), soft pink rounded icon boxes on the left, uppercase category labels on the right, left-aligned metric totals, and descriptive subtitles underneath (`Registered personnel`, `On active duty`, `Active accounts`, `Field supervisors`) | **✅ PUSHED** | `origin/main` |
 | [`web/admin/schedule.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/schedule.html), [`web/admin/css/dtr-scheduling.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/dtr-scheduling.css) & [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html) | UI / UX | Removed delete buttons from quick actions across both the Client Guard Schedule calendar pills and Personnel Actions menu, keeping quick actions focused purely on assignments, history, and status management | **✅ PUSHED** | `f9be169` (`origin/main`) |
 | [`web/admin/schedule.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/schedule.html) & [`web/admin/css/dtr-scheduling.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/dtr-scheduling.css) | UI / UX | Removed linear scheduled shifts table from Duty Scheduling page view, replacing it with direct quick-delete actions on Google Calendar shift pills; added safe null handling and live modal re-rendering on schedule deletion | **✅ PUSHED** | `8088b01` (`origin/main`) |
 | [`web/admin/schedule.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/schedule.html) | UI / UX | Removed 'Unassigned: Day shift' and 'Unassigned: Night shift' placeholder pills from the Client Schedule Calendar modal monthly grid, keeping empty dates clean without placeholder clutter | **✅ PUSHED** | `bdec8fa` (`origin/main`) |
@@ -153,6 +154,20 @@
 | [`supabase/migrations/20261104000003_fix_force_attendance_constraints_and_completion.sql`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261104000003_fix_force_attendance_constraints_and_completion.sql) | #5 | Fixed `clock_out_location_status` check constraint values (`'outside_post'` / `'verified'`) and admin-context schedule completion in `decide_force_attendance` | **✅ PUSHED** | `origin/main` + Supabase DB |
 | [`supabase/migrations/20261101000001_fix_is_on_active_shift_open_status.sql`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261101000001_fix_is_on_active_shift_open_status.sql) | Pre-existing | Trailing newline diff in working tree (migration itself already pushed in `749125e`) | **⏳ NOT PUSHED** *(1-line whitespace)* | Local working tree |
 | [`web/tests/admin_dashboard.spec.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/tests/admin_dashboard.spec.js) | Pre-existing | Local test adjustment in working tree from earlier session | **⏳ NOT PUSHED** | Local working tree |
+
+---
+
+### [2026-11-14 23:41] - Feat: Restyle Operations Head Dashboard KPI Cards to White Card Design — [✅ PUSHED: `origin/main`]
+
+- **Scope & Objective**: Update the 4 Workforce KPI cards on the Operations Head Dashboard to match the clean white card design with a red top border, soft pink icon container on the top-left, uppercase label on the top-right, left-aligned bold number, and muted subtitle below.
+- **Files Modified / Created**:
+  - [`web/admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html): Updated `.ig-kpi-card`, `.ig-kpi-top`, `.ig-kpi-icon`, `.ig-kpi-main`, `.ig-kpi-sub`, and the 4 KPI card HTML blocks (`#totalGuards`, `#totalDeployed`, `#totalLocations`, `#totalInspectors`).
+- **Key Implementation Details**:
+  - Replaced solid red `#dc2626` background with white surface (`var(--ax-surface, #ffffff)`), `16px` radius, soft shadow, and `3px solid #c81e2a` top border.
+  - Set `.ig-kpi-top` to `justify-content: space-between` with a `42x42` soft pink (`#fce8e8`) icon box on the left and uppercase muted label (`TOTAL GUARDS`, `DEPLOYED`, `NUMBER OF CLIENTS`, `INSPECTORS`) on the right.
+  - Changed Inspector card icon to `search` and added `.ig-kpi-sub` subtitles (`Registered personnel`, `On active duty`, `Active accounts`, `Field supervisors`) below the left-aligned stat numbers.
+- **Verification & Testing**:
+  - Verified git diff and preserved existing DOM IDs and drill-down attributes.
 
 ---
 
