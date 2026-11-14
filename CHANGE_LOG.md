@@ -33,7 +33,8 @@
 
 | File Path | Related Item(s) | Change Summary | Git / Push Status | Commit Reference |
 | :--- | :---: | :--- | :---: | :---: |
-| [`web/admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html) | UI / UX | Restyled Operations Head Dashboard KPI cards to match clean white card design with red top border (`3px solid #c81e2a`), soft pink rounded icon boxes on the left, uppercase category labels on the right, left-aligned metric totals, and descriptive subtitles underneath (`Registered personnel`, `On active duty`, `Active accounts`, `Field supervisors`) | **✅ PUSHED** | `origin/main` |
+| [`web/inspector/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/dashboard.html) | UI / UX | Removed the 5th KPI card (`Assigned guard shifts` / `#totalSchedules`) from the Inspector Dashboard so the top strip cleanly displays the 4 core operational cards (`My assigned Guards`, `Field investigations`, `Active guards`, and `Active sites`) | **⏳ NOT PUSHED** | Local working tree |
+| [`web/admin/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/dashboard.html) | UI / UX | Restyled Operations Head Dashboard KPI cards to match clean white card design with red top border (`3px solid #c81e2a`), soft pink rounded icon boxes on the left, uppercase category labels on the right, left-aligned metric totals, and descriptive subtitles underneath (`Registered personnel`, `On active duty`, `Active accounts`, `Field supervisors`) | **⏳ NOT PUSHED** | Local working tree |
 | [`web/admin/schedule.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/schedule.html), [`web/admin/css/dtr-scheduling.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/dtr-scheduling.css) & [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html) | UI / UX | Removed delete buttons from quick actions across both the Client Guard Schedule calendar pills and Personnel Actions menu, keeping quick actions focused purely on assignments, history, and status management | **✅ PUSHED** | `f9be169` (`origin/main`) |
 | [`web/admin/schedule.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/schedule.html) & [`web/admin/css/dtr-scheduling.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/css/dtr-scheduling.css) | UI / UX | Removed linear scheduled shifts table from Duty Scheduling page view, replacing it with direct quick-delete actions on Google Calendar shift pills; added safe null handling and live modal re-rendering on schedule deletion | **✅ PUSHED** | `8088b01` (`origin/main`) |
 | [`web/admin/schedule.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/schedule.html) | UI / UX | Removed 'Unassigned: Day shift' and 'Unassigned: Night shift' placeholder pills from the Client Schedule Calendar modal monthly grid, keeping empty dates clean without placeholder clutter | **✅ PUSHED** | `bdec8fa` (`origin/main`) |
@@ -157,7 +158,17 @@
 
 ---
 
-### [2026-11-14 23:41] - Feat: Restyle Operations Head Dashboard KPI Cards to White Card Design — [✅ PUSHED: `origin/main`]
+### [2026-11-15 00:05] - Feat: Remove "Assigned Guard Shifts" KPI Card from Inspector Dashboard — [⏳ NOT PUSHED: Local working tree]
+
+- **Scope & Objective**: Remove the 5th KPI card (`Assigned guard shifts` / `#totalSchedules`) from the Inspector Dashboard so only the 4 core operational cards (`My assigned Guards`, `Field investigations`, `Active guards`, and `Active sites`) are displayed.
+- **Files Modified / Created**:
+  - [`web/inspector/dashboard.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/dashboard.html): Removed the `#totalSchedules` `.ax-stat-item` card from `.ax-stat-strip` and added a safe null check around `document.getElementById("totalSchedules")` in `loadDashboard()`.
+- **Verification & Testing**:
+  - Verified that `loadDashboard()` continues to populate all remaining stats and the Active Field Investigations queue without errors.
+
+---
+
+### [2026-11-14 23:41] - Feat: Restyle Operations Head Dashboard KPI Cards to White Card Design — [⏳ NOT PUSHED: Local working tree]
 
 - **Scope & Objective**: Update the 4 Workforce KPI cards on the Operations Head Dashboard to match the clean white card design with a red top border, soft pink icon container on the top-left, uppercase label on the top-right, left-aligned bold number, and muted subtitle below.
 - **Files Modified / Created**:

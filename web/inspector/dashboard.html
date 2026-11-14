@@ -60,11 +60,6 @@
                     <div class="ax-stat-lbl">Active sites</div>
                     <div class="ax-stat-hint" style="color:var(--ax-muted,#6b7280);">Monitored posts</div>
                 </div>
-                <div class="ax-stat-item">
-                    <div class="ax-stat-num" id="totalSchedules" title="One assigned guard shift counts as one. Includes past, current and future dates; excludes drafts and cancellations.">—</div>
-                    <div class="ax-stat-lbl">Assigned guard shifts</div>
-                    <div class="ax-stat-hint">Your Guards · all dates</div>
-                </div>
             </div>
 
             <!-- Active Field Investigations Queue -->
@@ -255,7 +250,10 @@ async function loadDashboard() {
         document.getElementById("activeGuards").innerText = active;
         document.getElementById("activeGuardsLabel").innerText = assignedIds.size ? active + " currently active" : 'No active guards found.';
         document.getElementById("totalLocations").innerText = locationSnapshot.size;
-        document.getElementById("totalSchedules").innerText = countAssignedGuardShifts(scheduleSnapshot.docs, assignedIds);
+        const totalSchedulesEl = document.getElementById("totalSchedules");
+        if (totalSchedulesEl) {
+            totalSchedulesEl.innerText = countAssignedGuardShifts(scheduleSnapshot.docs, assignedIds);
+        }
 
         const allIncidents = (incidentSnapshot.docs || []).map(d => ({ id: d.id, ...d.data() }));
         const activeIncidents = allIncidents.filter(inc => inc.status === 'under_investigation' || inc.status === 'escalated' || inc.status === 'open');
