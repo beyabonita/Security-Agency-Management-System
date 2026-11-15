@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,537 +13,591 @@
     <link href="css/admin-theme.css" rel="stylesheet">
     <link href="css/dtr-scheduling.css" rel="stylesheet">
     <style>
-      #contractShiftNotice, #overrideContractShiftsBtn, .contract-shift-callout { display: none !important; }
+        #contractShiftNotice,
+        #overrideContractShiftsBtn,
+        .contract-shift-callout {
+            display: none !important;
+        }
     </style>
 </head>
+
 <body class="admin-body" data-ax-page="schedule">
 
-<div id="loadingScreen">
-    <div class="spinner-border text-danger"></div>
-    <p>Loading schedule…</p>
-</div>
+    <div id="loadingScreen">
+        <div class="spinner-border text-danger"></div>
+        <p>Loading schedule…</p>
+    </div>
 
-<div class="ax-app">
-    <aside class="ax-sidebar">
-        <div class="ax-brand">
-            <p class="ax-brand-title">Operations Head</p>
-            <p class="ax-brand-sub">Security Agency Management System</p>
-        </div>
-        <nav class="ax-nav">
-            <div class="ax-nav-label">Manage</div>
-            <a href="dashboard.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">dashboard</span> Dashboard</a>
-            <a href="users.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">groups</span> Personnel</a>
-            <a href="locations.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">business</span> Company</a>
-            <a href="schedule.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">calendar_month</span> Schedule</a>
-            <a href="incidents.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">emergency</span> Incidents</a>
-            <a href="swaps.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">swap_horiz</span> Duty requests</a>
-        </nav>
-        <div class="ax-sidebar-foot">TwentyTwenty Security Agency</div>
-    </aside>
-    <div class="ax-main">
-        <header class="ax-topbar">
-            <div class="ax-topbar-left">
-                <button type="button" class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button>
-                <div>
-                    <div class="ax-breadcrumb">Operations Head Console</div>
-                    <h1 class="ax-page-title">Duty Scheduling</h1>
+    <div class="ax-app">
+        <aside class="ax-sidebar">
+            <div class="ax-brand">
+                <p class="ax-brand-title">Operations Head</p>
+                <p class="ax-brand-sub">Security Agency Management System</p>
+            </div>
+            <nav class="ax-nav">
+                <div class="ax-nav-label">Manage</div>
+                <a href="dashboard.html"><span class="ax-nav-icon material-symbols-rounded"
+                        aria-hidden="true">dashboard</span> Dashboard</a>
+                <a href="users.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">groups</span>
+                    Personnel</a>
+                <a href="locations.html"><span class="ax-nav-icon material-symbols-rounded"
+                        aria-hidden="true">business</span> Company</a>
+                <a href="schedule.html"><span class="ax-nav-icon material-symbols-rounded"
+                        aria-hidden="true">calendar_month</span> Schedule</a>
+                <a href="incidents.html"><span class="ax-nav-icon material-symbols-rounded"
+                        aria-hidden="true">emergency</span> Incidents</a>
+                <a href="swaps.html"><span class="ax-nav-icon material-symbols-rounded"
+                        aria-hidden="true">swap_horiz</span> Duty requests</a>
+            </nav>
+            <div class="ax-sidebar-foot">TwentyTwenty Security Agency</div>
+        </aside>
+        <div class="ax-main">
+            <header class="ax-topbar">
+                <div class="ax-topbar-left">
+                    <button type="button" class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu"><span
+                            class="material-symbols-rounded" aria-hidden="true">menu</span></button>
+                    <div>
+                        <div class="ax-breadcrumb">Operations Head Console</div>
+                        <h1 class="ax-page-title">Duty Scheduling</h1>
+                    </div>
                 </div>
-            </div>
-            <div class="ax-topbar-right">
-                <span class="ax-user-chip" id="axUserName" hidden aria-live="polite"></span>
-                <button type="button" class="ax-btn-logout" onclick="adminLogout()">Sign out</button>
-            </div>
-        </header>
-        <main class="ax-content">
-
-    <div class="section-title">Assign a 24-hour guard roster</div>
-    
-    <div class="row g-3 mb-3" style="position: relative; z-index: 30;">
-      <!-- Step 1: Choose the client -->
-      <div class="col-lg-6" style="position: relative; z-index: 30;">
-        <div class="glass-card p-4 h-100" style="border-radius:14px; position: relative; z-index: 30; overflow: visible;">
-          <h2 class="h5 fw-bold mb-3" style="color:var(--ax-text, #1C1917);">1. Choose the client</h2>
-          <div class="schedule-field roster-site-field mb-0">
-            <label class="form-label fw-semibold" for="rosterSite">Client</label>
-            <div class="roster-combobox" id="rosterCombobox">
-              <div class="roster-combobox-input-wrap">
-                <span class="material-symbols-rounded roster-combobox-icon" aria-hidden="true">search</span>
-                <input type="text" id="rosterSiteFilter" class="form-control roster-combobox-input" placeholder="Select or search client…" autocomplete="off" aria-label="Deployment site" aria-autocomplete="list" aria-expanded="false" aria-controls="rosterSiteMenu">
-                <button type="button" id="rosterSiteFilterClear" class="roster-combobox-clear" aria-label="Clear site filter" title="Clear filter" hidden>&times;</button>
-                <button type="button" id="rosterComboboxToggle" class="roster-combobox-arrow" aria-label="Toggle deployment sites" tabindex="-1">
-                  <span class="material-symbols-rounded" aria-hidden="true">expand_more</span>
-                </button>
-              </div>
-              <div id="rosterSiteMenu" class="roster-combobox-menu" role="listbox" hidden></div>
-              <select id="rosterSite" class="form-select roster-site-hidden-select" tabindex="-1" aria-hidden="true"><option value="">Select location</option></select>
-            </div>
-            <div id="stationedGuardsNotice" class="text-muted small mt-2"></div>
-          </div>
-          <div class="schedule-field" style="display:none;" aria-hidden="true">
-            <label class="form-label" for="rosterSetup">Shifting setup</label>
-            <select id="rosterSetup" class="form-select" disabled><option value="">Loading shifting setups…</option></select>
-          </div>
-          <div class="roster-setup-loading" style="display:none;"><span id="rosterSetupsStatus" role="status"></span><button id="retryRosterSetups" type="button" class="btn btn-outline-secondary btn-sm" hidden>Reload saved setups</button></div>
-        </div>
-      </div>
-
-      <!-- Step 2: Pick the start date and rest days -->
-      <div class="col-lg-6">
-        <div class="glass-card p-4 h-100" style="border-radius:14px;">
-          <h2 class="h5 fw-bold mb-3" style="color:var(--ax-text, #1C1917);">2. Pick the start date and rest days</h2>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label fw-semibold" for="rosterDate">Start date</label>
-              <input id="rosterDate" type="date" class="form-control" aria-required="true">
-            </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold" for="weeklyRestDay">Weekly rest day</label>
-              <select id="weeklyRestDay" class="form-select">
-                <option value="-1" selected>No weekly rest day</option>
-                <option value="1">Every Monday</option>
-                <option value="2">Every Tuesday</option>
-                <option value="3">Every Wednesday</option>
-                <option value="4">Every Thursday</option>
-                <option value="5">Every Friday</option>
-                <option value="6">Every Saturday</option>
-                <option value="0">Every Sunday</option>
-              </select>
-            </div>
-          </div>
-          <div id="rosterDateCutoffPill" class="text-muted small mt-2"></div>
-          <div class="text-muted small mt-1">The weekly rest day is applied to every week automatically. Rest days are skipped in attendance and show as REST in the DTR.</div>
-          <div id="rosterWeekRangePill" class="mt-2" style="font-size:0.8rem; font-weight:600; color:var(--ax-accent, #dc2626);" hidden></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 3: Assign the guards -->
-    <div class="glass-card mb-4 p-4 shift-roster-card" style="border-radius:14px; position: relative; z-index: 1;">
-      <h2 class="h5 fw-bold mb-3" style="color:var(--ax-text, #1C1917);">3. Assign the guards</h2>
-      <div id="rosterGuards" class="schedule-form-grid" aria-label="Guards for each shift"></div>
-      <p class="text-muted small mt-2 mb-3">Only guards stationed at the selected client are listed. A guard can't take both shifts.</p>
-      <div id="rosterPreview" role="status" aria-live="polite" style="display:none !important;" hidden></div>
-      <div class="schedule-form-actions d-flex align-items-center gap-2 flex-wrap mt-3">
-        <button id="saveWeeklyRoster" type="button" class="btn btn-danger" style="font-weight:600; min-height:42px; padding: 10px 24px; border-radius:10px;"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:18px;">calendar_month</span> Assign schedule</button>
-        <button id="saveRoster" type="button" style="display:none !important;" hidden></button>
-      </div>
-      <div id="assignedRoster" aria-live="polite"></div>
-    </div>
-    <div class="section-title">Scheduled guard shifts</div>
-    <div class="glass-card">
-        <div class="schedule-list-filters">
-            <div class="schedule-field"><label class="form-label" for="scheduleMonth">Month</label><input type="month" id="scheduleMonth" class="form-control" onchange="renderSchedules()"></div>
-            <div class="schedule-field"><label class="form-label" for="scheduleCutoff">DTR cut-off</label><select id="scheduleCutoff" class="form-select" onchange="renderSchedules()"><option value="first">1st–15th</option><option value="second">16th–end of month</option></select></div>
-            <div class="schedule-field roster-site-field">
-              <label class="form-label" for="scheduleSiteFilter">Deployment site</label>
-              <div class="roster-combobox" id="scheduleSiteCombobox">
-                <div class="roster-combobox-input-wrap">
-                  <span class="material-symbols-rounded roster-combobox-icon" aria-hidden="true">search</span>
-                  <input type="text" id="scheduleSiteInput" class="form-control roster-combobox-input" placeholder="All deployment sites" autocomplete="off" aria-label="Filter by deployment site" aria-autocomplete="list" aria-expanded="false" aria-controls="scheduleSiteMenu">
-                  <button type="button" id="scheduleSiteClear" class="roster-combobox-clear" aria-label="Clear site filter" title="Clear filter" hidden>&times;</button>
-                  <button type="button" id="scheduleSiteToggle" class="roster-combobox-arrow" aria-label="Toggle deployment sites" tabindex="-1">
-                    <span class="material-symbols-rounded" aria-hidden="true">expand_more</span>
-                  </button>
+                <div class="ax-topbar-right">
+                    <span class="ax-user-chip" id="axUserName" hidden aria-live="polite"></span>
+                    <button type="button" class="ax-btn-logout" onclick="adminLogout()">Sign out</button>
                 </div>
-                <div id="scheduleSiteMenu" class="roster-combobox-menu" role="listbox" hidden></div>
-                <select id="scheduleSiteFilter" class="form-select roster-site-hidden-select" onchange="renderSchedules()" tabindex="-1" aria-hidden="true"><option value="">All deployment sites</option></select>
-              </div>
-            </div>
-            <div class="schedule-field roster-site-field">
-              <label class="form-label" for="schedulePersonnelFilter">Personnel</label>
-              <div class="roster-combobox" id="schedulePersonnelCombobox">
-                <div class="roster-combobox-input-wrap">
-                  <span class="material-symbols-rounded roster-combobox-icon" aria-hidden="true">search</span>
-                  <input type="text" id="schedulePersonnelInput" class="form-control roster-combobox-input" placeholder="All guards" autocomplete="off" aria-label="Filter by personnel" aria-autocomplete="list" aria-expanded="false" aria-controls="schedulePersonnelMenu">
-                  <button type="button" id="schedulePersonnelClear" class="roster-combobox-clear" aria-label="Clear personnel filter" title="Clear filter" hidden>&times;</button>
-                  <button type="button" id="schedulePersonnelToggle" class="roster-combobox-arrow" aria-label="Toggle personnel" tabindex="-1">
-                    <span class="material-symbols-rounded" aria-hidden="true">expand_more</span>
-                  </button>
+            </header>
+            <main class="ax-content">
+
+                <div class="section-title">Assign a 24-hour guard roster</div>
+
+                <div class="row g-3 mb-3" style="position: relative; z-index: 30;">
+                    <!-- Step 1: Choose the client -->
+                    <div class="col-lg-6" style="position: relative; z-index: 30;">
+                        <div class="glass-card p-4 h-100"
+                            style="border-radius:14px; position: relative; z-index: 30; overflow: visible;">
+                            <h2 class="h5 fw-bold mb-3" style="color:var(--ax-text, #1C1917);">1. Choose the client</h2>
+                            <div class="schedule-field roster-site-field mb-0">
+                                <label class="form-label fw-semibold" for="rosterSite">Client</label>
+                                <div class="roster-combobox" id="rosterCombobox">
+                                    <div class="roster-combobox-input-wrap">
+                                        <span class="material-symbols-rounded roster-combobox-icon"
+                                            aria-hidden="true">search</span>
+                                        <input type="text" id="rosterSiteFilter"
+                                            class="form-control roster-combobox-input"
+                                            placeholder="Select or search client…" autocomplete="off"
+                                            aria-label="Deployment site" aria-autocomplete="list" aria-expanded="false"
+                                            aria-controls="rosterSiteMenu">
+                                        <button type="button" id="rosterSiteFilterClear" class="roster-combobox-clear"
+                                            aria-label="Clear site filter" title="Clear filter" hidden>&times;</button>
+                                        <button type="button" id="rosterComboboxToggle" class="roster-combobox-arrow"
+                                            aria-label="Toggle deployment sites" tabindex="-1">
+                                            <span class="material-symbols-rounded" aria-hidden="true">expand_more</span>
+                                        </button>
+                                    </div>
+                                    <div id="rosterSiteMenu" class="roster-combobox-menu" role="listbox" hidden></div>
+                                    <select id="rosterSite" class="form-select roster-site-hidden-select" tabindex="-1"
+                                        aria-hidden="true">
+                                        <option value="">Select location</option>
+                                    </select>
+                                </div>
+                                <div id="stationedGuardsNotice" class="text-muted small mt-2"></div>
+                            </div>
+                            <div class="schedule-field" style="display:none;" aria-hidden="true">
+                                <label class="form-label" for="rosterSetup">Shifting setup</label>
+                                <select id="rosterSetup" class="form-select" disabled>
+                                    <option value="">Loading shifting setups…</option>
+                                </select>
+                            </div>
+                            <div class="roster-setup-loading" style="display:none;"><span id="rosterSetupsStatus"
+                                    role="status"></span><button id="retryRosterSetups" type="button"
+                                    class="btn btn-outline-secondary btn-sm" hidden>Reload saved setups</button></div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Pick the start date and rest days -->
+                    <div class="col-lg-6">
+                        <div class="glass-card p-4 h-100" style="border-radius:14px;">
+                            <h2 class="h5 fw-bold mb-3" style="color:var(--ax-text, #1C1917);">2. Pick the start date
+                                and rest days</h2>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold" for="rosterDate">Start date</label>
+                                    <input id="rosterDate" type="date" class="form-control" aria-required="true">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold" for="weeklyRestDay">Weekly rest day</label>
+                                    <select id="weeklyRestDay" class="form-select">
+                                        <option value="-1" selected>No weekly rest day</option>
+                                        <option value="1">Every Monday</option>
+                                        <option value="2">Every Tuesday</option>
+                                        <option value="3">Every Wednesday</option>
+                                        <option value="4">Every Thursday</option>
+                                        <option value="5">Every Friday</option>
+                                        <option value="6">Every Saturday</option>
+                                        <option value="0">Every Sunday</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="rosterDateCutoffPill" class="text-muted small mt-2"></div>
+                            <div class="text-muted small mt-1">The weekly rest day is applied to every week
+                                automatically. Rest days are skipped in attendance and show as REST in the DTR.</div>
+                            <div id="rosterWeekRangePill" class="mt-2"
+                                style="font-size:0.8rem; font-weight:600; color:var(--ax-accent, #dc2626);" hidden>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div id="schedulePersonnelMenu" class="roster-combobox-menu" role="listbox" hidden></div>
-                <select id="schedulePersonnelFilter" class="form-select roster-site-hidden-select" onchange="renderSchedules()" tabindex="-1" aria-hidden="true"><option value="">All guards</option></select>
-              </div>
-            </div>
-        </div>
-        <p class="schedule-list-note">Philippine time (UTC+8)</p>
-        <div class="bundled-deployments-bar" id="bundledDeploymentsBar">
-            <div class="d-flex align-items-center gap-2">
-                <span class="material-symbols-rounded" aria-hidden="true" style="font-size:20px;color:var(--ax-accent,#dc2626);">business</span>
-                <strong style="font-size:0.95rem; font-weight:700; color:var(--ax-text, #1C1917);">Company / Client</strong>
-                <span id="bundledDeploymentsSummary" class="bundle-pill bundle-pill-neutral ms-1" style="font-size:0.75rem;">0 clients</span>
-            </div>
-            <div class="text-muted small">Click any client to view its monthly guard schedule calendar</div>
-        </div>
-        <div id="bundledDeploymentsContainer" class="bundled-deployments-grid" aria-label="Company and client deployment sites"></div>
-        <div class="table-responsive d-none" tabindex="0" aria-label="Scheduled guard shifts" hidden>
-            <table class="schedule-table schedule-dtr-table">
-                <thead><tr>
-                    <th scope="col">Personnel</th><th scope="col">Duty date</th>
-                    <th scope="col">Scheduled IN</th><th scope="col">Scheduled OUT</th>
-                    <th scope="col">Planned hours</th><th scope="col">Deployment site</th>
-                    <th scope="col">Actions</th>
-                </tr></thead>
-                <tbody id="scheduleTable">
-                </tbody>
-            </table>
+
+                <!-- Step 3: Assign the guards -->
+                <div class="glass-card mb-4 p-4 shift-roster-card"
+                    style="border-radius:14px; position: relative; z-index: 1;">
+                    <h2 class="h5 fw-bold mb-3" style="color:var(--ax-text, #1C1917);">3. Assign the guards</h2>
+                    <div id="rosterGuards" class="schedule-form-grid" aria-label="Guards for each shift"></div>
+                    <p class="text-muted small mt-2 mb-3">Only guards stationed at the selected client are listed. A
+                        guard can't take both shifts.</p>
+                    <div id="rosterPreview" role="status" aria-live="polite" style="display:none !important;" hidden>
+                    </div>
+                    <div class="schedule-form-actions d-flex align-items-center gap-2 flex-wrap mt-3">
+                        <button id="saveWeeklyRoster" type="button" class="btn btn-danger"
+                            style="font-weight:600; min-height:42px; padding: 10px 24px; border-radius:10px;"><span
+                                class="material-symbols-rounded" aria-hidden="true"
+                                style="font-size:18px;">calendar_month</span> Assign schedule</button>
+                        <button id="saveRoster" type="button" style="display:none !important;" hidden></button>
+                    </div>
+                    <div id="assignedRoster" aria-live="polite"></div>
+                </div>
+                <div class="section-title">Scheduled guard shifts</div>
+                <div class="glass-card">
+                    <div class="schedule-list-filters">
+                        <div class="schedule-field"><label class="form-label" for="scheduleMonth">Month</label><input
+                                type="month" id="scheduleMonth" class="form-control" onchange="renderSchedules()"></div>
+                        <div class="schedule-field"><label class="form-label" for="scheduleCutoff">DTR
+                                cut-off</label><select id="scheduleCutoff" class="form-select"
+                                onchange="renderSchedules()">
+                                <option value="first">1st–15th</option>
+                                <option value="second">16th–end of month</option>
+                            </select></div>
+                        <div class="schedule-field roster-site-field">
+                            <label class="form-label" for="scheduleSiteFilter">Deployment site</label>
+                            <div class="roster-combobox" id="scheduleSiteCombobox">
+                                <div class="roster-combobox-input-wrap">
+                                    <span class="material-symbols-rounded roster-combobox-icon"
+                                        aria-hidden="true">search</span>
+                                    <input type="text" id="scheduleSiteInput" class="form-control roster-combobox-input"
+                                        placeholder="All deployment sites" autocomplete="off"
+                                        aria-label="Filter by deployment site" aria-autocomplete="list"
+                                        aria-expanded="false" aria-controls="scheduleSiteMenu">
+                                    <button type="button" id="scheduleSiteClear" class="roster-combobox-clear"
+                                        aria-label="Clear site filter" title="Clear filter" hidden>&times;</button>
+                                    <button type="button" id="scheduleSiteToggle" class="roster-combobox-arrow"
+                                        aria-label="Toggle deployment sites" tabindex="-1">
+                                        <span class="material-symbols-rounded" aria-hidden="true">expand_more</span>
+                                    </button>
+                                </div>
+                                <div id="scheduleSiteMenu" class="roster-combobox-menu" role="listbox" hidden></div>
+                                <select id="scheduleSiteFilter" class="form-select roster-site-hidden-select"
+                                    onchange="renderSchedules()" tabindex="-1" aria-hidden="true">
+                                    <option value="">All deployment sites</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="schedule-field roster-site-field">
+                            <label class="form-label" for="schedulePersonnelFilter">Personnel</label>
+                            <div class="roster-combobox" id="schedulePersonnelCombobox">
+                                <div class="roster-combobox-input-wrap">
+                                    <span class="material-symbols-rounded roster-combobox-icon"
+                                        aria-hidden="true">search</span>
+                                    <input type="text" id="schedulePersonnelInput"
+                                        class="form-control roster-combobox-input" placeholder="All guards"
+                                        autocomplete="off" aria-label="Filter by personnel" aria-autocomplete="list"
+                                        aria-expanded="false" aria-controls="schedulePersonnelMenu">
+                                    <button type="button" id="schedulePersonnelClear" class="roster-combobox-clear"
+                                        aria-label="Clear personnel filter" title="Clear filter" hidden>&times;</button>
+                                    <button type="button" id="schedulePersonnelToggle" class="roster-combobox-arrow"
+                                        aria-label="Toggle personnel" tabindex="-1">
+                                        <span class="material-symbols-rounded" aria-hidden="true">expand_more</span>
+                                    </button>
+                                </div>
+                                <div id="schedulePersonnelMenu" class="roster-combobox-menu" role="listbox" hidden>
+                                </div>
+                                <select id="schedulePersonnelFilter" class="form-select roster-site-hidden-select"
+                                    onchange="renderSchedules()" tabindex="-1" aria-hidden="true">
+                                    <option value="">All guards</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="schedule-list-note">Philippine time (UTC+8)</p>
+                    <div class="bundled-deployments-bar" id="bundledDeploymentsBar">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="material-symbols-rounded" aria-hidden="true"
+                                style="font-size:20px;color:var(--ax-accent,#dc2626);">business</span>
+                            <strong style="font-size:0.95rem; font-weight:700; color:var(--ax-text, #1C1917);">Company /
+                                Client</strong>
+                            <span id="bundledDeploymentsSummary" class="bundle-pill bundle-pill-neutral ms-1"
+                                style="font-size:0.75rem;">0 clients</span>
+                        </div>
+                        <div class="text-muted small">Click any client to view its monthly guard schedule calendar</div>
+                    </div>
+                    <div id="bundledDeploymentsContainer" class="bundled-deployments-grid"
+                        aria-label="Company and client deployment sites"></div>
+                    <div class="table-responsive d-none" tabindex="0" aria-label="Scheduled guard shifts" hidden>
+                        <table class="schedule-table schedule-dtr-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Personnel</th>
+                                    <th scope="col">Duty date</th>
+                                    <th scope="col">Scheduled IN</th>
+                                    <th scope="col">Scheduled OUT</th>
+                                    <th scope="col">Planned hours</th>
+                                    <th scope="col">Deployment site</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="scheduleTable">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
         </div>
     </div>
 
-        </main>
-    </div>
-</div>
+    <script src="../js/auth-username.js"></script>
+    <script src="js/admin-shell.js"></script>
+    <script src="../js/schedule-period.js"></script>
+    <script src="../js/contract-period.js?v=20261113_01"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
+    <script src="../js/supabase-firebase-bridge.js"></script>
+    <script src="../js/platform-configuration.js"></script>
+    <script src="../js/notification-center.js"></script>
 
-<script src="../js/auth-username.js"></script>
-<script src="js/admin-shell.js"></script>
-<script src="../js/schedule-period.js"></script>
-<script src="../js/contract-period.js?v=20261113_01"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
-<script src="../js/supabase-firebase-bridge.js"></script>
-<script src="../js/platform-configuration.js"></script>
-<script src="../js/notification-center.js"></script>
+    <script>
+        let schedules = [];
+        let guards = [];
+        let locations = [];
+        let scheduleChannel = null;
+        let scheduleLoadVersion = 0;
+        let scheduleRefreshTimer = null;
+        let schedulesLoadFailed = false;
 
-<script>
-let schedules = [];
-let guards = [];
-let locations = [];
-let scheduleChannel = null;
-let scheduleLoadVersion = 0;
-let scheduleRefreshTimer = null;
-let schedulesLoadFailed = false;
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-const auth = firebase.auth();
-const db = firebase.firestore();
-
-auth.onAuthStateChanged(async function(user) {
-    if (!user) { window.location.href = "../staff/login.html"; return; }
-    const doc = await db.collection("users").doc(user.uid).get();
-    if (!doc.exists || doc.data().role !== "admin") {
-        window.location.href = "../staff/login.html";
-        return;
-    }
-    const d = doc.data();
-    applyAdminRoleNavigation(d.role);
-    finishPageLoading();
-    setScheduleListPeriod(todayDateString());
-    loadGuards();
-    loadLocations();
-    loadSchedules();
-    window.loadRosterSetups?.();
-});
-
-/** The agency DTR always uses Philippine calendar dates. */
-function todayDateString() {
-    return window.SchedulePeriod.toLocalDateString(new Date());
-}
-
-function setScheduleListPeriod(dutyDate) {
-    const cutoff = window.SchedulePeriod.dtrPeriodForDate(dutyDate);
-    if (!cutoff) return;
-    document.getElementById('scheduleMonth').value = dutyDate.slice(0, 7);
-    document.getElementById('scheduleCutoff').value = cutoff.cutoff;
-    initSchedulePersonnelCombobox?.();
-    initScheduleSiteCombobox?.();
-}
-
-function setupCombobox({ comboboxId, inputId, clearId, toggleId, menuId, selectId, getItems, onSelect, defaultLabel }) {
-    const combobox = document.getElementById(comboboxId);
-    const input = document.getElementById(inputId);
-    const clear = document.getElementById(clearId);
-    const toggle = document.getElementById(toggleId);
-    const menu = document.getElementById(menuId);
-    const select = document.getElementById(selectId);
-    if (!combobox || !input || !menu || !select) return;
-
-    function renderMenu() {
-        const term = input.value.trim().toLowerCase();
-        const current = select.value;
-        const items = getItems();
-        const activeItem = items.find(it => it.id === current);
-        const isExactMatch = activeItem && activeItem.label.toLowerCase() === term;
-        const filtered = (!term || isExactMatch)
-            ? items
-            : items.filter(it => (it.label || '').toLowerCase().includes(term) || (it.sub || '').toLowerCase().includes(term));
-
-        let html = '';
-        if (!term || isExactMatch || defaultLabel.toLowerCase().includes(term)) {
-            html += `<div class="roster-combobox-item${!current ? ' is-selected' : ''}" data-id="" data-label="${escapeHtml(defaultLabel)}" role="option" aria-selected="${!current}">` +
-                `<span class="roster-combobox-item-label">${escapeHtml(defaultLabel)}</span>` +
-                `</div>`;
-        }
-
-        if (!filtered.length && !html) {
-            html = '<div class="roster-combobox-empty">No results match</div>';
-        } else if (filtered.length) {
-            html += filtered.map(it => {
-                const isSel = it.id === current;
-                return `<div class="roster-combobox-item${isSel ? ' is-selected' : ''}" data-id="${escapeHtml(it.id)}" data-label="${escapeHtml(it.label)}" role="option" aria-selected="${isSel}">` +
-                    `<span class="roster-combobox-item-label">${escapeHtml(it.label)}</span>` +
-                    (it.sub ? `<span class="roster-combobox-item-address">${escapeHtml(it.sub)}</span>` : '') +
-                    `</div>`;
-            }).join('');
-        }
-        menu.innerHTML = html;
-    }
-
-    function openMenu() {
-        menu.hidden = false;
-        combobox.classList.add('is-open');
-        input.setAttribute('aria-expanded', 'true');
-        renderMenu();
-    }
-
-    function closeMenu() {
-        menu.hidden = true;
-        combobox.classList.remove('is-open');
-        input.setAttribute('aria-expanded', 'false');
-        const items = getItems();
-        const activeItem = items.find(it => it.id === select.value);
-        if (select.value && activeItem) {
-            input.value = activeItem.label;
-        } else if (!select.value) {
-            input.value = '';
-        }
-        if (clear) clear.hidden = !select.value;
-    }
-
-    if (!combobox.dataset.initialized) {
-        combobox.dataset.initialized = 'true';
-
-        menu.addEventListener('click', (e) => {
-            const item = e.target.closest('.roster-combobox-item');
-            if (!item) return;
-            const id = item.dataset.id;
-            const label = item.dataset.label;
-            if (id && ![...select.options].some(o => o.value === id)) {
-                select.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(id)}">${escapeHtml(label)}</option>`);
+        auth.onAuthStateChanged(async function (user) {
+            if (!user) { window.location.href = "../staff/login.html"; return; }
+            const doc = await db.collection("users").doc(user.uid).get();
+            if (!doc.exists || doc.data().role !== "admin") {
+                window.location.href = "../staff/login.html";
+                return;
             }
-            select.value = id;
-            input.value = id ? label : '';
-            if (clear) clear.hidden = !id;
-            closeMenu();
-            onSelect?.(id);
+            const d = doc.data();
+            applyAdminRoleNavigation(d.role);
+            finishPageLoading();
+            setScheduleListPeriod(todayDateString());
+            loadGuards();
+            loadLocations();
+            loadSchedules();
+            window.loadRosterSetups?.();
         });
 
-        input.addEventListener('focus', () => {
-            openMenu();
-            input.select();
-        });
-        input.addEventListener('click', () => {
-            if (menu.hidden) {
-                openMenu();
-                input.select();
-            }
-        });
-        input.addEventListener('input', () => {
-            openMenu();
-            if (clear) clear.hidden = !input.value;
-        });
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeMenu();
-            } else if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (menu.hidden) openMenu();
-                const items = [...menu.querySelectorAll('.roster-combobox-item')];
-                if (!items.length) return;
-                const focused = menu.querySelector('.roster-combobox-item.is-focused');
-                const idx = focused ? items.indexOf(focused) : -1;
-                const next = items[Math.min(idx + 1, items.length - 1)];
-                items.forEach(it => it.classList.remove('is-focused'));
-                next.classList.add('is-focused');
-                next.scrollIntoView({ block: 'nearest' });
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                const items = [...menu.querySelectorAll('.roster-combobox-item')];
-                if (!items.length) return;
-                const focused = menu.querySelector('.roster-combobox-item.is-focused');
-                const idx = focused ? items.indexOf(focused) : items.length;
-                const prev = items[Math.max(idx - 1, 0)];
-                items.forEach(it => it.classList.remove('is-focused'));
-                prev.classList.add('is-focused');
-                prev.scrollIntoView({ block: 'nearest' });
-            } else if (e.key === 'Enter') {
-                const focused = menu.querySelector('.roster-combobox-item.is-focused');
-                if (focused && !menu.hidden) {
-                    e.preventDefault();
-                    focused.click();
+        /** The agency DTR always uses Philippine calendar dates. */
+        function todayDateString() {
+            return window.SchedulePeriod.toLocalDateString(new Date());
+        }
+
+        function setScheduleListPeriod(dutyDate) {
+            const cutoff = window.SchedulePeriod.dtrPeriodForDate(dutyDate);
+            if (!cutoff) return;
+            document.getElementById('scheduleMonth').value = dutyDate.slice(0, 7);
+            document.getElementById('scheduleCutoff').value = cutoff.cutoff;
+            initSchedulePersonnelCombobox?.();
+            initScheduleSiteCombobox?.();
+        }
+
+        function setupCombobox({ comboboxId, inputId, clearId, toggleId, menuId, selectId, getItems, onSelect, defaultLabel }) {
+            const combobox = document.getElementById(comboboxId);
+            const input = document.getElementById(inputId);
+            const clear = document.getElementById(clearId);
+            const toggle = document.getElementById(toggleId);
+            const menu = document.getElementById(menuId);
+            const select = document.getElementById(selectId);
+            if (!combobox || !input || !menu || !select) return;
+
+            function renderMenu() {
+                const term = input.value.trim().toLowerCase();
+                const current = select.value;
+                const items = getItems();
+                const activeItem = items.find(it => it.id === current);
+                const isExactMatch = activeItem && activeItem.label.toLowerCase() === term;
+                const filtered = (!term || isExactMatch)
+                    ? items
+                    : items.filter(it => (it.label || '').toLowerCase().includes(term) || (it.sub || '').toLowerCase().includes(term));
+
+                let html = '';
+                if (!term || isExactMatch || defaultLabel.toLowerCase().includes(term)) {
+                    html += `<div class="roster-combobox-item${!current ? ' is-selected' : ''}" data-id="" data-label="${escapeHtml(defaultLabel)}" role="option" aria-selected="${!current}">` +
+                        `<span class="roster-combobox-item-label">${escapeHtml(defaultLabel)}</span>` +
+                        `</div>`;
                 }
+
+                if (!filtered.length && !html) {
+                    html = '<div class="roster-combobox-empty">No results match</div>';
+                } else if (filtered.length) {
+                    html += filtered.map(it => {
+                        const isSel = it.id === current;
+                        return `<div class="roster-combobox-item${isSel ? ' is-selected' : ''}" data-id="${escapeHtml(it.id)}" data-label="${escapeHtml(it.label)}" role="option" aria-selected="${isSel}">` +
+                            `<span class="roster-combobox-item-label">${escapeHtml(it.label)}</span>` +
+                            (it.sub ? `<span class="roster-combobox-item-address">${escapeHtml(it.sub)}</span>` : '') +
+                            `</div>`;
+                    }).join('');
+                }
+                menu.innerHTML = html;
             }
-        });
 
-        toggle?.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (menu.hidden) {
-                input.focus();
-                openMenu();
-            } else {
-                closeMenu();
+            function openMenu() {
+                menu.hidden = false;
+                combobox.classList.add('is-open');
+                input.setAttribute('aria-expanded', 'true');
+                renderMenu();
             }
-        });
 
-        clear?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            select.value = '';
-            input.value = '';
-            clear.hidden = true;
-            closeMenu();
-            onSelect?.('');
-            input.focus();
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!combobox.contains(e.target)) {
-                closeMenu();
+            function closeMenu() {
+                menu.hidden = true;
+                combobox.classList.remove('is-open');
+                input.setAttribute('aria-expanded', 'false');
+                const items = getItems();
+                const activeItem = items.find(it => it.id === select.value);
+                if (select.value && activeItem) {
+                    input.value = activeItem.label;
+                } else if (!select.value) {
+                    input.value = '';
+                }
+                if (clear) clear.hidden = !select.value;
             }
-        });
 
-        select.addEventListener('change', () => {
+            if (!combobox.dataset.initialized) {
+                combobox.dataset.initialized = 'true';
+
+                menu.addEventListener('click', (e) => {
+                    const item = e.target.closest('.roster-combobox-item');
+                    if (!item) return;
+                    const id = item.dataset.id;
+                    const label = item.dataset.label;
+                    if (id && ![...select.options].some(o => o.value === id)) {
+                        select.insertAdjacentHTML('beforeend', `<option value="${escapeHtml(id)}">${escapeHtml(label)}</option>`);
+                    }
+                    select.value = id;
+                    input.value = id ? label : '';
+                    if (clear) clear.hidden = !id;
+                    closeMenu();
+                    onSelect?.(id);
+                });
+
+                input.addEventListener('focus', () => {
+                    openMenu();
+                    input.select();
+                });
+                input.addEventListener('click', () => {
+                    if (menu.hidden) {
+                        openMenu();
+                        input.select();
+                    }
+                });
+                input.addEventListener('input', () => {
+                    openMenu();
+                    if (clear) clear.hidden = !input.value;
+                });
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        closeMenu();
+                    } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        if (menu.hidden) openMenu();
+                        const items = [...menu.querySelectorAll('.roster-combobox-item')];
+                        if (!items.length) return;
+                        const focused = menu.querySelector('.roster-combobox-item.is-focused');
+                        const idx = focused ? items.indexOf(focused) : -1;
+                        const next = items[Math.min(idx + 1, items.length - 1)];
+                        items.forEach(it => it.classList.remove('is-focused'));
+                        next.classList.add('is-focused');
+                        next.scrollIntoView({ block: 'nearest' });
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        const items = [...menu.querySelectorAll('.roster-combobox-item')];
+                        if (!items.length) return;
+                        const focused = menu.querySelector('.roster-combobox-item.is-focused');
+                        const idx = focused ? items.indexOf(focused) : items.length;
+                        const prev = items[Math.max(idx - 1, 0)];
+                        items.forEach(it => it.classList.remove('is-focused'));
+                        prev.classList.add('is-focused');
+                        prev.scrollIntoView({ block: 'nearest' });
+                    } else if (e.key === 'Enter') {
+                        const focused = menu.querySelector('.roster-combobox-item.is-focused');
+                        if (focused && !menu.hidden) {
+                            e.preventDefault();
+                            focused.click();
+                        }
+                    }
+                });
+
+                toggle?.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (menu.hidden) {
+                        input.focus();
+                        openMenu();
+                    } else {
+                        closeMenu();
+                    }
+                });
+
+                clear?.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    select.value = '';
+                    input.value = '';
+                    clear.hidden = true;
+                    closeMenu();
+                    onSelect?.('');
+                    input.focus();
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!combobox.contains(e.target)) {
+                        closeMenu();
+                    }
+                });
+
+                select.addEventListener('change', () => {
+                    const items = getItems();
+                    const activeItem = items.find(it => it.id === select.value);
+                    input.value = activeItem ? activeItem.label : '';
+                    if (clear) clear.hidden = !select.value;
+                });
+            }
+
             const items = getItems();
             const activeItem = items.find(it => it.id === select.value);
             input.value = activeItem ? activeItem.label : '';
             if (clear) clear.hidden = !select.value;
-        });
-    }
+        }
 
-    const items = getItems();
-    const activeItem = items.find(it => it.id === select.value);
-    input.value = activeItem ? activeItem.label : '';
-    if (clear) clear.hidden = !select.value;
-}
+        function initSchedulePersonnelCombobox() {
+            setupCombobox({
+                comboboxId: 'schedulePersonnelCombobox',
+                inputId: 'schedulePersonnelInput',
+                clearId: 'schedulePersonnelClear',
+                toggleId: 'schedulePersonnelToggle',
+                menuId: 'schedulePersonnelMenu',
+                selectId: 'schedulePersonnelFilter',
+                defaultLabel: 'All guards',
+                getItems: () => {
+                    const select = document.getElementById('schedulePersonnelFilter');
+                    if (guards && guards.length) {
+                        return guards.filter(g => g.role === 'user').map(g => ({
+                            id: g.id,
+                            label: g.name,
+                            sub: g.employmentCategory ? `Category: ${g.employmentCategory}` : ''
+                        }));
+                    }
+                    return select ? [...select.options].filter(o => o.value).map(o => ({ id: o.value, label: o.textContent, sub: '' })) : [];
+                },
+                onSelect: () => renderSchedules()
+            });
+        }
 
-function initSchedulePersonnelCombobox() {
-    setupCombobox({
-        comboboxId: 'schedulePersonnelCombobox',
-        inputId: 'schedulePersonnelInput',
-        clearId: 'schedulePersonnelClear',
-        toggleId: 'schedulePersonnelToggle',
-        menuId: 'schedulePersonnelMenu',
-        selectId: 'schedulePersonnelFilter',
-        defaultLabel: 'All guards',
-        getItems: () => {
-            const select = document.getElementById('schedulePersonnelFilter');
-            if (guards && guards.length) {
-                return guards.filter(g => g.role === 'user').map(g => ({
-                    id: g.id,
-                    label: g.name,
-                    sub: g.employmentCategory ? `Category: ${g.employmentCategory}` : ''
-                }));
+        function initScheduleSiteCombobox() {
+            const siteSelect = document.getElementById('scheduleSiteFilter');
+            if (siteSelect) {
+                const cur = siteSelect.value;
+                siteSelect.innerHTML = '<option value="">All deployment sites</option>' + (locations || []).map(l => `<option value="${escapeHtml(l.id)}">${escapeHtml(l.label)}</option>`).join('');
+                siteSelect.value = cur;
             }
-            return select ? [...select.options].filter(o => o.value).map(o => ({ id: o.value, label: o.textContent, sub: '' })) : [];
-        },
-        onSelect: () => renderSchedules()
-    });
-}
+            setupCombobox({
+                comboboxId: 'scheduleSiteCombobox',
+                inputId: 'scheduleSiteInput',
+                clearId: 'scheduleSiteClear',
+                toggleId: 'scheduleSiteToggle',
+                menuId: 'scheduleSiteMenu',
+                selectId: 'scheduleSiteFilter',
+                defaultLabel: 'All deployment sites',
+                getItems: () => (locations || []).map(l => ({ id: l.id, label: l.label, sub: l.address || '' })),
+                onSelect: () => renderSchedules()
+            });
+        }
 
-function initScheduleSiteCombobox() {
-    const siteSelect = document.getElementById('scheduleSiteFilter');
-    if (siteSelect) {
-        const cur = siteSelect.value;
-        siteSelect.innerHTML = '<option value="">All deployment sites</option>' + (locations || []).map(l => `<option value="${escapeHtml(l.id)}">${escapeHtml(l.label)}</option>`).join('');
-        siteSelect.value = cur;
-    }
-    setupCombobox({
-        comboboxId: 'scheduleSiteCombobox',
-        inputId: 'scheduleSiteInput',
-        clearId: 'scheduleSiteClear',
-        toggleId: 'scheduleSiteToggle',
-        menuId: 'scheduleSiteMenu',
-        selectId: 'scheduleSiteFilter',
-        defaultLabel: 'All deployment sites',
-        getItems: () => (locations || []).map(l => ({ id: l.id, label: l.label, sub: l.address || '' })),
-        onSelect: () => renderSchedules()
-    });
-}
-
-function loadGuards() {
-    db.collection("users").get().then(snapshot => {
-        guards = [];
-        snapshot.forEach(doc => {
-            const d = doc.data();
-            if (!["user", "inspector"].includes(d.role)) return;
-            const fullName = [d.firstName, d.middleInitial ? d.middleInitial + "." : "", d.lastName]
-                .filter(Boolean).join(" ") || d.name || displayLoginId(d);
-            guards.push({ id: doc.id, name: fullName, active: d.active !== false, loginId: displayLoginId(d), role: d.role, employmentCategory: d.employmentCategory || d.employment_category || "regular", contractStartDate: d.contractStartDate || d.contract_start_date || null, contractEndDate: d.contractEndDate || d.contract_end_date || null, contractStatus: d.contractStatus || d.contract_status || (d.active === false ? 'Expired' : 'Active'), assignedLocationId: d.assignedLocationId || d.assigned_location_id || "", weeklyRestDay: d.weeklyRestDay ?? d.weekly_rest_day ?? d.restDay ?? d.rest_day ?? null });
+        function loadGuards() {
+            db.collection("users").get().then(snapshot => {
+                guards = [];
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    if (!["user", "inspector"].includes(d.role)) return;
+                    const fullName = [d.firstName, d.middleInitial ? d.middleInitial + "." : "", d.lastName]
+                        .filter(Boolean).join(" ") || d.name || displayLoginId(d);
+                    guards.push({ id: doc.id, name: fullName, active: d.active !== false, loginId: displayLoginId(d), role: d.role, employmentCategory: d.employmentCategory || d.employment_category || "regular", contractStartDate: d.contractStartDate || d.contract_start_date || null, contractEndDate: d.contractEndDate || d.contract_end_date || null, contractStatus: d.contractStatus || d.contract_sta                d.ac                 false ? 'Expired' : 'Active'), assignedLocationId: d.assignedLocationId || d.assigned_location_id || "", weeklyRestDay: d. we eklyRestDa y ? ? d.weekly_rest_day ?? d.restDay ?? d.rest_day ?? null });
         });
-        document.getElementById('schedulePersonnelFilter').innerHTML = '<option value="">All guards</option>' + guards.filter(guard=>guard.role==='user').map(guard => `<option value="${escapeHtml(guard.id)}">${escapeHtml(guard.name)}</option>`).join('');
-        initSchedulePersonnelCombobox();
-        window.renderShiftRoster?.();
-        if (schedules.length > 0) renderSchedules();
-    });
-}
+        document.getElementById('sched                nnelFilter').innerHTML = '<option                ">All guards</option>' + guard                (guard=>guard.role==='user').map(guard => `<o            n va        lue        ="${escapeHtml(guard.id)}">            capeHtml(guard.name)}</option>`).join('');
+        initSchedulePersonnelCombobox                    window.rende                ster?.();
+        if (sche                     > 0) renderSchedules(                    
 
 function loadLocations() {
-    db.collection("locations").where("active", "==", true).get().then(snapshot => {
+                        n("locations").where("active", "=                    t().then(snapshot => {
         locations = [];
-        snapshot.forEach(doc => {
+        snapshot.fo                     {
             const d = doc.data();
-            const label = d.label || doc.id;
-            const address = d.address || "";
-            let shiftModel = d.shiftModel || d.shift_model || "2_shifts_12h";
-            const customShiftHours = d.customShiftHours || d.custom_shift_hours || null;
-            if (Array.isArray(customShiftHours) && customShiftHours.length === 3) {
-                shiftModel = "3_shifts_8h";
-            }
-            locations.push({ id: doc.id, label, address, shiftModel, shift_model: shiftModel, customShiftHours, custom_shift_hours: customShiftHours });
+            const label = d.label || doc                         const address = d.address || "";
+            let shiftModel = d.shi                        ft_model || "2_shifts_12h";
+                    co                    iftHours = d.customShiftHours || d.custom_shift_hours || null;
+            if (Array.isArray(customShiftHours) && customShiftHours.length ===                                      shiftModel = "3_shifts_8h"                      }
+            locations.            ({ i        d:         doc.id, label, address, shi            del, shift_model: sh            odel, customShiftHours, custo            ift_hours: customShiftHours });
         });
-        initScheduleSiteCombobox();
+        initSche            SiteCombobox();
         window.renderShiftRoster?.();
     });
 }
 
-function loadSchedules() {
+function             Schedules() {
     refreshSchedules();
     if (scheduleChannel) return;
-    scheduleChannel = appSupabase.channel('hr-duty-schedules');
-    // Time In adds a session without updating the parent schedule. Subscribe
-    // to the linked records too, so Delete is removed as soon as duty starts.
-    for (const table of ['schedules', 'attendance_sessions', 'accomplishment_reports', 'shift_swap_requests']) {
-        scheduleChannel.on('postgres_changes', { event: '*', schema: 'public', table }, () => {
-            clearTimeout(scheduleRefreshTimer);
-            scheduleRefreshTimer = setTimeout(refreshSchedules, 150);
-        });
-    }
+                duleChannel = appSupabase.channel('hr-duty-schedules');
+    // Time In adds a session without updating the pa                edule. Subscribe
+    // to the linked records too, so Delete is removed as soon as duty                     for (const table of ['schedules', 'a                    ssions', 'accomplishment_reports', 'shift_swap_requests'])                   s            ul            nnel.on('postgres_changes', {         ev        ent: '*', schema: 'public', table },            => {
+            clearTimeout(scheduleR            shTime                        scheduleRefreshTimer = setTimeout(refreshSchedules, 150);
+                        }
     scheduleChannel.subscribe();
 }
 
-async function refreshSchedules() {
+async function refreshSche                {
     const version = ++scheduleLoadVersion;
     try {
-        // Swaps refer to both offered and target duties. Name each foreign key
+                         refer to both offered and target duties. Name each foreign key
         // explicitly: an unqualified embed becomes ambiguous (PGRST201).
         const { data, error } = await appSupabase.from('schedules')
-            .select('*,attendance_sessions(id,status),accomplishment_reports(id),shift_swap_requests:shift_swap_requests!shift_swap_requests_requested_schedule_id_fkey(id),swap_target_requests:shift_swap_requests!shift_swap_requests_target_schedule_id_fkey(id)')
-            .order('start_at', { ascending: false });
-        if (error) throw error;
-        if (version !== scheduleLoadVersion) return;
-        schedules = (data || []).map(row => ({
+            .select('*,attendance_sessions(id,                    mplishment_reports(id),shift_swap_requests                wap_requests!shift_swap_                _requested_schedule_id_fkey(id),swap_target_r                shift_swap_requests!shift_swap_requests                    dule_id_                               .order('st                    scending: false });
+                     rror) throw error;
+                            !== scheduleLoadVersion                          schedules = (                    map(row => ({
             ...row,
-            firestoreId: row.id,
-            userId: row.user_id,
-            guardName: row.guard_name,
-            startAt: row.start_at,
-            endAt: row.end_at,
+                     irestoreId: row.id,
+            userId:                    ,
+            guardName: row.                                startAt: row.start_                        endAt: row.end_at,
             locationLabel: row.location_label,
-            locationAddress: row.location_address,
-            markedDone: row.marked_done,
-            completedAt: row.completed_at,
-            date: row.duty_date || window.SchedulePeriod.toLocalDateString(new Date(row.start_at)),
-        }));
-        schedulesLoadFailed = false;
+            locati                s: ro                on_address,
+            marke                ow.marked_done,
+                    completedAt: row.completed_at                      date: ro                ate || window.SchedulePeriod.toLocalDateStrin                te(row.start_at)),
+        }                    schedulesLoadFa                alse;
         renderSchedules();
-        window.renderShiftRoster?.();
-    } catch (error) {
+        window.renderShiftRost                    } catch (error) {
         if (version !== scheduleLoadVersion) return;
-        schedulesLoadFailed = true;
+        schedulesLoadFa             =         tru        e;
         renderSchedules();
-        console.error('Schedule list could not be refreshed.', error);
-        appDialog.toast('Could not refresh schedules. Retry before making changes.', { tone: 'danger' });
+        con        sole.error('Schedule         list could not be refreshed.', error);
+                appDialog.toast('Could             refresh schedules. Retry before making changes.', { tone:            nger' });
     }
 }
 
 
-// =====================================
+// ====                =========================
 // RENDER SCHEDULES
 // =====================================
 
@@ -550,248 +605,224 @@ function renderSchedules() {
     const tbody = document.getElementById("scheduleTable");
 
     if (schedulesLoadFailed) {
-        if (tbody) tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><p>Schedule history could not be loaded.</p><button type="button" class="action-btn" onclick="refreshSchedules()">Retry loading schedules</button></div></td></tr>';
+        if (tbody) tbody.innerH                tr><td c            an=            <div class="empty-state"><p>Schedule history could not be load            /p><button type="button" class="action-btn" onclick="refreshSche            s()">Retry loading schedules</button></div></td></tr>';
         return;
     }
-
-    const month = document.getElementById('scheduleMonth').value;
-    const cutoff = document.getElementById('scheduleCutoff').value;
-    const personnelId = document.getElementById('schedulePersonnelFilter').value;
-    const siteFilterEl = document.getElementById('scheduleSiteFilter');
-    const siteId = siteFilterEl ? siteFilterEl.value : '';
-    const filtered = schedules.filter(schedule => {
-        if (guards.find(person=>person.id===schedule.userId)?.role === 'inspector') return false;
+             const month = document.getElementById('scheduleMonth').value;
+    c             cutoff = document.getElementById('scheduleCutoff').val                const personnelId = document.getElementById(                ePersonnelFilter').val ue ;
+    con st  siteFilterEl = document.getElementById('scheduleSiteFi                    const siteId = siteFilterEl ? siteFilterEl.value : '';
+    const filtered = schedules.filter(                 => {
+        if (guards.find(person=>person.id===schedule.userId)?.role =                ector') return false;
         const date = schedule.date || window.SchedulePeriod.toLocalDateString(toDate(schedule.startAt));
-        const matchesPersonnel = !personnelId || schedule.userId === personnelId;
-        const matchesSite = !siteId || (schedule.locationId || schedule.location_id) === siteId || (schedule.locationLabel && locations.find(l => l.id === siteId)?.label === schedule.locationLabel);
-        return date && date.slice(0, 7) === month
-            && (Number(date.slice(8, 10)) <= 15 ? 'first' : 'second') === cutoff
+        const matchesPersonnel = !personnelId || schedule.userId                sonnelId;
+        const matchesSite = !sit                    dule.locationId || schedule.location_id) === siteId || (schedule.loca                     locations.find(l =>                    teId)?.label ===            edul            cationLabel);
+        re                e && date.slice(0, 7) === mont                      && (Number(date.slice(8, 10)) <= 15 ? 'first' : 'second') === cutoff
             && matchesPersonnel
             && matchesSite;
     });
     if (!filtered.length) {
         renderBundledDeployments([]);
-        if (tbody) tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon material-symbols-rounded" aria-hidden="true">event_note</div><div>No scheduled duty for this cut-off.<br>Choose another period or assign a guard roster above.</div></div></td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="7"><div cla                y-state"            v c            ="icon material-symbols-rounded" ari            dden="true">e                e</div><div>No scheduled duty for this cut- off.<br>Ch                     period or assign a guard roster above.</div></div></td></t r >';
         return;
-    }
-
-    renderBundledDeployments(filtered);
-    if (tbody) {
-        tbody.innerHTML = [...filtered].sort((left,right) =>
-            left.date.localeCompare(right.date) || toDate(left.startAt)-toDate(right.startAt)
-        ).map(schedule => {
-            const person=guards.find(guard=>guard.id===schedule.userId);
-            const start=toDate(schedule.startAt),end=toDate(schedule.endAt);
-            const punch=time=>{
-                if(!time)return '—';
-                const dayOffset=Math.round((Date.parse(SchedulePeriod.toLocalDateString(time)+'T00:00:00Z')-Date.parse(schedule.date+'T00:00:00Z'))/86400000);
-                const timeStr=escapeHtml(formatTime(time));
-                if(dayOffset===1)return `${timeStr} <span class="badge-next-day">(next day)</span>`;
-                if(dayOffset>1)return `${timeStr} <span class="badge-next-day">(${dayOffset} days later)</span>`;
+                   renderBundledDeploy                    ed);
+    if  ( tbody) {
+         tb ody.inne rHT ML = [...filtered]                    right) =>
+              left.date.local eCo m pare(right.date) || toDa                    tAt)-toDate ( righ t. st                        .m ap(sche dule => {
+                          person=guards.f i nd(guard=>guard.id===schedule.userId);
+            const star t =toDate(sched u le.startAt),end=toDate(s c hedule.endAt); 
+                                    e=>{
+                  if(!time)return '—';
+                          ns t dayOffse t=M at h.round((Date.parse(SchedulePeriod.toLocalDateString(time)+'T00:00:0                        sc hedule.dat e +' T00:00:00Z'))/86400000);
+                const timeStr=escapeHtml(formatTime(time))                          if(dayOffset==                    {ti                     class="badge-n e xt-day">(next day)</span >`; 
+                                fset>1)return `${timeStr} <span class="badge-next-day">(${dayOffse t}  days later)</span >` ;
                 return timeStr;
             };
             const cancelled=schedule.approval_status==='cancelled';
             return `<tr>
                 <td><strong>${escapeHtml(person?.name||schedule.guardName||'Personnel unavailable')}</strong></td>
-                <td>${escapeHtml(formatDate(schedule.date))}</td>
+                   < td>${escapeHtml(formatDate(schedule.dat e))}</td>
                 <td class="schedule-dtr-time">${punch(start)}</td>
                 <td class="schedule-dtr-time">${punch(end)}</td>
-                <td>${cancelled?'—':escapeHtml(formatDurationBetween(start,end))}</td>
-                <td>${formatLocationCell(schedule)}</td>
-                <td class="schedule-period-actions">${renderPeriodAction(schedule)}</td>
+                <td>${cancelled?'—':                ml(formatDura            Be        twe        en(start,end))}</td>
+                <td            ormatLocationCell(schedule)}</td>
+                          d class="schedule-period-actions">${renderPeriodAction(schedule)}</td>
             </tr>`;
-        }).join('');
+                }).join('');
     }
-}
-
-function renderPeriodAction(schedule) {
+                ion renderPeriodAction(schedule) {
     const history = scheduleHistoryState(schedule);
     const label = window.SchedulePeriod.periodLabels[schedule.dtr_period || 'auto'] || 'Shift';
-    return history.reason
-        ? `<button type="button" class="action-btn btn-schedule-del" disabled title="${escapeHtml(history.reason)}" aria-label="Delete unavailable: ${escapeHtml(history.reason)}">Delete</button>`
-        : `<button type="button" class="action-btn btn-schedule-del" data-delete-schedule="${escapeHtml(schedule.firestoreId)}" aria-label="Delete ${escapeHtml(label)} period">Delete</button>`;
-
-}
-
+    r                story.reason
+        ? `<button type="button" class="action-btn btn-schedule-del" disabled title="${escapeHtml(history.reason)}" aria-label="Delete unavailable: ${escapeHtml(history.reaso        n)}        ">Delete</button>`
+        : `<button type="button" class="acti        on-btn btn-schedule-             data-delete-schedule="${escapeHtml(schedule.fires                " aria-label="Delete ${escapeHtml(label)} period">Delete</butto                
 const schedTableEl = document.getElementById('scheduleTable');
-if (schedTableEl) {
-    schedTableEl.addEventListener('click', event => {
-        const button = event.target.closest('[data-delete-schedule]');
-        if (button) deleteSchedule(button.dataset.deleteSchedule, button);
+if             edTa        bleE        l) {
+    schedTableEl.addEventListener('c        lick', event => {
+                const button = event.target.closest        ('[data-delete-schedule]');
+        if (bu            ) deleteSchedule(button.dataset.deleteSchedule, button);
     });
 }
 
 
-// =====================================
+/            ===================================
 // DELETE SCHEDULE
-// =====================================
+// ==============            ===================
 
 function scheduleHistoryState(schedule) {
-    // PostgREST returns unique child relationships as objects, and other
-    // relationships as arrays. Accept both shapes when evaluating history.
-    const records = value => Array.isArray(value) ? value : value ? [value] : [];
-    const attendance = records(schedule.attendance_sessions);
-    if (attendance.length) return {
+    // PostgRES            turns unique child relationships as objects, and other
+               relationships as arrays. Accept                 pes when evaluatin                y.
+    const records = value => Array.isArray(value) ? value                 ? [value] : [];
+    cons                ance = records(schedule.attendance_sessions);
+             f (            ndance.length) return {
         attendance: true,
-        open: attendance.some(session => session.status === 'open'),
-        label: 'DTR protected',
-        reason: 'Recorded attendance — kept for DTR.',
+                        tendance.some(session => session.status === 'open'),
+        label: 'DTR p            cte                    reason: 'Recorded attendance — kept for DTR.',
     };
-    if (schedule.markedDone || schedule.completedAt) return {
-        label: 'History protected', reason: 'Completed duty — kept for records.',
+                schedule.markedDone || schedule.completedAt) return {
+        label: 'Hist            pro            ed', reason: 'Completed duty — kept for records.',
     };
-    if (records(schedule.accomplishment_reports).length) return {
-        label: 'Report protected', reason: 'An accomplishment report is linked.',
+    if (records(schedule.accomplishment_reports).l                eturn {
+        label: 'Report protected', reason: 'An accomplis            t r            t is linked        .',        
     };
-    if (records(schedule.shift_swap_requests).length || records(schedule.swap_target_requests).length) return {
-        label: 'Approval history', reason: 'A duty request is linked.',
+    if (records(schedule.shift_swap_requests)            gth || records(schedule.swap_target_requests).length) return {
+        labe            Approval history', reason: 'A duty reque                nked.',
     };
     return {};
 }
 
-async function deleteSchedule(firestoreId, button) {
-    const schedule = schedules.find(item => item.firestoreId === firestoreId);
-    if (!schedule || schedulesLoadFailed) {
-        appDialog.toast('Refresh the schedule list before deleting.', { tone: 'warning' });
+async function deleteSchedule(firestoreId, button)                 nst sche             =            edules.find(item => item.firestoreId === firesto            );
+    if (!schedule |                lesLoadFailed) {
+        appDialog.toast('Refresh the                  list be             d            ing.', { tone: 'warning' });
         return;
     }
-    const history = scheduleHistoryState(schedule);
+    const history = scheduleHistoryState(schedu            
     if (history.reason) {
         appDialog.toast(history.reason, { tone: 'warning' });
         return;
     }
     const periodLabel = window.SchedulePeriod.periodLabels[schedule.dtr_period || 'auto'] || 'Shift';
-    const approved = await appDialog.confirm(`Delete ${periodLabel} on ${formatDate(schedule.date)}? Only this unused period will be removed; other periods and recorded attendance are kept.`, { title: "Delete duty period", confirmText: "Delete period", danger: true, icon: "delete" });
-    if (!approved) return;
-    try {
-        await appDialog.runBusy(button, async () => {
-            const { error } = await appSupabase.rpc('delete_unused_schedule', { p_schedule_id: firestoreId });
-            if (error) throw error;
-        }, { label: 'Deleting…' });
-        schedules = schedules.filter(item => item.firestoreId !== firestoreId);
-        renderSchedules();
-        window.renderShiftRoster?.();
+    const approved = await appDialog.confirm(`Delete ${periodLabel} o            formatDate(schedule.dat             Only                 sed period will be removed; other periods and                     endance are kept.`, { title: "Delete duty period", confirmText: "Delete period", danger: true, icon                    );
+    if (!approved) re                  try {
+        await appDia                usy(button, async () => {
+            const { error } = await appSupabas                elete_unused_schedu                _schedule_id: firestoreId });
+                    if (error) throw error;
+                     label: 'Deleting…' });
+        s                 =                es.filter(item => item.firestoreId !== firestoreId);
+                  nderSchedules();
+                 indow.renderShiftRoster?.();
         if (currentCalendarSiteId) {
-            renderClientScheduleCalendar();
-        }
-        appDialog.toast("Schedule removed.", { tone: "success" });
+            renderClientScheduleCale                        }
+        appDialog.toast("Sche                    .", { tone: "success" });
     } catch (error) {
-        const protectedHistory = /^SCHEDULE_.*_HISTORY$/.test(error.details || '') || error.code === '23503';
-        const message = error.code === '23503'
-            ? 'This schedule has linked duty records and must be kept for historical records.'
-            : error.message || 'Could not remove schedule. Please try again.';
-        appDialog.toast(message, { tone: protectedHistory ? 'warning' : 'danger' });
-        await refreshSchedules();
-    }
+        const protectedHistory = /^                    HISTORY$/.test(error.details || '') || error.code === '23503';
+                    t message = error.code === '23503'
+            ? 'This schedule has linked du                ds and must be kept for hi            ic        al r        ecords.'
+            : error.mess            || 'Could not remove sc                Please try again.';
+        app                    (message, { tone: protectedHistory ? 'warning' : 'danger' });
+        awa                    hedule                 }
 }
 
 
 function formatLocationCell(s) {
     if (s.locationLabel) {
         const addr = s.locationAddress
-            ? `<div class="loc-cell-address">${escapeHtml(s.locationAddress)}</div>`
+            ? `<div class="loc-cell-address">${escapeHtml(s.locati            dr            }</div>`
             : "";
-        return `<div class="loc-cell-name"><span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">location_on</span>${escapeHtml(s.locationLabel)}</div>${addr}`;
+                return `<div class="loc-cell-name"><span class="material-symbol                d sl-inline-icon" aria-hidden="true">location_on</span>${escapeHtml(s.locationLabel)}</div>${addr}`;
     }
-    if (s.area || s.company) {
-        const parts = [s.company, s.area].filter(Boolean).join(" · ");
-        return `<div class="loc-cell-name">${escapeHtml(parts)}</div><div class="loc-cell-address">(legacy entry)</div>`;
-    }
+    if             re             s.company)         {
+                const parts = [s.comp             s.area].filter(Boolean).j                ");
+        return `<div                loc-cell-name">${escape                ts)}</div><div class="l                address">(legacy entry)</                   }
     return "—";
 }
 
-function escapeHtml(text) {
-    return String(text ?? "")
-        .replace(/&/g, "&amp;")
+fu        nct        ion escapeHtml(text) {
+              turn String(text ?? "")
+                .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, '&#039;');
+                .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quo        t;"        )
+        .replace(/'/g,             39;');
 }
 
 function toDate(value) {
     if (!value) return null;
-    const date = value.toDate ? value.toDate() : new Date(value);
-    return Number.isNaN(date.getTime()) ? null : date;
+    const date = value.toDate ? value.t        oDa        te() : new Date(value);
+    ret            Number.isNaN(date.getTime(             null : date;
 }
 
 function formatTime(d) {
-    return d.toLocaleTimeString("en-PH", { timeZone: 'Asia/Manila', hour: "numeric", minute: "2-digit" });
+             eturn d.toLocaleTimeString("en-PH", { timeZone: 'Asia/Manila', hour: "numeric", minute: "2-        dig        it" });
 }
 
 function formatDate(dateStr) {
-    if (!dateStr) return "—";
-    const d = new Date(dateStr + "T00:00:00");
-    return d.toLocaleDateString("en-PH", { year: "numeric", month: "short", day: "numeric" });
+               (!dateStr) return "—";
+    const             new Date(dateStr + "T            0:00");
+    return d            ocaleDateString("en-PH", { year: "numeric", m            : "short", day: "numeric" });
 }
 
-function formatDurationBetween(start, end) {
-    if (!start || !end) return "—";
-    let ms = end - start;
+functio            rmatDurationBetween(start, end) {
+    if (!            t || !end) return "—";
+    let m            end - start;
     if (ms < 0) ms = 0;
-    const totalMinutes = Math.round(ms / 60000);
-    if (totalMinutes === 0) return "0 min";
-    const hrs = Math.floor(totalMinutes / 60);
-    const mins = totalMinutes % 60;
-    if (hrs === 0) return `${mins} min`;
-    if (mins === 0) return hrs === 1 ? "1 hour" : `${hrs} hours`;
+            const totalMinutes = Math.round(ms / 60000);
+    if (totalMinu            === 0) return "0 min";
+            con        st hrs = Math.floor(totalMinutes / 6                const mins = totalMinutes % 6               if (hrs === 0) return `${m             min`;
+    if (mins                 eturn hrs === 1 ? "1 hour" : `${hrs} hours`;
     return `${hrs}h ${mins}m`;
 }
 
-function formatScheduleDisplay(s) {
-    const start = toDate(s.startAt);
+function formatScheduleDisplay(s)                 nst start = toDate(s.startAt);
     const end = toDate(s.endAt);
-    if (start && end) {
-        const sameDay = window.SchedulePeriod.toLocalDateString(start) === window.SchedulePeriod.toLocalDateString(end);
-        const startDate = window.SchedulePeriod?.toLocalDateString(start) || s.date;
-        const endDate = window.SchedulePeriod?.toLocalDateString(end) || startDate;
+    if (start                 {
+        const sameDay = window.SchedulePeriod.toLocalDateString(start) ==                .SchedulePeriod.toLocalDa                    );
+        const startDa                    SchedulePeriod?.toLocalDateString(start) || s.date;
+                   st endDate = window.SchedulePeriod?.toLocalDateString(end) ||                 e;
         const dateLine = sameDay
-            ? formatDate(startDate)
+            ? formatD                tDate)
             : `${formatDate(startDate)} → ${formatDate(endDate)}`;
         const timeLine = `${formatTime(start)} – ${formatTime(end)}`;
-        const durationLabel = formatDurationBetween(start, end);
-        return `
+        const durationLabel = formatDurationBe            n(            t, end);
+                       `
             <div class="schedule-time-range">${escapeHtml(dateLine)}</div>
             <div class="schedule-time-sub">${escapeHtml(timeLine)} · ${escapeHtml(durationLabel)}</div>`;
     }
     if (s.shift) {
-        return `
-            <div class="schedule-time-range">${escapeHtml(formatDate(s.date))}</div>
-            <div class="schedule-time-sub"><span class="badge-time">${escapeHtml(s.shift)} shift</span> (legacy)</div>`;
+                  tu            
+            <div class="schedule-time-range">${escapeHtml(formatDate(s.date))}</di        v>
+                    <div class="schedule-time-sub        "><span class="badge-time">${escapeHtml(s.shift)}         shift</span> (legacy)</div>`;
     }
-    return `<div class="schedule-time-range">${escapeHtml(formatDate(s.date))}</div>`;
+            return `<div class="schedule-time-        range">${escapeHtml(formatDate(s.date)        )}</div>`;
 }
 
+// =====================        ================
+// COMPANY / CLIENT S            TION & MONTHLY CALENDAR
 // =====================================
-// COMPANY / CLIENT SELECTION & MONTHLY CALENDAR
-// =====================================
-let currentCalendarSiteId = null;
+let curre            lendarSiteId = null;
 let currentCalendarMonthStart = null;
-let currentCalendarWeekStart = null;
+let currentCa            arWeekStart = null;
 
-function renderBundledDeployments() {
-    const container = document.getElementById('bundledDeploymentsContainer');
-    const summaryEl = document.getElementById('bundledDeploymentsSummary');
+func             renderBundledDeployments() {
+    const container = document.getElem            yId('bundledDeploymentsContainer');
+    const summaryEl = docume            etElementById('bundledDeploymentsSummary');
     if (!container) return;
 
-    const siteFilterEl = document.getElementById('scheduleSiteFilter');
-    const selectedSiteId = siteFilterEl ? siteFilterEl.value : '';
+    const si            lterEl = document.getElementById('scheduleSiteFilter'                onst selectedSiteId = siteFilterEl ? siteFilterEl.value : '';
 
-    const activeUserGuards = (guards || []).filter(g => g.active && g.role === 'user' && !ContractPeriod?.isExpired?.(g));
+                t activeUserG            s = (            ds || []).filter(g => g.active && g.role === 'user' && !ContractPeriod?.is            red?.(g));
 
-    const clientList = (locations || []).filter(loc => {
-        if (selectedSiteId && loc.id !== selectedSiteId) return false;
-        return true;
-    });
+    c                entList = (locations || []).filter(loc => {
+        if (selectedSiteId && loc.id !== selectedSiteI            etu            alse;
+        return true;                
 
     clientList.sort((a, b) => (a.label || '').localeCompare(b.label || ''));
 
     if (summaryEl) {
-        summaryEl.textContent = `${clientList.length} ${clientList.length === 1 ? 'client' : 'clients'}`;
+        summaryEl.textContent = `${clientList.length} ${clientList.lengt                ? 'clien             'c            ts'}`;
     }
 
     if (!clientList.length) {
-        container.innerHTML = '<div class="text-muted p-4 text-center w-100" style="grid-column: 1 / -1; font-size:0.875rem;">No clients found matching the selected filter.</div>';
+                  ntainer.innerHTML = '<div class="text-muted p-4 text-center w-100" style="grid-column: 1 / -1; font-size:0.875rem;"                nts found matching the selected filter                ;
         return;
     }
 
@@ -806,66 +837,60 @@ function renderBundledDeployments() {
                     <div class="deployment-bundle-sub">${escapeHtml(loc.address || 'Deployment site')}</div>
                 </div>
             </div>
-            <div class="deployment-bundle-badges">
-                <span class="bundle-pill"><span class="material-symbols-rounded" aria-hidden="true" style="font-size:13px;">groups</span> ${count} ${count === 1 ? 'Guard' : 'Guards'}</span>
+            <div class="d            yment-bundle-        bad        ges">
+                <span class=            dle-pill"><span class="materi            ymbols-rounded" aria-hidden="true" style="font-size            x;">groups</span> ${count} ${count === 1 ?            ard' : 'Guards'}</span>
             </div>
         </div>`;
     }).join('');
 }
 
-function parseScheduleDate(str) {
-    if (!str) return new Date();
-    if (typeof str !== 'string') return new Date(str);
-    const parts = str.split('-').map(Number);
-    if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
-        return new Date(parts[0], parts[1] - 1, parts[2]);
+functi                ScheduleDate(str) {
+    if (!str) return new Date()                          typeof str !== 'string') retur            w Date(str);
+    const parts = str.split('-').map(Numb        er)        ;
+    if (parts.length === 3 && !isN            arts[0]) && !isNaN(parts[1]) &&            NaN(parts[2])) {
+                   urn new Date(parts[0], p            [1] - 1, parts[2]);
     }
-    const parsed = new Date(str);
-    return isNaN(parsed.getTime()) ? new Date() : parsed;
+    const parsed = new Date(s            
+    return isNaN(parsed.getTime()        ) ?         new Date() : parsed;
 }
 
-function getWeekMonday(dateInput) {
-    const d = new Date(dateInput);
+function ge            kMonday(dateInput) {
+    const             new Date(dateInput);
     d.setHours(0, 0, 0, 0);
-    const day = d.getDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-    return new Date(d.setDate(diff));
+    con            ay = d.getDay();
+    const diff = d.getDate() - da            (day === 0 ? -6 : 1);
+    return n        ew         Date(d.setDate(diff));
 }
 
-function formatCalendarDateStr(d) {
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+function f            tCalendarDateStr(d) {
+               st year = d.getFullYear();
+    const month = S            g(d.getMonth() + 1).padStart(2, '0');             const day = String(            tDate()).padStart(2, '0');
+    return `${ye            ${month}-${day}`;
 }
 
-function formatTimeStr12(timeStr) {
-    if (!timeStr) return '';
-    const parts = timeStr.split(':').map(Number);
+function formatTi            r12(timeStr) {
+    if (!ti            r) return '';
+    const parts = timeStr.split(':').map(Nu        mbe        r);
     if (isNaN(parts[0])) return timeStr;
-    const h = parts[0];
-    const m = parts.length > 1 ? parts[1] : 0;
+    c             h = parts[0];
+    const m = parts.len            > 1 ? parts[1] : 0;
     const period = h >= 12 ? 'PM' : 'AM';
-    const h12 = h % 12 || 12;
+    const h12 = h %            || 12;
     return `${h12}:${String(m).padStart(2, '0')} ${period}`;
 }
 
-function isGuardSpecificRestDay(guard, dayDate) {
-    if (!guard || !dayDate) return false;
+function isGuardSpecificRe            y(guard, dayDate) {
+    if (!guard ||             Date) return false;
     const dayOfWeek = dayDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    co            dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const dayName = dayNames[dayOfWeek];
 
-    const targetRestDay = guard.weeklyRestDay ?? guard.weekly_rest_day ?? guard.restDay ?? guard.rest_day ?? null;
-    if (targetRestDay !== null && targetRestDay !== undefined && targetRestDay !== '' && targetRestDay !== -1 && targetRestDay !== '-1') {
-        if (typeof targetRestDay === 'number') {
-            return targetRestDay === dayOfWeek;
-        }
-        if (typeof targetRestDay === 'string') {
-            const trimmed = targetRestDay.trim().toLowerCase();
+                  targetRestDay = guard.weeklyRestDay ?? gu                    est_day ?? guard.restDay ?? guard.re                ?                   if (targetRestDay !== null && targetRes                    efined && targetRestDay !== '' && targetRestDay !==                     RestDay !== '-1') {
+        if (typeof targetRestDay === 'nu                             return t                     =                We                            }
+        if         (t        ypeof targetRestDay === 'string') {
+                    const trim                rgetRestD                    LowerCase();
             if (trimmed === dayName || trimmed === String(dayOfWeek)) {
-                return true;
-            }
+                re                               }
         }
     }
     return false;
@@ -873,205 +898,172 @@ function isGuardSpecificRestDay(guard, dayDate) {
 
 function getClientContractedShifts(loc) {
     if (!loc) {
-        return [
-            { label: 'Day shift', timeRange: '6:00 AM – 6:00 PM', badge: 'M', colorClass: 'shift-color-morning' },
-            { label: 'Night shift', timeRange: '6:00 PM – 6:00 AM (next day)', badge: 'N', colorClass: 'shift-color-night' }
+                     n [                             { label: 'Day shift', timeRange: '6:00 AM – 6:00 PM', badge: 'M'            lorClass: 'shift-color-morning' },
+                    { label: 'Night shift', timeRange: '6:00 PM – 6:00 AM (next day)', badge: 'N', co            las            shift-color-night' }
         ];
     }
 
-    let customHours = loc.custom_shift_hours || loc.customShiftHours;
-    if (typeof customHours === 'string') {
-        try { customHours = JSON.parse(customHours); } catch (e) { customHours = null; }
-    }
-
-    if (Array.isArray(customHours) && customHours.length > 0) {
-        return customHours.map((ch, idx) => {
-            const start12 = formatTimeStr12(ch.start_time || '06:00');
-            const end12 = formatTimeStr12(ch.end_time || '18:00');
-            const isNextDay = (ch.start_time && ch.end_time && ch.end_time <= ch.start_time);
-            const timeRange = `${start12} – ${end12}${isNextDay ? ' (next day)' : ''}`;
-            const startH = parseInt((ch.start_time || '06:00').split(':')[0], 10);
-            let colorClass = 'shift-color-morning';
-            let badge = 'M';
-            if (startH >= 12 && startH < 18) {
-                colorClass = 'shift-color-afternoon';
-                badge = 'A';
-            } else if (startH >= 18 || startH < 6) {
-                colorClass = 'shift-color-night';
+    let customHours =                tom_shift_hours || loc.customShiftHour                    ypeof customHours === 'string') {
+        try { customHours                    e(customHours); } catch (e) { customHours = null; }
+                       Array.isArray(customHours) && customHours.length > 0) {
+        return customHours                    x) => {
+            const start12 = formatTimeStr12(ch.start_time || '06:00'                       const end12 = formatTimeStr12(ch.end_time || '18:00');
+            c                    ay = (ch.start_time && ch.end_time && ch                     ch.start_time);
+                    const timeRange = `${start12} – ${e                         ? ' (next day)' : ''}`;
+            c                        rseInt((ch.st                    '06:00').split(':')[0], 10);
+                                     'shift-color-morning';
+                                  ';
+                               >                    tH < 18)                           colorClass = 'shift-color-afternoon';                         badge = 'A                         else i                        || startH <                                       olor            s =            ift-color-night';
                 badge = 'N';
             }
-            return {
-                label: ch.label || `Shift ${idx + 1}`,
+                    return {
+                la                label ||                      + 1}`,
                 timeRange,
                 badge,
                 colorClass
             };
-        });
-    }
+                         
 
     let model = loc.shift_model || loc.shiftModel || '2_shifts_12h';
     if (model === '3_shifts_8h') {
-        return [
-            { label: 'First shift', timeRange: '6:00 AM – 2:00 PM', badge: 'M', colorClass: 'shift-color-morning' },
-            { label: 'Second shift', timeRange: '2:00 PM – 10:00 PM', badge: 'A', colorClass: 'shift-color-afternoon' },
-            { label: 'Third shift', timeRange: '10:00 PM – 6:00 AM (next day)', badge: 'N', colorClass: 'shift-color-night' }
+                       [
+            { label: 'First shift', timeRange: '6:00 AM – 2:00 PM', badge: 'M', colorClass: 'shift-color-morning                                 { label: 'Second shift', timeRange:                M – 10:00                     'A', colorClass: 'shift-color-afternoon' },
+            { label: 'Third shift', timeRange: '10:00 PM                 M (             da             badge: '                rClass: 'shift-color-night' }
         ];
     } else if (model === '1_shift_8h') {
         return [
-            { label: 'Day shift', timeRange: '8:00 AM – 5:00 PM', badge: 'M', colorClass: 'shift-color-morning' }
+                    { label: 'Day shift', timeRange: '8:00 AM – 5:00 PM', badge: 'M', colorClass: 'shift-color-morning' }
         ];
-    }
+            }
 
-    return [
-        { label: 'Day shift', timeRange: '6:00 AM – 6:00 PM', badge: 'M', colorClass: 'shift-color-morning' },
-        { label: 'Night shift', timeRange: '6:00 PM – 6:00 AM (next day)', badge: 'N', colorClass: 'shift-color-night' }
+                    return [
+        { label: 'Day shift', timeRa             '6:00 AM – 6:00 PM',            ge: 'M', colorClass: 'shift-colo            rning' },
+        { label: 'Night shift', timeRange: '6:00 P            6:00 AM (next day)', badge: 'N', colorClass: 'shift-color-night' }
     ];
 }
 
-function openClientScheduleCalendar(siteId) {
+function openC            tScheduleCalendar(siteId) {
     if (!siteId) return;
-    currentCalendarSiteId = siteId;
-    const rosterDateEl = document.getElementById('rosterDate');
-    const baseDate = rosterDateEl?.value ? parseScheduleDate(rosterDateEl.value) : new Date();
-    currentCalendarMonthStart = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
-    currentCalendarWeekStart = getWeekMonday(baseDate);
+    currentCalendarSiteId = siteI               const rosterDateEl = document.getElementById('rost            te');
+    const baseDate = roster            El?.value ? parseScheduleDate(rosterDateEl.value) : new Date();
+    curr            alendarMonthSta                 Date(baseDate.getFullYear(), baseDate.getMonth(),                    rentCalendarWeekStart = getWeekMonday(baseDate);
 
-    renderClientScheduleCalendar();
+                   lientSche                    ();
 
-    const modalEl = document.getElementById('clientScheduleCalendarModal');
-    if (modalEl) {
-        if (window.bootstrap && window.bootstrap.Modal) {
-            bootstrap.Modal.getOrCreateInstance(modalEl).show();
-        } else {
-            modalEl.classList.add('show');
-            modalEl.style.display = 'block';
-            modalEl.removeAttribute('aria-hidden');
-            modalEl.setAttribute('aria-modal', 'true');
-            document.body.classList.add('modal-open');
-            let backdrop = document.querySelector('.modal-backdrop');
-            if (!backdrop) {
-                backdrop = document.createElement('div');
-                backdrop.className = 'modal-backdrop fade show';
-                backdrop.onclick = closeClientScheduleCalendar;
-                document.body.appendChild(backdrop);
-            }
+    const modalEl = docume                    tById('clientScheduleCalendarModa                    (modalEl) {
+        if (window.bootstrap                    ootstrap.Modal) {
+            bootstrap.Moda                    eInstance(modalEl).show();
+        } else {                     modalEl.classList.add('show');
+            modalEl.style.                    lock';
+                                  Attribute('aria-hidden');
+            moda                        ('aria-modal', 'true');
+            document.body                        modal-open');
+            let backdrop = documen                        '.modal-backdrop');
+            if (!                                                    ba        ckd        rop = document.createElement('div');
+                        backdrop.className = 'modal-backdrop fade show';
+                           kdrop.onclick = closeC            tScheduleCalendar;
+                document.body.a                ld(bac                            }
         }
     }
 }
 
 function closeClientScheduleCalendar() {
-    const modalEl = document.getElementById('clientScheduleCalendarModal');
-    if (!modalEl) return;
-    if (window.bootstrap && window.bootstrap.Modal) {
-        try {
-            const inst = bootstrap.Modal.getInstance(modalEl) || bootstrap.Modal.getOrCreateInstance(modalEl);
+    const modalEl = document.                    Id('clientSch                endarModal');
+                    alEl) return;
+    if (window.bootstrap && window                ap            al                    try {
+            const in             bootstrap.Modal.getInstance(mod            ) || bootstrap.Modal.getOrCreateInstance(moda            ;
             inst.hide();
-        } catch (e) {
-            console.warn('Bootstrap modal hide error:', e);
+        } ca            (e) {
+            console.warn('Bootstrap moda            de error:', e);
         }
     }
     modalEl.classList.remove('show');
-    modalEl.style.display = 'none';
-    modalEl.setAttribute('aria-hidden', 'true');
-    modalEl.removeAttribute('aria-modal');
+                    modalEl.style.display = 'none';
+    modalEl.            ttribute('aria-hidden', 'true');
+                 El.removeAttribute('aria                ;
     document.body.classList.remove('modal-open');
-    document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+    document.querySelect            l(            dal-backdrop').forEach(                emove());
 }
 
-function navigateCalendarMonth(direction) {
+function na                lendarMonth(direction) {
     if (!currentCalendarMonthStart) {
+        const             = new Da                      currentCalendarMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                              direction === 0) {
         const now = new Date();
-        currentCalendarMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    }
-    if (direction === 0) {
-        const now = new Date();
-        currentCalendarMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        currentCal            rMonthStart = new Date(now.getFu        llY        ear(), now.getMonth(), 1);
     } else {
-        currentCalendarMonthStart.setMonth(currentCalendarMonthStart.getMonth() + direction);
+                currentCalendarMonthStart.setMont        h(c        urrentCalendarMonthStart.getMonth() + dire            n);
     }
-    currentCalendarWeekStart = getWeekMonday(currentCalendarMonthStart);
-    renderClientScheduleCalendar();
+    currentCalendarWeekSta             getWeekMonday(currentCalendarMonthStart);
+    renderClientScheduleCalend            ;
 }
 
 function navigateCalendarWeek(direction) {
-    navigateCalendarMonth(direction);
+    navigateCalendarMonth            ection);
 }
 
 function renderClientScheduleCalendar() {
-    if (!currentCalendarSiteId) return;
-    const loc = (locations || []).find(l => l.id === currentCalendarSiteId);
-    const siteTitleEl = document.getElementById('clientCalendarModalTitle');
-    const siteSubEl = document.getElementById('clientCalendarModalSub');
-    const weekPillEl = document.getElementById('clientCalendarWeekPill');
-    const gridEl = document.getElementById('clientCalendarMonthGrid');
+    if (!curren            endarSiteId) return;
+    const loc = (locations || []).find(l => l.id             currentCalendarSiteId);
+    const siteTitleEl = document.getElementB            'clientCalendarModalTitle');
+    const siteSubEl = document.getElementById('clientC            darModalSub');
+    const weekPillEl = document.getElementById('clientCalendarWeekPil            
+    const gridEl = document.getEl                d('clientCalendarMonthGr                   if (siteTitleEl) siteTitleEl.textContent = `${loc?.label || 'Client'} — S            ule               if (siteSubEl) siteSubEl.textContent = loc?.address            'Deployment Site Calendar';
 
-    if (siteTitleEl) siteTitleEl.textContent = `${loc?.label || 'Client'} — Schedule`;
-    if (siteSubEl) siteSubEl.textContent = loc?.address || 'Deployment Site Calendar';
-
-    if (!currentCalendarMonthStart) {
+    if (!currentCalenda            thStart) {
         const now = new Date();
-        currentCalendarMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    }
-
-    const year = currentCalendarMonthStart.getFullYear();
-    const month = currentCalendarMonthStart.getMonth();
-    const monthName = currentCalendarMonthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        currentCalendarMonthStart = new Date(now.getFullYear(), no            tMonth(), 1);
+                    onst year = currentCalendarMonthStar            tFu            ar();
+    const month             rrentCalendarMonthStart.getMonth();
+    const month             = currentCalendarMonthStart.toLocaleDateString('en-US',             nth: 'long', year: 'numeric' });
     if (weekPillEl) {
-        weekPillEl.textContent = monthName;
+                 eekPillEl.textContent = monthName;
     }
 
-    if (!gridEl) return;
+    if (!gridEl)             rn;
 
     // First day index (0 = Sun, 1 = Mon, ... 6 = Sat)
-    const firstDayIndex = new Date(year, month, 1).getDay();
+    const firstDayIndex             w Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const prevMonthDays = new Date(year, month, 0).getDate();
+    const prevMonthDays = new Date            r, month, 0).getDate();
 
-    const activeUserGuards = (guards || []).filter(g => g.active && g.role === 'user' && !ContractPeriod?.isExpired?.(g));
-    const stationedGuards = activeUserGuards.filter(g => (g.assignedLocationId || g.assigned_location_id) === currentCalendarSiteId);
+    const activeUserGuards = (guards || []).            er(g => g.active && g.role === 'user' && !ContractPer            .isExpired?.(g));
+               st stationedGuards = activeUserGuards.f                => (g.assigned                Id || g.assigned_locati                == currentCal                eId);
 
-    const totalCells = Math.ceil((firstDayIndex + daysInMonth) / 7) * 7;
-    const todayStr = formatCalendarDateStr(new Date());
+    const totalCel                    il((firstDayIndex + daysInMonth) / 7) * 7;
+    c                    r = formatCalendarDateStr(new Date());
 
-    let cellsHtml = '';
+    le                    = '';
 
-    for (let i = 0; i < totalCells; i++) {
+    for (le                 i < totalCells; i++) {
         let cellDate;
-        let isOutside = false;
-        let dayNum;
-
-        if (i < firstDayIndex) {
-            dayNum = prevMonthDays - firstDayIndex + 1 + i;
-            cellDate = new Date(year, month - 1, dayNum);
-            isOutside = true;
-        } else if (i < firstDayIndex + daysInMonth) {
-            dayNum = i - firstDayIndex + 1;
-            cellDate = new Date(year, month, dayNum);
-            isOutside = false;
-        } else {
-            dayNum = i - (firstDayIndex + daysInMonth) + 1;
-            cellDate = new Date(year, month + 1, dayNum);
+                    isOutside = false;
+        let d                        if (i < firstDayIndex) {
+            d                    MonthDays - firstDa                 1 + i;
+                     ellDate = new Date(year, month - 1, dayNum);
+                       utside = true;
+        } else if (i < firstDay                    InMonth) {
+                       Num                irstDayIndex + 1;
+            cellDate = new Date                onth, dayNum);
+            isOutside =                        } else {
+            dayNum = i - (firstDayInd                    onth) + 1;
+            cellDate = new Date(yea                    , dayNum);
             isOutside = true;
         }
 
-        const dateStr = formatCalendarDateStr(cellDate);
-        const isToday = dateStr === todayStr;
-
-        const daySchedules = (schedules || []).filter(s => {
-            const sLocId = s.locationId || s.location_id;
-            return sLocId === currentCalendarSiteId && s.date === dateStr && s.approval_status !== 'cancelled';
+        const dateStr = formatCalendarDateStr(ce                
+                    t isToday = dateStr === to                
+        const daySchedules = (                     []).filter(s => {
+                                 = s.locationId || s.location_id;
+                        rn sLocId === currentCalendar                         === dateStr && s.approval_status !== 'cancelled';
         });
 
-        let eventPillsHtml = '';
-
-        if (daySchedules.length > 0) {
+        let eventPills                            if (daySchedules.length > 0) {
             daySchedules.forEach(s => {
-                const start = toDate(s.startAt);
-                const end = toDate(s.endAt);
-                const timeRange = start && end ? `${formatTime(start)}–${formatTime(end)}` : 'Shift';
-                const gName = s.guard_name || (activeUserGuards.find(g => g.id === s.userId)?.name) || 'Guard';
+                const                         .startAt);
+                const end = toDate                                   const timeRange = st                        formatTime(start)}–${formatTime(end                                       const gName = s.gu                        iveUserGuards.find(g => g.id === s.userId                            
 
-                const startH = start ? start.getHours() : 6;
+                const s                        sta                        6;
                 let colorClass = 'is-morning';
                 if (startH >= 12 && startH < 18) {
                     colorClass = 'is-afternoon';
@@ -1080,25 +1072,19 @@ function renderClientScheduleCalendar() {
                 }
 
                 eventPillsHtml += `
-                    <div class="gcal-event-pill ${colorClass}" title="${escapeHtml(gName)} (${escapeHtml(timeRange)})" onclick="event.stopPropagation();">
-                        <span class="text-truncate">● ${escapeHtml(timeRange)}: <strong>${escapeHtml(gName)}</strong></span>
+                    <div class="gcal-ev                    olor                tit                capeHtml(gName)} (                    (timeRange)})" onclick="event.s                        ;">
+                        <span class="text-truncate">● ${                        ange)}: <strong>$                            /strong></span>
                     </div>
-                `;
-            });
+                                        ;
         }
 
-        if (!isOutside) {
-            stationedGuards.forEach(g => {
-                const hasShift = daySchedules.some(s => s.userId === g.id);
-                if (!hasShift) {
-                    const isExplicitRest = (schedules || []).some(s => 
-                        s.userId === g.id && 
-                        s.date === dateStr && 
+       i                                     stationedGuards.o                                     const hasShift = daySchedules.some(s => s.userId === g.id);
+                if (!hasShift) {                             co                             (schedules || []).some(s => 
+                        s.userI                                               s.date === dateStr && 
                         (s.is_rest_day === true || s.status === 'rest' || s.shift === 'REST' || s.leave_type === 'REST')
                     );
                     if (isExplicitRest || isGuardSpecificRestDay(g, cellDate)) {
-                        eventPillsHtml += `
-                            <div class="gcal-event-pill is-rest" title="Rest day for ${escapeHtml(g.name)}" onclick="event.stopPropagation();">
+                        eventPillsHt                                                      iv                    -eve                is-                tle="Rest day for ${escapeHtml(g.name)}" onclick="event.stopPropagation();">
                                 <span>REST: ${escapeHtml(g.name)}</span>
                             </div>
                         `;
@@ -1109,151 +1095,186 @@ function renderClientScheduleCalendar() {
 
         cellsHtml += `
             <div class="gcal-day-cell ${isOutside ? 'is-outside' : ''} ${isToday ? 'is-today' : ''}" data-date="${dateStr}">
-                <div class="gcal-day-header">
-                    <span class="gcal-day-num">${dayNum}</span>
+                                 div class="gcal-day-header">
+                                    <span class="gcal-day-num">${d            m}</span>
                 </div>
-                <div class="d-flex flex-column gap-1 overflow-auto">
-                    ${eventPillsHtml}
-                </div>
-            </div>
+                        <div class="d-flex fle            lumn gap-1 overflow-auto">
+                    ${eventPill            l}
+                                           </div>
         `;
     }
 
-    gridEl.innerHTML = cellsHtml;
+    g                nerHTML = cellsHtml;
 }
 
-function selectSiteForSchedulingFromModal() {
+function selectSiteForS            ul            romModal() {
     if (!currentCalendarSiteId) return;
-    closeClientScheduleCalendar();
-    const siteSelect = document.getElementById('rosterSite');
+                eClientScheduleCalendar();
+    const siteSelec                ment.getElementById('roste                
     if (siteSelect) {
         siteSelect.value = currentCalendarSiteId;
         siteSelect.dispatchEvent(new Event('change'));
     }
-    const dateInput = document.getElementById('rosterDate');
-    if (dateInput && currentCalendarMonthStart) {
-        const today = new Date();
-        const initialDate = (today.getFullYear() === currentCalendarMonthStart.getFullYear() && today.getMonth() === currentCalendarMonthStart.getMonth())
-            ? today
+    const dat                    ument.ge                    ('rosterDate');
+    if (dateI                currentCalendarMonthStart) {
+        const today = new                
+        const initialDate = (today.getFullYea            ==            rrentCalendarMonthStart.getFullYear() && today.getMonth() === currentCalendarMonthStart.getMonth())
+                            ? today
             : currentCalendarMonthStart;
-        dateInput.value = formatCalendarDateStr(initialDate);
-        dateInput.dispatchEvent(new Event('change'));
+                dateInput.value = formatCalendarDateStr(initialDate);
+        date        Input.dispatchEvent(new Event('change'));
     }
-    document.querySelector('.shift-roster-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    do        cument.querySelector('.shift-roster-card')?.scrollInt        oView({ behavior: 'smooth', block: 'start' });
 }
 
-window.openClientScheduleCalendar = openClientScheduleCalendar;
-window.closeClientScheduleCalendar = closeClientScheduleCalendar;
-window.navigateCalendarMonth = navigateCalendarMonth;
-window.navigateCalendarWeek = navigateCalendarMonth;
-window.selectSiteForSchedulingFromModal = selectSiteForSchedulingFromModal;
+window.openClientScheduleC        alendar = openClientScheduleCalendar;
+window.closeClientScheduleCalendar = cl        oseClientScheduleCalendar;
+window.navig at        eCalendarMonth = navigateCalendarMonth;
+window.navigateCalendarWeek = navigateCa        lendarMonth;
+window.selectSite        ForSchedulingFromModal = selectSiteForSchedulingFromModal;
 window.selectSiteForSchedulingFromModal = selectSiteForSchedulingFromModal;
 
-function toggleAllDeploymentBundles() {}
+funcggleAllDeploymentBundles() {}
 function quickDeploySiteBundle(siteId) { openClientScheduleCalendar(siteId); }
 
 function _unusedEndHelper() {
 }
 
-</script>
+    </script>
 
-<!-- Client Monthly Guard Schedule Calendar Modal (Photo 2) -->
-<div class="modal fade guard-calendar-modal" id="clientScheduleCalendarModal" tabindex="-1" aria-labelledby="clientCalendarModalTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl" style="max-width:96vw;">
-        <div class="modal-content glass-card shadow-lg" style="border-radius:16px; overflow:hidden;">
-            <div class="modal-header border-bottom py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="deployment-bundle-icon" style="width:40px; height:40px;">
-                        <span class="material-symbols-rounded" aria-hidden="true" style="font-size:22px;">calendar_month</span>
-                    </div>
-                    <div>
-                        <h5 class="modal-title fs-6 fw-bold mb-0" id="clientCalendarModalTitle">Client Guard Schedule</h5>
-                        <p class="text-muted small mb-0" id="clientCalendarModalSub">Monthly assignment overview</p>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center gap-3 flex-wrap">
-                    <div class="d-flex align-items-center gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold px-3 rounded-pill" onclick="navigateCalendarMonth(0)">Today</button>
-                        <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-outline-secondary" onclick="navigateCalendarMonth(-1)" title="Previous month"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_back</span></button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="navigateCalendarMonth(1)" title="Next month"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_forward</span></button>
+    <!-- Client Monthly Guard Schedule Calendar Modal (Photo 2) -->
+    <div class="modal fade guard-calendar-modal" id="clientScheduleCalendarModal" tabindex="-1"
+        aria-labelledby="clientCalendarModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" style="max-width:96vw;">
+            <div class="modal-content glass-card shadow-lg" style="border-radius:16px; overflow:hidden;">
+                <div
+                    class="modal-header border-bottom py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="deployment-bundle-icon" style="width:40px; height:40px;">
+                            <span class="material-symbols-rounded" aria-hidden="true"
+                                style="font-size:22px;">calendar_month</span>
                         </div>
-                        <h6 class="mb-0 fw-bold ms-1" id="clientCalendarWeekPill" style="font-size:1rem; min-width:140px;"></h6>
+                        <div>
+                            <h5 class="modal-title fs-6 fw-bold mb-0" id="clientCalendarModalTitle">Client Guard
+                                Schedule</h5>
+                            <p class="text-muted small mb-0" id="clientCalendarModalSub">Monthly assignment overview</p>
+                        </div>
                     </div>
-                    <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close" onclick="closeClientScheduleCalendar()"></button>
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold px-3 rounded-pill"
+                                onclick="navigateCalendarMonth(0)">Today</button>
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-outline-secondary"
+                                    onclick="navigateCalendarMonth(-1)" title="Previous month"><span
+                                        class="material-symbols-rounded align-middle"
+                                        style="font-size:16px;">arrow_back</span></button>
+                                <button type="button" class="btn btn-outline-secondary"
+                                    onclick="navigateCalendarMonth(1)" title="Next month"><span
+                                        class="material-symbols-rounded align-middle"
+                                        style="font-size:16px;">arrow_forward</span></button>
+                            </div>
+                            <h6 class="mb-0 fw-bold ms-1" id="clientCalendarWeekPill"
+                                style="font-size:1rem; min-width:140px;"></h6>
+                        </div>
+                        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"
+                            onclick="closeClientScheduleCalendar()"></button>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-body p-3 p-md-4" style="background:var(--sl-surface-muted, #f8fafc);">
-                <div class="gcal-month-wrap shadow-sm">
-                    <div class="gcal-weekdays-row" aria-hidden="true">
-                        <div class="gcal-weekday-header">SUN</div>
-                        <div class="gcal-weekday-header">MON</div>
-                        <div class="gcal-weekday-header">TUE</div>
-                        <div class="gcal-weekday-header">WED</div>
-                        <div class="gcal-weekday-header">THU</div>
-                        <div class="gcal-weekday-header">FRI</div>
-                        <div class="gcal-weekday-header">SAT</div>
+                <div class="modal-body p-3 p-md-4" style="background:var(--sl-surface-muted, #f8fafc);">
+                    <div class="gcal-month-wrap shadow-sm">
+                        <div class="gcal-weekdays-row" aria-hidden="true">
+                            <div class="gcal-weekday-header">SUN</div>
+                            <div class="gcal-weekday-header">MON</div>
+                            <div class="gcal-weekday-header">TUE</div>
+                            <div class="gcal-weekday-header">WED</div>
+                            <div class="gcal-weekday-header">THU</div>
+                            <div class="gcal-weekday-header">FRI</div>
+                            <div class="gcal-weekday-header">SAT</div>
+                        </div>
+                        <div class="gcal-month-grid" id="clientCalendarMonthGrid" role="grid"
+                            aria-label="Monthly client guard schedule calendar">
+                            <!-- Populated dynamically -->
+                        </div>
                     </div>
-                    <div class="gcal-month-grid" id="clientCalendarMonthGrid" role="grid" aria-label="Monthly client guard schedule calendar">
-                        <!-- Populated dynamically -->
-                    </div>
-                </div>
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3 pt-2">
-                    <div class="d-flex align-items-center gap-3 flex-wrap small">
-                        <span class="d-flex align-items-center gap-1"><span class="badge shift-color-morning" style="width:12px; height:12px; border-radius:3px; padding:0;"></span> Morning / Day</span>
-                        <span class="d-flex align-items-center gap-1"><span class="badge shift-color-afternoon" style="width:12px; height:12px; border-radius:3px; padding:0;"></span> Afternoon / Evening</span>
-                        <span class="d-flex align-items-center gap-1"><span class="badge shift-color-night" style="width:12px; height:12px; border-radius:3px; padding:0;"></span> Night Shift</span>
-                        <span class="d-flex align-items-center gap-1 text-muted"><span class="badge shift-color-rest" style="width:12px; height:12px; border-radius:3px; padding:0;"></span> REST</span>
-                    </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" onclick="closeClientScheduleCalendar()">Close</button>
-                        <button type="button" class="btn btn-sm btn-danger fw-semibold" onclick="selectSiteForSchedulingFromModal()">
-                            <span class="material-symbols-rounded align-middle" style="font-size:16px;">calendar_month</span> Assign Schedule for this Client
-                        </button>
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3 pt-2">
+                        <div class="d-flex align-items-center gap-3 flex-wrap small">
+                            <span class="d-flex align-items-center gap-1"><span class="badge shift-color-morning"
+                                    style="width:12px; height:12px; border-radius:3px; padding:0;"></span> Morning /
+                                Day</span>
+                            <span class="d-flex align-items-center gap-1"><span class="badge shift-color-afternoon"
+                                    style="width:12px; height:12px; border-radius:3px; padding:0;"></span> Afternoon /
+                                Evening</span>
+                            <span class="d-flex align-items-center gap-1"><span class="badge shift-color-night"
+                                    style="width:12px; height:12px; border-radius:3px; padding:0;"></span> Night
+                                Shift</span>
+                            <span class="d-flex align-items-center gap-1 text-muted"><span
+                                    class="badge shift-color-rest"
+                                    style="width:12px; height:12px; border-radius:3px; padding:0;"></span> REST</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal"
+                                onclick="closeClientScheduleCalendar()">Close</button>
+                            <button type="button" class="btn btn-sm btn-danger fw-semibold"
+                                onclick="selectSiteForSchedulingFromModal()">
+                                <span class="material-symbols-rounded align-middle"
+                                    style="font-size:16px;">calendar_month</span> Assign Schedule for this Client
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Edit Roster Shift Times Modal -->
-<div class="modal fade" id="editRosterTimesModal" tabindex="-1" aria-labelledby="editRosterTimesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content glass-card schedule-edit-modal-content">
-            <div class="modal-header border-bottom-0 pb-0">
-                <div>
-                    <h5 class="modal-title fs-6 fw-bold" id="editRosterTimesModalLabel">Edit Shift Times</h5>
-                    <p class="text-muted small mb-0">Modify the scheduled IN and OUT hours for this shifting roster.</p>
+    <!-- Edit Roster Shift Times Modal -->
+    <div class="modal fade" id="editRosterTimesModal" tabindex="-1" aria-labelledby="editRosterTimesModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-card schedule-edit-modal-content">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <div>
+                        <h5 class="modal-title fs-6 fw-bold" id="editRosterTimesModalLabel">Edit Shift Times</h5>
+                        <p class="text-muted small mb-0">Modify the scheduled IN and OUT hours for this shifting roster.
+                        </p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <form id="editRosterTimesForm">
+                    <div class="modal-body">
+                        <div id="rosterTimesPresets" class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+                            <span class="small text-muted me-1">Quick presets:</span>
+                            <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn"
+                                data-preset="06:00-18:00">6 AM – 6 PM</button>
+                            <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn"
+                                data-preset="07:00-19:00">7 AM – 7 PM</button>
+                            <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn"
+                                data-preset="08:00-20:00">8 AM – 8 PM</button>
+                        </div>
+                        <div class="form-check form-switch mb-3 p-2 rounded border"
+                            style="padding-left:2.4rem !important;background:rgba(220,38,38,0.04);">
+                            <input class="form-check-input" type="checkbox" role="switch" id="flexibleClientHoursMode">
+                            <label class="form-check-label small fw-semibold" for="flexibleClientHoursMode">Follow
+                                Client Business Hours (Allow custom shift schedules per slot without forcing 24-hour
+                                continuous lock)</label>
+                        </div>
+                        <div id="rosterTimesInputs" class="d-grid gap-3"></div>
+                        <div class="alert alert-danger mt-3 py-1 px-2 small" id="editRosterTimesError" hidden></div>
+                    </div>
+                    <div class="modal-footer border-top-0 pt-0">
+                        <button type="button" class="btn btn-outline-secondary btn-sm"
+                            data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" id="saveRosterTimesBtn" class="btn btn-danger btn-sm">Save Shift
+                            Times</button>
+                    </div>
+                </form>
             </div>
-            <form id="editRosterTimesForm">
-                <div class="modal-body">
-                    <div id="rosterTimesPresets" class="d-flex flex-wrap gap-2 mb-3 align-items-center">
-                        <span class="small text-muted me-1">Quick presets:</span>
-                        <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn" data-preset="06:00-18:00">6 AM – 6 PM</button>
-                        <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn" data-preset="07:00-19:00">7 AM – 7 PM</button>
-                        <button type="button" class="btn btn-xs btn-outline-secondary roster-preset-btn" data-preset="08:00-20:00">8 AM – 8 PM</button>
-                    </div>
-                    <div class="form-check form-switch mb-3 p-2 rounded border" style="padding-left:2.4rem !important;background:rgba(220,38,38,0.04);">
-                        <input class="form-check-input" type="checkbox" role="switch" id="flexibleClientHoursMode">
-                        <label class="form-check-label small fw-semibold" for="flexibleClientHoursMode">Follow Client Business Hours (Allow custom shift schedules per slot without forcing 24-hour continuous lock)</label>
-                    </div>
-                    <div id="rosterTimesInputs" class="d-grid gap-3"></div>
-                    <div class="alert alert-danger mt-3 py-1 px-2 small" id="editRosterTimesError" hidden></div>
-                </div>
-                <div class="modal-footer border-top-0 pt-0">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" id="saveRosterTimesBtn" class="btn btn-danger btn-sm">Save Shift Times</button>
-                </div>
-            </form>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="../js/roster-setup.js"></script>
-<script src="js/shift-roster.js?v=20261113_01"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/roster-setup.js"></script>
+    <script src="js/shift-roster.js?v=20261116_01"></script>
 </body>
+
 </html>

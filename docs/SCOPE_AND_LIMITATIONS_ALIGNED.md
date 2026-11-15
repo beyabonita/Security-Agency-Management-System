@@ -9,7 +9,7 @@ The web management platform incorporates three distinct role-based supervisory c
 3. **Field Inspector Console (`inspector`):** Provides field supervisors with agency-wide operational oversight across all active guards, deployment sites, shift schedules, and emergency alerts without restrictive 1-to-1 guard assignment barriers. Inspectors utilize the console to assess field incident submissions, verify physical evidence, record supervisory disposition notes, review active duty rosters, audit guard DTR records, and track guard locations via the Guard Tracker to coordinate unannounced spot inspections and verify post compliance.
 
 The **Guard Mobile Application** (developed using the Flutter framework for Android devices) provides frontline personnel with the following capabilities:
-1. **Duty Awareness:** Instant access to assigned weekly duty schedules, post assignments, and shift times.
+1. **Duty Awareness:** Instant access to assigned monthly duty schedules, post assignments, and shift times.
 2. **Geofence-Restricted Attendance Timekeeping:** Real-time Time-In and Time-Out clocking strictly restricted to the authorized geographic perimeter of the guard’s assigned client post, automatically cross-referencing live GPS coordinates against pre-configured geofence radii.
 3. **Biometric and Hardware Anti-Tampering Security:**
    - **Live In-App Camera Face Capture:** Requires live facial photo capture directly through the mobile camera during Time-In and Time-Out punches, strictly prohibiting gallery selection, pre-recorded photos, or proxy clock-ins (*buddy punching*).

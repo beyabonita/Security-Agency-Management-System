@@ -23,27 +23,25 @@
     const day = String(d.getDate()).padStart(2, '0');
     return y + '-' + m + '-' + day;
   }
-  function getWeekRange(dateStr) {
+  function getMonthRange(dateStr) {
     const d = parseLocalDate(dateStr || todayDateString());
-    const day = d.getDay();
-    const diffToMonday = day === 0 ? -6 : 1 - day;
-    const monday = new Date(d.getFullYear(), d.getMonth(), d.getDate() + diffToMonday);
+    const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0);
     const days = [];
-    for (let i = 0; i < 7; i++) {
-      const cur = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+    for (let dayNum = d.getDate(); dayNum <= lastDay.getDate(); dayNum++) {
+      const cur = new Date(d.getFullYear(), d.getMonth(), dayNum);
       days.push(formatDateISO(cur));
     }
     return {
       start: days[0],
-      end: days[6],
+      end: days[days.length - 1],
       days: days
     };
   }
   function updateWeekRangePill() {
     const pill = document.getElementById('rosterWeekRangePill');
     if (!pill || !date) return;
-    const range = getWeekRange(date.value);
-    pill.textContent = `📅 Target Week: ${formatDate(range.start)} – ${formatDate(range.end)} (Mon–Sun · 7 Days)`;
+    const range = getMonthRange(date.value);
+    pill.textContent = `📅 Target Month: ${formatDate(range.start)} – ${formatDate(range.end)} (${range.days.length} ${range.days.length === 1 ? 'Day' : 'Days'})`;
   }
   function isGuardExpired(guard, targetDate) {
     if (!guard) return true;
@@ -86,14 +84,15 @@
       pill.textContent = '';
       return;
     }
-    const dStart = new Date(date.value + 'T00:00:00');
-    const dEnd = new Date(cutoff.endDate + 'T00:00:00');
+    const range = getMonthRange(date.value);
+    const dStart = new Date(range.start + 'T00:00:00');
+    const dEnd = new Date(range.end + 'T00:00:00');
     const startMonth = dStart.toLocaleDateString("en-US", { month: "short" });
     const endMonth = dEnd.toLocaleDateString("en-US", { month: "short" });
     const startDay = dStart.getDate();
     const endDay = dEnd.getDate();
     const endYear = dEnd.getFullYear();
-    pill.textContent = `${startMonth} ${startDay} – ${endMonth} ${endDay}, ${endYear}`;
+    pill.textContent = `${startMonth} ${startDay} – ${endMonth} ${endDay}, ${endYear} (${range.days.length} ${range.days.length === 1 ? 'day' : 'days'} · Monthly deployment)`;
   }
   let saving=false,setupSaving=false,setupLoading=false;
   let savedSetups=[];
@@ -141,11 +140,11 @@
     }
     const ids=selected();
     const cutoff=SchedulePeriod.dtrPeriodForDate(date.value);
-    const week=getWeekRange(date.value);
+    const monthRange=getMonthRange(date.value);
     preview.innerHTML='<div class="roster-preview-header d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">'+
-      '<p class="mb-0"><strong>Selected guard shifts (Weekly / Daily)</strong></p>'+
+      '<p class="mb-0"><strong>Selected guard shifts (Monthly / Daily)</strong></p>'+
       '</div>'+
-      `<p class="mb-2 text-muted small">${cutoff ? `Target Week: <strong>${escapeHtml(formatDate(week.start))} – ${escapeHtml(formatDate(week.end))}</strong> (7 Days: Mon–Sun) · Selected Date: ${escapeHtml(formatDate(date.value))} · DTR cut-off: ${escapeHtml(cutoff.label)}` : 'Choose a valid schedule date.'}</p>`+
+      `<p class="mb-2 text-muted small">${cutoff ? `Target Month: <strong>${escapeHtml(formatDate(monthRange.start))} – ${escapeHtml(formatDate(monthRange.end))}</strong> (${monthRange.days.length} ${monthRange.days.length === 1 ? 'Day' : 'Days'}) · Selected Date: ${escapeHtml(formatDate(date.value))} · DTR cut-off: ${escapeHtml(cutoff.label)}` : 'Choose a valid schedule date.'}</p>`+
       '<div class="roster-dtr-scroll" tabindex="0" aria-label="Planned guard shifts"><table class="roster-dtr-preview"><thead><tr><th scope="col">Shift and Guard</th><th scope="col">Scheduled IN</th><th scope="col">Scheduled OUT</th><th scope="col">Planned hours</th></tr></thead><tbody>'+
       periods().map((p,i)=>{
         const shift=SchedulePeriod.calculate(date.value,p[0],p[1]);
@@ -632,14 +631,14 @@
         return;
       }
 
-      const week = getWeekRange(targetDay);
+      const monthRange = getMonthRange(targetDay);
       const locObj = (window.locations || locations || []).find(l => l.id === location);
       const siteName = locObj?.label || 'this site';
 
       const restDayEl = document.getElementById('weeklyRestDay');
       const restDayValue = Number(restDayEl ? restDayEl.value : -1);
       const restDayNames = { 0: 'Sunday', 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday' };
-      const restDayText = restDayValue !== -1 ? `\n• Weekly Rest Day: Every ${restDayNames[restDayValue]} (skipped in schedule & shows as REST in DTR)` : '\n• Weekly Rest Day: None (7 days straight)';
+      const restDayText = restDayValue !== -1 ? `\n• Weekly Rest Day: Every ${restDayNames[restDayValue]} (skipped in schedule & shows as REST in DTR)` : '\n• Weekly Rest Day: None (continuous monthly duty)';
 
       const assignedEntries = [];
       shifts.forEach((s, i) => {
@@ -647,9 +646,9 @@
         else assignedEntries.push(`• ${s[2]}: (Unassigned)`);
       });
       const guardNamesList = assignedEntries.join('\n');
-      const confirmMsg = `Assign weekly schedule for ${siteName}?\n\nTarget Week: ${formatDate(week.start)} – ${formatDate(week.end)}\n${guardNamesList}${restDayText}\n\nThis will assign the selected guard(s) for the week.`;
+      const confirmMsg = `Assign monthly schedule for ${siteName}?\n\nTarget Month Period: ${formatDate(monthRange.start)} – ${formatDate(monthRange.end)} (${monthRange.days.length} ${monthRange.days.length === 1 ? 'Day' : 'Days'})\n${guardNamesList}${restDayText}\n\nThis will automatically deploy the selected guard(s) for the month.`;
       const confirmed = await appDialog.confirm(confirmMsg, {
-        title: 'Confirm Schedule Assignment',
+        title: 'Confirm Monthly Schedule Assignment',
         confirmText: 'Assign Schedule',
         icon: 'calendar_month'
       });
@@ -667,8 +666,13 @@
           let skippedDays = [];
           let restDaysSkipped = 0;
           const hasAllGuards = shifts.every((_, i) => !!ids[i]);
+          const todayStr = todayDateString();
 
-          for (const day of week.days) {
+          for (const day of monthRange.days) {
+            if (day < todayStr) {
+              skippedDays.push(`${formatDate(day)}: Past date skipped`);
+              continue;
+            }
             const curDate = parseLocalDate(day);
             const curDayOfWeek = curDate.getDay();
             if (restDayValue !== -1 && curDayOfWeek === restDayValue) {
@@ -736,18 +740,18 @@
             managementControls();
           }
 
-          setScheduleListPeriod(week.start);
+          setScheduleListPeriod(monthRange.start);
           await refreshSchedules();
 
           if (daysCompleted > 0 || totalAssigned > 0) {
             const restNote = restDaysSkipped > 0 ? ` (with weekly rest day on ${restDayNames[restDayValue]})` : '';
-            appDialog.toast(`Schedule assigned: ${totalAssigned} shifts created across ${daysCompleted} duty days${restNote}.`, { tone: 'success' });
+            appDialog.toast(`Monthly schedule assigned: ${totalAssigned} shifts created across ${daysCompleted} duty days${restNote}.`, { tone: 'success' });
           } else {
-            throw Error(skippedDays[0] || 'Could not assign weekly shifts. Please check for existing schedules.');
+            throw Error(skippedDays[0] || 'Could not assign monthly shifts. Please check for existing schedules.');
           }
-        }, { label: 'Assigning schedule…' });
+        }, { label: 'Assigning monthly schedule…' });
       } catch (err) {
-        appDialog.toast(err.message || 'Could not complete weekly assignment.', { tone: 'danger' });
+        appDialog.toast(err.message || 'Could not complete monthly assignment.', { tone: 'danger' });
       } finally {
         saving = false;
         [setup, date, site].forEach(el => el.disabled = false);
@@ -1357,7 +1361,7 @@
     const locObj = (window.locations || locations || []).find(l => l.id === site.value);
     const siteLabel = locObj?.label || 'this site';
     if (filledCount > 0) {
-      appDialog.toast(`Auto-assigned ${filledCount} guard${filledCount === 1 ? '' : 's'} stationed at ${siteLabel}. Click "Assign weekly schedule" to confirm.`, { tone: 'success' });
+      appDialog.toast(`Auto-assigned ${filledCount} guard${filledCount === 1 ? '' : 's'} stationed at ${siteLabel}. Click "Assign schedule" to confirm monthly deployment.`, { tone: 'success' });
     } else {
       appDialog.toast(`No available stationed guards found for ${siteLabel}. Make sure guards are assigned to this site in Personnel.`, { tone: 'warning' });
     }
