@@ -100,13 +100,16 @@
   let customRosterShifts=null;
   const customSetup=()=>savedSetups.find(item=>item.id===setup.value);
   const periods=()=>customRosterShifts ? RosterSetup.periods(customRosterShifts) : (customSetup()?RosterSetup.periods(customSetup().shifts):[]);
-  const selected=()=>[...slots.querySelectorAll('select')].map(s=>s.value);
+  const selected=()=>[...slots.querySelectorAll('select.roster-guard-select')].map(s=>s.value);
+  const selectedRestDays=()=>[...slots.querySelectorAll('select.roster-rest-select')].map(s=>Number(s.value ?? -1));
   const available=(day,p,now=new Date())=>SchedulePeriod.calculate(day,p[0],p[1])?.endAt>now;
   function availability(){
     const shifts=periods(),now=new Date();let remaining=0;
-    slots.querySelectorAll('select').forEach((select,i)=>{
+    const restSelects=[...slots.querySelectorAll('select.roster-rest-select')];
+    slots.querySelectorAll('select.roster-guard-select').forEach((select,i)=>{
       const ended=!available(date.value,shifts[i],now);
       select.disabled=saving||ended;
+      if (restSelects[i]) restSelects[i].disabled=saving;
       const statusEl=select.parentElement.querySelector('.roster-slot-status');
       if (ended) {
         statusEl.textContent='Shift ended';
@@ -228,7 +231,7 @@
   }
 
   function syncGuardSelections(){
-    const selects = [...slots.querySelectorAll('select')];
+    const selects = [...slots.querySelectorAll('select.roster-guard-select')];
     const currentValues = selects.map(s => s.value);
     const dateRows = schedules.filter(s => s.date === date.value && s.approval_status !== 'cancelled');
     const scheduledGuardMap = new Map();
@@ -258,7 +261,7 @@
   }
 
   window.renderShiftRoster=()=>{
-    const ids=selected(),oldSite=site.value;
+    const ids=selected(),prevRestDays=selectedRestDays(),oldSite=site.value;
     updateSiteOptions(oldSite);
     if (!site.value) {
       slots.innerHTML = '<div class="text-muted p-4 text-center w-100" style="grid-column: 1 / -1; background:var(--sl-surface-muted, #f8fafc); border:1px dashed var(--sl-line, #cbd5e1); border-radius:8px; font-size:0.875rem;"><span class="material-symbols-rounded align-middle me-1 text-danger" style="font-size:20px;">business</span> Please select a <strong>Deployment site</strong> above to load its contracted shift schedule.</div>';
@@ -283,21 +286,43 @@
       return `
       <div class="schedule-field">
         <label class="form-label fw-semibold" for="rosterGuard${i}">${escapeHtml(labelText)}</label>
-        <select id="rosterGuard${i}" class="form-select" aria-describedby="rosterStatus${i}">
+        <select id="rosterGuard${i}" class="form-select roster-guard-select" aria-describedby="rosterStatus${i}">
           <option value="">Select guard</option>
           ${optionsHtml}
         </select>
+        <div class="mt-2">
+          <label class="form-label small fw-semibold text-muted mb-1" for="rosterRestDay${i}">Weekly rest day</label>
+          <select id="rosterRestDay${i}" class="form-select roster-rest-select">
+            <option value="-1">No weekly rest day</option>
+            <option value="1">Every Monday</option>
+            <option value="2">Every Tuesday</option>
+            <option value="3">Every Wednesday</option>
+            <option value="4">Every Thursday</option>
+            <option value="5">Every Friday</option>
+            <option value="6">Every Saturday</option>
+            <option value="0">Every Sunday</option>
+          </select>
+        </div>
         <p id="rosterStatus${i}" class="form-hint roster-slot-status"></p>
       </div>
     `;
     }).join('');
-    slots.querySelectorAll('select').forEach((s,i)=>{
+    const restSelects = [...slots.querySelectorAll('select.roster-rest-select')];
+    restSelects.forEach((rs, i) => {
+      const prevVal = prevRestDays[i];
+      if (prevVal !== undefined && !Number.isNaN(prevVal)) {
+        rs.value = String(prevVal);
+      }
+      rs.disabled = saving;
+      rs.addEventListener('change', summary);
+    });
+    slots.querySelectorAll('select.roster-guard-select').forEach((s,i)=>{
       s.value=ids[i]||'';
       s.disabled=saving;
       s.addEventListener('change',()=>{
         const statusEl = s.parentElement?.querySelector('.roster-slot-status');
         if (s.value) {
-          const allSelects = [...slots.querySelectorAll('select')];
+          const allSelects = [...slots.querySelectorAll('select.roster-guard-select')];
           const otherSelect = allSelects.find((other, otherIdx) => otherIdx !== i && other.value === s.value);
           const siteRows = schedules.filter(row => (row.locationId || row.location_id) === site.value && row.date === date.value && row.approval_status !== 'cancelled');
           const isAssignedAtSite = site.value && siteRows.some(row => row.userId === s.value);
@@ -319,9 +344,16 @@
               statusEl.textContent = 'Double shift prevented: already assigned at this site';
               statusEl.style.color = 'var(--sl-danger, #b02a37)';
             }
-          } else if (statusEl && statusEl.textContent.includes('Double shift')) {
-            statusEl.textContent = '';
-            statusEl.style.color = '';
+          } else {
+            if (statusEl && statusEl.textContent.includes('Double shift')) {
+              statusEl.textContent = '';
+              statusEl.style.color = '';
+            }
+            const gObj = guards.find(g => g.id === s.value);
+            const restEl = restSelects[i];
+            if (restEl && gObj && gObj.weeklyRestDay !== null && gObj.weeklyRestDay !== undefined && gObj.weeklyRestDay !== '' && gObj.weeklyRestDay !== -1 && gObj.weeklyRestDay !== '-1') {
+              restEl.value = String(gObj.weeklyRestDay);
+            }
           }
         } else if (statusEl && statusEl.textContent.includes('Double shift')) {
           statusEl.textContent = '';
@@ -635,18 +667,21 @@
       const locObj = (window.locations || locations || []).find(l => l.id === location);
       const siteName = locObj?.label || 'this site';
 
-      const restDayEl = document.getElementById('weeklyRestDay');
-      const restDayValue = Number(restDayEl ? restDayEl.value : -1);
+      const slotRestDays = selectedRestDays();
+      const fallbackRestEl = document.getElementById('weeklyRestDay');
+      const fallbackRestVal = Number(fallbackRestEl ? fallbackRestEl.value : -1);
       const restDayNames = { 0: 'Sunday', 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday' };
-      const restDayText = restDayValue !== -1 ? `\n• Weekly Rest Day: Every ${restDayNames[restDayValue]} (skipped in schedule & shows as REST in DTR)` : '\n• Weekly Rest Day: None (continuous monthly duty)';
 
       const assignedEntries = [];
       shifts.forEach((s, i) => {
-        if (ids[i]) assignedEntries.push(`• ${s[2]}: ${currentName(ids[i])}`);
+        const gId = ids[i];
+        const rVal = slotRestDays[i] !== undefined ? slotRestDays[i] : fallbackRestVal;
+        const rLabel = rVal !== -1 && restDayNames[rVal] ? `Every ${restDayNames[rVal]}` : 'No weekly rest day';
+        if (gId) assignedEntries.push(`• ${s[2]}: ${currentName(gId)} (${rLabel})`);
         else assignedEntries.push(`• ${s[2]}: (Unassigned)`);
       });
       const guardNamesList = assignedEntries.join('\n');
-      const confirmMsg = `Assign monthly schedule for ${siteName}?\n\nTarget Month Period: ${formatDate(monthRange.start)} – ${formatDate(monthRange.end)} (${monthRange.days.length} ${monthRange.days.length === 1 ? 'Day' : 'Days'})\n${guardNamesList}${restDayText}\n\nThis will automatically deploy the selected guard(s) for the month.`;
+      const confirmMsg = `Assign monthly schedule for ${siteName}?\n\nTarget Month Period: ${formatDate(monthRange.start)} – ${formatDate(monthRange.end)} (${monthRange.days.length} ${monthRange.days.length === 1 ? 'Day' : 'Days'})\n${guardNamesList}\n\nThis will automatically deploy the selected guard(s) for the month with their individual weekly rest days.`;
       const confirmed = await appDialog.confirm(confirmMsg, {
         title: 'Confirm Monthly Schedule Assignment',
         confirmText: 'Assign Schedule',
@@ -665,8 +700,20 @@
           let daysCompleted = 0;
           let skippedDays = [];
           let restDaysSkipped = 0;
-          const hasAllGuards = shifts.every((_, i) => !!ids[i]);
           const todayStr = todayDateString();
+
+          // Persist each selected guard's chosen weekly rest day for calendar & future selections
+          let storedRestMap = {};
+          try { storedRestMap = JSON.parse(localStorage.getItem('sl_guard_rest_days_v1') || '{}') || {}; } catch (_) {}
+          ids.forEach((gId, i) => {
+            if (!gId) return;
+            const rVal = slotRestDays[i] !== undefined ? slotRestDays[i] : fallbackRestVal;
+            const gObj = guards.find(g => g.id === gId);
+            if (gObj) gObj.weeklyRestDay = rVal === -1 ? null : rVal;
+            if (rVal === -1) delete storedRestMap[gId];
+            else storedRestMap[gId] = rVal;
+          });
+          try { localStorage.setItem('sl_guard_rest_days_v1', JSON.stringify(storedRestMap)); } catch (_) {}
 
           for (const day of monthRange.days) {
             if (day < todayStr) {
@@ -675,20 +722,34 @@
             }
             const curDate = parseLocalDate(day);
             const curDayOfWeek = curDate.getDay();
-            if (restDayValue !== -1 && curDayOfWeek === restDayValue) {
-              restDaysSkipped++;
+
+            // Determine which guards work today vs which guards have their individual rest day today
+            const dayIds = ids.map((gId, i) => {
+              if (!gId) return null;
+              const rVal = slotRestDays[i] !== undefined ? slotRestDays[i] : fallbackRestVal;
+              if (rVal !== -1 && curDayOfWeek === rVal) {
+                restDaysSkipped++;
+                return null;
+              }
+              return gId;
+            });
+
+            if (dayIds.every(id => !id)) {
               skippedDays.push(`${formatDate(day)}: Scheduled Rest Day (${restDayNames[curDayOfWeek]}) — REST`);
               continue;
             }
+
+            const dayHasAllGuards = shifts.every((_, i) => !!dayIds[i]);
+
             try {
               let assignedData = null;
-              if (hasAllGuards) {
+              if (dayHasAllGuards) {
                 if (customRosterShifts) {
                   try {
                     const { data, error } = await appSupabase.rpc('assign_custom_shift_roster', {
                       p_location_id: location,
                       p_duty_date: day,
-                      p_guard_ids: ids,
+                      p_guard_ids: dayIds,
                       p_shifts: customRosterShifts
                     });
                     if (!error && Array.isArray(data)) assignedData = data;
@@ -698,7 +759,7 @@
                     const args = {
                       p_location_id: location,
                       p_duty_date: day,
-                      p_guard_ids: ids,
+                      p_guard_ids: dayIds,
                       p_setup_id: chosenSetup.id,
                       p_expected_version: chosenSetup.version
                     };
@@ -710,11 +771,11 @@
 
               if (!assignedData) {
                 assignedData = [];
-                for (let i = 0; i < ids.length; i++) {
-                  if (!ids[i]) continue;
+                for (let i = 0; i < dayIds.length; i++) {
+                  if (!dayIds[i]) continue;
                   if (!available(day, shifts[i], now)) continue;
                   const { data: dtrData, error: dtrErr } = await appSupabase.rpc('create_dtr_schedule', {
-                    p_user_id: ids[i],
+                    p_user_id: dayIds[i],
                     p_location_id: location,
                     p_duty_date: day,
                     p_periods: [{ period: 'auto', start_time: shifts[i][0], end_time: shifts[i][1], next_day: false }]
@@ -744,7 +805,7 @@
           await refreshSchedules();
 
           if (daysCompleted > 0 || totalAssigned > 0) {
-            const restNote = restDaysSkipped > 0 ? ` (with weekly rest day on ${restDayNames[restDayValue]})` : '';
+            const restNote = restDaysSkipped > 0 ? ` (${restDaysSkipped} rest day shift${restDaysSkipped === 1 ? '' : 's'} skipped as REST)` : '';
             appDialog.toast(`Monthly schedule assigned: ${totalAssigned} shifts created across ${daysCompleted} duty days${restNote}.`, { tone: 'success' });
           } else {
             throw Error(skippedDays[0] || 'Could not assign monthly shifts. Please check for existing schedules.');
@@ -1349,7 +1410,7 @@
       return;
     }
     const assignedIds = pickEligibleGuardsForShifts(site.value, day, shiftsList);
-    const selects = [...slots.querySelectorAll('select')];
+    const selects = [...slots.querySelectorAll('select.roster-guard-select')];
     let filledCount = 0;
     selects.forEach((sel, idx) => {
       if (!sel.disabled && assignedIds[idx]) {

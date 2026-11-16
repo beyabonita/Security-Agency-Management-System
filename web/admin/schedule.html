@@ -86,31 +86,18 @@
         </div>
       </div>
 
-      <!-- Step 2: Pick the start date and rest days -->
+      <!-- Step 2: Pick the start date -->
       <div class="col-lg-6">
         <div class="glass-card p-4 h-100" style="border-radius:14px;">
-          <h2 class="h5 fw-bold mb-3" style="color:var(--ax-text, #1C1917);">2. Pick the start date and rest days</h2>
+          <h2 class="h5 fw-bold mb-3" style="color:var(--ax-text, #1C1917);">2. Pick the start date</h2>
           <div class="row g-3">
-            <div class="col-md-6">
+            <div class="col-12">
               <label class="form-label fw-semibold" for="rosterDate">Start date</label>
               <input id="rosterDate" type="date" class="form-control" aria-required="true">
             </div>
-            <div class="col-md-6">
-              <label class="form-label fw-semibold" for="weeklyRestDay">Weekly rest day</label>
-              <select id="weeklyRestDay" class="form-select">
-                <option value="-1" selected>No weekly rest day</option>
-                <option value="1">Every Monday</option>
-                <option value="2">Every Tuesday</option>
-                <option value="3">Every Wednesday</option>
-                <option value="4">Every Thursday</option>
-                <option value="5">Every Friday</option>
-                <option value="6">Every Saturday</option>
-                <option value="0">Every Sunday</option>
-              </select>
-            </div>
           </div>
           <div id="rosterDateCutoffPill" class="text-muted small mt-2"></div>
-          <div class="text-muted small mt-1">The weekly rest day is applied to every week automatically. Rest days are skipped in attendance and show as REST in the DTR.</div>
+          <div class="text-muted small mt-1">Assign each guard's weekly rest day in Step 3 below. Rest days are skipped in attendance and show as REST in the DTR.</div>
           <div id="rosterWeekRangePill" class="mt-2" style="font-size:0.8rem; font-weight:600; color:var(--ax-accent, #dc2626);" hidden></div>
         </div>
       </div>
@@ -118,7 +105,7 @@
 
     <!-- Step 3: Assign the guards -->
     <div class="glass-card mb-4 p-4 shift-roster-card" style="border-radius:14px; position: relative; z-index: 1;">
-      <h2 class="h5 fw-bold mb-3" style="color:var(--ax-text, #1C1917);">3. Assign the guards</h2>
+      <h2 class="h5 fw-bold mb-3" style="color:var(--ax-text, #1C1917);">3. Assign the guards &amp; rest days</h2>
       <div id="rosterGuards" class="schedule-form-grid" aria-label="Guards for each shift"></div>
       <p class="text-muted small mt-2 mb-3">Only guards stationed at the selected client are listed. A guard can't take both shifts.</p>
       <div id="rosterPreview" role="status" aria-live="polite" style="display:none !important;" hidden></div>
@@ -457,13 +444,16 @@ function initScheduleSiteCombobox() {
 
 function loadGuards() {
     db.collection("users").get().then(snapshot => {
+        let savedRestDays = {};
+        try { savedRestDays = JSON.parse(localStorage.getItem('sl_guard_rest_days_v1') || '{}') || {}; } catch (_) {}
         guards = [];
         snapshot.forEach(doc => {
             const d = doc.data();
             if (!["user", "inspector"].includes(d.role)) return;
             const fullName = [d.firstName, d.middleInitial ? d.middleInitial + "." : "", d.lastName]
                 .filter(Boolean).join(" ") || d.name || displayLoginId(d);
-            guards.push({ id: doc.id, name: fullName, active: d.active !== false, loginId: displayLoginId(d), role: d.role, employmentCategory: d.employmentCategory || d.employment_category || "regular", contractStartDate: d.contractStartDate || d.contract_start_date || null, contractEndDate: d.contractEndDate || d.contract_end_date || null, contractStatus: d.contractStatus || d.contract_status || (d.active === false ? 'Expired' : 'Active'), assignedLocationId: d.assignedLocationId || d.assigned_location_id || "", weeklyRestDay: d.weeklyRestDay ?? d.weekly_rest_day ?? d.restDay ?? d.rest_day ?? null });
+            const storedRest = savedRestDays[doc.id] !== undefined ? savedRestDays[doc.id] : (d.weeklyRestDay ?? d.weekly_rest_day ?? d.restDay ?? d.rest_day ?? null);
+            guards.push({ id: doc.id, name: fullName, active: d.active !== false, loginId: displayLoginId(d), role: d.role, employmentCategory: d.employmentCategory || d.employment_category || "regular", contractStartDate: d.contractStartDate || d.contract_start_date || null, contractEndDate: d.contractEndDate || d.contract_end_date || null, contractStatus: d.contractStatus || d.contract_status || (d.active === false ? 'Expired' : 'Active'), assignedLocationId: d.assignedLocationId || d.assigned_location_id || "", weeklyRestDay: storedRest });
         });
         document.getElementById('schedulePersonnelFilter').innerHTML = '<option value="">All guards</option>' + guards.filter(guard=>guard.role==='user').map(guard => `<option value="${escapeHtml(guard.id)}">${escapeHtml(guard.name)}</option>`).join('');
         initSchedulePersonnelCombobox();
@@ -1254,6 +1244,6 @@ function _unusedEndHelper() {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="../js/roster-setup.js"></script>
-<script src="js/shift-roster.js?v=20261116_02"></script>
+<script src="js/shift-roster.js?v=20261116_03"></script>
 </body>
 </html>
