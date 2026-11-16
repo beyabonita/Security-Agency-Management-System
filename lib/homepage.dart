@@ -39,6 +39,9 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     final user = Supabase.instance.client.auth.currentUser;
     if (user != null) {
+      Supabase.instance.client
+          .rpc('check_expiring_guard_contracts')
+          .then((_) {}, onError: (_) {});
       _notificationSubscription = NotificationService.watch(user.id).listen(
         _handleNotifications,
         onError: (_) {
@@ -307,6 +310,50 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
+                  if (ContractPeriod.fromProfile(
+                        profile ?? {},
+                      ).expiryReminderMessage(DateTime.now()) !=
+                      null)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFFBEB),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: const Color(0xFFF59E0B),
+                              width: 1.2,
+                            ),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.event_available_rounded,
+                                color: Color(0xFFB45309),
+                                size: 22,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  ContractPeriod.fromProfile(
+                                    profile ?? {},
+                                  ).expiryReminderMessage(DateTime.now())!,
+                                  style: const TextStyle(
+                                    color: Color(0xFF92400E),
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.35,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
 
                   // ── Quick actions ─────────────────────────────────────────
                   SliverToBoxAdapter(

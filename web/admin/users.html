@@ -2386,6 +2386,7 @@ function renderContractStatusCell(data) {
         return `<span class="badge bg-danger-subtle text-danger fw-semibold">Set contract dates</span>`;
     }
     const today = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+    const remDays = Math.round((Date.parse(end + 'T00:00:00Z') - Date.parse(today + 'T00:00:00Z')) / 86400000);
     let badgeClass = "bg-success-subtle text-success";
     let statusText = "Active contract";
     if (today < start) {
@@ -2394,6 +2395,9 @@ function renderContractStatusCell(data) {
     } else if (today > end) {
         badgeClass = "bg-danger-subtle text-danger";
         statusText = "Expired";
+    } else if (Number.isFinite(remDays) && remDays >= 0 && remDays <= 7) {
+        badgeClass = "bg-warning-subtle text-warning-emphasis border border-warning-subtle";
+        statusText = remDays === 0 ? "Ends today (Reminder)" : `Expiring in ${remDays}d`;
     }
     return `<span class="badge ${badgeClass} fw-semibold">${statusText}</span><div class="small text-muted">${escapeHtml(start)} – ${escapeHtml(end)}</div>`;
 }

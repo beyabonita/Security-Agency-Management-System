@@ -446,7 +446,60 @@
       .order('created_at', { ascending: false })
       .limit(75);
     if (result.error) throw result.error;
-    state.items = (result.data || []).filter((item) => !item.expires_at || new Date(item.expires_at) > new Date());
+    const dbItems = (result.data || []).filter((item) => !item.expires_at || new Date(item.expires_at) > new Date());
+
+    // Client-side 7-day contract expiry reminder fallback if DB RPC hasn't populated it yet
+    try {
+      const pRes = await client()
+        .from('profiles')
+        .select('id,first_name,middle_initial,last_name,username,role,active,removed_at,contract_end_date')
+        .eq('role', 'user')
+        .eq('active', true)
+        .not('contract_end_date', 'is', null);
+      if (!pRes.error && Array.isArray(pRes.data)) {
+        const todayStr = new Date(Date.now() + 8 * 3600000).toISOString().slice(0, 10);
+        const tMs = Date.parse(todayStr + 'T00:00:00Z');
+        let readLocalMap = {};
+        try { readLocalMap = JSON.parse(localStorage.getItem('sl_local_notif_read_v1') || '{}') || {}; } catch (_) {}
+        pRes.data.forEach((g) => {
+          if (g.removed_at || !g.contract_end_date) return;
+          if (state.profile && state.profile.role === 'user' && g.id !== state.user.id) return;
+          const eMs = Date.parse(g.contract_end_date + 'T00:00:00Z');
+          if (!Number.isFinite(eMs)) return;
+          const remDays = Math.round((eMs - tMs) / 86400000);
+          if (remDays < 0 || remDays > 7) return;
+          const alreadyInDb = dbItems.some((it) =>
+            (it.entity_id === g.id && (it.title || '').toLowerCase().includes('contract')) ||
+            (it.metadata && it.metadata.guard_id === g.id && it.metadata.contract_end_date === g.contract_end_date)
+          );
+          if (alreadyInDb) return;
+          const gName = [g.first_name, g.middle_initial ? g.middle_initial + '.' : '', g.last_name].filter(Boolean).join(' ') || g.username || 'Security Guard';
+          const whenText = remDays === 0 ? 'today' : remDays === 1 ? 'in 1 day' : `in ${remDays} days`;
+          const syntheticId = `local-contract-7d-${g.id}-${g.contract_end_date}`;
+          const isSelf = state.profile && state.profile.role === 'user';
+          dbItems.unshift({
+            id: syntheticId,
+            kind: 'account',
+            priority: 'high',
+            title: isSelf ? 'Contract Expiring Soon (7-Day Reminder)' : 'Guard Contract Expiring Soon',
+            message: isSelf
+              ? `Reminder: Your employment contract will end on ${g.contract_end_date} (${whenText}). Please coordinate with the Operations Head for contract renewal.`
+              : `${gName}'s employment contract will end on ${g.contract_end_date} (${whenText}). Review in Personnel for renewal.`,
+            action_key: 'personnel',
+            entity_type: 'profile',
+            entity_id: g.id,
+            metadata: { guard_id: g.id, contract_end_date: g.contract_end_date, days_remaining: remDays },
+            requires_ack: false,
+            read_at: readLocalMap[syntheticId] || null,
+            acknowledged_at: null,
+            created_at: new Date().toISOString(),
+            expires_at: null,
+          });
+        });
+      }
+    } catch (_) {}
+
+    state.items = dbItems;
     render();
     showPendingCritical();
   }
@@ -454,6 +507,17 @@
   async function markRead(id, shouldRender) {
     const item = state.items.find((entry) => entry.id === id);
     if (!item || item.read_at) return;
+    if (String(id).startsWith('local-contract-7d-')) {
+      try {
+        const readLocalMap = JSON.parse(localStorage.getItem('sl_local_notif_read_v1') || '{}') || {};
+        readLocalMap[id] = new Date().toISOString();
+        localStorage.setItem('sl_local_notif_read_v1', JSON.stringify(readLocalMap));
+      } catch (_) {}
+      item.read_at = new Date().toISOString();
+      if (shouldRender !== false) render();
+      else updateBadge();
+      return;
+    }
     const result = await client().rpc('mark_notification_read', { p_notification_id: id });
     if (result.error) throw result.error;
     item.read_at = new Date().toISOString();
@@ -729,6 +793,9 @@
       if (!profileResult.data || profileResult.data.active === false) return;
       state.profile = profileResult.data;
       mount();
+      try {
+        await client().rpc('check_expiring_guard_contracts');
+      } catch (_) {}
       await load();
       subscribe();
     } catch (error) {

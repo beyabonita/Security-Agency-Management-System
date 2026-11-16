@@ -38,12 +38,34 @@ class ContractPeriod {
     return null;
   }
 
+  int? daysUntilExpiry(DateTime now) {
+    if (!isContract || !configured) return null;
+    final manila = now.toUtc().add(const Duration(hours: 8));
+    final today = DateTime.utc(manila.year, manila.month, manila.day);
+    return end!.difference(today).inDays;
+  }
+
+  String? expiryReminderMessage(DateTime now, {int reminderDays = 7}) {
+    final rem = daysUntilExpiry(now);
+    if (rem == null || rem < 0 || rem > reminderDays) return null;
+    final endStr = end!.toIso8601String().substring(0, 10);
+    final whenText = rem == 0
+        ? 'today'
+        : rem == 1
+        ? 'in 1 day'
+        : 'in $rem days';
+    return 'Reminder: Your employment contract will end on $endStr ($whenText). Please coordinate with the Operations Head for renewal.';
+  }
+
   String label(DateTime now) {
     if (!isContract) return 'No contract date limit';
     if (!configured) return 'Set contract dates · Contact Operational Head';
     final block = timeInBlockReason(now);
+    final rem = daysUntilExpiry(now);
     final status = block == null
-        ? 'Active contract'
+        ? (rem != null && rem >= 0 && rem <= 7
+              ? (rem == 0 ? 'Ends today' : 'Expiring in ${rem}d')
+              : 'Active contract')
         : block.contains('expired')
         ? 'Expired'
         : 'Not started';

@@ -21,12 +21,31 @@
         return startAt >= lower && endAt <= upper && endAt > startAt ? ''
             : 'Duty must start and finish within the contract: ' + start + ' to ' + end + '.';
     }
+    function daysUntilExpiry(guard, now = new Date()) {
+        if (!guard) return null;
+        const end = guard.contractEndDate || guard.contract_end_date;
+        if (!valid(end)) return null;
+        const todayStr = new Date((now instanceof Date ? now.getTime() : Date.now()) + 8 * 3600000).toISOString().slice(0, 10);
+        const tMs = Date.parse(todayStr + 'T00:00:00Z');
+        const eMs = Date.parse(end + 'T00:00:00Z');
+        if (!Number.isFinite(tMs) || !Number.isFinite(eMs)) return null;
+        return Math.round((eMs - tMs) / 86400000);
+    }
+    function isExpiringSoon(guard, days = 7, now = new Date()) {
+        if (!guard || guard.active === false) return false;
+        const rem = daysUntilExpiry(guard, now);
+        return rem !== null && rem >= 0 && rem <= days;
+    }
     function label(guard, now = new Date()) {
         if (guard.employmentCategory !== 'contract') return 'No contract date limit';
         const start = guard.contractStartDate, end = guard.contractEndDate;
         if (validate('contract', start, end)) return 'Set contract dates';
         const today = new Date(now.getTime() + 8 * 3600000).toISOString().slice(0, 10);
-        const status = today < start ? 'Not started' : today > end ? 'Expired' : 'Active contract';
+        const rem = daysUntilExpiry(guard, now);
+        let status = today < start ? 'Not started' : today > end ? 'Expired' : 'Active contract';
+        if (status === 'Active contract' && rem !== null && rem >= 0 && rem <= 7) {
+            status = rem === 0 ? 'Ends today' : `Expiring in ${rem}d`;
+        }
         return start + ' – ' + end + ' · ' + status;
     }
     function isExpired(guard, dateOrNow = new Date()) {
@@ -61,7 +80,7 @@
         }
         return false;
     }
-    const api = { validate, dutyError, label, isExpired };
+    const api = { validate, dutyError, label, isExpired, daysUntilExpiry, isExpiringSoon };
     root.ContractPeriod = api;
     if (typeof module !== 'undefined') module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
