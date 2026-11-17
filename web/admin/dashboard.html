@@ -2633,12 +2633,32 @@ function computeDayMetrics(dateStr, companyFilter) {
     const profMap = new Map((profiles || []).map(p => [p.id, p]));
     const selectedLocLabel = companyFilter && locMap.get(companyFilter) ? (locMap.get(companyFilter).label || '').toLowerCase() : '';
 
+    const today = localDateString(new Date());
+    const isFuture = dateStr > today;
+
     const daySchedules = (schedules || []).filter(s => {
         const d = s.duty_date || (s.start_at ? localDateString(new Date(s.start_at)) : '');
         if (d !== dateStr) return false;
         if (companyFilter && s.location_id !== companyFilter) return false;
         return true;
     });
+
+    // Important: Do not show any attendance data or absences for future dates.
+    if (isFuture) {
+        return {
+            present: 0,
+            absent: 0,
+            swapsCount: 0,
+            incidentsCount: 0,
+            daySchedules,
+            presentGuards: [],
+            absentGuards: [],
+            daySwaps: [],
+            dayIncidents: [],
+            isFuture: true
+        };
+    }
+
     const attBySched = new Map((attendance || []).filter(a => a.duty_date === dateStr).map(a => [a.schedule_id, a]));
     let present = 0;
     const presentGuards = [];
@@ -2681,7 +2701,8 @@ function computeDayMetrics(dateStr, companyFilter) {
         presentGuards,
         absentGuards,
         daySwaps,
-        dayIncidents
+        dayIncidents,
+        isFuture: false
     };
 }
 
@@ -2710,14 +2731,23 @@ function renderOperationsCalendar() {
         const m = computeDayMetrics(dateStr, compFilter);
         const isToday = dateStr === today;
         const isSelected = dateStr === calendarSelectedDate;
+        const isFuture = dateStr > today;
         const badges = [];
-        if (m.present > 0) badges.push('<span class="ig-cal-mini-pill is-present" title="Present">P:' + m.present + '</span>');
-        if (m.absent > 0) badges.push('<span class="ig-cal-mini-pill is-absent" title="Absent">A:' + m.absent + '</span>');
-        if (m.swapsCount > 0) badges.push('<span class="ig-cal-mini-pill is-swap" title="Shift Change">SC:' + m.swapsCount + '</span>');
-        if (m.incidentsCount > 0) badges.push('<span class="ig-cal-mini-pill is-incident" title="Incidents">INC:' + m.incidentsCount + '</span>');
+
+        // Only display attendance and activity records for dates that have already passed or are the current date
+        if (!isFuture) {
+            if (m.present > 0) badges.push('<span class="ig-cal-mini-pill is-present" title="Present">P:' + m.present + '</span>');
+            if (m.absent > 0) badges.push('<span class="ig-cal-mini-pill is-absent" title="Absent">A:' + m.absent + '</span>');
+            if (m.swapsCount > 0) badges.push('<span class="ig-cal-mini-pill is-swap" title="Shift Change">SC:' + m.swapsCount + '</span>');
+            if (m.incidentsCount > 0) badges.push('<span class="ig-cal-mini-pill is-incident" title="Incidents">INC:' + m.incidentsCount + '</span>');
+        }
+
+        const ariaLabel = isFuture
+            ? (dateStr + ': Future date - no records')
+            : (dateStr + ': ' + m.present + ' present, ' + m.absent + ' absent, ' + m.swapsCount + ' shift changes, ' + m.incidentsCount + ' incidents');
 
         cells.push(
-            '<button type="button" class="ig-cal-cell' + (isToday ? ' is-today' : '') + (isSelected ? ' is-selected' : '') + '" data-cal-date="' + dateStr + '" aria-label="' + dateStr + ': ' + m.present + ' present, ' + m.absent + ' absent, ' + m.swapsCount + ' shift changes, ' + m.incidentsCount + ' incidents">' +
+            '<button type="button" class="ig-cal-cell' + (isToday ? ' is-today' : '') + (isSelected ? ' is-selected' : '') + (isFuture ? ' is-future' : '') + '" data-cal-date="' + dateStr + '" aria-label="' + ariaLabel + '">' +
                 '<span class="ig-cal-day-num">' + day + '</span>' +
                 '<div class="ig-cal-badges">' + badges.join('') + '</div>' +
             '</button>'
@@ -2735,6 +2765,8 @@ function renderOperationsCalendar() {
 }
 
 function renderCalendarSelectedDay(dateStr, compFilter) {
+    const today = localDateString(new Date());
+    const isFuture = dateStr > today;
     const m = computeDayMetrics(dateStr, compFilter);
     const heading = document.getElementById('calSelectedDateHeading');
     if (heading) heading.textContent = 'Operations on ' + formatDashboardDate(dateStr + 'T00:00:00+08:00');
@@ -2758,7 +2790,7 @@ function renderCalendarSelectedDay(dateStr, compFilter) {
         const shiftKind = dashboardShiftKind(s.start_at) === 'night' ? 'Night Shift' : 'Day Shift';
         byCompany.get(compName).push(gName + ' (' + shiftKind + ')');
     });
-    if (!byCompany.size) {
+    if (!byCompany.size && !isFuture) {
         (guards || []).filter(g => g.active !== false && g.assigned_location_id && (!compFilter || g.assigned_location_id === compFilter)).forEach(g => {
             const compName = locMap.get(g.assigned_location_id)?.label || 'Assigned Company';
             if (!byCompany.has(compName)) byCompany.set(compName, []);
@@ -2766,29 +2798,46 @@ function renderCalendarSelectedDay(dateStr, compFilter) {
         });
     }
 
-    let html = '<div class="ig-cal-detail-subhead">Assigned Personnel by Company / Location</div>';
-    if (byCompany.size) {
-        byCompany.forEach((guardList, compName) => {
-            html += '<div class="ig-cal-detail-item">' +
-                '<strong>' + escapeHtml(compName) + ' (' + guardList.length + ')</strong>' +
-                '<span style="font-size:0.78rem;color:var(--ax-muted);">' + escapeHtml(guardList.join(' · ')) + '</span>' +
-            '</div>';
-        });
+    let html = '';
+    if (isFuture) {
+        html += '<div class="ig-cal-detail-subhead">Assigned Personnel (Upcoming Schedule)</div>';
+        if (byCompany.size) {
+            byCompany.forEach((guardList, compName) => {
+                html += '<div class="ig-cal-detail-item">' +
+                    '<strong>' + escapeHtml(compName) + ' (' + guardList.length + ' scheduled)</strong>' +
+                    '<span style="font-size:0.78rem;color:var(--ax-muted);">' + escapeHtml(guardList.join(' · ')) + '</span>' +
+                '</div>';
+            });
+        } else {
+            html += '<div class="ig-cal-detail-item"><span style="font-size:0.8rem;color:var(--ax-muted);">No duty assignments scheduled for this future date.</span></div>';
+        }
+        html += '<div class="ig-cal-detail-subhead">Attendance &amp; Incidents</div>';
+        html += '<div class="ig-cal-detail-item"><span style="font-size:0.8rem;color:var(--ax-muted);">Future date. Attendance records and incident logs are only recorded for dates that have already passed or are the current date.</span></div>';
     } else {
-        html += '<div class="ig-cal-detail-item"><span style="font-size:0.8rem;color:var(--ax-muted);">No company duty assignments recorded for this date.</span></div>';
-    }
+        html += '<div class="ig-cal-detail-subhead">Assigned Personnel by Company / Location</div>';
+        if (byCompany.size) {
+            byCompany.forEach((guardList, compName) => {
+                html += '<div class="ig-cal-detail-item">' +
+                    '<strong>' + escapeHtml(compName) + ' (' + guardList.length + ')</strong>' +
+                    '<span style="font-size:0.78rem;color:var(--ax-muted);">' + escapeHtml(guardList.join(' · ')) + '</span>' +
+                '</div>';
+            });
+        } else {
+            html += '<div class="ig-cal-detail-item"><span style="font-size:0.8rem;color:var(--ax-muted);">No company duty assignments recorded for this date.</span></div>';
+        }
 
-    html += '<div class="ig-cal-detail-subhead">Incidents on This Date (' + m.dayIncidents.length + ')</div>';
-    if (m.dayIncidents.length) {
-        m.dayIncidents.forEach(inc => {
-            const reporter = profileDisplayName(profMap.get(inc.user_id));
-            html += '<div class="ig-cal-detail-item">' +
-                '<strong>' + escapeHtml(incidentCategory(inc.category)) + ' — ' + escapeHtml(incidentStatus(inc.status)) + '</strong>' +
-                '<span style="font-size:0.78rem;color:var(--ax-muted);">Location: ' + escapeHtml(inc.location_label || 'Unspecified') + ' · Guard: ' + escapeHtml(reporter) + '</span>' +
-            '</div>';
-        });
-    } else {
-        html += '<div class="ig-cal-detail-item"><span style="font-size:0.8rem;color:var(--ax-muted);">No incidents reported on this date.</span></div>';
+        html += '<div class="ig-cal-detail-subhead">Incidents on This Date (' + m.dayIncidents.length + ')</div>';
+        if (m.dayIncidents.length) {
+            m.dayIncidents.forEach(inc => {
+                const reporter = profileDisplayName(profMap.get(inc.user_id));
+                html += '<div class="ig-cal-detail-item">' +
+                    '<strong>' + escapeHtml(incidentCategory(inc.category)) + ' — ' + escapeHtml(incidentStatus(inc.status)) + '</strong>' +
+                    '<span style="font-size:0.78rem;color:var(--ax-muted);">Location: ' + escapeHtml(inc.location_label || 'Unspecified') + ' · Guard: ' + escapeHtml(reporter) + '</span>' +
+                '</div>';
+            });
+        } else {
+            html += '<div class="ig-cal-detail-item"><span style="font-size:0.8rem;color:var(--ax-muted);">No incidents reported on this date.</span></div>';
+        }
     }
 
     listEl.innerHTML = html;

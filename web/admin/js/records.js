@@ -219,37 +219,37 @@
 
         tbody.innerHTML = data.map(p => {
             const empBadgeClass = p.employmentStatus === 'Active' ? 'rec-badge-active' : (p.employmentStatus === 'Archived' || p.employmentStatus === 'Resigned' ? 'rec-badge-resigned' : 'rec-badge-expired');
-            const contBadgeClass = p.contractStatus === 'Active' ? 'rec-badge-active' : (p.contractStatus === 'Pending' ? 'rec-badge-pending' : 'rec-badge-expired');
+            const contBadgeClass = p.contractStatus === 'Active' ? 'rec-badge-active' : (p.contractStatus === 'Pending' ? 'rec-badge-pending' : (p.contractStatus === 'Terminated' ? 'rec-badge-expired' : 'rec-badge-expired'));
             const dutyClass = p.dutyCategory.toLowerCase() === 'regular' ? 'rec-badge-regular' : 'rec-badge-reliever';
             const deviceHtml = p.registeredDeviceId
-                ? `<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:4px;">
-                     <span class="rec-badge rec-badge-active" style="font-size:0.65rem;padding:2px 6px;" title="${escapeHtml(p.registeredDeviceInfo || '')}">
-                       <span class="material-symbols-rounded" style="font-size:11px;vertical-align:-2px;">smartphone</span>
-                       ${escapeHtml(p.registeredDeviceId)}
+                ? `<div style="display:flex;align-items:center;gap:3px;margin-top:2px;">
+                     <span class="rec-device-pill" title="Bound Device: ${escapeHtml(p.registeredDeviceId)} (${escapeHtml(p.registeredDeviceInfo || '')})">
+                       <span class="material-symbols-rounded" style="font-size:11px;" aria-hidden="true">smartphone</span>
+                       <span>Bound</span>
+                       <button type="button" class="rec-btn-reset-device" onclick="window.resetGuardDeviceBinding('${escapeHtml(p.id)}')" title="Reset device binding">×</button>
                      </span>
-                     <button type="button" class="records-btn-reset" style="padding:1px 5px;font-size:10px;" onclick="window.resetGuardDeviceBinding('${escapeHtml(p.id)}')" title="Reset bound phone if guard changed device">Reset Device</button>
                    </div>`
                 : '';
 
             return `<tr${p.isArchived ? ' class="opacity-75"' : ''}>
                 <td class="col-id">${escapeHtml(p.personnelId)}</td>
-                <td class="col-primary">${escapeHtml(p.fullName)}</td>
-                <td>${escapeHtml(p.gender)}</td>
-                <td>
-                    <div>${escapeHtml(p.contactNumber)}</div>
+                <td class="col-primary" title="${escapeHtml(p.fullName)}"><span class="col-name-text">${escapeHtml(p.fullName)}</span></td>
+                <td class="text-center col-gender">${escapeHtml(p.gender)}</td>
+                <td class="col-contact">
+                    <span class="tabular-nums">${escapeHtml(p.contactNumber)}</span>
                     ${deviceHtml}
                 </td>
-                <td><span class="rec-badge ${dutyClass}">${escapeHtml(p.dutyCategory)}</span></td>
-                <td><span class="rec-badge ${empBadgeClass}">${escapeHtml(p.employmentStatus)}</span></td>
-                <td><span class="rec-badge ${contBadgeClass}">${escapeHtml(p.contractStatus)}</span></td>
-                <td>${escapeHtml(p.dateHired)}</td>
-                <td class="col-muted">${p.dateEnded
+                <td class="text-center"><span class="rec-badge ${dutyClass}">${escapeHtml(p.dutyCategory)}</span></td>
+                <td class="text-center"><span class="rec-badge ${empBadgeClass}">${escapeHtml(p.employmentStatus)}</span></td>
+                <td class="text-center"><span class="rec-badge ${contBadgeClass}">${escapeHtml(p.contractStatus)}</span></td>
+                <td class="col-date">${escapeHtml(p.dateHired)}</td>
+                <td class="col-date col-muted">${p.dateEnded
                     ? (p.dateEndedExpired
-                        ? `<span class="rec-badge rec-badge-expired" style="font-size:0.7rem;">${escapeHtml(p.dateEnded)}</span>`
+                        ? `<span class="rec-badge rec-badge-expired">${escapeHtml(p.dateEnded)}</span>`
                         : escapeHtml(p.dateEnded))
-                    : '<span class="rec-badge rec-badge-active" style="font-size:0.7rem;opacity:0.75;">Still Active</span>'}</td>
-                <td>${escapeHtml(p.assignedPost)}</td>
-                <td>${escapeHtml(p.shift)}</td>
+                    : '<span class="rec-badge rec-badge-active">Still Active</span>'}</td>
+                <td class="col-post" title="${escapeHtml(p.assignedPost)}"><span class="post-truncate">${escapeHtml(p.assignedPost)}</span></td>
+                <td class="col-shift tabular-nums">${escapeHtml(p.shift)}</td>
             </tr>`;
         }).join('');
     }
@@ -372,6 +372,7 @@
     function calculateAttendanceSummary(monthStr, yearStr) {
         // monthStr is 01..12, yearStr is 2026
         const targetPrefix = `${yearStr}-${monthStr}`;
+        const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
 
         // Group schedules for that month by guard
         const monthSchedules = allSchedules.filter(s => (s.duty_date || '').startsWith(targetPrefix));
@@ -381,13 +382,23 @@
             const guardSchedules = monthSchedules.filter(s => s.user_id === guard.id);
             const guardSessions = monthSessions.filter(s => s.user_id === guard.id);
 
-            const totalScheduledDays = new Set(guardSchedules.map(s => s.duty_date)).size;
+            // Important: Only evaluate scheduled days and sessions for dates that have already passed or are the current date
+            const eligibleSchedules = guardSchedules.filter(s => {
+                const d = s.duty_date || (s.start_at ? s.start_at.slice(0, 10) : '');
+                return !d || d <= todayStr;
+            });
+            const eligibleSessions = guardSessions.filter(s => {
+                const d = (s.duty_date || s.clock_in_at || '').slice(0, 10);
+                return !d || d <= todayStr;
+            });
+
+            const totalScheduledDays = new Set(eligibleSchedules.map(s => s.duty_date).filter(Boolean)).size;
 
             let totalPresent = 0;
             let totalLate = 0;
             let totalOvertimeMins = 0;
 
-            guardSessions.forEach(sess => {
+            eligibleSessions.forEach(sess => {
                 if (sess.clock_in_at) {
                     totalPresent++;
                     // Check if late compared to scheduled start
@@ -401,7 +412,7 @@
                 }
             });
 
-            // Estimated absence: scheduled days without attendance punch
+            // Estimated absence: scheduled days (past or today) without attendance punch
             const totalAbsent = Math.max(0, totalScheduledDays - totalPresent);
             const totalOtHours = (totalOvertimeMins / 60).toFixed(1);
 
@@ -415,7 +426,7 @@
                 totalAbsent,
                 totalLate,
                 totalOvertimeHours: Number(totalOtHours) > 0 ? `${totalOtHours} hrs` : '0.0 hrs',
-                status: totalAbsent > 0 ? 'With Absences' : (totalPresent > 0 ? 'Complete' : 'Incomplete')
+                status: totalScheduledDays === 0 ? 'No Records Yet' : (totalAbsent > 0 ? 'With Absences' : (totalPresent > 0 ? 'Complete' : 'Incomplete'))
             };
         });
     }
@@ -481,7 +492,10 @@
         if (!tbody) return;
 
         const targetPrefix = `${year}-${month}`;
+        const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
         const matchingSessions = (allSessions || []).filter(s => {
+            const dateStr = (s.duty_date || s.clock_in_at || '').slice(0, 10);
+            if (dateStr && dateStr > todayStr) return false;
             const dutyPrefix = (s.duty_date || s.clock_in_at || '').slice(0, 7);
             if (dutyPrefix && dutyPrefix !== targetPrefix && !s.force_attendance_requested) return false;
             if (personnelId && s.user_id !== personnelId) return false;
