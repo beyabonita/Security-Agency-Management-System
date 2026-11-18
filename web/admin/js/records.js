@@ -222,12 +222,12 @@
             const contBadgeClass = p.contractStatus === 'Active' ? 'rec-badge-active' : (p.contractStatus === 'Pending' ? 'rec-badge-pending' : (p.contractStatus === 'Terminated' ? 'rec-badge-expired' : 'rec-badge-expired'));
             const dutyClass = p.dutyCategory.toLowerCase() === 'regular' ? 'rec-badge-regular' : 'rec-badge-reliever';
             const deviceHtml = p.registeredDeviceId
-                ? `<div style="display:flex;align-items:center;gap:3px;margin-top:2px;">
+                ? `<div style="display:flex;align-items:center;gap:4px;margin-top:2px;">
                      <span class="rec-device-pill" title="Bound Device: ${escapeHtml(p.registeredDeviceId)} (${escapeHtml(p.registeredDeviceInfo || '')})">
                        <span class="material-symbols-rounded" style="font-size:11px;" aria-hidden="true">smartphone</span>
                        <span>Bound</span>
-                       <button type="button" class="rec-btn-reset-device" onclick="window.resetGuardDeviceBinding('${escapeHtml(p.id)}')" title="Reset device binding">×</button>
                      </span>
+                     <button type="button" class="rec-btn-reset-device" onclick="window.resetGuardDeviceBinding('${escapeHtml(p.id)}')" title="Reset device binding">Reset</button>
                    </div>`
                 : '';
 
