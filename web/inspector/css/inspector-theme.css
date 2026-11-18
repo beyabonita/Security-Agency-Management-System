@@ -2,7 +2,7 @@
 @import url('../../css/brand.css');
 @import url('../../css/app-experience.css');
 @import url('../../css/theme-preference.css');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
     --ix-sidebar: #9f1239;
@@ -217,11 +217,11 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 }
 
 .ix-page-title {
-    font-size: 1.6rem;
+    font-size: 1.35rem;
     font-weight: 700;
     color: var(--ix-text);
     margin: 0;
-    line-height: 1.2;
+    line-height: 1.25;
 }
 
 .ix-page-desc {
@@ -292,11 +292,11 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 }
 
 .ix-section-label {
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--ix-muted);
+    color: var(--sl-accent);
     margin-bottom: 12px;
 }
 
@@ -314,18 +314,19 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 }
 
 .ix-table thead tr {
-    background: var(--sl-surface-muted);
+    background: var(--sl-red-soft);
     border-bottom: 1px solid var(--ix-border);
 }
 
 .ix-table thead th {
-    padding: 12px 18px;
-    font-size: 0.68rem;
+    padding: 13px 18px;
+    font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--ix-muted);
     text-align: left;
+    white-space: nowrap;
 }
 
 .ix-table tbody tr {
@@ -334,7 +335,7 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
 }
 
 .ix-table tbody tr:last-child { border-bottom: none; }
-.ix-table tbody tr:hover { background: var(--sl-warning-soft); }
+.ix-table tbody tr:hover { background: var(--sl-red-soft); }
 .ix-table tbody td {
     padding: 14px 18px;
     font-size: 0.875rem;
@@ -342,8 +343,8 @@ body[data-ix-page="swaps"] .ix-topnav a[href="swaps.html"] {
     vertical-align: middle;
 }
 
-.ix-cell-primary { font-weight: 600; color: var(--ix-text); }
-.ix-cell-secondary { font-size: 0.78rem; color: var(--ix-muted); margin-top: 2px; }
+.ix-cell-primary { font-weight: 600; font-size: 0.875rem; color: var(--ix-text); }
+.ix-cell-secondary { font-size: 0.78rem; font-weight: 500; color: var(--ix-muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
 
 .ix-badge {
     display: inline-flex;

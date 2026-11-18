@@ -139,3 +139,4 @@ FOR EACH ROW
 EXECUTE FUNCTION public.trigger_check_expiring_guard_contract();
 
 NOTIFY pgrst, 'reload schema';
+

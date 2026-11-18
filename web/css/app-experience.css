@@ -25,9 +25,9 @@
   --sl-radius-lg: 24px;
 }
 
-html { scroll-behavior: smooth; scrollbar-gutter: stable; }
-body { min-width: 0; line-height: 1.5; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
-button, input, select, textarea { font: inherit; }
+html { scroll-behavior: smooth; scrollbar-gutter: stable; font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+body { min-width: 0; font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+button, input, select, textarea, table, th, td, code, pre { font-family: inherit; }
 * { scrollbar-width: thin; scrollbar-color: rgba(127,16,25,.26) transparent; }
 *::-webkit-scrollbar { width: 9px; height: 9px; }
 *::-webkit-scrollbar-track { background: transparent; }
@@ -195,14 +195,123 @@ input, select, textarea, .form-control, .form-select {
 input:hover:not(:disabled):not(:focus), select:hover:not(:disabled):not(:focus), textarea:hover:not(:disabled):not(:focus),
 .form-control:hover:not(:disabled):not(:focus), .form-select:hover:not(:disabled):not(:focus) { border-color: rgba(127,16,25,.3) !important; }
 input:focus, select:focus, textarea:focus, .form-control:focus, .form-select:focus { transform: translateY(-1px); }
-.form-control, .form-select, input, select, textarea { min-height: 42px; }
+.form-control, .form-select, input, select, textarea { min-height: 42px; font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+.personnel-search-input, .personnel-filter-select {
+  height: 42px !important;
+  min-height: 42px !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  border-radius: 10px !important;
+  background-color: var(--sl-surface) !important;
+  border: 1px solid var(--ax-border, var(--sl-line)) !important;
+  color: var(--ax-text, var(--sl-ink)) !important;
+}
+.personnel-search-input:focus, .personnel-filter-select:focus {
+  border-color: var(--ax-accent, var(--sl-red)) !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12) !important;
+  outline: none !important;
+}
 input:disabled, select:disabled, textarea:disabled, input[readonly], textarea[readonly] { background: var(--sl-surface-muted) !important; color: var(--sl-muted) !important; }
 textarea { min-height: 96px; }
 
 /* Comfortable data density for desktop and safe horizontal scrolling on touch screens. */
-.ax-table, .ix-table, .user-table, .it-table, .loc-table, .schedule-table, .data-table { border-collapse: separate; border-spacing: 0; }
-.ax-table th, .ix-table th, .user-table th, .it-table th, .loc-table th, .schedule-table th, .data-table th { white-space: nowrap; }
-.ax-table td, .ix-table td, .user-table td, .it-table td, .loc-table td, .schedule-table td, .data-table td { line-height: 1.45; }
+.ax-table, .ix-table, .user-table, .it-table, .loc-table, .schedule-table, .data-table, .records-table, .dashboard-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.ax-table thead th, .ix-table thead th, .user-table thead th, .it-table thead th,
+.loc-table thead th, .schedule-table thead th, .data-table thead th, .records-table thead th {
+  padding: 13px 18px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.ax-table td, .ix-table td, .user-table td, .it-table td,
+.loc-table td, .schedule-table td, .data-table td, .records-table td {
+  padding: 14px 18px;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  vertical-align: middle;
+}
+.loc-col-radius, .col-nowrap, .tabular-nums {
+  white-space: nowrap !important;
+  font-variant-numeric: tabular-nums;
+}
+.loc-col-radius {
+  font-weight: 600;
+  color: var(--ax-text, var(--sl-ink));
+  cursor: help;
+  transition: color 0.15s ease;
+}
+.loc-col-radius:hover {
+  color: var(--sl-danger, #b91c1c);
+  text-decoration: underline dotted rgba(185, 28, 28, 0.45);
+  text-underline-offset: 3px;
+}
+.loc-coords-fallback {
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+.loc-coords-fallback:hover {
+  color: var(--sl-danger, #b91c1c);
+  text-decoration: underline dotted rgba(185, 28, 28, 0.45);
+  text-underline-offset: 3px;
+}
+.badge-shift-contract {
+  cursor: help;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.badge-shift-contract:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+.badge-locked, .badge-active, .badge-inactive, .loc-status-cell {
+  cursor: help;
+}
+
+/* Custom App Tooltip Styling */
+.tooltip {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.78rem;
+  z-index: 1070;
+  pointer-events: none;
+}
+.tooltip-inner {
+  background-color: #111827;
+  color: #f8fafc;
+  border: 1px solid rgba(220, 38, 38, 0.35);
+  border-radius: 8px;
+  padding: 7px 12px;
+  max-width: 290px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  line-height: 1.4;
+  text-align: center;
+}
+.bs-tooltip-top .tooltip-arrow::before,
+.bs-tooltip-auto[data-popper-placement^="top"] .tooltip-arrow::before {
+  border-top-color: #111827;
+}
+.bs-tooltip-bottom .tooltip-arrow::before,
+.bs-tooltip-auto[data-popper-placement^="bottom"] .tooltip-arrow::before {
+  border-bottom-color: #111827;
+}
+.leaflet-geofence-tooltip {
+  background: rgba(15, 23, 42, 0.94) !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(220, 38, 38, 0.45) !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  font-family: 'Inter', sans-serif !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.28) !important;
+}
+.leaflet-geofence-tooltip::before {
+  border-top-color: rgba(15, 23, 42, 0.94) !important;
+}
 .ax-table tbody tr:last-child td:first-child, .ix-table tbody tr:last-child td:first-child { border-bottom-left-radius: var(--sl-radius-sm); }
 .ax-table tbody tr:last-child td:last-child, .ix-table tbody tr:last-child td:last-child { border-bottom-right-radius: var(--sl-radius-sm); }
 .sl-table-frame, .table-responsive {

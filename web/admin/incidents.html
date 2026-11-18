@@ -55,13 +55,13 @@
                 <span id="incidentCountBadge" style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;font-size:0.75rem;font-weight:700;background:rgba(220,38,38,0.12);color:var(--ax-accent,#dc2626);">0</span>
             </div>
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <div style="position:relative;display:inline-flex;align-items:center;min-width:240px;">
-                    <span class="material-symbols-rounded" style="position:absolute;left:10px;font-size:17px;color:var(--sl-muted);pointer-events:none;" aria-hidden="true">search</span>
-                    <input type="search" id="incidentSearchInput" class="form-control form-control-sm" style="padding-left:34px;height:38px;border-radius:9px;" placeholder="Search guard, type, summary…" oninput="renderTable()" aria-label="Search incidents">
+                <div style="position:relative;display:inline-flex;align-items:center;min-width:250px;">
+                    <span class="material-symbols-rounded" style="position:absolute;left:12px;font-size:18px;color:var(--sl-muted);pointer-events:none;z-index:2;" aria-hidden="true">search</span>
+                    <input type="search" id="incidentSearchInput" class="form-control personnel-search-input" style="padding-left:38px !important;height:42px;border-radius:10px;" placeholder="Search guard, type, summary…" oninput="renderTable()" aria-label="Search incidents">
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <label for="incidentViewFilter" class="visually-hidden">Filter incidents by state</label>
-                    <select id="incidentViewFilter" class="form-select form-select-sm" style="height:38px;border-radius:9px;min-width:145px;">
+                    <select id="incidentViewFilter" class="form-select personnel-filter-select" style="height:42px;border-radius:10px;min-width:155px;">
                         <option value="active" selected>Active Reports</option>
                         <option value="archived">Archived Reports</option>
                         <option value="all">All Reports</option>
@@ -286,12 +286,12 @@ function renderTable() {
     const statusMarkup = isArchived
       ? '<span class="badge-status badge-ack">Archived</span>'
       : (inc.deletion_requested_at ? '<span class="badge-status badge-open">Deletion retry</span>' : statusBadge(inc.status));
-    return '<tr onclick="openDetail(\'' + inc.id + '\')">' +
+    return '<tr onclick="openDetail(\'' + escapeHtml(inc.id) + '\')">' +
       '<td>' + thumb + '</td>' +
-      '<td>' + formatWhen(inc.capturedAt || inc.createdAt) + '</td>' +
+      '<td class="col-nowrap">' + formatWhen(inc.capturedAt || inc.createdAt) + '</td>' +
       '<td><strong>' + escapeHtml(inc.guardName || '—') + '</strong><br><small style="color:var(--sl-muted)">' + escapeHtml(reportEmail(inc.guardEmail)) + '</small></td>' +
-      '<td><span class="badge-cat">' + escapeHtml(cat) + '</span></td>' +
-      '<td>' + statusMarkup + '</td>' +
+      '<td class="col-nowrap"><span class="badge-cat">' + escapeHtml(cat) + '</span></td>' +
+      '<td class="col-nowrap">' + statusMarkup + '</td>' +
       '<td style="color:var(--sl-muted)">' + (isArchived ? 'Archived report · preserved in records' : (inc.videoPath ? escapeHtml(String(inc.videoDurationSeconds || 15) + ' sec video' + (src ? ' + photo' : '')) : 'Photo alert')) + '</td>' +
       '</tr>';
   }).join('');

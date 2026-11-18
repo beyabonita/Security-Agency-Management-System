@@ -28,8 +28,8 @@
         border-color: rgba(255, 255, 255, 0.15);
         color: #cbd5e1;
     }
-    .loc-address { font-size: 0.82rem; color: var(--ix-muted); line-height: 1.45; max-width: 360px; }
-        .loc-coords { font-size: 0.72rem; color: var(--sl-muted); font-family: monospace; margin-top: 4px; }
+    .loc-address { font-size: 0.8125rem; color: var(--ix-muted); line-height: 1.45; max-width: 420px; }
+        .loc-coords { font-size: 0.75rem; font-weight: 500; color: var(--sl-muted); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-variant-numeric: tabular-nums; margin-top: 3px; opacity: 0.88; }
         .ix-bundles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; margin-bottom: 18px; }
         .ix-bundle-card { border: 1px solid var(--ax-border); border-radius: 12px; background: var(--sl-surface, #fff); overflow: hidden; }
         .ix-bundle-summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; cursor: pointer; background: var(--sl-surface-muted, rgba(15, 23, 42, 0.02)); }
@@ -41,7 +41,7 @@
 <body class="admin-body inspector-body" data-ix-page="locations">
 
 <div id="loadingScreen">
-    <div class="spinner-border text-success"></div>
+    <div class="spinner-border text-danger"></div>
     <p>Loading sites…</p>
 </div>
 
@@ -133,13 +133,19 @@ function loadLocations() {
             const badge = d.active
                 ? '<span class="ix-badge ix-badge-ok">Active</span>'
                 : '<span class="ix-badge ix-badge-off">Disabled</span>';
+            const formatCoordPair = (lat, lng) => {
+                const nLat = Number(lat), nLng = Number(lng);
+                return (Number.isFinite(nLat) && Number.isFinite(nLng))
+                    ? `${nLat.toFixed(6)}, ${nLng.toFixed(6)}`
+                    : `${lat}, ${lng}`;
+            };
             const addressText = d.address
                 ? escapeHtml(d.address)
                 : (d.latitude != null && d.longitude != null
-                    ? `${d.latitude}, ${d.longitude}`
+                    ? formatCoordPair(d.latitude, d.longitude)
                     : "—");
-            const coordsFallback = d.address && d.latitude != null
-                ? `<div class="loc-coords">${d.latitude}, ${d.longitude}</div>`
+            const coordsFallback = d.address && d.latitude != null && d.longitude != null
+                ? `<div class="loc-coords">${formatCoordPair(d.latitude, d.longitude)}</div>`
                 : "";
             html += `<tr>
                 <td>
@@ -147,8 +153,8 @@ function loadLocations() {
                     <div class="mt-1">${getShiftModelBadge(d)}</div>
                 </td>
                 <td><div class="loc-address">${addressText}${coordsFallback}</div></td>
-                <td style="color:var(--ix-muted);">${d.radius ? d.radius + ' m' : '—'}</td>
-                <td>${badge}</td>
+                <td class="loc-col-radius">${d.radius ? Number(d.radius).toLocaleString('en-US') + '\u00A0m' : '—'}</td>
+                <td class="col-nowrap">${badge}</td>
             </tr>`;
         });
         document.getElementById("locationTable").innerHTML = html ||
@@ -184,14 +190,23 @@ async function renderInspectorBundles(locSnapshot) {
         locSnapshot.forEach(doc => {
             const d = doc.data();
             const gList = guardsBySite.get(doc.id) || [];
+            const siteLabel = escapeHtml(d.label || "Site");
+            const radiusNum = Number(d.radius);
+            const radiusTip = Number.isFinite(radiusNum) && radiusNum > 0
+                ? `Geofence Area: ${radiusNum.toLocaleString()}m radius. Guards must be within this perimeter to log attendance.`
+                : `Radius not configured`;
+            const badgeTip = `${gList.length} guard(s) bundled to ${siteLabel} • Status: ${d.active ? 'Active' : 'Disabled'}`;
             cards.push(`<details class="ix-bundle-card" open>
                 <summary class="ix-bundle-summary">
                     <div>
-                        <strong style="font-size:0.9rem;">${escapeHtml(d.label || "Site")}</strong>
-                        <div class="loc-address">${escapeHtml(d.address || "—")} · Radius: ${d.radius ? d.radius + " m" : "—"}</div>
+                        <strong style="font-size:0.9rem;" data-bs-toggle="tooltip" data-bs-placement="top" title="${siteLabel}">${siteLabel}</strong>
+                        <div class="loc-address">
+                            <span data-bs-toggle="tooltip" data-bs-placement="top" title="${escapeHtml(d.address || 'Address not set')}">${escapeHtml(d.address || "—")}</span>
+                            · <span class="loc-col-radius" data-bs-toggle="tooltip" data-bs-placement="top" title="${radiusTip}">Radius: ${d.radius ? d.radius + " m" : "—"}</span>
+                        </div>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <span class="ix-badge ${d.active ? "ix-badge-ok" : "ix-badge-off"}">${gList.length} ${gList.length === 1 ? "Guard" : "Guards"}</span>
+                        <span class="ix-badge ${d.active ? "ix-badge-ok" : "ix-badge-off"}" data-bs-toggle="tooltip" data-bs-placement="top" title="${badgeTip}">${gList.length} ${gList.length === 1 ? "Guard" : "Guards"}</span>
                     </div>
                 </summary>
                 <div class="ix-bundle-body">
@@ -200,6 +215,13 @@ async function renderInspectorBundles(locSnapshot) {
             </details>`);
         });
         bundleEl.innerHTML = cards.join("");
+        if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+                const inst = bootstrap.Tooltip.getInstance(el);
+                if (inst) inst.dispose();
+                new bootstrap.Tooltip(el, { delay: { show: 120, hide: 60 } });
+            });
+        }
     } catch (_) {}
 }
 
@@ -224,23 +246,23 @@ function getShiftModelBadge(d) {
         if (Array.isArray(customHours) && customHours.length && customHours[0].start_time && customHours[0].end_time) {
             timeRange = formatTime12Hour(customHours[0].start_time) + '–' + formatTime12Hour(customHours[0].end_time);
         }
-        return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 1 Day Shift (' + timeRange + ')</span>';
+        return '<span class="badge-shift-contract" data-bs-toggle="tooltip" data-bs-placement="top" title="Contracted Shift Schedule: 1 Day Shift (' + timeRange + ') — Single daytime operational shift"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 1 Day Shift (' + timeRange + ')</span>';
     }
     if (model === '2_shifts_12h') {
         let timeRange = '6:00 AM–6:00 PM';
         if (Array.isArray(customHours) && customHours.length && customHours[0].start_time && customHours[0].end_time) {
             timeRange = formatTime12Hour(customHours[0].start_time) + '–' + formatTime12Hour(customHours[0].end_time);
         }
-        return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: ' + timeRange + ')</span>';
+        return '<span class="badge-shift-contract" data-bs-toggle="tooltip" data-bs-placement="top" title="Contracted Shift Schedule: 2 Shifts (12h coverage: ' + timeRange + ' &amp; opposite night shift) — 24-hour dual coverage"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: ' + timeRange + ')</span>';
     }
     if (model === '3_shifts_8h') {
         let timeRange = '6:00 AM / 2:00 PM / 10:00 PM';
         if (Array.isArray(customHours) && customHours.length >= 3 && customHours.every(c => c.start_time)) {
             timeRange = customHours.map(c => formatTime12Hour(c.start_time)).join(' / ');
         }
-        return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 3 Shifts (8h: ' + timeRange + ')</span>';
+        return '<span class="badge-shift-contract" data-bs-toggle="tooltip" data-bs-placement="top" title="Contracted Shift Schedule: 3 Shifts (8h coverage: ' + timeRange + ') — 24-hour continuous 3-shift rotation"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 3 Shifts (8h: ' + timeRange + ')</span>';
     }
-    return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h)</span>';
+    return '<span class="badge-shift-contract" data-bs-toggle="tooltip" data-bs-placement="top" title="Contracted Shift Schedule: 2 Shifts (12h each) — 24-hour dual rotation"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h)</span>';
 }
 
 </script>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,1041 +11,1024 @@
     <link href="css/admin-theme.css" rel="stylesheet">
     <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">
     <style>
-    .geofence-safeguard-banner {
-        background: var(--sl-red-soft, rgba(220, 38, 38, 0.08));
-        border: 1px solid rgba(220, 38, 38, 0.28);
-        border-left: 5px solid var(--sl-danger, #b91c1c);
-        border-radius: 12px;
-        padding: 16px 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 8px rgba(185, 28, 28, 0.06);
-    }
-    .geofence-safeguard-head {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: var(--sl-danger, #b91c1c);
-        font-weight: 700;
-        font-size: 0.95rem;
-        margin-bottom: 6px;
-    }
-    .geofence-safeguard-icon {
-        font-size: 22px;
-        color: var(--sl-danger, #b91c1c);
-        flex-shrink: 0;
-    }
-    .geofence-safeguard-desc {
-        color: var(--sl-ink, #1f2937);
-        font-size: 0.85rem;
-        line-height: 1.45;
-        margin-bottom: 12px;
-    }
-    .geofence-safeguard-guards {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 12px;
-    }
-    .geofence-guard-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: var(--sl-surface, #ffffff);
-        border: 1px solid rgba(220, 38, 38, 0.25);
-        border-radius: 999px;
-        padding: 4px 12px;
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: var(--sl-ink, #1f2937);
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    }
-    .geofence-guard-chip-icon {
-        font-size: 14px;
-        color: var(--sl-danger, #b91c1c);
-    }
-    .geofence-safeguard-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        align-items: center;
-    }
-    .btn-safeguard-action {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        background: var(--sl-surface, #ffffff);
-        border: 1px solid var(--sl-line, #e5e7eb);
-        color: var(--sl-ink, #1f2937);
-        padding: 6px 14px;
-        border-radius: 8px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-decoration: none;
-        cursor: pointer;
-        transition: all 0.15s ease;
-    }
-    .btn-safeguard-action:hover {
-        background: var(--sl-red-soft, rgba(220, 38, 38, 0.08));
-        border-color: var(--sl-danger, #b91c1c);
-        color: var(--sl-danger, #b91c1c);
-    }
-    .badge-locked {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background: rgba(220, 38, 38, 0.12);
-        border: 1px solid rgba(220, 38, 38, 0.25);
-        color: var(--sl-danger, #b91c1c);
-        border-radius: 20px;
-        padding: 2px 9px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        margin-left: 8px;
-        vertical-align: middle;
-    }
-    .badge-locked-icon {
-        font-size: 13px;
-    }
-    .input-locked {
-        background-color: var(--sl-surface-muted, #f3f4f6) !important;
-        cursor: not-allowed !important;
-        opacity: 0.85;
-    }
-    .map-locked-notice {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 10px;
-        border-radius: 6px;
-        background: rgba(220, 38, 38, 0.12);
-        border: 1px solid rgba(220, 38, 38, 0.25);
-        color: var(--sl-danger, #b91c1c);
-        font-size: 0.78rem;
-        font-weight: 600;
-    }
-    .badge-agency-site {
-        display: inline-flex;
-        align-items: center;
-        background: rgba(185, 28, 28, 0.12);
-        border: 1px solid rgba(185, 28, 28, 0.25);
-        color: var(--sl-danger, #b91c1c);
-        border-radius: 999px;
-        padding: 1px 7px;
-        font-size: 0.68rem;
-        font-weight: 700;
-        margin-left: 8px;
-        vertical-align: middle;
-    }
-    .badge-negros-site {
-        display: inline-flex;
-        align-items: center;
-        background: rgba(16, 185, 129, 0.12);
-        border: 1px solid rgba(16, 185, 129, 0.25);
-        color: #047857;
-        border-radius: 999px;
-        padding: 1px 7px;
-        font-size: 0.68rem;
-        font-weight: 700;
-        margin-left: 8px;
-        vertical-align: middle;
-    }
-    .badge-shift-contract {
-        display: inline-flex;
-        align-items: center;
-        gap: 3px;
-        background: rgba(30, 41, 59, 0.05);
-        border: 1px solid rgba(30, 41, 59, 0.15);
-        color: #334155;
-        border-radius: 6px;
-        padding: 2px 7px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-    }
-    [data-theme="dark"] .badge-shift-contract {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: rgba(255, 255, 255, 0.15);
-        color: #cbd5e1;
-    }
-    .custom-shifts-card {
-        background: var(--sl-surface-muted, #f8fafc);
-        border: 1px dashed var(--sl-line, #cbd5e1);
-        border-radius: 8px;
-    }
-    [data-theme="dark"] .custom-shifts-card {
-        background: rgba(255, 255, 255, 0.03);
-        border-color: rgba(255, 255, 255, 0.15);
-    }
-    .loc-status-cell {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-    }
-    .badge-guards-assigned {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        border-radius: 999px;
-        padding: 2px 8px;
-        font-size: 0.72rem;
-        font-weight: 600;
-        line-height: 1.3;
-        white-space: nowrap;
-        text-decoration: none;
-        border: 1px solid transparent;
-        transition: all 0.15s ease;
-        outline: none;
-    }
-    button.badge-guards-assigned {
-        margin: 0;
-        background: none;
-    }
-    .badge-guards-assigned.has-guards {
-        background: rgba(37, 99, 235, 0.1);
-        border-color: rgba(37, 99, 235, 0.25);
-        color: #1d4ed8;
-        cursor: pointer;
-    }
-    .badge-guards-assigned.has-guards:hover {
-        background: rgba(37, 99, 235, 0.18);
-        border-color: #1d4ed8;
-    }
-    .badge-guards-assigned.no-guards {
-        background: var(--sl-surface-muted, #f3f4f6);
-        border-color: var(--sl-line, #e5e7eb);
-        color: var(--sl-muted, #6b7280);
-        cursor: default;
-    }
-    .badge-guards-assigned-icon {
-        font-size: 13px;
-    }
-    .personnel-table-filters {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
-    .personnel-search-wrap {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        width: 100%;
-        max-width: 420px;
-    }
-    .personnel-search-icon {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 18px;
-        color: var(--sl-muted, #64748b);
-        pointer-events: none;
-        line-height: 1;
-        z-index: 2;
-        transition: color 0.15s ease;
-    }
-    .personnel-search-wrap:focus-within .personnel-search-icon {
-        color: var(--sl-danger, #b91c1c);
-    }
-    .personnel-search-input {
-        width: 100%;
-        height: 42px;
-        min-height: 42px;
-        padding: 8px 16px 8px 38px !important;
-        font-size: 0.86rem;
-        font-weight: 500;
-        border-radius: 10px;
-        background: var(--sl-surface, #ffffff);
-        border: 1px solid var(--sl-line, #e2e8f0);
-        color: var(--sl-ink, #0f172a);
-        transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-    .personnel-search-input:focus {
-        border-color: var(--sl-danger, #b91c1c);
-        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
-        outline: none;
-    }
-    .personnel-filter-group {
-        display: inline-flex;
-        align-items: center;
-    }
-    .personnel-filter-select {
-        height: 42px;
-        min-height: 42px;
-        padding: 6px 32px 6px 12px;
-        font-size: 0.86rem;
-        font-weight: 500;
-        border-radius: 10px;
-        background-color: var(--sl-surface, #ffffff);
-        border: 1px solid var(--sl-line, #e2e8f0);
-        color: var(--sl-ink, #0f172a);
-        cursor: pointer;
-        transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-    .personnel-filter-select:focus {
-        border-color: var(--sl-danger, #b91c1c);
-        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
-        outline: none;
-    }
+        .geofence-safeguard-banner {
+            background: var(--sl-red-soft, rgba(220, 38, 38, 0.08));
+            border: 1px solid rgba(220, 38, 38, 0.28);
+            border-left: 5px solid var(--sl-danger, #b91c1c);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(185, 28, 28, 0.06);
+        }
+
+        .geofence-safeguard-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--sl-danger, #b91c1c);
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        .geofence-safeguard-icon {
+            font-size: 22px;
+            color: var(--sl-danger, #b91c1c);
+            flex-shrink: 0;
+        }
+
+        .geofence-safeguard-desc {
+            color: var(--sl-ink, #1f2937);
+            font-size: 0.85rem;
+            line-height: 1.45;
+            margin-bottom: 12px;
+        }
+
+        .geofence-safeguard-guards {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .geofence-guard-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--sl-surface, #ffffff);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            border-radius: 999px;
+            padding: 4px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--sl-ink, #1f2937);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .geofence-guard-chip-icon {
+            font-size: 14px;
+            color: var(--sl-danger, #b91c1c);
+        }
+
+        .geofence-safeguard-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-safeguard-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--sl-surface, #ffffff);
+            border: 1px solid var(--sl-line, #e5e7eb);
+            color: var(--sl-ink, #1f2937);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-safeguard-action:hover {
+            background: var(--sl-red-soft, rgba(220, 38, 38, 0.08));
+            border-color: var(--sl-danger, #b91c1c);
+            color: var(--sl-danger, #b91c1c);
+        }
+
+        .badge-locked {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(220, 38, 38, 0.12);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            color: var(--sl-danger, #b91c1c);
+            border-radius: 999px;
+            padding: 2px 9px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .badge-locked-icon {
+            font-size: 13px;
+        }
+
+        .input-locked {
+            background-color: var(--sl-surface-muted, #f3f4f6) !important;
+            cursor: not-allowed !important;
+            opacity: 0.85;
+        }
+
+        .map-locked-notice {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(220, 38, 38, 0.12);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            color: var(--sl-danger, #b91c1c);
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .badge-agency-site {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(185, 28, 28, 0.12);
+            border: 1px solid rgba(185, 28, 28, 0.25);
+            color: var(--sl-danger, #b91c1c);
+            border-radius: 999px;
+            padding: 1px 7px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .badge-negros-site {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            color: #047857;
+            border-radius: 999px;
+            padding: 1px 7px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .badge-shift-contract {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            background: rgba(30, 41, 59, 0.05);
+            border: 1px solid rgba(30, 41, 59, 0.15);
+            color: #334155;
+            border-radius: 6px;
+            padding: 2px 7px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        [data-theme="dark"] .badge-shift-contract {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+        }
+
+        .custom-shifts-card {
+            background: var(--sl-surface-muted, #f8fafc);
+            border: 1px dashed var(--sl-line, #cbd5e1);
+            border-radius: 8px;
+        }
+
+        [data-theme="dark"] .custom-shifts-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .loc-status-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 5px;
+        }
+
+        .badge-guards-assigned {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border-radius: 999px;
+            padding: 2px 8px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            line-height: 1.3;
+            white-space: nowrap;
+            text-decoration: none;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+            outline: none;
+        }
+
+        button.badge-guards-assigned {
+            margin: 0;
+            background: none;
+        }
+
+        .badge-guards-assigned.has-guards {
+            background: rgba(37, 99, 235, 0.1);
+            border-color: rgba(37, 99, 235, 0.25);
+            color: #1d4ed8;
+            cursor: pointer;
+        }
+
+        .badge-guards-assigned.has-guards:hover {
+            background: rgba(37, 99, 235, 0.18);
+            border-color: #1d4ed8;
+        }
+
+        .badge-guards-assigned.no-guards {
+            background: var(--sl-surface-muted, #f3f4f6);
+            border-color: var(--sl-line, #e5e7eb);
+            color: var(--sl-muted, #6b7280);
+            cursor: default;
+        }
+
+        .badge-guards-assigned-icon {
+            font-size: 13px;
+        }
+
+        .personnel-table-filters {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .personnel-search-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .personnel-search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: var(--sl-muted, #64748b);
+            pointer-events: none;
+            line-height: 1;
+            z-index: 2;
+            transition: color 0.15s ease;
+        }
+
+        .personnel-search-wrap:focus-within .personnel-search-icon {
+            color: var(--sl-danger, #b91c1c);
+        }
+
+        .personnel-search-input {
+            width: 100%;
+            height: 42px;
+            min-height: 42px;
+            padding: 8px 16px 8px 38px !important;
+            font-size: 0.86rem;
+            font-weight: 500;
+            border-radius: 10px;
+            background: var(--sl-surface, #ffffff);
+            border: 1px solid var(--sl-line, #e2e8f0);
+            color: var(--sl-ink, #0f172a);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .personnel-search-input:focus {
+            border-color: var(--sl-danger, #b91c1c);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+            outline: none;
+        }
+
+        .personnel-filter-group {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .personnel-filter-select {
+            height: 42px;
+            min-height: 42px;
+            padding: 6px 32px 6px 12px;
+            font-size: 0.86rem;
+            font-weight: 500;
+            border-radius: 10px;
+            background-color: var(--sl-surface, #ffffff);
+            border: 1px solid var(--sl-line, #e2e8f0);
+            color: var(--sl-ink, #0f172a);
+            cursor: pointer;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .personnel-filter-select:focus {
+            border-color: var(--sl-danger, #b91c1c);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+            outline: none;
+        }
     </style>
 </head>
+
 <body class="admin-body" data-ax-page="locations">
 
-<div id="loadingScreen">
-    <div class="spinner-border text-danger"></div>
-    <p>Loading locations…</p>
-</div>
+    <div id="loadingScreen">
+        <div class="spinner-border text-danger"></div>
+        <p>Loading locations…</p>
+    </div>
 
-<div class="ax-app">
-    <aside class="ax-sidebar">
-        <div class="ax-brand">
-            
-            <p class="ax-brand-title">Operations Head</p>
-            <p class="ax-brand-sub">Security Agency Management System</p>
-        </div>
-        <nav class="ax-nav">
-            <div class="ax-nav-label">Manage</div>
-            <a href="dashboard.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">dashboard</span> Dashboard</a>
-            <a href="users.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">groups</span> Personnel</a>
-            <a href="locations.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">business</span> Company</a>
-            <a href="schedule.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">calendar_month</span> Schedule</a>
-            <a href="incidents.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">emergency</span> Incidents</a>
-            <a href="swaps.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">swap_horiz</span> Duty requests</a>
-        </nav>
-        <div class="ax-sidebar-foot">TwentyTwenty Security Agency</div>
-    </aside>
-    <div class="ax-main">
-        <header class="ax-topbar">
-            <div class="ax-topbar-left">
-                <button type="button" class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu"><span class="material-symbols-rounded" aria-hidden="true">menu</span></button>
-                <div><div class="ax-breadcrumb">Operations Head Console</div><h1 class="ax-page-title">Company</h1></div>
-            </div>
-            <div class="ax-topbar-right">
-                <span class="ax-user-chip" id="axUserName" hidden aria-live="polite"></span>
-                <button type="button" class="ax-btn-logout" onclick="adminLogout()">Sign out</button>
-            </div>
-        </header>
-        <main class="ax-content">
+    <div class="ax-app">
+        <aside class="ax-sidebar">
+            <div class="ax-brand">
 
-    <div id="locationForm" class="form-panel">
-        <div class="panel-title" id="formTitle">Add Deployment Site</div>
-        <div class="form-required-note" role="note">
-            <span class="req-star" aria-hidden="true">*</span>
-            <span>Fields marked with an asterisk (<span class="req-star">*</span>) must be filled out before saving.</span>
-        </div>
-        <div id="geofenceSafeguardBanner" class="geofence-safeguard-banner" style="display:none;" role="alert"></div>
-        <input type="hidden" id="editId">
-        <input type="hidden" id="lat">
-        <input type="hidden" id="lng">
-        <input type="hidden" id="address">
-
-        <div class="row g-3">
-            <div class="col-md-5">
-                <label class="form-label" for="label">DEPLOYMENT SITE LABEL <span class="req-star" aria-hidden="true">*</span></label>
-                <input type="text" id="label" class="form-control" placeholder="e.g. Jollibee Main Branch" aria-required="true">
+                <p class="ax-brand-title">Operations Head</p>
+                <p class="ax-brand-sub">Security Agency Management System</p>
             </div>
-            <div class="col-md-3">
-                <label class="form-label" for="radius">RADIUS (METERS) <span class="req-star" aria-hidden="true">*</span></label>
-                <input type="number" id="radius" class="form-control" placeholder="Meters" aria-describedby="radiusDefaultStatus" aria-required="true">
-                <div class="radius-note">Recommended: 50–200 m</div>
-                <div id="radiusDefaultStatus" class="radius-note" role="status" aria-live="polite"></div>
-            </div>
-            <div class="col-md-4">
-                <div class="d-flex align-items-center justify-content-between">
-                    <label class="form-label mb-1" for="siteShiftModel">CONTRACTED SHIFTS <span class="req-star" aria-hidden="true">*</span></label>
-                    <button type="button" id="editSiteShiftsBtn" class="btn btn-sm btn-link p-0 text-danger text-decoration-none" style="font-size:0.76rem;font-weight:700;" onclick="toggleShiftEditor()">
-                        <span class="material-symbols-rounded align-middle" style="font-size:14px;">tune</span> Edit Time
-                    </button>
-                </div>
-                <select id="siteShiftModel" class="form-select" onchange="onSiteShiftModelChange()" aria-required="true">
-                    <option value="1_shift_8h">1 Shift (Day) — 8:00 AM–5:00 PM</option>
-                    <option value="2_shifts_12h" selected>2 Shifts (12h) — 6:00 AM–6:00 PM / 6:00 PM–6:00 AM</option>
-                    <option value="3_shifts_8h">3 Shifts (8h) — 6:00 AM / 2:00 PM / 10:00 PM</option>
-                </select>
-                <div class="radius-note" id="siteShiftModelHelp">Auto-loads roster shifts when scheduling</div>
-            </div>
-            <div class="col-12" id="siteShiftsEditorWrap" style="display:none;">
-                <div class="custom-shifts-card p-3 rounded" style="background:var(--sl-surface-muted, #f8fafc);border:1px solid var(--sl-line, #e2e8f0);">
-                    <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                        <strong style="font-size:0.85rem;">
-                            <span class="material-symbols-rounded align-middle me-1" style="font-size:16px;">calendar_month</span>
-                            Customize <span id="editorShiftModelTitle">2 Shifts (12h)</span> Hours
-                        </strong>
-                        <button type="button" class="btn btn-sm btn-link text-muted p-0 text-decoration-none" style="font-size:0.75rem;" onclick="resetCurrentShiftModelDefault()">Reset to Default Hours</button>
-                    </div>
-                    <div id="siteShiftEditorRows" class="d-flex flex-column gap-2"></div>
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="address-search-label-row">
-                    <label class="form-label" for="addressSearch">SEARCH NEGROS ISLAND ADDRESS <span class="req-star" aria-hidden="true">*</span></label>
-                    <span class="philippines-only-badge">Negros Island only</span>
-                </div>
-                <div class="row g-2 mb-2">
-                    <div class="col-md-4 col-sm-6"><label class="form-label" for="addressType">PLACE TYPE</label><select id="addressType" class="form-control" onchange="renderAddressResults()"><option value="all">All places</option><option value="communities">Cities, barangays & communities</option><option value="places">Buildings & landmarks</option><option value="roads">Streets & roads</option></select></div>
-                </div>
-                <div class="address-search-wrap">
-                    <div class="address-search-row">
-                        <input type="search" id="addressSearch" class="form-control"
-                               placeholder="Street, building, barangay, or city in Negros"
-                               autocomplete="off" enterkeyhint="search" aria-expanded="false"
-                               aria-controls="addressSuggestions" aria-describedby="addressSearchHelp">
-                        <button type="button" class="btn-address-search" id="addressSearchButton"
-                                onclick="searchAddressFromInput(this)">
-                            <span class="btn-address-search-icon material-symbols-rounded" aria-hidden="true">search</span>
-                            <span>Search</span>
-                        </button>
-                    </div>
-                    <div id="addressSearchStatus" class="address-search-status" role="status" aria-live="polite"></div>
-                    <div id="addressSuggestions" class="address-suggestions" role="listbox"
-                         aria-label="Philippine address results"></div>
-                </div>
-                <div class="map-hint" id="addressSearchHelp">Enter an address or landmark in Negros Occidental or Negros Oriental. Address data © OpenStreetMap contributors.</div>
-            </div>
-            <div class="col-12">
-                <div id="selectedAddressDisplay" class="selected-address-box empty">
-                    No location selected yet
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="map-toolbar">
-                    <div class="map-toolbar-copy">
-                        <strong>Set the geofence center</strong>
-                        <span>Choose a search result, click the map, or drag the pin to fine-tune.</span>
-                    </div>
-                    <div class="map-toolbar-actions">
-                        <button type="button" class="btn-map-tool" onclick="showNegrosView()">View Negros Island</button>
-                        <button type="button" class="btn-map-tool" onclick="showPhilippinesView()">View Philippines</button>
+            <nav class="ax-nav">
+                <div class="ax-nav-label">Manage</div>
+                <a href="dashboard.html"><span class="ax-nav-icon material-symbols-rounded"
+                        aria-hidden="true">dashboard</span> Dashboard</a>
+                <a href="users.html"><span class="ax-nav-icon material-symbols-rounded" aria-hidden="true">groups</span>
+                    Personnel</a>
+                <a href="locations.html"><span class="ax-nav-icon material-symbols-rounded"
+                        aria-hidden="true">business</span> Company</a>
+                <a href="schedule.html"><span class="ax-nav-icon material-symbols-rounded"
+                        aria-hidden="true">calendar_month</span> Schedule</a>
+                <a href="incidents.html"><span class="ax-nav-icon material-symbols-rounded"
+                        aria-hidden="true">emergency</span> Incidents</a>
+                <a href="swaps.html"><span class="ax-nav-icon material-symbols-rounded"
+                        aria-hidden="true">swap_horiz</span> Duty requests</a>
+            </nav>
+            <div class="ax-sidebar-foot">TwentyTwenty Security Agency</div>
+        </aside>
+        <div class="ax-main">
+            <header class="ax-topbar">
+                <div class="ax-topbar-left">
+                    <button type="button" class="ax-menu-toggle" id="axMenuToggle" aria-label="Menu"><span
+                            class="material-symbols-rounded" aria-hidden="true">menu</span></button>
+                    <div>
+                        <div class="ax-breadcrumb">Operations Head Console</div>
+                        <h1 class="ax-page-title">Company</h1>
                     </div>
                 </div>
-                <div id="locationMap" role="application" aria-label="Philippines deployment-site map"></div>
-            </div>
-        </div>
-        <div id="formError"></div>
-        <div class="d-flex gap-2 mt-4">
-            <button class="btn-save" onclick="saveLocation(this)">Save Deployment Site</button>
-            <button class="btn-cancel-form" onclick="hideForm()">Cancel</button>
+                <div class="ax-topbar-right">
+                    <span class="ax-user-chip" id="axUserName" hidden aria-live="polite"></span>
+                    <button type="button" class="ax-btn-logout" onclick="adminLogout()">Sign out</button>
+                </div>
+            </header>
+            <main class="ax-content">
+
+                <div id="locationForm" class="form-panel">
+                    <div class="panel-title" id="formTitle">Add Deployment Site</div>
+                    <div class="form-required-note" role="note">
+                        <span class="req-star" aria-hidden="true">*</span>
+                        <span>Fields marked with an asterisk (<span class="req-star">*</span>) must be filled out before
+                            saving.</span>
+                    </div>
+                    <div id="geofenceSafeguardBanner" class="geofence-safeguard-banner" style="display:none;"
+                        role="alert"></div>
+                    <input type="hidden" id="editId">
+                    <input type="hidden" id="lat">
+                    <input type="hidden" id="lng">
+                    <input type="hidden" id="address">
+
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label" for="label">DEPLOYMENT SITE LABEL <span class="req-star"
+                                    aria-hidden="true">*</span></label>
+                            <input type="text" id="label" class="form-control" placeholder="e.g. Jollibee Main Branch"
+                                aria-required="true">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="radius">RADIUS (METERS) <span class="req-star"
+                                    aria-hidden="true">*</span></label>
+                            <input type="number" id="radius" class="form-control" placeholder="Meters"
+                                aria-describedby="radiusDefaultStatus" aria-required="true">
+                            <div class="radius-note">Recommended: 50–200 m</div>
+                            <div id="radiusDefaultStatus" class="radius-note" role="status" aria-live="polite"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <label class="form-label mb-1" for="siteShiftModel">CONTRACTED SHIFTS <span
+                                        class="req-star" aria-hidden="true">*</span></label>
+                                <button type="button" id="editSiteShiftsBtn"
+                                    class="btn btn-sm btn-link p-0 text-danger text-decoration-none"
+                                    style="font-size:0.76rem;font-weight:700;" onclick="toggleShiftEditor()">
+                                    <span class="material-symbols-rounded align-middle"
+                                        style="font-size:14px;">tune</span> Edit Time
+                                </button>
+                            </div>
+                            <select id="siteShiftModel" class="form-select" onchange="onSiteShiftModelChange()"
+                                aria-required="true">
+                                <option value="1_shift_8h">1 Shift (Day) — 8:00 AM–5:00 PM</option>
+                                <option value="2_shifts_12h" selected>2 Shifts (12h) — 6:00 AM–6:00 PM / 6:00 PM–6:00 AM
+                                </option>
+                                <option value="3_shifts_8h">3 Shifts (8h) — 6:00 AM / 2:00 PM / 10:00 PM</option>
+                            </select>
+                            <div class="radius-note" id="siteShiftModelHelp">Auto-loads roster shifts when scheduling
+                            </div>
+                        </div>
+                        <div class="col-12" id="siteShiftsEditorWrap" style="display:none;">
+                            <div class="custom-shifts-card p-3 rounded"
+                                style="background:var(--sl-surface-muted, #f8fafc);border:1px solid var(--sl-line, #e2e8f0);">
+                                <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                                    <strong style="font-size:0.85rem;">
+                                        <span class="material-symbols-rounded align-middle me-1"
+                                            style="font-size:16px;">calendar_month</span>
+                                        Customize <span id="editorShiftModelTitle">2 Shifts (12h)</span> Hours
+                                    </strong>
+                                    <button type="button"
+                                        class="btn btn-sm btn-link text-muted p-0 text-decoration-none"
+                                        style="font-size:0.75rem;" onclick="resetCurrentShiftModelDefault()">Reset to
+                                        Default Hours</button>
+                                </div>
+                                <div id="siteShiftEditorRows" class="d-flex flex-column gap-2"></div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="address-search-label-row">
+                                <label class="form-label" for="addressSearch">SEARCH NEGROS ISLAND ADDRESS <span
+                                        class="req-star" aria-hidden="true">*</span></label>
+                                <span class="philippines-only-badge">Negros Island only</span>
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-md-4 col-sm-6"><label class="form-label" for="addressType">PLACE
+                                        TYPE</label><select id="addressType" class="form-control"
+                                        onchange="renderAddressResults()">
+                                        <option value="all">All places</option>
+                                        <option value="communities">Cities, barangays & communities</option>
+                                        <option value="places">Buildings & landmarks</option>
+                                        <option value="roads">Streets & roads</option>
+                                    </select></div>
+                            </div>
+                            <div class="address-search-wrap">
+                                <div class="address-search-row">
+                                    <input type="search" id="addressSearch" class="form-control"
+                                        placeholder="Street, building, barangay, or city in Negros" autocomplete="off"
+                                        enterkeyhint="search" aria-expanded="false" aria-controls="addressSuggestions"
+                                        aria-describedby="addressSearchHelp">
+                                    <button type="button" class="btn-address-search" id="addressSearchButton"
+                                        onclick="searchAddressFromInput(this)">
+                                        <span class="btn-address-search-icon material-symbols-rounded"
+                                            aria-hidden="true">search</span>
+                                        <span>Search</span>
+                                    </button>
+                                </div>
+                                <div id="addressSearchStatus" class="address-search-status" role="status"
+                                    aria-live="polite"></div>
+                                <div id="addressSuggestions" class="address-suggestions" role="listbox"
+                                    aria-label="Philippine address results"></div>
+                            </div>
+                            <div class="map-hint" id="addressSearchHelp">Enter an address or landmark in Negros
+                                Occidental or Negros Oriental. Address data © OpenStreetMap contributors.</div>
+                        </div>
+                        <div class="col-12">
+                            <div id="selectedAddressDisplay" class="selected-address-box empty">
+                                No location selected yet
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="map-toolbar">
+                                <div class="map-toolbar-copy">
+                                    <strong>Set the geofence center</strong>
+                                    <span>Choose a search result, click the map, or drag the pin to fine-tune.</span>
+                                </div>
+                                <div class="map-toolbar-actions">
+                                    <button type="button" class="btn-map-tool" onclick="showNegrosView()">View Negros
+                                        Island</button>
+                                    <button type="button" class="btn-map-tool" onclick="showPhilippinesView()">View
+                                        Philippines</button>
+                                </div>
+                            </div>
+                            <div id="locationMap" role="application" aria-label="Philippines deployment-site map"></div>
+                        </div>
+                    </div>
+                    <div id="formError"></div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button class="btn-save" onclick="saveLocation(this)">Save Deployment Site</button>
+                        <button class="btn-cancel-form" onclick="hideForm()">Cancel</button>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="section-title" style="margin:0;">All Deployment Sites</div>
+                        <span id="locationCountBadge" class="personnel-table-count">0</span>
+                    </div>
+                    <button class="btn-add ms-auto" onclick="showAddForm()"><span class="material-symbols-rounded"
+                            aria-hidden="true">add_location_alt</span>Add Deployment Site</button>
+                </div>
+
+                <div class="personnel-table-filters d-flex align-items-center gap-2 flex-wrap mb-3">
+                    <div class="personnel-search-wrap" style="flex:1;min-width:240px;max-width:420px;">
+                        <label for="siteFilter" class="visually-hidden">Search deployment sites</label>
+                        <span class="material-symbols-rounded personnel-search-icon" aria-hidden="true">search</span>
+                        <input type="search" id="siteFilter" class="form-control personnel-search-input"
+                            placeholder="Search site name or address…" oninput="renderLocations()">
+                    </div>
+                    <div class="personnel-filter-group" style="min-width:160px;">
+                        <label for="siteStatusFilter" class="visually-hidden">Filter status</label>
+                        <select id="siteStatusFilter" class="form-select personnel-filter-select"
+                            onchange="renderLocations()">
+                            <option value="all">All Sites</option>
+                            <option value="active">Active Only</option>
+                            <option value="disabled">Disabled Sites</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="glass-card">
+                    <div class="sl-table-frame">
+                        <table class="loc-table">
+                            <thead>
+                                <tr>
+                                    <th>Label</th>
+                                    <th>Address</th>
+                                    <th>Radius</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="locationTable">
+                                <tr class="ax-skeleton-tr">
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2"><span
+                                                class="ax-skeleton ax-skeleton-line"
+                                                style="width:160px;font-weight:600;"></span></div>
+                                    </td>
+                                    <td><span class="ax-skeleton ax-skeleton-line" style="width:240px;"></span></td>
+                                    <td><span class="ax-skeleton ax-skeleton-line" style="width:60px;"></span></td>
+                                    <td><span class="ax-skeleton ax-skeleton-pill" style="width:70px;"></span></td>
+                                    <td class="text-center"><span class="ax-skeleton ax-skeleton-btn"
+                                            style="width:50px;"></span></td>
+                                </tr>
+                                <tr class="ax-skeleton-tr">
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2"><span
+                                                class="ax-skeleton ax-skeleton-line"
+                                                style="width:180px;font-weight:600;"></span></div>
+                                    </td>
+                                    <td><span class="ax-skeleton ax-skeleton-line" style="width:210px;"></span></td>
+                                    <td><span class="ax-skeleton ax-skeleton-line" style="width:60px;"></span></td>
+                                    <td><span class="ax-skeleton ax-skeleton-pill" style="width:70px;"></span></td>
+                                    <td class="text-center"><span class="ax-skeleton ax-skeleton-btn"
+                                            style="width:50px;"></span></td>
+                                </tr>
+                                <tr class="ax-skeleton-tr">
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2"><span
+                                                class="ax-skeleton ax-skeleton-line"
+                                                style="width:140px;font-weight:600;"></span></div>
+                                    </td>
+                                    <td><span class="ax-skeleton ax-skeleton-line" style="width:260px;"></span></td>
+                                    <td><span class="ax-skeleton ax-skeleton-line" style="width:60px;"></span></td>
+                                    <td><span class="ax-skeleton ax-skeleton-pill" style="width:70px;"></span></td>
+                                    <td class="text-center"><span class="ax-skeleton ax-skeleton-btn"
+                                            style="width:50px;"></span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 
-    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
-        <div class="d-flex align-items-center gap-2">
-            <div class="section-title" style="margin:0;">All Deployment Sites</div>
-            <span id="locationCountBadge" class="personnel-table-count">0</span>
-        </div>
-        <button class="btn-add ms-auto" onclick="showAddForm()"><span class="material-symbols-rounded" aria-hidden="true">add_location_alt</span>Add Deployment Site</button>
-    </div>
-
-    <div class="personnel-table-filters d-flex align-items-center gap-2 flex-wrap mb-3">
-        <div class="personnel-search-wrap" style="flex:1;min-width:240px;max-width:420px;">
-            <label for="siteFilter" class="visually-hidden">Search deployment sites</label>
-            <span class="material-symbols-rounded personnel-search-icon" aria-hidden="true">search</span>
-            <input type="search" id="siteFilter" class="form-control personnel-search-input" placeholder="Search site name or address…" oninput="renderLocations()">
-        </div>
-        <div class="personnel-filter-group" style="min-width:160px;">
-            <label for="siteStatusFilter" class="visually-hidden">Filter status</label>
-            <select id="siteStatusFilter" class="form-select personnel-filter-select" onchange="renderLocations()">
-                <option value="all">All Sites</option>
-                <option value="active">Active Only</option>
-                <option value="disabled">Disabled Sites</option>
-            </select>
-        </div>
-    </div>
-    <div class="glass-card">
-      <div class="sl-table-frame">
-        <table class="loc-table">
-            <thead>
-                <tr>
-                    <th>Label</th><th>Address</th><th>Radius</th>
-                    <th>Status</th><th class="text-center">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="locationTable">
-                <tr class="ax-skeleton-tr">
-                    <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-line" style="width:160px;font-weight:600;"></span></div></td>
-                    <td><span class="ax-skeleton ax-skeleton-line" style="width:240px;"></span></td>
-                    <td><span class="ax-skeleton ax-skeleton-line" style="width:60px;"></span></td>
-                    <td><span class="ax-skeleton ax-skeleton-pill" style="width:70px;"></span></td>
-                    <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:50px;"></span></td>
-                </tr>
-                <tr class="ax-skeleton-tr">
-                    <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-line" style="width:180px;font-weight:600;"></span></div></td>
-                    <td><span class="ax-skeleton ax-skeleton-line" style="width:210px;"></span></td>
-                    <td><span class="ax-skeleton ax-skeleton-line" style="width:60px;"></span></td>
-                    <td><span class="ax-skeleton ax-skeleton-pill" style="width:70px;"></span></td>
-                    <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:50px;"></span></td>
-                </tr>
-                <tr class="ax-skeleton-tr">
-                    <td><div class="d-flex align-items-center gap-2"><span class="ax-skeleton ax-skeleton-line" style="width:140px;font-weight:600;"></span></div></td>
-                    <td><span class="ax-skeleton ax-skeleton-line" style="width:260px;"></span></td>
-                    <td><span class="ax-skeleton ax-skeleton-line" style="width:60px;"></span></td>
-                    <td><span class="ax-skeleton ax-skeleton-pill" style="width:70px;"></span></td>
-                    <td class="text-center"><span class="ax-skeleton ax-skeleton-btn" style="width:50px;"></span></td>
-                </tr>
-            </tbody>
-        </table>
-      </div>
-    </div>
-        </main>
-    </div>
-</div>
-
-<!-- ====== VIEW DEPLOYED GUARDS MODAL ====== -->
-<div class="modal fade ax-modal" id="deployedGuardsModal" tabindex="-1" aria-labelledby="deployedGuardsModalTitle">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deployedGuardsModalTitle">
-                    <span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">groups</span>Deployed Guards
-                </h5>
-                <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal" aria-label="Close"><span class="material-symbols-rounded" aria-hidden="true">close</span></button>
-            </div>
-            <div class="modal-body">
-                <p class="modal-guard-meta mb-3">Deployment Site: <strong id="deployedGuardsSiteName" style="color:var(--sl-danger); font-size: 0.95rem;"></strong> <span id="deployedGuardsCountBadge" class="badge rounded-pill ms-2" style="font-size:0.75rem; vertical-align:middle; display:none; padding:4px 10px;"></span></p>
-                <div id="deployedGuardsList">
-                    <div style="text-align:center;padding:32px;color:var(--sl-muted);">Loading deployed guards…</div>
+    <!-- ====== VIEW DEPLOYED GUARDS MODAL ====== -->
+    <div class="modal fade ax-modal" id="deployedGuardsModal" tabindex="-1" aria-labelledby="deployedGuardsModalTitle">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deployedGuardsModalTitle">
+                        <span class="material-symbols-rounded sl-inline-icon" aria-hidden="true">groups</span>Deployed
+                        Guards
+                    </h5>
+                    <button type="button" class="btn-close sl-material-close" data-bs-dismiss="modal"
+                        aria-label="Close"><span class="material-symbols-rounded"
+                            aria-hidden="true">close</span></button>
+                </div>
+                <div class="modal-body">
+                    <p class="modal-guard-meta mb-3">Deployment Site: <strong id="deployedGuardsSiteName"
+                            style="color:var(--sl-danger); font-size: 0.95rem;"></strong> <span
+                            id="deployedGuardsCountBadge" class="badge rounded-pill ms-2"
+                            style="font-size:0.75rem; vertical-align:middle; display:none; padding:4px 10px;"></span>
+                    </p>
+                    <div id="deployedGuardsList">
+                        <div style="text-align:center;padding:32px;color:var(--sl-muted);">Loading deployed guards…
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-cancel" data-bs-dismiss="modal">Close</button>
-            </div>
         </div>
     </div>
-</div>
 
-<script src="../js/auth-username.js"></script>
-<script src="../js/ph-location-search.js"></script>
-<script src="js/admin-shell.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
-<script src="../js/supabase-firebase-bridge.js"></script>
-<script src="../js/platform-configuration.js"></script>
-<script src="../js/notification-center.js"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/auth-username.js"></script>
+    <script src="../js/ph-location-search.js"></script>
+    <script src="js/admin-shell.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3"></script>
+    <script src="../js/supabase-firebase-bridge.js"></script>
+    <script src="../js/platform-configuration.js"></script>
+    <script src="../js/notification-center.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-const auth = firebase.auth();
-const db   = firebase.firestore();
+    <script>
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-const PHILIPPINES_BOUNDS = L.latLngBounds([4.2, 116.4], [21.3, 127.0]);
-const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org";
-const locationPinIcon = L.divIcon({
-    className: "sl-location-marker",
-    html: '<span class="sl-location-marker__pin" aria-hidden="true"></span>',
-    iconSize: [36, 36],
-    iconAnchor: [18, 36],
-    popupAnchor: [0, -36]
-});
-let map = null;
-let marker = null;
-let radiusCircle = null;
-let lastSearchResults = [];
-let allSearchResults = [];
-let addressSearchRevision = 0;
-let addressResultQuery = '';
-let locationFormSession = 0;
-let radiusInputRevision = 0;
-let reverseRequestId = 0;
-let geolocationRequestId = 0;
-let geocoderQueue = Promise.resolve();
-let nextGeocoderRequestAt = 0;
-const geocoderCache = new Map();
-const locationRecords = new Map();
-let isGeofenceLocked = false;
-let lockedLocationData = null;
-const deployedGuardsByLocation = new Map();
-
-auth.onAuthStateChanged(user => {
-    if (!user) { window.location.href = "../staff/login.html"; return; }
-    db.collection("users").doc(user.uid).get().then(doc => {
-        if (!doc.exists || doc.data().role !== "admin") {
-            auth.signOut().then(() => window.location.href = "../staff/login.html"); return;
-        }
-        const d = doc.data();
-        applyAdminRoleNavigation(d.role);
-        loadLocations();
-    }).catch(() => { window.location.href = "../staff/login.html"; });
-});
-
-async function loadDefaultGeofenceRadius() {
-    const result = await appSupabase.rpc('default_geofence_radius');
-    if (result.error || !Number.isInteger(result.data) || result.data < 25 || result.data > 1000) {
-        throw new Error('Could not load the default geofence radius.');
-    }
-    return result.data;
-}
-
-function escapeHtml(text) {
-    return String(text ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-}
-
-function initMap() {
-    if (map) {
-        setTimeout(() => map.invalidateSize(), 150);
-        return;
-    }
-
-    map = L.map("locationMap", {
-        minZoom: 5,
-        maxZoom: 19,
-        maxBounds: PHILIPPINES_BOUNDS.pad(0.08),
-        maxBoundsViscosity: 0.9,
-        zoomControl: true
-    });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        minZoom: 5,
-        maxZoom: 19,
-        detectRetina: true,
-        keepBuffer: 4,
-        attribution: "&copy; OpenStreetMap contributors"
-    }).addTo(map);
-    L.control.scale({ imperial: false, position: "bottomleft" }).addTo(map);
-    showNegrosView(false);
-
-    map.on("click", e => {
-        if (isGeofenceLocked) {
-            appDialog.toast("Geofence center cannot be moved while guards are deployed.", { tone: "warning" });
-            return;
-        }
-        selectPinAndResolve(e.latlng.lat, e.latlng.lng);
-    });
-
-    document.getElementById("radius").addEventListener("input", () => {
-        radiusInputRevision += 1;
-        updateRadiusCircle();
-    });
-    const labelEl = document.getElementById("label");
-    if (labelEl) {
-        labelEl.addEventListener("input", function() {
-            this.dataset.autofilled = "false";
+        const PHILIPPINES_BOUNDS = L.latLngBounds([4.2, 116.4], [21.3, 127.0]);
+        const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org";
+        const locationPinIcon = L.divIcon({
+            className: "sl-location-marker",
+            html: '<span class="sl-location-marker__pin" aria-hidden="true"></span>',
+            iconSize: [36, 36],
+            iconAnchor: [18, 36],
+            popupAnchor: [0, -36]
         });
-    }
-    const searchInput = document.getElementById("addressSearch");
-    searchInput.addEventListener("input", cancelAddressSearch);
-    const addressAreaEl = document.getElementById('addressArea');
-    if (addressAreaEl) {
-        addressAreaEl.addEventListener('input', cancelAddressSearch);
-        addressAreaEl.addEventListener('keydown', event => {
-            if(event.key==='Enter'){event.preventDefault();searchAddressFromInput(document.getElementById('addressSearchButton'));}
+        let map = null;
+        let marker = null;
+        let radiusCircle = null;
+        let lastSearchResults = [];
+        let allSearchResults = [];
+        let addressSearchRevision = 0;
+        let addressResultQuery = '';
+        let locationFormSession = 0;
+        let radiusInputRevision = 0;
+        let reverseRequestId = 0;
+        let geolocationRequestId = 0;
+        let geocoderQueue = Promise.resolve();
+        let nextGeocoderRequestAt = 0;
+        const geocoderCache = new Map();
+        const locationRecords = new Map();
+        let isGeofenceLocked = false;
+        let lockedLocationData = null;
+        const deployedGuardsByLocation = new Map();
+
+        auth.onAuthStateChanged(user => {
+            if (!user) { window.location.href = "../staff/login.html"; return; }
+            db.collection("users").doc(user.uid).get().then(doc => {
+                if (!doc.exists || doc.data().role !== "admin") {
+                    auth.signOut().then(() => window.location.href = "../staff/login.html"); return;
+                }
+                const d = doc.data();
+                applyAdminRoleNavigation(d.role);
+                loadLocations();
+            }).catch(() => { window.location.href = "../staff/login.html"; });
         });
-    }
-    searchInput.addEventListener("keydown", event => {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            searchAddressFromInput(document.getElementById("addressSearchButton"));
-        } else if (event.key === "Escape") {
-            hideSuggestions();
-        }
-    });
-    document.addEventListener("click", e => {
-        if (!e.target.closest(".address-search-wrap, #addressType")) hideSuggestions();
-    });
-}
 
-function showPhilippinesView(animate = true) {
-    if (!map) return;
-    map.fitBounds(PHILIPPINES_BOUNDS, {
-        padding: [24, 24],
-        animate,
-        duration: 0.55
-    });
-}
-
-const NEGROS_BOUNDS = L.latLngBounds([8.9, 122.3], [11.15, 123.65]);
-
-function showNegrosView(animate = true) {
-    if (!map) return;
-    map.fitBounds(NEGROS_BOUNDS, {
-        padding: [24, 24],
-        animate,
-        duration: 0.55
-    });
-}
-
-function isWithinPhilippinesMapBounds(lat, lng) {
-    return Number.isFinite(lat) && Number.isFinite(lng)
-        && PHILIPPINES_BOUNDS.contains([lat, lng]);
-}
-
-function ensureMarker(lat, lng) {
-    if (!marker) {
-        marker = L.marker([lat, lng], {
-            draggable: !isGeofenceLocked,
-            icon: locationPinIcon,
-            title: isGeofenceLocked ? "Locked deployment-site center" : "Selected deployment-site center",
-            keyboard: !isGeofenceLocked,
-            riseOnHover: true
-        }).addTo(map);
-        if (isGeofenceLocked && marker.dragging) {
-            marker.dragging.disable();
-        }
-        marker.bindTooltip(isGeofenceLocked ? "Geofence locked: active guards deployed" : "Drag to fine-tune the geofence center", {
-            direction: "top",
-            offset: [0, -30]
-        });
-        marker.on("dragend", () => {
-            if (isGeofenceLocked) return;
-            const position = marker.getLatLng();
-            selectPinAndResolve(position.lat, position.lng, false);
-        });
-    } else {
-        marker.setLatLng([lat, lng]);
-        if (marker.dragging) {
-            if (isGeofenceLocked) marker.dragging.disable();
-            else marker.dragging.enable();
-        }
-    }
-    return marker;
-}
-
-function updateRadiusCircle() {
-    if (!map || !marker) return;
-    const radius = parseFloat(document.getElementById("radius").value);
-    if (radiusCircle) radiusCircle.remove();
-    radiusCircle = null;
-    if (!Number.isFinite(radius) || radius <= 0) return;
-    const center = marker.getLatLng();
-    radiusCircle = L.circle(center, {
-        radius,
-        color: "#b91c1c",
-        fillColor: "#dc2626",
-        fillOpacity: 0.15,
-        weight: 2,
-        interactive: false
-    }).addTo(map);
-    radiusCircle.bringToBack();
-}
-
-function setSelectedAddress(text) {
-    const box = document.getElementById("selectedAddressDisplay");
-    const value = (text || "").trim();
-    document.getElementById("address").value = value;
-    box.classList.remove("pending", "error");
-    if (value) {
-        box.classList.remove("empty");
-        const icon = document.createElement("span");
-        icon.className = "material-symbols-rounded sl-inline-icon";
-        icon.setAttribute("aria-hidden", "true");
-        icon.textContent = "location_on";
-        box.replaceChildren(icon, document.createTextNode(value));
-    } else {
-        box.classList.add("empty");
-        box.textContent = "No location selected yet";
-    }
-}
-
-function setSelectedAddressPending(lat, lng) {
-    const box = document.getElementById("selectedAddressDisplay");
-    document.getElementById("address").value = "";
-    box.classList.remove("empty", "error");
-    box.classList.add("pending");
-    box.textContent = `Checking Philippine address… ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-}
-
-function setSelectedAddressError(message) {
-    const box = document.getElementById("selectedAddressDisplay");
-    document.getElementById("address").value = "";
-    box.classList.remove("empty", "pending");
-    box.classList.add("error");
-    box.textContent = message;
-}
-
-function clearPin() {
-    reverseRequestId += 1;
-    if (marker) marker.remove();
-    if (radiusCircle) radiusCircle.remove();
-    marker = null;
-    radiusCircle = null;
-    document.getElementById("lat").value = "";
-    document.getElementById("lng").value = "";
-    setSelectedAddress("");
-}
-
-function setPin(lat, lng, address, moveMap = true) {
-    lat = Number(lat);
-    lng = Number(lng);
-    if (!isWithinPhilippinesMapBounds(lat, lng)) return false;
-    document.getElementById("lat").value = lat;
-    document.getElementById("lng").value = lng;
-    ensureMarker(lat, lng);
-    if (moveMap && map) map.flyTo([lat, lng], Math.max(map.getZoom(), 17), { duration: 0.55 });
-    updateRadiusCircle();
-    if (address) {
-        reverseRequestId += 1;
-        setSelectedAddress(address);
-    } else {
-        setSelectedAddressPending(lat, lng);
-    }
-    return true;
-}
-
-function selectPinAndResolve(lat, lng, moveMap = true) {
-    cancelAddressSearch();
-    if (!setPin(lat, lng, null, moveMap)) {
-        setAddressSearchStatus("Select a location within the Philippines.", "error");
-        appDialog.toast("Deployment sites must be located in the Philippines.", { tone: "danger" });
-        return;
-    }
-    reverseGeocode(Number(lat), Number(lng));
-}
-
-function hideSuggestions() {
-    document.getElementById("addressSuggestions").classList.remove("show");
-    document.getElementById("addressSearch").setAttribute("aria-expanded", "false");
-}
-
-function showSuggestions() {
-    document.getElementById("addressSuggestions").classList.add("show");
-    document.getElementById("addressSearch").setAttribute("aria-expanded", "true");
-}
-
-function setAddressSearchStatus(message, tone = "") {
-    const status = document.getElementById("addressSearchStatus");
-    status.textContent = message;
-    status.dataset.tone = tone;
-}
-
-function setSearchButtonBusy(button, busy) {
-    button.disabled = busy;
-    button.setAttribute("aria-busy", String(busy));
-    button.querySelector("span:last-child").textContent = busy ? "Searching…" : "Search";
-}
-
-function wait(milliseconds) {
-    return new Promise(resolve => setTimeout(resolve, milliseconds));
-}
-
-function cancelAddressSearch() {
-    addressSearchRevision++;
-    allSearchResults=[];lastSearchResults=[];
-    hideSuggestions();setAddressSearchStatus('');
-    setSearchButtonBusy(document.getElementById('addressSearchButton'),false);
-}
-
-function fetchNominatim(path, parameters, cacheKey, isCurrent = () => true) {
-    if (cacheKey && geocoderCache.has(cacheKey)) {
-        return Promise.resolve(geocoderCache.get(cacheKey));
-    }
-
-    const request = geocoderQueue.then(async () => {
-        if(!isCurrent())throw new Error('Search cancelled.');
-        const delay = Math.max(0, nextGeocoderRequestAt - Date.now());
-        if (delay) await wait(delay);
-        if(!isCurrent())throw new Error('Search cancelled.');
-        nextGeocoderRequestAt = Date.now() + 1100;
-
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 12000);
-        try {
-            const url = `${NOMINATIM_BASE_URL}${path}?${new URLSearchParams(parameters)}`;
-            const response = await fetch(url, {
-                headers: { "Accept": "application/json", "Accept-Language": "en,fil;q=0.8" },
-                signal: controller.signal
-            });
-            if (!response.ok) {
-                if (response.status === 429) throw new Error("Address search is busy. Wait a moment and try again.");
-                throw new Error(`Address service returned ${response.status}.`);
+        async function loadDefaultGeofenceRadius() {
+            const result = await appSupabase.rpc('default_geofence_radius');
+            if (result.error || !Number.isInteger(result.data) || result.data < 25 || result.data > 1000) {
+                throw new Error('Could not load the default geofence radius.');
             }
-            const payload = await response.json();
-            if (cacheKey) geocoderCache.set(cacheKey, payload);
-            return payload;
-        } catch (error) {
-            if (error.name === "AbortError") throw new Error("Address search timed out. Please try again.");
-            throw error;
-        } finally {
-            clearTimeout(timeout);
-        }
-    });
-    geocoderQueue = request.catch(() => undefined);
-    return request;
-}
-
-function searchAddressFromInput(button) {
-    const query = document.getElementById("addressSearch").value.trim().replace(/\s+/g, " ");
-    if (query.length < 2) {
-        setAddressSearchStatus("Enter at least 2 characters to search.", "error");
-        document.getElementById("addressSearch").focus();
-        return;
-    }
-    return searchAddress(query, button);
-}
-
-function resultPrimaryLabel(result) {
-    return result.name || result.address?.amenity || result.address?.building
-        || result.address?.road || result.display_name?.split(",")[0] || "Address";
-}
-
-function selectAddressResult(index) {
-    const result = lastSearchResults[index];
-    if (!result) return;
-    const lat = Number(result.lat);
-    const lng = Number(result.lon);
-    if (!isWithinPhilippinesMapBounds(lat, lng) || String(result.address?.country_code).toLowerCase() !== "ph") return;
-    cancelCurrentLocationRequest();
-
-    const address = result.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-    document.getElementById("addressSearch").value = address;
-    setPin(lat, lng, address, false);
-
-    // Auto-fill site label according to client / organization
-    const labelInput = document.getElementById("label");
-    if (labelInput && (!labelInput.value.trim() || labelInput.dataset.autofilled === "true")) {
-        const primary = resultPrimaryLabel(result);
-        const cityOrArea = result.address?.city || result.address?.town || result.address?.municipality || "";
-        let autoLabel = primary;
-        if (cityOrArea && !primary.toLowerCase().includes(cityOrArea.toLowerCase())) {
-            autoLabel = `${primary} - ${cityOrArea}`;
-        }
-        labelInput.value = autoLabel;
-        labelInput.dataset.autofilled = "true";
-    }
-
-    const bounds = Array.isArray(result.boundingbox) ? result.boundingbox.map(Number) : [];
-    if (bounds.length === 4 && bounds.every(Number.isFinite)) {
-        map.flyToBounds([[bounds[0], bounds[2]], [bounds[1], bounds[3]]], {
-            padding: [36, 36],
-            maxZoom: 17,
-            duration: 0.55
-        });
-    } else {
-        map.flyTo([lat, lng], 17, { duration: 0.55 });
-    }
-    setAddressSearchStatus("Philippine address selected. Drag the pin to fine-tune.", "success");
-    hideSuggestions();
-}
-
-function renderAddressResults() {
-    const list=document.getElementById('addressSuggestions');
-    lastSearchResults=PhLocationSearch.filter(allSearchResults,addressResultQuery,document.getElementById('addressType').value, { negrosOnly: true, strict: true });
-    if(!allSearchResults.length)return;
-    showSuggestions();
-    list.replaceChildren();
-    if(!lastSearchResults.length){
-        list.innerHTML='<div class="address-suggestion-message">No results for this place type. Choose All places.</div>';
-        setAddressSearchStatus('No results for this place type.');return;
-    }
-    for(const [index,result] of lastSearchResults.entries()){
-        const button=document.createElement('button');button.type='button';button.className='address-suggestion';button.setAttribute('role','option');
-        button.dataset.idx=index;
-        const copy=document.createElement('span');copy.className='address-suggestion-copy';
-        const name=document.createElement('strong');name.textContent=resultPrimaryLabel(result);
-
-        if (result.is_agency_site) {
-            const badge = document.createElement('span');
-            badge.className = 'badge-agency-site';
-            badge.textContent = 'Saved Post';
-            name.append(badge);
-        } else if (result.is_local_directory) {
-            const badge = document.createElement('span');
-            badge.className = 'badge-negros-site';
-            badge.textContent = 'Negros';
-            name.append(badge);
+            return result.data;
         }
 
-        const address=document.createElement('small');address.textContent=result.display_name||'Philippines';
-        copy.append(name,address);
-        const icon=document.createElement('span');icon.className='material-symbols-rounded';icon.textContent=result.is_agency_site?'business':'location_on';icon.setAttribute('aria-hidden','true');
-        button.append(icon,copy);button.addEventListener('click',()=>selectAddressResult(index));list.append(button);
-    }
-    setAddressSearchStatus(lastSearchResults.length+' Philippine results found (Negros Island).','success');
-}
-
-async function searchAddress(query, button) {
-    cancelCurrentLocationRequest();
-    reverseRequestId += 1;
-    const revision=++addressSearchRevision,session=locationFormSession;
-    const isCurrent=()=>revision===addressSearchRevision && session===locationFormSession;
-    const area=document.getElementById('addressArea')?.value?.trim() || "";
-    const list=document.getElementById('addressSuggestions');
-    allSearchResults=[];lastSearchResults=[];addressResultQuery=query;
-    list.innerHTML='<div class="address-suggestion-message">Searching Negros places…</div>';
-    showSuggestions();setAddressSearchStatus('Searching Negros places…');setSearchButtonBusy(button,true);
-
-    const savedMatches = PhLocationSearch.searchSavedSites ? PhLocationSearch.searchSavedSites(locationRecords, query) : [];
-    const localMatches = PhLocationSearch.searchNegros ? PhLocationSearch.searchNegros(query, document.getElementById('addressType')?.value || 'all') : [];
-    const localCombined = [...savedMatches, ...localMatches];
-
-    try {
-        let osmMatches = [];
-        const baseVariants = PhLocationSearch.variants(query, area);
-        const queryLower = (query + ' ' + area).toLowerCase();
-        const alreadySpecifiesNegros = /negros|bacolod|dumaguete|talisay|silay|bago|cadiz|sagay|victorias|san carlos|kabankalan|sipalay|binalbagan|himamaylan|hinigaran|la carlota|escalante|murcia|valladolid|pulupandan|pontevedra|manapla|eb magalona|san enrique|isabela|moises padilla|la castellana|ilog|cauayan|candoni|hinoba-an|calatrava|toboso|salvador benedicto|bais|bayawan|canlaon|guihulngan|tanjay|siaton|sibulan|valencia|dauin|bacong|zamboanguita|santa catalina|basay|manjuyod|bindoy|ayungon|tayasan|jimalalud|la libertad|vallehermoso|mabinay|pamplona|amlan|san jose/i.test(queryLower);
-
-        const termsToTry = [...baseVariants];
-        if (!alreadySpecifiesNegros && !area) {
-            termsToTry.push(`${query}, Negros Occidental`, `${query}, Negros Oriental`);
+        function escapeHtml(text) {
+            return String(text ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
         }
 
-        for(const term of termsToTry){
-            if(!isCurrent())return;
-            const results=await fetchNominatim('/search',{
-                q:term,format:'jsonv2',addressdetails:'1',namedetails:'1',limit:'40',dedupe:'1',countrycodes:'ph','accept-language':'en,fil'
-            },'search-v2:'+term.toLocaleLowerCase('en-PH'),isCurrent);
-            if(!isCurrent())return;
-            osmMatches=PhLocationSearch.filter(results,query,'all',{negrosOnly:true,strict:true});
-            if(osmMatches.length)break;
+        function initMap() {
+            if (map) {
+                setTimeout(() => map.invalidateSize(), 150);
+                return;
+            }
+
+            map = L.map("locationMap", {
+                minZoom: 5,
+                maxZoom: 19,
+                maxBounds: PHILIPPINES_BOUNDS.pad(0.08),
+                maxBoundsViscosity: 0.9,
+                zoomControl: true
+            });
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                minZoom: 5,
+                maxZoom: 19,
+                detectRetina: true,
+                keepBuffer: 4,
+                attribution: "&copy; OpenStreetMap contributors"
+            }).addTo(map);
+            L.control.scale({ imperial: false, position: "bottomleft" }).addTo(map);
+            showNegrosView(false);
+
+            map.on("click", e => {
+                if (isGeofenceLocked) {
+                    appDialog.toast("Geofence center cannot be moved while guards are deployed.", { tone: "warning" });
+                    return;
+                }
+                selectPinAndResolve(e.latlng.lat, e.latlng.lng);
+            });
+
+            document.getElementById("radius").addEventListener("input", () => {
+                radiusInputRevision += 1;
+                updateRadiusCircle();
+            });
+            const labelEl = document.getElementById("label");
+            if (labelEl) {
+                labelEl.addEventListener("input", function () {
+                    this.dataset.autofilled = "false";
+                });
+            }
+            const searchInput = document.getElementById("addressSearch");
+            searchInput.addEventListener("input", cancelAddressSearch);
+            const addressAreaEl = document.getElementById('addressArea');
+            if (addressAreaEl) {
+                addressAreaEl.addEventListener('input', cancelAddressSearch);
+                addressAreaEl.addEventListener('keydown', event => {
+                    if (event.key === 'Enter') { event.preventDefault(); searchAddressFromInput(document.getElementById('addressSearchButton')); }
+                });
+            }
+            searchInput.addEventListener("keydown", event => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    searchAddressFromInput(document.getElementById("addressSearchButton"));
+                } else if (event.key === "Escape") {
+                    hideSuggestions();
+                }
+            });
+            document.addEventListener("click", e => {
+                if (!e.target.closest(".address-search-wrap, #addressType")) hideSuggestions();
+            });
         }
 
-        allSearchResults = PhLocationSearch.mergeResults
-            ? PhLocationSearch.mergeResults(osmMatches, localCombined)
-            : [...osmMatches, ...localCombined];
-
-        if(!allSearchResults.length){
-            list.innerHTML='<div class="address-suggestion-message">No matching place in Negros Island found. Try a nearby barangay, city, or landmark, or select the exact point on the map.</div>';
-            setAddressSearchStatus('No matching place found in Negros Island.');return;
+        function showPhilippinesView(animate = true) {
+            if (!map) return;
+            map.fitBounds(PHILIPPINES_BOUNDS, {
+                padding: [24, 24],
+                animate,
+                duration: 0.55
+            });
         }
-        renderAddressResults();
-    }catch(error){
-        if(!isCurrent())return;
-        if(localCombined.length){
-            allSearchResults = localCombined;
-            renderAddressResults();
-        } else {
-            const message=error.message||'Address search is temporarily unavailable.';
-            list.innerHTML='<div class="address-suggestion-message error">'+escapeHtml(message)+'</div>';
-            setAddressSearchStatus(message,'error');
-        }
-    }finally{
-        if(isCurrent())setSearchButtonBusy(button,false);
-    }
-}
 
-async function reverseGeocode(lat, lng) {
-    const requestId = ++reverseRequestId;
-    setSelectedAddressPending(lat, lng);
-    try {
-        const data = await fetchNominatim("/reverse", {
-            lat: lat.toFixed(7),
-            lon: lng.toFixed(7),
-            format: "jsonv2",
-            addressdetails: "1",
-            zoom: "18",
-            "accept-language": "en,fil"
-        }, `reverse:${lat.toFixed(5)},${lng.toFixed(5)}`);
-        if (requestId !== reverseRequestId) return;
-        if (data.address?.country_code !== "ph") {
-            clearPin();
-            setSelectedAddressError("This point is outside the Philippines. Choose a Philippine location.");
-            setAddressSearchStatus("The selected point is outside the Philippines.", "error");
-            return;
-        }
-        const address = data.display_name;
-        if (!address) throw new Error("No Philippine address was found for this point.");
-        document.getElementById("addressSearch").value = address;
-        setSelectedAddress(address);
-        setAddressSearchStatus("Pin verified within the Philippines.", "success");
+        const NEGROS_BOUNDS = L.latLngBounds([8.9, 122.3], [11.15, 123.65]);
 
-        const labelInput = document.getElementById("label");
-        if (labelInput && (!labelInput.value.trim() || labelInput.dataset.autofilled === "true")) {
-            const primary = data.name || data.address?.amenity || data.address?.building || data.address?.road || data.address?.suburb || data.display_name?.split(",")[0] || "";
-            const cityOrArea = data.address?.city || data.address?.town || data.address?.municipality || "";
-            if (primary) {
+        function showNegrosView(animate = true) {
+            if (!map) return;
+            map.fitBounds(NEGROS_BOUNDS, {
+                padding: [24, 24],
+                animate,
+                duration: 0.55
+            });
+        }
+
+        function isWithinPhilippinesMapBounds(lat, lng) {
+            return Number.isFinite(lat) && Number.isFinite(lng)
+                && PHILIPPINES_BOUNDS.contains([lat, lng]);
+        }
+
+        function ensureMarker(lat, lng) {
+            if (!marker) {
+                marker = L.marker([lat, lng], {
+                    draggable: !isGeofenceLocked,
+                    icon: locationPinIcon,
+                    title: isGeofenceLocked ? "Locked deployment-site center" : "Selected deployment-site center",
+                    keyboard: !isGeofenceLocked,
+                    riseOnHover: true
+                }).addTo(map);
+                if (isGeofenceLocked && marker.dragging) {
+                    marker.dragging.disable();
+                }
+                marker.bindTooltip(isGeofenceLocked ? "Geofence locked: active guards deployed" : "Drag to fine-tune the geofence center", {
+                    direction: "top",
+                    offset: [0, -30]
+                });
+                marker.on("dragend", () => {
+                    if (isGeofenceLocked) return;
+                    const position = marker.getLatLng();
+                    selectPinAndResolve(position.lat, position.lng, false);
+                });
+            } else {
+                marker.setLatLng([lat, lng]);
+                if (marker.dragging) {
+                    if (isGeofenceLocked) marker.dragging.disable();
+                    else marker.dragging.enable();
+                }
+            }
+            return marker;
+        }
+
+        function updateRadiusCircle() {
+            if (!map || !marker) return;
+            const radius = parseFloat(document.getElementById("radius").value);
+            if (radiusCircle) radiusCircle.remove();
+            radiusCircle = null;
+            if (!Number.isFinite(radius) || radius <= 0) return;
+            const center = marker.getLatLng();
+            const areaSqM = Math.round(Math.PI * radius * radius);
+            const areaText = areaSqM >= 10000
+                ? `${(areaSqM / 10000).toFixed(2)} ha (${areaSqM.toLocaleString()} m²)`
+                : `${areaSqM.toLocaleString()} m²`;
+
+            radiusCircle = L.circle(center, {
+                radius,
+                color: "#b91c1c",
+                fillColor: "#dc2626",
+                fillOpacity: 0.16,
+                weight: 2,
+                interactive: true
+            }).addTo(map);
+
+            radiusCircle.bindTooltip(
+                `<div style="font-family:'Inter',sans-serif;font-size:12px;line-height:1.45;">` +
+                `<div style="font-weight:700;color:#dc2626;margin-bottom:2px;display:flex;align-items:center;gap:4px;">` +
+                `<span class="material-symbols-rounded" style="font-size:15px;" aria-hidden="true">location_on</span> Geofence Area` +
+                `</div>` +
+                `<div><strong>Radius:</strong> ${radius.toLocaleString()} m</div>` +
+                `<div><strong>Coverage:</strong> ~${areaText}</div>` +
+                `<div><strong>Center:</strong> ${center.lat.toFixed(6)}, ${center.lng.toFixed(6)}</div>` +
+                `<div style="margin-top:4px;font-size:11px;color:#cbd5e1;">Allowed guard attendance perimeter</div>` +
+                `</div>`,
+                { sticky: true, className: "leaflet-geofence-tooltip", direction: "top" }
+            );
+
+            radiusCircle.on("mouseover", function () {
+                this.setStyle({ fillOpacity: 0.32, weight: 3, color: "#991b1b" });
+            });
+            radiusCircle.on("mouseout", function () {
+                this.setStyle({ fillOpacity: 0.16, weight: 2, color: "#b91c1c" });
+            });
+            radiusCircle.bringToBack();
+        }
+
+        function setSelectedAddress(text) {
+            const box = document.getElementById("selectedAddressDisplay");
+            const value = (text || "").trim();
+            document.getElementById("address").value = value;
+            box.classList.remove("pending", "error");
+            if (value) {
+                box.classList.remove("empty");
+                const icon = document.createElement("span");
+                icon.className = "material-symbols-rounded sl-inline-icon";
+                icon.setAttribute("aria-hidden", "true");
+                icon.textContent = "location_on";
+                box.replaceChildren(icon, document.createTextNode(value));
+            } else {
+                box.classList.add("empty");
+                box.textContent = "No location selected yet";
+            }
+        }
+
+        function setSelectedAddressPending(lat, lng) {
+            const box = document.getElementById("selectedAddressDisplay");
+            document.getElementById("address").value = "";
+            box.classList.remove("empty", "error");
+            box.classList.add("pending");
+            box.textContent = `Checking Philippine address… ${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        }
+
+        function setSelectedAddressError(message) {
+            const box = document.getElementById("selectedAddressDisplay");
+            document.getElementById("address").value = "";
+            box.classList.remove("empty", "pending");
+            box.classList.add("error");
+            box.textContent = message;
+        }
+
+        function clearPin() {
+            reverseRequestId += 1;
+            if (marker) marker.remove();
+            if (radiusCircle) radiusCircle.remove();
+            marker = null;
+            radiusCircle = null;
+            document.getElementById("lat").value = "";
+            document.getElementById("lng").value = "";
+            setSelectedAddress("");
+        }
+
+        function setPin(lat, lng, address, moveMap = true) {
+            lat = Number(lat);
+            lng = Number(lng);
+            if (!isWithinPhilippinesMapBounds(lat, lng)) return false;
+            document.getElementById("lat").value = lat;
+            document.getElementById("lng").value = lng;
+            ensureMarker(lat, lng);
+            if (moveMap && map) map.flyTo([lat, lng], Math.max(map.getZoom(), 17), { duration: 0.55 });
+            updateRadiusCircle();
+            if (address) {
+                reverseRequestId += 1;
+                setSelectedAddress(address);
+            } else {
+                setSelectedAddressPending(lat, lng);
+            }
+            return true;
+        }
+
+        function selectPinAndResolve(lat, lng, moveMap = true) {
+            cancelAddressSearch();
+            if (!setPin(lat, lng, null, moveMap)) {
+                setAddressSearchStatus("Select a location within the Philippines.", "error");
+                appDialog.toast("Deployment sites must be located in the Philippines.", { tone: "danger" });
+                return;
+            }
+            reverseGeocode(Number(lat), Number(lng));
+        }
+
+        function hideSuggestions() {
+            document.getElementById("addressSuggestions").classList.remove("show");
+            document.getElementById("addressSearch").setAttribute("aria-expanded", "false");
+        }
+
+        function showSuggestions() {
+            document.getElementById("addressSuggestions").classList.add("show");
+            document.getElementById("addressSearch").setAttribute("aria-expanded", "true");
+        }
+
+        function setAddressSearchStatus(message, tone = "") {
+            const status = document.getElementById("addressSearchStatus");
+            status.textContent = message;
+            status.dataset.tone = tone;
+        }
+
+        function setSearchButtonBusy(button, busy) {
+            button.disabled = busy;
+            button.setAttribute("aria-busy", String(busy));
+            button.querySelector("span:last-child").textContent = busy ? "Searching…" : "Search";
+        }
+
+        function wait(milliseconds) {
+            return new Promise(resolve => setTimeout(resolve, milliseconds));
+        }
+
+        function cancelAddressSearch() {
+            addressSearchRevision++;
+            allSearchResults = []; lastSearchResults = [];
+            hideSuggestions(); setAddressSearchStatus('');
+            setSearchButtonBusy(document.getElementById('addressSearchButton'), false);
+        }
+
+        function fetchNominatim(path, parameters, cacheKey, isCurrent = () => true) {
+            if (cacheKey && geocoderCache.has(cacheKey)) {
+                return Promise.resolve(geocoderCache.get(cacheKey));
+            }
+
+            const request = geocoderQueue.then(async () => {
+                if (!isCurrent()) throw new Error('Search cancelled.');
+                const delay = Math.max(0, nextGeocoderRequestAt - Date.now());
+                if (delay) await wait(delay);
+                if (!isCurrent()) throw new Error('Search cancelled.');
+                nextGeocoderRequestAt = Date.now() + 1100;
+
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 12000);
+                try {
+                    const url = `${NOMINATIM_BASE_URL}${path}?${new URLSearchParams(parameters)}`;
+                    const response = await fetch(url, {
+                        headers: { "Accept": "application/json", "Accept-Language": "en,fil;q=0.8" },
+                        signal: controller.signal
+                    });
+                    if (!response.ok) {
+                        if (response.status === 429) throw new Error("Address search is busy. Wait a moment and try again.");
+                        throw new Error(`Address service returned ${response.status}.`);
+                    }
+                    const payload = await response.json();
+                    if (cacheKey) geocoderCache.set(cacheKey, payload);
+                    return payload;
+                } catch (error) {
+                    if (error.name === "AbortError") throw new Error("Address search timed out. Please try again.");
+                    throw error;
+                } finally {
+                    clearTimeout(timeout);
+                }
+            });
+            geocoderQueue = request.catch(() => undefined);
+            return request;
+        }
+
+        function searchAddressFromInput(button) {
+            const query = document.getElementById("addressSearch").value.trim().replace(/\s+/g, " ");
+            if (query.length < 2) {
+                setAddressSearchStatus("Enter at least 2 characters to search.", "error");
+                document.getElementById("addressSearch").focus();
+                return;
+            }
+            return searchAddress(query, button);
+        }
+
+        function resultPrimaryLabel(result) {
+            return result.name || result.address?.amenity || result.address?.building
+                || result.address?.road || result.display_name?.split(",")[0] || "Address";
+        }
+
+        function selectAddressResult(index) {
+            const result = lastSearchResults[index];
+            if (!result) return;
+            const lat = Number(result.lat);
+            const lng = Number(result.lon);
+            if (!isWithinPhilippinesMapBounds(lat, lng) || String(result.address?.country_code).toLowerCase() !== "ph") return;
+            cancelCurrentLocationRequest();
+
+            const address = result.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            document.getElementById("addressSearch").value = address;
+            setPin(lat, lng, address, false);
+
+            // Auto-fill site label according to client / organization
+            const labelInput = document.getElementById("label");
+            if (labelInput && (!labelInput.value.trim() || labelInput.dataset.autofilled === "true")) {
+                const primary = resultPrimaryLabel(result);
+                const cityOrArea = result.address?.city || result.address?.town || result.address?.municipality || "";
                 let autoLabel = primary;
                 if (cityOrArea && !primary.toLowerCase().includes(cityOrArea.toLowerCase())) {
                     autoLabel = `${primary} - ${cityOrArea}`;
@@ -1052,164 +1036,312 @@ async function reverseGeocode(lat, lng) {
                 labelInput.value = autoLabel;
                 labelInput.dataset.autofilled = "true";
             }
+
+            const bounds = Array.isArray(result.boundingbox) ? result.boundingbox.map(Number) : [];
+            if (bounds.length === 4 && bounds.every(Number.isFinite)) {
+                map.flyToBounds([[bounds[0], bounds[2]], [bounds[1], bounds[3]]], {
+                    padding: [36, 36],
+                    maxZoom: 17,
+                    duration: 0.55
+                });
+            } else {
+                map.flyTo([lat, lng], 17, { duration: 0.55 });
+            }
+            setAddressSearchStatus("Philippine address selected. Drag the pin to fine-tune.", "success");
+            hideSuggestions();
         }
-    } catch (error) {
-        if (requestId !== reverseRequestId) return;
-        const message = error.message || "Could not verify this Philippine address.";
-        setSelectedAddressError(`${message} Search for an address or try placing the pin again.`);
-        setAddressSearchStatus(message, "error");
-    }
-}
 
-function resetCurrentLocationButton() {
-    const button = document.getElementById("useCurrentLocationButton");
-    if (!button) return;
-    button.disabled = false;
-    button.setAttribute("aria-busy", "false");
-    button.textContent = "Use my location";
-}
+        function renderAddressResults() {
+            const list = document.getElementById('addressSuggestions');
+            lastSearchResults = PhLocationSearch.filter(allSearchResults, addressResultQuery, document.getElementById('addressType').value, { negrosOnly: true, strict: true });
+            if (!allSearchResults.length) return;
+            showSuggestions();
+            list.replaceChildren();
+            if (!lastSearchResults.length) {
+                list.innerHTML = '<div class="address-suggestion-message">No results for this place type. Choose All places.</div>';
+                setAddressSearchStatus('No results for this place type.'); return;
+            }
+            for (const [index, result] of lastSearchResults.entries()) {
+                const button = document.createElement('button'); button.type = 'button'; button.className = 'address-suggestion'; button.setAttribute('role', 'option');
+                button.dataset.idx = index;
+                const copy = document.createElement('span'); copy.className = 'address-suggestion-copy';
+                const name = document.createElement('strong'); name.textContent = resultPrimaryLabel(result);
 
-function cancelCurrentLocationRequest() {
-    geolocationRequestId += 1;
-    resetCurrentLocationButton();
-}
-
-function useCurrentLocation(button) {
-    cancelAddressSearch();
-    if (!navigator.geolocation) {
-        setAddressSearchStatus("Location access is not supported. Search for the address instead.", "error");
-        return;
-    }
-    const requestId = ++geolocationRequestId;
-    button.disabled = true;
-    button.setAttribute("aria-busy", "true");
-    button.textContent = "Locating…";
-    setAddressSearchStatus("Requesting your current location…");
-    navigator.geolocation.getCurrentPosition(position => {
-        if (requestId !== geolocationRequestId) return;
-        resetCurrentLocationButton();
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        if (!isWithinPhilippinesMapBounds(lat, lng)) {
-            setAddressSearchStatus("Your current location is outside the supported Philippine map area.", "error");
-            return;
-        }
-        selectPinAndResolve(lat, lng, true);
-    }, error => {
-        if (requestId !== geolocationRequestId) return;
-        resetCurrentLocationButton();
-        const hasSelectedAddress = Boolean(document.getElementById("address").value.trim());
-        const message = Number(error.code) === 1
-            ? (hasSelectedAddress
-                ? "Browser location access is off. Your selected address was kept."
-                : "Browser location access is off. Search for the address instead.")
-            : "Your location could not be determined. Try again or use address search.";
-        setAddressSearchStatus(message, "error");
-    }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 });
-}
-
-function resetFormFields() {
-    cancelAddressSearch();
-    if (document.getElementById("addressArea")) document.getElementById("addressArea").value="";
-    document.getElementById("addressType").value="all";
-    cancelCurrentLocationRequest();
-    document.getElementById("editId").value = "";
-    const labelEl = document.getElementById("label");
-    if (labelEl) {
-        labelEl.value = "";
-        labelEl.dataset.autofilled = "false";
-    }
-    const shiftModelSelect = document.getElementById("siteShiftModel");
-    if (shiftModelSelect) shiftModelSelect.value = "2_shifts_12h";
-    const wrap = document.getElementById("siteShiftsEditorWrap");
-    if (wrap) wrap.style.display = "none";
-    const editBtn = document.getElementById("editSiteShiftsBtn");
-    if (editBtn) editBtn.innerHTML = '<span class="material-symbols-rounded align-middle" style="font-size:14px;">tune</span> Edit Time';
-    onSiteShiftModelChange();
-    document.getElementById("addressSearch").value = "";
-    document.getElementById("radius").value = "";
-    document.getElementById("radiusDefaultStatus").textContent = "";
-    document.getElementById("formError").innerText = "";
-    clearPin();
-    lastSearchResults = [];
-    setAddressSearchStatus("");
-    hideSuggestions();
-    if (map) showNegrosView(false);
-}
-
-async function getDeployedGuardsForLocation(siteId) {
-    try {
-        const snapshot = await db.collection("users").get();
-        const guards = [];
-        if (snapshot && typeof snapshot.forEach === 'function') {
-            snapshot.forEach(doc => {
-                const data = doc.data ? doc.data() : null;
-                const assignedId = data ? (data.assignedLocationId || data.assigned_location_id) : null;
-                if (data && data.role === "user" && assignedId === siteId && data.active !== false) {
-                    guards.push({ id: doc.id, data });
+                if (result.is_agency_site) {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge-agency-site';
+                    badge.textContent = 'Saved Post';
+                    name.append(badge);
+                } else if (result.is_local_directory) {
+                    const badge = document.createElement('span');
+                    badge.className = 'badge-negros-site';
+                    badge.textContent = 'Negros';
+                    name.append(badge);
                 }
-            });
-        }
-        deployedGuardsByLocation.set(siteId, guards);
-        return guards;
-    } catch (e) {
-        return deployedGuardsByLocation.get(siteId) || [];
-    }
-}
 
-function setGeofenceControlsLockState(locked, guards = [], locationLabel = '', locationId = '') {
-    isGeofenceLocked = Boolean(locked);
-    const radiusInput = document.getElementById("radius");
-    const addressInput = document.getElementById("addressSearch");
-    const searchBtn = document.getElementById("addressSearchButton");
-    const addressTypeSelect = document.getElementById("addressType");
-    const addressAreaInput = document.getElementById("addressArea");
-    const bannerEl = document.getElementById("geofenceSafeguardBanner");
-    const radiusStatusEl = document.getElementById("radiusDefaultStatus");
-
-    if (isGeofenceLocked) {
-        radiusInput.disabled = true;
-        radiusInput.classList.add("input-locked");
-        radiusInput.title = "Geofence radius is locked while active guards are deployed";
-
-        addressInput.disabled = true;
-        addressInput.classList.add("input-locked");
-        addressInput.title = "Address editing is locked while active guards are deployed";
-
-        if (searchBtn) {
-            searchBtn.disabled = true;
-            searchBtn.title = "Address search locked while active guards are deployed";
-        }
-        if (addressTypeSelect) {
-            addressTypeSelect.disabled = true;
-            addressTypeSelect.classList.add("input-locked");
-        }
-        if (addressAreaInput) {
-            addressAreaInput.disabled = true;
-            addressAreaInput.classList.add("input-locked");
+                const address = document.createElement('small'); address.textContent = result.display_name || 'Philippines';
+                copy.append(name, address);
+                const icon = document.createElement('span'); icon.className = 'material-symbols-rounded'; icon.textContent = result.is_agency_site ? 'business' : 'location_on'; icon.setAttribute('aria-hidden', 'true');
+                button.append(icon, copy); button.addEventListener('click', () => selectAddressResult(index)); list.append(button);
+            }
+            setAddressSearchStatus(lastSearchResults.length + ' Philippine results found (Negros Island).', 'success');
         }
 
-        if (marker && marker.dragging) {
-            marker.dragging.disable();
-            marker.bindTooltip("Geofence locked: " + guards.length + " active guard(s) deployed", { direction: "top", offset: [0, -30] });
+        async function searchAddress(query, button) {
+            cancelCurrentLocationRequest();
+            reverseRequestId += 1;
+            const revision = ++addressSearchRevision, session = locationFormSession;
+            const isCurrent = () => revision === addressSearchRevision && session === locationFormSession;
+            const area = document.getElementById('addressArea')?.value?.trim() || "";
+            const list = document.getElementById('addressSuggestions');
+            allSearchResults = []; lastSearchResults = []; addressResultQuery = query;
+            list.innerHTML = '<div class="address-suggestion-message">Searching Negros places…</div>';
+            showSuggestions(); setAddressSearchStatus('Searching Negros places…'); setSearchButtonBusy(button, true);
+
+            const savedMatches = PhLocationSearch.searchSavedSites ? PhLocationSearch.searchSavedSites(locationRecords, query) : [];
+            const localMatches = PhLocationSearch.searchNegros ? PhLocationSearch.searchNegros(query, document.getElementById('addressType')?.value || 'all') : [];
+            const localCombined = [...savedMatches, ...localMatches];
+
+            try {
+                let osmMatches = [];
+                const baseVariants = PhLocationSearch.variants(query, area);
+                const queryLower = (query + ' ' + area).toLowerCase();
+                const alreadySpecifiesNegros = /negros|bacolod|dumaguete|talisay|silay|bago|cadiz|sagay|victorias|san carlos|kabankalan|sipalay|binalbagan|himamaylan|hinigaran|la carlota|escalante|murcia|valladolid|pulupandan|pontevedra|manapla|eb magalona|san enrique|isabela|moises padilla|la castellana|ilog|cauayan|candoni|hinoba-an|calatrava|toboso|salvador benedicto|bais|bayawan|canlaon|guihulngan|tanjay|siaton|sibulan|valencia|dauin|bacong|zamboanguita|santa catalina|basay|manjuyod|bindoy|ayungon|tayasan|jimalalud|la libertad|vallehermoso|mabinay|pamplona|amlan|san jose/i.test(queryLower);
+
+                const termsToTry = [...baseVariants];
+                if (!alreadySpecifiesNegros && !area) {
+                    termsToTry.push(`${query}, Negros Occidental`, `${query}, Negros Oriental`);
+                }
+
+                for (const term of termsToTry) {
+                    if (!isCurrent()) return;
+                    const results = await fetchNominatim('/search', {
+                        q: term, format: 'jsonv2', addressdetails: '1', namedetails: '1', limit: '40', dedupe: '1', countrycodes: 'ph', 'accept-language': 'en,fil'
+                    }, 'search-v2:' + term.toLocaleLowerCase('en-PH'), isCurrent);
+                    if (!isCurrent()) return;
+                    osmMatches = PhLocationSearch.filter(results, query, 'all', { negrosOnly: true, strict: true });
+                    if (osmMatches.length) break;
+                }
+
+                allSearchResults = PhLocationSearch.mergeResults
+                    ? PhLocationSearch.mergeResults(osmMatches, localCombined)
+                    : [...osmMatches, ...localCombined];
+
+                if (!allSearchResults.length) {
+                    list.innerHTML = '<div class="address-suggestion-message">No matching place in Negros Island found. Try a nearby barangay, city, or landmark, or select the exact point on the map.</div>';
+                    setAddressSearchStatus('No matching place found in Negros Island.'); return;
+                }
+                renderAddressResults();
+            } catch (error) {
+                if (!isCurrent()) return;
+                if (localCombined.length) {
+                    allSearchResults = localCombined;
+                    renderAddressResults();
+                } else {
+                    const message = error.message || 'Address search is temporarily unavailable.';
+                    list.innerHTML = '<div class="address-suggestion-message error">' + escapeHtml(message) + '</div>';
+                    setAddressSearchStatus(message, 'error');
+                }
+            } finally {
+                if (isCurrent()) setSearchButtonBusy(button, false);
+            }
         }
 
-        if (radiusStatusEl) {
-            radiusStatusEl.innerHTML = '<span class="map-locked-notice"><span class="material-symbols-rounded" style="font-size:14px;" aria-hidden="true">lock</span> Radius locked: ' + guards.length + ' active guard(s) deployed</span>';
+        async function reverseGeocode(lat, lng) {
+            const requestId = ++reverseRequestId;
+            setSelectedAddressPending(lat, lng);
+            try {
+                const data = await fetchNominatim("/reverse", {
+                    lat: lat.toFixed(7),
+                    lon: lng.toFixed(7),
+                    format: "jsonv2",
+                    addressdetails: "1",
+                    zoom: "18",
+                    "accept-language": "en,fil"
+                }, `reverse:${lat.toFixed(5)},${lng.toFixed(5)}`);
+                if (requestId !== reverseRequestId) return;
+                if (data.address?.country_code !== "ph") {
+                    clearPin();
+                    setSelectedAddressError("This point is outside the Philippines. Choose a Philippine location.");
+                    setAddressSearchStatus("The selected point is outside the Philippines.", "error");
+                    return;
+                }
+                const address = data.display_name;
+                if (!address) throw new Error("No Philippine address was found for this point.");
+                document.getElementById("addressSearch").value = address;
+                setSelectedAddress(address);
+                setAddressSearchStatus("Pin verified within the Philippines.", "success");
+
+                const labelInput = document.getElementById("label");
+                if (labelInput && (!labelInput.value.trim() || labelInput.dataset.autofilled === "true")) {
+                    const primary = data.name || data.address?.amenity || data.address?.building || data.address?.road || data.address?.suburb || data.display_name?.split(",")[0] || "";
+                    const cityOrArea = data.address?.city || data.address?.town || data.address?.municipality || "";
+                    if (primary) {
+                        let autoLabel = primary;
+                        if (cityOrArea && !primary.toLowerCase().includes(cityOrArea.toLowerCase())) {
+                            autoLabel = `${primary} - ${cityOrArea}`;
+                        }
+                        labelInput.value = autoLabel;
+                        labelInput.dataset.autofilled = "true";
+                    }
+                }
+            } catch (error) {
+                if (requestId !== reverseRequestId) return;
+                const message = error.message || "Could not verify this Philippine address.";
+                setSelectedAddressError(`${message} Search for an address or try placing the pin again.`);
+                setAddressSearchStatus(message, "error");
+            }
         }
 
-        if (bannerEl) {
-            const guardCount = guards.length;
-            const displayedGuards = guards.slice(0, 4);
-            const remainingCount = guardCount - displayedGuards.length;
-            const chipsHtml = displayedGuards.map(g => {
-                const u = g.data || {};
-                const name = [u.firstName, u.lastName].filter(Boolean).join(' ') || u.name || 'Guard';
-                return `<span class="geofence-guard-chip"><span class="material-symbols-rounded geofence-guard-chip-icon" aria-hidden="true">person</span>${escapeHtml(name)}</span>`;
-            }).join('');
-            const moreChip = remainingCount > 0 ? `<span class="geofence-guard-chip">+${remainingCount} more</span>` : '';
+        function resetCurrentLocationButton() {
+            const button = document.getElementById("useCurrentLocationButton");
+            if (!button) return;
+            button.disabled = false;
+            button.setAttribute("aria-busy", "false");
+            button.textContent = "Use my location";
+        }
 
-            bannerEl.innerHTML = `
+        function cancelCurrentLocationRequest() {
+            geolocationRequestId += 1;
+            resetCurrentLocationButton();
+        }
+
+        function useCurrentLocation(button) {
+            cancelAddressSearch();
+            if (!navigator.geolocation) {
+                setAddressSearchStatus("Location access is not supported. Search for the address instead.", "error");
+                return;
+            }
+            const requestId = ++geolocationRequestId;
+            button.disabled = true;
+            button.setAttribute("aria-busy", "true");
+            button.textContent = "Locating…";
+            setAddressSearchStatus("Requesting your current location…");
+            navigator.geolocation.getCurrentPosition(position => {
+                if (requestId !== geolocationRequestId) return;
+                resetCurrentLocationButton();
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                if (!isWithinPhilippinesMapBounds(lat, lng)) {
+                    setAddressSearchStatus("Your current location is outside the supported Philippine map area.", "error");
+                    return;
+                }
+                selectPinAndResolve(lat, lng, true);
+            }, error => {
+                if (requestId !== geolocationRequestId) return;
+                resetCurrentLocationButton();
+                const hasSelectedAddress = Boolean(document.getElementById("address").value.trim());
+                const message = Number(error.code) === 1
+                    ? (hasSelectedAddress
+                        ? "Browser location access is off. Your selected address was kept."
+                        : "Browser location access is off. Search for the address instead.")
+                    : "Your location could not be determined. Try again or use address search.";
+                setAddressSearchStatus(message, "error");
+            }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 });
+        }
+
+        function resetFormFields() {
+            cancelAddressSearch();
+            if (document.getElementById("addressArea")) document.getElementById("addressArea").value = "";
+            document.getElementById("addressType").value = "all";
+            cancelCurrentLocationRequest();
+            document.getElementById("editId").value = "";
+            const labelEl = document.getElementById("label");
+            if (labelEl) {
+                labelEl.value = "";
+                labelEl.dataset.autofilled = "false";
+            }
+            const shiftModelSelect = document.getElementById("siteShiftModel");
+            if (shiftModelSelect) shiftModelSelect.value = "2_shifts_12h";
+            const wrap = document.getElementById("siteShiftsEditorWrap");
+            if (wrap) wrap.style.display = "none";
+            const editBtn = document.getElementById("editSiteShiftsBtn");
+            if (editBtn) editBtn.innerHTML = '<span class="material-symbols-rounded align-middle" style="font-size:14px;">tune</span> Edit Time';
+            onSiteShiftModelChange();
+            document.getElementById("addressSearch").value = "";
+            document.getElementById("radius").value = "";
+            document.getElementById("radiusDefaultStatus").textContent = "";
+            document.getElementById("formError").innerText = "";
+            clearPin();
+            lastSearchResults = [];
+            setAddressSearchStatus("");
+            hideSuggestions();
+            if (map) showNegrosView(false);
+        }
+
+        async function getDeployedGuardsForLocation(siteId) {
+            try {
+                const snapshot = await db.collection("users").get();
+                const guards = [];
+                if (snapshot && typeof snapshot.forEach === 'function') {
+                    snapshot.forEach(doc => {
+                        const data = doc.data ? doc.data() : null;
+                        const assignedId = data ? (data.assignedLocationId || data.assigned_location_id) : null;
+                        if (data && data.role === "user" && assignedId === siteId && data.active !== false) {
+                            guards.push({ id: doc.id, data });
+                        }
+                    });
+                }
+                deployedGuardsByLocation.set(siteId, guards);
+                return guards;
+            } catch (e) {
+                return deployedGuardsByLocation.get(siteId) || [];
+            }
+        }
+
+        function setGeofenceControlsLockState(locked, guards = [], locationLabel = '', locationId = '') {
+            isGeofenceLocked = Boolean(locked);
+            const radiusInput = document.getElementById("radius");
+            const addressInput = document.getElementById("addressSearch");
+            const searchBtn = document.getElementById("addressSearchButton");
+            const addressTypeSelect = document.getElementById("addressType");
+            const addressAreaInput = document.getElementById("addressArea");
+            const bannerEl = document.getElementById("geofenceSafeguardBanner");
+            const radiusStatusEl = document.getElementById("radiusDefaultStatus");
+
+            if (isGeofenceLocked) {
+                radiusInput.disabled = true;
+                radiusInput.classList.add("input-locked");
+                radiusInput.title = "Geofence radius is locked while active guards are deployed";
+
+                addressInput.disabled = true;
+                addressInput.classList.add("input-locked");
+                addressInput.title = "Address editing is locked while active guards are deployed";
+
+                if (searchBtn) {
+                    searchBtn.disabled = true;
+                    searchBtn.title = "Address search locked while active guards are deployed";
+                }
+                if (addressTypeSelect) {
+                    addressTypeSelect.disabled = true;
+                    addressTypeSelect.classList.add("input-locked");
+                }
+                if (addressAreaInput) {
+                    addressAreaInput.disabled = true;
+                    addressAreaInput.classList.add("input-locked");
+                }
+
+                if (marker && marker.dragging) {
+                    marker.dragging.disable();
+                    marker.bindTooltip("Geofence locked: " + guards.length + " active guard(s) deployed", { direction: "top", offset: [0, -30] });
+                }
+
+                if (radiusStatusEl) {
+                    radiusStatusEl.innerHTML = '<span class="map-locked-notice"><span class="material-symbols-rounded" style="font-size:14px;" aria-hidden="true">lock</span> Radius locked: ' + guards.length + ' active guard(s) deployed</span>';
+                }
+
+                if (bannerEl) {
+                    const guardCount = guards.length;
+                    const displayedGuards = guards.slice(0, 4);
+                    const remainingCount = guardCount - displayedGuards.length;
+                    const chipsHtml = displayedGuards.map(g => {
+                        const u = g.data || {};
+                        const name = [u.firstName, u.lastName].filter(Boolean).join(' ') || u.name || 'Guard';
+                        return `<span class="geofence-guard-chip"><span class="material-symbols-rounded geofence-guard-chip-icon" aria-hidden="true">person</span>${escapeHtml(name)}</span>`;
+                    }).join('');
+                    const moreChip = remainingCount > 0 ? `<span class="geofence-guard-chip">+${remainingCount} more</span>` : '';
+
+                    bannerEl.innerHTML = `
                 <div class="geofence-safeguard-head">
                     <span class="material-symbols-rounded geofence-safeguard-icon" aria-hidden="true">lock</span>
                     <span>Geofence Safeguard: Editing Locked</span>
@@ -1233,469 +1365,536 @@ function setGeofenceControlsLockState(locked, guards = [], locationLabel = '', l
                     You may still update the deployment site label below. To reposition geofence boundaries, reassign all active guards to another site first.
                 </div>
             `;
-            bannerEl.style.display = "block";
-        }
-    } else {
-        radiusInput.disabled = false;
-        radiusInput.classList.remove("input-locked");
-        radiusInput.removeAttribute("title");
-
-        addressInput.disabled = false;
-        addressInput.classList.remove("input-locked");
-        addressInput.removeAttribute("title");
-
-        if (searchBtn) {
-            searchBtn.disabled = false;
-            searchBtn.removeAttribute("title");
-        }
-        if (addressTypeSelect) {
-            addressTypeSelect.disabled = false;
-            addressTypeSelect.classList.remove("input-locked");
-        }
-        if (addressAreaInput) {
-            addressAreaInput.disabled = false;
-            addressAreaInput.classList.remove("input-locked");
-        }
-
-        if (marker && marker.dragging) {
-            marker.dragging.enable();
-            marker.bindTooltip("Drag to fine-tune the geofence center", { direction: "top", offset: [0, -30] });
-        }
-
-        if (bannerEl) {
-            bannerEl.style.display = "none";
-            bannerEl.innerHTML = "";
-        }
-    }
-}
-
-function loadLocations() {
-    return Promise.all([
-        db.collection('locations').get(),
-        db.collection('users').get().catch(() => null)
-    ]).then(([snapshot, usersSnap]) => {
-        locationRecords.clear();
-        snapshot.forEach(doc => locationRecords.set(doc.id, doc.data()));
-
-        deployedGuardsByLocation.clear();
-        if (usersSnap && typeof usersSnap.forEach === 'function') {
-            usersSnap.forEach(doc => {
-                const u = doc.data ? doc.data() : null;
-                const locId = u ? (u.assignedLocationId || u.assigned_location_id) : null;
-                if (u && u.role === "user" && locId && u.active !== false) {
-                    const list = deployedGuardsByLocation.get(locId) || [];
-                    list.push({ id: doc.id, data: u });
-                    deployedGuardsByLocation.set(locId, list);
+                    bannerEl.style.display = "block";
                 }
+            } else {
+                radiusInput.disabled = false;
+                radiusInput.classList.remove("input-locked");
+                radiusInput.removeAttribute("title");
+
+                addressInput.disabled = false;
+                addressInput.classList.remove("input-locked");
+                addressInput.removeAttribute("title");
+
+                if (searchBtn) {
+                    searchBtn.disabled = false;
+                    searchBtn.removeAttribute("title");
+                }
+                if (addressTypeSelect) {
+                    addressTypeSelect.disabled = false;
+                    addressTypeSelect.classList.remove("input-locked");
+                }
+                if (addressAreaInput) {
+                    addressAreaInput.disabled = false;
+                    addressAreaInput.classList.remove("input-locked");
+                }
+
+                if (marker && marker.dragging) {
+                    marker.dragging.enable();
+                    marker.bindTooltip("Drag to fine-tune the geofence center", { direction: "top", offset: [0, -30] });
+                }
+
+                if (bannerEl) {
+                    bannerEl.style.display = "none";
+                    bannerEl.innerHTML = "";
+                }
+            }
+        }
+
+        function loadLocations() {
+            return Promise.all([
+                db.collection('locations').get(),
+                db.collection('users').get().catch(() => null)
+            ]).then(([snapshot, usersSnap]) => {
+                locationRecords.clear();
+                snapshot.forEach(doc => locationRecords.set(doc.id, doc.data()));
+
+                deployedGuardsByLocation.clear();
+                if (usersSnap && typeof usersSnap.forEach === 'function') {
+                    usersSnap.forEach(doc => {
+                        const u = doc.data ? doc.data() : null;
+                        const locId = u ? (u.assignedLocationId || u.assigned_location_id) : null;
+                        if (u && u.role === "user" && locId && u.active !== false) {
+                            const list = deployedGuardsByLocation.get(locId) || [];
+                            list.push({ id: doc.id, data: u });
+                            deployedGuardsByLocation.set(locId, list);
+                        }
+                    });
+                }
+
+                renderLocations();
+                finishPageLoading();
+            }).catch(err => {
+                document.getElementById('locationTable').innerHTML = '<tr><td colspan="5" class="empty-state">' + escapeHtml(err?.message || 'Could not load deployment sites.') + '</td></tr>';
+                finishPageLoading();
             });
         }
 
-        renderLocations();
-        finishPageLoading();
-    }).catch(err => {
-        document.getElementById('locationTable').innerHTML='<tr><td colspan="5" class="empty-state">'+escapeHtml(err?.message||'Could not load deployment sites.')+'</td></tr>';
-        finishPageLoading();
-    });
-}
+        function renderLocations() {
+            let html = '';
+            let matchCount = 0;
+            const query = document.getElementById('siteFilter').value, status = document.getElementById('siteStatusFilter').value;
+            const formatCoordPair = (lat, lng) => {
+                const nLat = Number(lat), nLng = Number(lng);
+                return (Number.isFinite(nLat) && Number.isFinite(nLng))
+                    ? `${nLat.toFixed(6)}, ${nLng.toFixed(6)}`
+                    : `${lat}, ${lng}`;
+            };
+            locationRecords.forEach((d, id) => {
+                if (!PhLocationSearch.matchesSite(d, query, status)) return;
+                matchCount++;
+                const doc = { id };
+                const deployedList = deployedGuardsByLocation.get(id) || [];
+                const deployedCount = deployedList.length;
+                const radiusNum = Number(d.radius);
+                const radiusDisplay = Number.isFinite(radiusNum) && radiusNum > 0 ? radiusNum.toLocaleString('en-US') + '\u00A0m' : '—';
+                const areaSqM = Number.isFinite(radiusNum) && radiusNum > 0 ? Math.round(Math.PI * radiusNum * radiusNum) : 0;
+                const areaDesc = areaSqM >= 10000
+                    ? `${(areaSqM / 10000).toFixed(2)} ha (${areaSqM.toLocaleString()} m²)`
+                    : `${areaSqM.toLocaleString()} m²`;
+                const radiusTooltip = Number.isFinite(radiusNum) && radiusNum > 0
+                    ? `Geofence Area: ${radiusNum.toLocaleString()}m radius (~${areaDesc} coverage). Guards must be inside this zone to punch attendance.`
+                    : `Geofence radius not configured.`;
+                const coordsStr = (d.latitude != null && d.longitude != null) ? formatCoordPair(d.latitude, d.longitude) : '';
+                const coordsTooltip = coordsStr
+                    ? `GPS Center: ${coordsStr} • Click to copy coordinates`
+                    : `Coordinates not configured`;
+                const statusTooltip = d.active
+                    ? `Site Status: Active — Open for duty scheduling, guard deployments, and geofence attendance punches.`
+                    : `Site Status: Disabled — Site is inactive; attendance punches are blocked.`;
+                const siteNameEscaped = escapeHtml(d.label || 'Deployment Site');
+                const viewGuardsTooltip = `View assigned guard roster and shift coverage for ${siteNameEscaped}`;
+                const editTooltip = deployedCount > 0
+                    ? `Geofence locked (${deployedCount} active guard(s) deployed). Cannot modify geofence coordinates while personnel are stationed.`
+                    : `Edit deployment site name, address, geofence radius, and shift contract`;
+                const toggleTooltip = d.active
+                    ? `Disable ${siteNameEscaped} (blocks attendance punches)`
+                    : `Activate ${siteNameEscaped} (enables attendance punches)`;
 
-function renderLocations() {
-    let html='';
-    let matchCount = 0;
-    const query=document.getElementById('siteFilter').value,status=document.getElementById('siteStatusFilter').value;
-    locationRecords.forEach((d,id)=>{
-        if(!PhLocationSearch.matchesSite(d,query,status))return;
-        matchCount++;
-        const doc={id};
-        const deployedList = deployedGuardsByLocation.get(id) || [];
-        const deployedCount = deployedList.length;
-        const lockedBadge = deployedCount > 0
-            ? `<span class="badge-locked" title="${deployedCount} active guard(s) deployed: geofence editing locked"><span class="material-symbols-rounded badge-locked-icon" aria-hidden="true">lock</span> ${deployedCount} Deployed</span>`
-            : '';
-        const badge = d.active
-            ? '<span class="badge-active">Active</span>'
-            : '<span class="badge-inactive">Disabled</span>';
-        const addressText = d.address
-            ? escapeHtml(d.address)
-            : (d.latitude != null && d.longitude != null
-                ? `${d.latitude}, ${d.longitude}`
-                : "—");
-        const coordsFallback = d.address && d.latitude != null
-            ? `<div class="loc-coords-fallback">${d.latitude}, ${d.longitude}</div>`
-            : "";
-        html += `<tr>
+                const lockedBadge = deployedCount > 0
+                    ? `<span class="badge-locked" data-bs-toggle="tooltip" data-bs-placement="top" title="${deployedCount} active guard(s) deployed: geofence editing locked"><span class="material-symbols-rounded badge-locked-icon" aria-hidden="true">lock</span> ${deployedCount} Deployed</span>`
+                    : '';
+                const badge = d.active
+                    ? '<span class="badge-active">Active</span>'
+                    : '<span class="badge-inactive">Disabled</span>';
+                const formatCoordPair = (lat, lng) => {
+                    const nLat = Number(lat), nLng = Number(lng);
+                    return (Number.isFinite(nLat) && Number.isFinite(nLng))
+                        ? `${nLat.toFixed(6)}, ${nLng.toFixed(6)}`
+                        : `${lat}, ${lng}`;
+                };
+                const addressText = d.address
+                    ? escapeHtml(d.address)
+                    : (d.latitude != null && d.longitude != null
+                        ? formatCoordPair(d.latitude, d.longitude)
+                        : "—");
+                const coordsFallback = d.address && d.latitude != null && d.longitude != null
+                    ? `<div class="loc-coords-fallback" data-bs-toggle="tooltip" data-bs-placement="top" title="${coordsTooltip}" onclick="copySiteCoordinates('${d.latitude}', '${d.longitude}')">${formatCoordPair(d.latitude, d.longitude)}</div>`
+                    : "";
+                html += `<tr>
             <td>
-                <div class="loc-name">${escapeHtml(d.label) || '—'}${lockedBadge}</div>
+                <div class="loc-name">
+                    <span data-bs-toggle="tooltip" data-bs-placement="top" title="${siteNameEscaped} (${deployedCount > 0 ? deployedCount + ' active guard(s) deployed' : 'No guards deployed'})">${siteNameEscaped}</span>
+                    ${lockedBadge}
+                </div>
                 <div class="mt-1">${getShiftModelBadge(d)}</div>
             </td>
-            <td><div class="loc-address">${addressText}${coordsFallback}</div></td>
-            <td style="color:var(--sl-muted);">${d.radius ? d.radius + ' m' : '—'}</td>
-            <td><div class="loc-status-cell">${badge}</div></td>
-            <td><div class="d-flex gap-2 justify-content-center">
-                <button class="action-btn btn-view-guards" onclick="viewDeployedGuards('${doc.id}', '${escapeHtml(d.label || 'Deployment Site')}')">View Guards</button>
-                <button class="action-btn btn-edit" onclick="editLocation('${doc.id}', this)" title="${deployedCount > 0 ? 'Geofence locked (' + deployedCount + ' active guard(s) deployed)' : 'Edit deployment site'}">
+            <td>
+                <div class="loc-address">
+                    <span data-bs-toggle="tooltip" data-bs-placement="top" title="${escapeHtml(d.address || addressText)}">${addressText}</span>
+                    ${coordsFallback}
+                </div>
+            </td>
+            <td class="loc-col-radius" data-bs-toggle="tooltip" data-bs-placement="top" title="${radiusTooltip}">${radiusDisplay}</td>
+            <td class="col-nowrap"><div class="loc-status-cell" data-bs-toggle="tooltip" data-bs-placement="top" title="${statusTooltip}">${badge}</div></td>
+            <td class="col-nowrap"><div class="d-flex gap-2 justify-content-center flex-nowrap">
+                <button class="action-btn btn-view-guards" onclick="viewDeployedGuards('${doc.id}', '${siteNameEscaped}')" data-bs-toggle="tooltip" data-bs-placement="top" title="${viewGuardsTooltip}">View Guards</button>
+                <button class="action-btn btn-edit" onclick="editLocation('${doc.id}', this)" data-bs-toggle="tooltip" data-bs-placement="top" title="${editTooltip}">
                     ${deployedCount > 0 ? '<span class="material-symbols-rounded" aria-hidden="true" style="font-size:15px;margin-right:2px;vertical-align:middle;">lock</span>' : ''}Edit
                 </button>
                 <button class="action-btn ${d.active ? 'btn-disable' : 'btn-enable'}"
-                    onclick="toggleLocation('${doc.id}', ${d.active}, this)">
+                    onclick="toggleLocation('${doc.id}', ${d.active}, this)" data-bs-toggle="tooltip" data-bs-placement="top" title="${toggleTooltip}">
                     ${d.active ? 'Disable' : 'Enable'}
                 </button>
             </div></td>
         </tr>`;
-    });
-    const countBadge = document.getElementById("locationCountBadge");
-    if (countBadge) countBadge.textContent = String(matchCount);
-    document.getElementById("locationTable").innerHTML = html ||
-        `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--sl-muted);">No deployment sites match your filters.</td></tr>`;
-}
-
-async function showAddForm() {
-    const session = ++locationFormSession;
-    document.getElementById("locationForm").style.display = "block";
-    document.getElementById("formTitle").innerText = "Add Deployment Site";
-    resetFormFields();
-    setGeofenceControlsLockState(false);
-    const radiusRevision = radiusInputRevision;
-    const status = document.getElementById("radiusDefaultStatus");
-    status.textContent = "Loading the default radius… You can also enter a radius.";
-    initMap();
-    showNegrosView(false);
-    document.getElementById("locationForm").scrollIntoView({ behavior: "smooth" });
-    try {
-        const radius = await loadDefaultGeofenceRadius();
-        if (session !== locationFormSession) return;
-        if (radiusRevision === radiusInputRevision) {
-            document.getElementById("radius").value = String(radius);
-            updateRadiusCircle();
-        }
-        status.textContent = `Default for new sites: ${radius} m. You can change it.`;
-    } catch (error) {
-        if (session !== locationFormSession) return;
-        status.textContent = "Could not load the default radius. Enter a radius, or reopen Add Deployment Site to retry.";
-    }
-}
-
-function hideForm() {
-    cancelAddressSearch();
-    locationFormSession += 1;
-    cancelCurrentLocationRequest();
-    setGeofenceControlsLockState(false);
-    document.getElementById("locationForm").style.display = "none";
-    hideSuggestions();
-}
-
-async function editLocation(id, button) {
-    cancelAddressSearch();
-    if (document.getElementById("addressArea")) document.getElementById("addressArea").value="";
-    document.getElementById("addressType").value="all";
-    const session = ++locationFormSession;
-    try {
-        cancelCurrentLocationRequest();
-        let d = locationRecords.get(id);
-        if (!d) {
-            const doc = await appDialog.runBusy(button, () => db.collection("locations").doc(id).get(), { label: 'Loading…' });
-            d = doc.data();
-            if (d) locationRecords.set(id, d);
-        }
-        if (session !== locationFormSession) return;
-        if (!d) throw new Error('Deployment site not found.');
-
-        const deployedGuards = await getDeployedGuardsForLocation(id);
-        if (session !== locationFormSession) return;
-
-        document.getElementById("locationForm").style.display = "block";
-        document.getElementById("formTitle").innerText = "Edit Deployment Site";
-        document.getElementById("editId").value = id;
-        const editLabelEl = document.getElementById("label");
-        if (editLabelEl) {
-            editLabelEl.value = d.label || "";
-            editLabelEl.dataset.autofilled = "false";
-        }
-        document.getElementById("radius").value = d.radius ?? "";
-        document.getElementById("radiusDefaultStatus").textContent = "";
-        document.getElementById("formError").innerText = "";
-
-        const shiftModelSelect = document.getElementById("siteShiftModel");
-        if (shiftModelSelect) {
-            let rawModel = d.shiftModel || d.shift_model || "2_shifts_12h";
-            if (rawModel === "2_shifts_12h_07") rawModel = "2_shifts_12h";
-            if (rawModel === "custom") {
-                const cLen = Array.isArray(d.customShiftHours || d.custom_shift_hours) ? (d.customShiftHours || d.custom_shift_hours).length : 2;
-                rawModel = cLen === 1 ? "1_shift_8h" : (cLen === 3 ? "3_shifts_8h" : "2_shifts_12h");
-            }
-            const cHours = d.customShiftHours || d.custom_shift_hours;
-            if (Array.isArray(cHours) && cHours.length === 3) {
-                rawModel = "3_shifts_8h";
-            }
-            shiftModelSelect.value = rawModel;
-            const customHours = d.customShiftHours || d.custom_shift_hours;
-            onSiteShiftModelChange(customHours);
-
-            const defs = SHIFT_MODEL_DEFAULTS[rawModel] || SHIFT_MODEL_DEFAULTS["2_shifts_12h"];
-            const isCustomized = Array.isArray(customHours) && customHours.length === defs.length &&
-                customHours.some((ch, idx) => ch.start_time !== defs[idx].start_time || ch.end_time !== defs[idx].end_time);
-            const wrap = document.getElementById("siteShiftsEditorWrap");
-            const editBtn = document.getElementById("editSiteShiftsBtn");
-            if (wrap && isCustomized) {
-                wrap.style.display = "block";
-                if (editBtn) editBtn.innerHTML = '<span class="material-symbols-rounded align-middle" style="font-size:14px;">close</span> Close Editor';
-            } else if (wrap) {
-                wrap.style.display = "none";
-                if (editBtn) editBtn.innerHTML = '<span class="material-symbols-rounded align-middle" style="font-size:14px;">tune</span> Edit Time';
-            }
+            });
+            const countBadge = document.getElementById("locationCountBadge");
+            if (countBadge) countBadge.textContent = String(matchCount);
+            document.getElementById("locationTable").innerHTML = html ||
+                `<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--sl-muted);">No deployment sites match your filters.</td></tr>`;
+            refreshTooltips();
         }
 
-        if (deployedGuards && deployedGuards.length > 0) {
-            lockedLocationData = {
-                latitude: Number(d.latitude),
-                longitude: Number(d.longitude),
-                radius: Number(d.radius),
-                address: d.address || ""
-            };
-            setGeofenceControlsLockState(true, deployedGuards, d.label || "Deployment Site", id);
-        } else {
-            lockedLocationData = null;
-            setGeofenceControlsLockState(false);
-        }
-
-        initMap();
-
-        const lat = d.latitude;
-        const lng = d.longitude;
-        const address = d.address || "";
-        document.getElementById("addressSearch").value = address;
-        clearPin();
-        hideSuggestions();
-        if (!isGeofenceLocked) {
-            setAddressSearchStatus("");
-        }
-        if (!setPin(Number(lat), Number(lng), address, false)) {
-            setSelectedAddressError("This saved deployment site is outside the supported Philippine map area.");
-        } else if (!address && !isGeofenceLocked) {
-            reverseGeocode(Number(lat), Number(lng));
-        }
-
-        requestAnimationFrame(() => {
-            map.invalidateSize({ pan: false, animate: false });
-            if (radiusCircle) {
-                map.fitBounds(radiusCircle.getBounds(), {
-                    padding: [56, 56],
-                    maxZoom: 17,
-                    animate: false
+        function refreshTooltips() {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+                    const inst = bootstrap.Tooltip.getInstance(el);
+                    if (inst) inst.dispose();
+                    new bootstrap.Tooltip(el, { delay: { show: 120, hide: 60 } });
                 });
             }
-        });
-
-        document.getElementById("locationForm").scrollIntoView({ behavior: "smooth" });
-    } catch (error) {
-        if (session !== locationFormSession) return;
-        appDialog.toast(error.message || 'Could not load the deployment site.', { tone: 'danger' });
-    }
-}
-
-async function saveLocation(button) {
-    const errEl = document.getElementById("formError");
-    errEl.innerText = "";
-
-    const label = document.getElementById("label").value.trim();
-    const address = document.getElementById("address").value.trim();
-    const lat = parseFloat(document.getElementById("lat").value);
-    const lng = parseFloat(document.getElementById("lng").value);
-    const radius = parseFloat(document.getElementById("radius").value);
-    const id = document.getElementById("editId").value;
-
-    if (!label) {
-        errEl.innerText = "Please enter a deployment site label.";
-        return;
-    }
-
-    const shiftModel = getActiveShiftModel();
-    const customShiftHours = getSiteShiftRowsData();
-    if (!customShiftHours || !customShiftHours.length) {
-        errEl.innerText = "Please configure the contracted shifts.";
-        return;
-    }
-    for (let i = 0; i < customShiftHours.length; i++) {
-        const cs = customShiftHours[i];
-        if (!cs.start_time || !cs.end_time) {
-            errEl.innerText = "Please enter valid start and end times for Shift " + (i + 1) + ".";
-            return;
         }
-        if (cs.start_time === cs.end_time) {
-            errEl.innerText = "Start and end time cannot be identical for Shift " + (i + 1) + ".";
-            return;
-        }
-    }
 
-    if (isGeofenceLocked && id) {
-        try {
-            await appDialog.runBusy(button, () => db.collection("locations").doc(id).update({
-                label,
-                shift_model: shiftModel,
-                custom_shift_hours: customShiftHours
-            }), { label: 'Saving changes…' });
-            hideForm();
-            await loadLocations();
-            appDialog.toast('Deployment site updated. Geofence remained locked.', { tone: 'success' });
-        } catch (error) {
-            const msg = String(error?.message || '').toLowerCase();
-            if (msg.includes('custom_shift_hours') || msg.includes('shift_model') || msg.includes('schema cache')) {
+        function copySiteCoordinates(lat, lng) {
+            const text = `${Number(lat).toFixed(6)}, ${Number(lng).toFixed(6)}`;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    if (window.appDialog && window.appDialog.toast) {
+                        window.appDialog.toast(`Copied GPS coordinates (${text}) to clipboard`, { tone: 'positive' });
+                    }
+                }).catch(() => { });
+            }
+        }
+
+        async function showAddForm() {
+            const session = ++locationFormSession;
+            document.getElementById("locationForm").style.display = "block";
+            document.getElementById("formTitle").innerText = "Add Deployment Site";
+            resetFormFields();
+            setGeofenceControlsLockState(false);
+            const radiusRevision = radiusInputRevision;
+            const status = document.getElementById("radiusDefaultStatus");
+            status.textContent = "Loading the default radius… You can also enter a radius.";
+            initMap();
+            showNegrosView(false);
+            document.getElementById("locationForm").scrollIntoView({ behavior: "smooth" });
+            try {
+                const radius = await loadDefaultGeofenceRadius();
+                if (session !== locationFormSession) return;
+                if (radiusRevision === radiusInputRevision) {
+                    document.getElementById("radius").value = String(radius);
+                    updateRadiusCircle();
+                }
+                status.textContent = `Default for new sites: ${radius} m. You can change it.`;
+            } catch (error) {
+                if (session !== locationFormSession) return;
+                status.textContent = "Could not load the default radius. Enter a radius, or reopen Add Deployment Site to retry.";
+            }
+        }
+
+        function hideForm() {
+            cancelAddressSearch();
+            locationFormSession += 1;
+            cancelCurrentLocationRequest();
+            setGeofenceControlsLockState(false);
+            document.getElementById("locationForm").style.display = "none";
+            hideSuggestions();
+        }
+
+        async function editLocation(id, button) {
+            cancelAddressSearch();
+            if (document.getElementById("addressArea")) document.getElementById("addressArea").value = "";
+            document.getElementById("addressType").value = "all";
+            const session = ++locationFormSession;
+            try {
+                cancelCurrentLocationRequest();
+                let d = locationRecords.get(id);
+                if (!d) {
+                    const doc = await appDialog.runBusy(button, () => db.collection("locations").doc(id).get(), { label: 'Loading…' });
+                    d = doc.data();
+                    if (d) locationRecords.set(id, d);
+                }
+                if (session !== locationFormSession) return;
+                if (!d) throw new Error('Deployment site not found.');
+
+                const deployedGuards = await getDeployedGuardsForLocation(id);
+                if (session !== locationFormSession) return;
+
+                document.getElementById("locationForm").style.display = "block";
+                document.getElementById("formTitle").innerText = "Edit Deployment Site";
+                document.getElementById("editId").value = id;
+                const editLabelEl = document.getElementById("label");
+                if (editLabelEl) {
+                    editLabelEl.value = d.label || "";
+                    editLabelEl.dataset.autofilled = "false";
+                }
+                document.getElementById("radius").value = d.radius ?? "";
+                document.getElementById("radiusDefaultStatus").textContent = "";
+                document.getElementById("formError").innerText = "";
+
+                const shiftModelSelect = document.getElementById("siteShiftModel");
+                if (shiftModelSelect) {
+                    let rawModel = d.shiftModel || d.shift_model || "2_shifts_12h";
+                    if (rawModel === "2_shifts_12h_07") rawModel = "2_shifts_12h";
+                    if (rawModel === "custom") {
+                        const cLen = Array.isArray(d.customShiftHours || d.custom_shift_hours) ? (d.customShiftHours || d.custom_shift_hours).length : 2;
+                        rawModel = cLen === 1 ? "1_shift_8h" : (cLen === 3 ? "3_shifts_8h" : "2_shifts_12h");
+                    }
+                    const cHours = d.customShiftHours || d.custom_shift_hours;
+                    if (Array.isArray(cHours) && cHours.length === 3) {
+                        rawModel = "3_shifts_8h";
+                    }
+                    shiftModelSelect.value = rawModel;
+                    const customHours = d.customShiftHours || d.custom_shift_hours;
+                    onSiteShiftModelChange(customHours);
+
+                    const defs = SHIFT_MODEL_DEFAULTS[rawModel] || SHIFT_MODEL_DEFAULTS["2_shifts_12h"];
+                    const isCustomized = Array.isArray(customHours) && customHours.length === defs.length &&
+                        customHours.some((ch, idx) => ch.start_time !== defs[idx].start_time || ch.end_time !== defs[idx].end_time);
+                    const wrap = document.getElementById("siteShiftsEditorWrap");
+                    const editBtn = document.getElementById("editSiteShiftsBtn");
+                    if (wrap && isCustomized) {
+                        wrap.style.display = "block";
+                        if (editBtn) editBtn.innerHTML = '<span class="material-symbols-rounded align-middle" style="font-size:14px;">close</span> Close Editor';
+                    } else if (wrap) {
+                        wrap.style.display = "none";
+                        if (editBtn) editBtn.innerHTML = '<span class="material-symbols-rounded align-middle" style="font-size:14px;">tune</span> Edit Time';
+                    }
+                }
+
+                if (deployedGuards && deployedGuards.length > 0) {
+                    lockedLocationData = {
+                        latitude: Number(d.latitude),
+                        longitude: Number(d.longitude),
+                        radius: Number(d.radius),
+                        address: d.address || ""
+                    };
+                    setGeofenceControlsLockState(true, deployedGuards, d.label || "Deployment Site", id);
+                } else {
+                    lockedLocationData = null;
+                    setGeofenceControlsLockState(false);
+                }
+
+                initMap();
+
+                const lat = d.latitude;
+                const lng = d.longitude;
+                const address = d.address || "";
+                document.getElementById("addressSearch").value = address;
+                clearPin();
+                hideSuggestions();
+                if (!isGeofenceLocked) {
+                    setAddressSearchStatus("");
+                }
+                if (!setPin(Number(lat), Number(lng), address, false)) {
+                    setSelectedAddressError("This saved deployment site is outside the supported Philippine map area.");
+                } else if (!address && !isGeofenceLocked) {
+                    reverseGeocode(Number(lat), Number(lng));
+                }
+
+                requestAnimationFrame(() => {
+                    map.invalidateSize({ pan: false, animate: false });
+                    if (radiusCircle) {
+                        map.fitBounds(radiusCircle.getBounds(), {
+                            padding: [56, 56],
+                            maxZoom: 17,
+                            animate: false
+                        });
+                    }
+                });
+
+                document.getElementById("locationForm").scrollIntoView({ behavior: "smooth" });
+            } catch (error) {
+                if (session !== locationFormSession) return;
+                appDialog.toast(error.message || 'Could not load the deployment site.', { tone: 'danger' });
+            }
+        }
+
+        async function saveLocation(button) {
+            const errEl = document.getElementById("formError");
+            errEl.innerText = "";
+
+            const label = document.getElementById("label").value.trim();
+            const address = document.getElementById("address").value.trim();
+            const lat = parseFloat(document.getElementById("lat").value);
+            const lng = parseFloat(document.getElementById("lng").value);
+            const radius = parseFloat(document.getElementById("radius").value);
+            const id = document.getElementById("editId").value;
+
+            if (!label) {
+                errEl.innerText = "Please enter a deployment site label.";
+                return;
+            }
+
+            const shiftModel = getActiveShiftModel();
+            const customShiftHours = getSiteShiftRowsData();
+            if (!customShiftHours || !customShiftHours.length) {
+                errEl.innerText = "Please configure the contracted shifts.";
+                return;
+            }
+            for (let i = 0; i < customShiftHours.length; i++) {
+                const cs = customShiftHours[i];
+                if (!cs.start_time || !cs.end_time) {
+                    errEl.innerText = "Please enter valid start and end times for Shift " + (i + 1) + ".";
+                    return;
+                }
+                if (cs.start_time === cs.end_time) {
+                    errEl.innerText = "Start and end time cannot be identical for Shift " + (i + 1) + ".";
+                    return;
+                }
+            }
+
+            if (isGeofenceLocked && id) {
                 try {
-                    await appDialog.runBusy(button, () => db.collection("locations").doc(id).update({ label }), { label: 'Saving changes…' });
+                    await appDialog.runBusy(button, () => db.collection("locations").doc(id).update({
+                        label,
+                        shift_model: shiftModel,
+                        custom_shift_hours: customShiftHours
+                    }), { label: 'Saving changes…' });
                     hideForm();
                     await loadLocations();
                     appDialog.toast('Deployment site updated. Geofence remained locked.', { tone: 'success' });
-                    return;
-                } catch (retryErr) {
-                    error = retryErr;
+                } catch (error) {
+                    const msg = String(error?.message || '').toLowerCase();
+                    if (msg.includes('custom_shift_hours') || msg.includes('shift_model') || msg.includes('schema cache')) {
+                        try {
+                            await appDialog.runBusy(button, () => db.collection("locations").doc(id).update({ label }), { label: 'Saving changes…' });
+                            hideForm();
+                            await loadLocations();
+                            appDialog.toast('Deployment site updated. Geofence remained locked.', { tone: 'success' });
+                            return;
+                        } catch (retryErr) {
+                            error = retryErr;
+                        }
+                    }
+                    errEl.innerText = error.message || 'Could not save the deployment site.';
+                    appDialog.toast(errEl.innerText, { tone: 'danger' });
                 }
+                return;
             }
-            errEl.innerText = error.message || 'Could not save the deployment site.';
-            appDialog.toast(errEl.innerText, { tone: 'danger' });
-        }
-        return;
-    }
 
-    if (!address || Number.isNaN(lat) || Number.isNaN(lng)) {
-        errEl.innerText = "Please select and verify a Philippine address before saving.";
-        return;
-    }
-    if (!isWithinPhilippinesMapBounds(lat, lng)) {
-        errEl.innerText = "Deployment sites must be located within the Philippines.";
-        return;
-    }
-    if (Number.isNaN(radius) || radius <= 0) {
-        errEl.innerText = "Please enter a valid radius in meters.";
-        return;
-    }
+            if (!address || Number.isNaN(lat) || Number.isNaN(lng)) {
+                errEl.innerText = "Please select and verify a Philippine address before saving.";
+                return;
+            }
+            if (!isWithinPhilippinesMapBounds(lat, lng)) {
+                errEl.innerText = "Deployment sites must be located within the Philippines.";
+                return;
+            }
+            if (Number.isNaN(radius) || radius <= 0) {
+                errEl.innerText = "Please enter a valid radius in meters.";
+                return;
+            }
 
-    const data = {
-        label,
-        address,
-        latitude: lat,
-        longitude: lng,
-        radius,
-        active: true,
-        shift_model: shiftModel,
-        custom_shift_hours: customShiftHours
-    };
-    try {
-        await appDialog.runBusy(button, () => id
-            ? db.collection("locations").doc(id).update(data)
-            : db.collection("locations").add(data), { label: id ? 'Saving changes…' : 'Creating site…' });
-        hideForm();
-        await loadLocations();
-        appDialog.toast(id ? 'Deployment site updated.' : 'Deployment site created.', { tone: 'success' });
-    } catch (error) {
-        const msg = String(error?.message || '').toLowerCase();
-        if (msg.includes('custom_shift_hours') || msg.includes('shift_model') || msg.includes('schema cache')) {
+            const data = {
+                label,
+                address,
+                latitude: lat,
+                longitude: lng,
+                radius,
+                active: true,
+                shift_model: shiftModel,
+                custom_shift_hours: customShiftHours
+            };
             try {
-                const cleanData = { ...data };
-                delete cleanData.shift_model;
-                delete cleanData.custom_shift_hours;
                 await appDialog.runBusy(button, () => id
-                    ? db.collection("locations").doc(id).update(cleanData)
-                    : db.collection("locations").add(cleanData), { label: id ? 'Saving changes…' : 'Creating site…' });
+                    ? db.collection("locations").doc(id).update(data)
+                    : db.collection("locations").add(data), { label: id ? 'Saving changes…' : 'Creating site…' });
                 hideForm();
                 await loadLocations();
                 appDialog.toast(id ? 'Deployment site updated.' : 'Deployment site created.', { tone: 'success' });
-                return;
-            } catch (retryErr) {
-                error = retryErr;
+            } catch (error) {
+                const msg = String(error?.message || '').toLowerCase();
+                if (msg.includes('custom_shift_hours') || msg.includes('shift_model') || msg.includes('schema cache')) {
+                    try {
+                        const cleanData = { ...data };
+                        delete cleanData.shift_model;
+                        delete cleanData.custom_shift_hours;
+                        await appDialog.runBusy(button, () => id
+                            ? db.collection("locations").doc(id).update(cleanData)
+                            : db.collection("locations").add(cleanData), { label: id ? 'Saving changes…' : 'Creating site…' });
+                        hideForm();
+                        await loadLocations();
+                        appDialog.toast(id ? 'Deployment site updated.' : 'Deployment site created.', { tone: 'success' });
+                        return;
+                    } catch (retryErr) {
+                        error = retryErr;
+                    }
+                }
+                errEl.innerText = error.message || 'Could not save the deployment site.';
+                appDialog.toast(errEl.innerText, { tone: 'danger' });
             }
         }
-        errEl.innerText = error.message || 'Could not save the deployment site.';
-        appDialog.toast(errEl.innerText, { tone: 'danger' });
-    }
-}
 
-async function toggleLocation(id, status, button) {
-    const action = status ? 'Disable' : 'Enable';
-    const approved = await appDialog.confirm(`${action} this deployment site?`, {
-        title: `${action} deployment site`, confirmText: action, danger: status
-    });
-    if (!approved) return;
-    try {
-        await appDialog.runBusy(button, () => db.collection("locations").doc(id).update({ active: !status }), { label: `${action.slice(0, -1)}ing…` });
-        await loadLocations();
-        appDialog.toast(`Deployment site ${status ? 'disabled' : 'enabled'}.`, { tone: 'success' });
-    } catch (error) {
-        appDialog.toast(error.message || 'Could not update the deployment site.', { tone: 'danger' });
-    }
-}
-
-let deployedGuardsModal = null;
-
-async function viewDeployedGuards(siteId, siteLabel) {
-    document.getElementById("deployedGuardsSiteName").textContent = siteLabel || "Deployment Site";
-    const countBadgeEl = document.getElementById("deployedGuardsCountBadge");
-    if (countBadgeEl) {
-        countBadgeEl.style.display = "none";
-        countBadgeEl.textContent = "";
-    }
-    const listEl = document.getElementById("deployedGuardsList");
-    listEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted);"><div class="spinner-border spinner-border-sm text-danger me-2"></div> Loading guards…</div>';
-
-    deployedGuardsModal ||= new bootstrap.Modal(document.getElementById("deployedGuardsModal"));
-    deployedGuardsModal.show();
-
-    try {
-        const snapshot = await db.collection("users").get();
-        const guards = [];
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.role === "user" && data.assignedLocationId === siteId) {
-                guards.push({ id: doc.id, data });
+        async function toggleLocation(id, status, button) {
+            const action = status ? 'Disable' : 'Enable';
+            const approved = await appDialog.confirm(`${action} this deployment site?`, {
+                title: `${action} deployment site`, confirmText: action, danger: status
+            });
+            if (!approved) return;
+            try {
+                await appDialog.runBusy(button, () => db.collection("locations").doc(id).update({ active: !status }), { label: `${action.slice(0, -1)}ing…` });
+                await loadLocations();
+                appDialog.toast(`Deployment site ${status ? 'disabled' : 'enabled'}.`, { tone: 'success' });
+            } catch (error) {
+                appDialog.toast(error.message || 'Could not update the deployment site.', { tone: 'danger' });
             }
-        });
+        }
 
-        if (!guards.length) {
+        let deployedGuardsModal = null;
+
+        async function viewDeployedGuards(siteId, siteLabel) {
+            document.getElementById("deployedGuardsSiteName").textContent = siteLabel || "Deployment Site";
+            const countBadgeEl = document.getElementById("deployedGuardsCountBadge");
             if (countBadgeEl) {
-                countBadgeEl.textContent = "0 Deployed";
-                countBadgeEl.style.display = "inline-block";
-                countBadgeEl.style.backgroundColor = "var(--sl-surface-muted, #f1f5f9)";
-                countBadgeEl.style.color = "var(--sl-muted, #64748b)";
-                countBadgeEl.style.border = "1px solid var(--sl-line, #e2e8f0)";
+                countBadgeEl.style.display = "none";
+                countBadgeEl.textContent = "";
             }
-            listEl.innerHTML = `
+            const listEl = document.getElementById("deployedGuardsList");
+            listEl.innerHTML = '<div style="text-align:center;padding:32px;color:var(--sl-muted);"><div class="spinner-border spinner-border-sm text-danger me-2"></div> Loading guards…</div>';
+
+            deployedGuardsModal ||= new bootstrap.Modal(document.getElementById("deployedGuardsModal"));
+            deployedGuardsModal.show();
+
+            try {
+                const snapshot = await db.collection("users").get();
+                const guards = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.role === "user" && data.assignedLocationId === siteId) {
+                        guards.push({ id: doc.id, data });
+                    }
+                });
+
+                if (!guards.length) {
+                    if (countBadgeEl) {
+                        countBadgeEl.textContent = "0 Deployed";
+                        countBadgeEl.style.display = "inline-block";
+                        countBadgeEl.style.backgroundColor = "var(--sl-surface-muted, #f1f5f9)";
+                        countBadgeEl.style.color = "var(--sl-muted, #64748b)";
+                        countBadgeEl.style.border = "1px solid var(--sl-line, #e2e8f0)";
+                    }
+                    listEl.innerHTML = `
                 <div style="text-align:center;padding:36px 20px;color:var(--sl-muted);">
                     <span class="material-symbols-rounded d-block mb-2" style="font-size:36px;opacity:0.4;">person</span>
                     <div style="font-weight:600;font-size:0.9rem;color:var(--sl-ink);">No guards currently deployed</div>
                     <div style="font-size:0.78rem;margin-top:6px;opacity:0.8;">No personnel are assigned to this site. Assign guards in the <a href="users.html" style="color:var(--sl-danger);text-decoration:underline;">Personnel</a> tab.</div>
                 </div>`;
-            return;
-        }
+                    return;
+                }
 
-        if (countBadgeEl) {
-            countBadgeEl.textContent = `${guards.length} ${guards.length === 1 ? 'Guard Deployed' : 'Guards Deployed'}`;
-            countBadgeEl.style.display = "inline-block";
-            countBadgeEl.style.backgroundColor = "rgba(16, 185, 129, 0.12)";
-            countBadgeEl.style.color = "#047857";
-            countBadgeEl.style.border = "1px solid rgba(16, 185, 129, 0.3)";
-        }
+                if (countBadgeEl) {
+                    countBadgeEl.textContent = `${guards.length} ${guards.length === 1 ? 'Guard Deployed' : 'Guards Deployed'}`;
+                    countBadgeEl.style.display = "inline-block";
+                    countBadgeEl.style.backgroundColor = "rgba(16, 185, 129, 0.12)";
+                    countBadgeEl.style.color = "#047857";
+                    countBadgeEl.style.border = "1px solid rgba(16, 185, 129, 0.3)";
+                }
 
-        guards.sort((a, b) => {
-            const aActive = a.data.active !== false;
-            const bActive = b.data.active !== false;
-            if (aActive && !bActive) return -1;
-            if (!aActive && bActive) return 1;
-            const aName = (a.data.lastName || a.data.name || "").toLowerCase();
-            const bName = (b.data.lastName || b.data.name || "").toLowerCase();
-            return aName.localeCompare(bName);
-        });
+                guards.sort((a, b) => {
+                    const aActive = a.data.active !== false;
+                    const bActive = b.data.active !== false;
+                    if (aActive && !bActive) return -1;
+                    if (!aActive && bActive) return 1;
+                    const aName = (a.data.lastName || a.data.name || "").toLowerCase();
+                    const bName = (b.data.lastName || b.data.name || "").toLowerCase();
+                    return aName.localeCompare(bName);
+                });
 
-        listEl.innerHTML = guards.map(({ id, data }) => {
-            const fullName = [data.firstName, data.middleInitial ? data.middleInitial + '.' : '', data.lastName].filter(Boolean).join(' ').trim()
-                || data.name || 'Guard';
-            const email = displayLoginId(data);
-            const phone = data.mobileNumber || data.phone || '';
-            const category = data.employmentCategory === 'contract' ? 'Contract' : 'Regular';
-            const isActive = data.active !== false;
-            const statusBadge = isActive
-                ? '<span class="badge-active">Active</span>'
-                : '<span class="badge-inactive">Disabled</span>';
-            const avatarLetter = (data.firstName ? data.firstName[0] : (fullName[0] || 'G')).toUpperCase();
+                listEl.innerHTML = guards.map(({ id, data }) => {
+                    const fullName = [data.firstName, data.middleInitial ? data.middleInitial + '.' : '', data.lastName].filter(Boolean).join(' ').trim()
+                        || data.name || 'Guard';
+                    const email = displayLoginId(data);
+                    const phone = data.mobileNumber || data.phone || '';
+                    const category = data.employmentCategory === 'contract' ? 'Contract' : 'Regular';
+                    const isActive = data.active !== false;
+                    const statusBadge = isActive
+                        ? '<span class="badge-active">Active</span>'
+                        : '<span class="badge-inactive">Disabled</span>';
+                    const avatarLetter = (data.firstName ? data.firstName[0] : (fullName[0] || 'G')).toUpperCase();
 
-            return `
+                    return `
                 <div class="deployed-guard-card">
                     <div class="deployed-guard-avatar">${escapeHtml(avatarLetter)}</div>
                     <div class="deployed-guard-info">
@@ -1710,78 +1909,78 @@ async function viewDeployedGuards(siteId, siteLabel) {
                         </div>
                     </div>
                 </div>`;
-        }).join('');
-    } catch (err) {
-        listEl.innerHTML = `<div style="text-align:center;padding:24px;color:var(--sl-danger);">Could not load deployed guards: ${escapeHtml(err?.message || 'Please try again.')}</div>`;
-    }
-}
+                }).join('');
+            } catch (err) {
+                listEl.innerHTML = `<div style="text-align:center;padding:24px;color:var(--sl-danger);">Could not load deployed guards: ${escapeHtml(err?.message || 'Please try again.')}</div>`;
+            }
+        }
 
-function formatTime12Hour(time24) {
-    if (!time24) return '';
-    const parts = String(time24).split(':');
-    let h = parseInt(parts[0], 10);
-    const m = parts[1] || '00';
-    if (isNaN(h)) return time24;
-    const ampm = h >= 12 ? 'PM' : 'AM';
-    h = h % 12;
-    if (h === 0) h = 12;
-    return `${h}:${m} ${ampm}`;
-}
+        function formatTime12Hour(time24) {
+            if (!time24) return '';
+            const parts = String(time24).split(':');
+            let h = parseInt(parts[0], 10);
+            const m = parts[1] || '00';
+            if (isNaN(h)) return time24;
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12;
+            if (h === 0) h = 12;
+            return `${h}:${m} ${ampm}`;
+        }
 
-const SHIFT_MODEL_DEFAULTS = {
-    '1_shift_8h': [
-        { label: 'Day Shift', start_time: '08:00', end_time: '17:00' }
-    ],
-    '2_shifts_12h': [
-        { label: 'Day Shift', start_time: '06:00', end_time: '18:00' },
-        { label: 'Night Shift', start_time: '18:00', end_time: '06:00' }
-    ],
-    '3_shifts_8h': [
-        { label: 'First Shift', start_time: '06:00', end_time: '14:00' },
-        { label: 'Second Shift', start_time: '14:00', end_time: '22:00' },
-        { label: 'Third Shift', start_time: '22:00', end_time: '06:00' }
-    ]
-};
+        const SHIFT_MODEL_DEFAULTS = {
+            '1_shift_8h': [
+                { label: 'Day Shift', start_time: '08:00', end_time: '17:00' }
+            ],
+            '2_shifts_12h': [
+                { label: 'Day Shift', start_time: '06:00', end_time: '18:00' },
+                { label: 'Night Shift', start_time: '18:00', end_time: '06:00' }
+            ],
+            '3_shifts_8h': [
+                { label: 'First Shift', start_time: '06:00', end_time: '14:00' },
+                { label: 'Second Shift', start_time: '14:00', end_time: '22:00' },
+                { label: 'Third Shift', start_time: '22:00', end_time: '06:00' }
+            ]
+        };
 
-function getActiveShiftModel() {
-    return document.getElementById("siteShiftModel")?.value || "2_shifts_12h";
-}
+        function getActiveShiftModel() {
+            return document.getElementById("siteShiftModel")?.value || "2_shifts_12h";
+        }
 
-function onSiteShiftModelChange(customShiftsToLoad) {
-    const model = getActiveShiftModel();
-    const titleEl = document.getElementById("editorShiftModelTitle");
-    if (titleEl) {
-        if (model === "1_shift_8h") titleEl.textContent = "1 Shift (Day)";
-        else if (model === "2_shifts_12h") titleEl.textContent = "2 Shifts (12h)";
-        else if (model === "3_shifts_8h") titleEl.textContent = "3 Shifts (8h)";
-    }
+        function onSiteShiftModelChange(customShiftsToLoad) {
+            const model = getActiveShiftModel();
+            const titleEl = document.getElementById("editorShiftModelTitle");
+            if (titleEl) {
+                if (model === "1_shift_8h") titleEl.textContent = "1 Shift (Day)";
+                else if (model === "2_shifts_12h") titleEl.textContent = "2 Shifts (12h)";
+                else if (model === "3_shifts_8h") titleEl.textContent = "3 Shifts (8h)";
+            }
 
-    const defaultList = SHIFT_MODEL_DEFAULTS[model] || SHIFT_MODEL_DEFAULTS['2_shifts_12h'];
-    const listToRender = (Array.isArray(customShiftsToLoad) && customShiftsToLoad.length)
-        ? customShiftsToLoad
-        : defaultList;
+            const defaultList = SHIFT_MODEL_DEFAULTS[model] || SHIFT_MODEL_DEFAULTS['2_shifts_12h'];
+            const listToRender = (Array.isArray(customShiftsToLoad) && customShiftsToLoad.length)
+                ? customShiftsToLoad
+                : defaultList;
 
-    renderSiteShiftEditorRows(listToRender);
-    updateShiftModelHelp();
-}
+            renderSiteShiftEditorRows(listToRender);
+            updateShiftModelHelp();
+        }
 
-function toggleShiftEditor() {
-    const wrap = document.getElementById("siteShiftsEditorWrap");
-    if (!wrap) return;
-    const isShowing = wrap.style.display === "block";
-    wrap.style.display = isShowing ? "none" : "block";
-    const editBtn = document.getElementById("editSiteShiftsBtn");
-    if (editBtn) {
-        editBtn.innerHTML = isShowing
-            ? '<span class="material-symbols-rounded align-middle" style="font-size:14px;">tune</span> Edit Time'
-            : '<span class="material-symbols-rounded align-middle" style="font-size:14px;">close</span> Close Editor';
-    }
-}
+        function toggleShiftEditor() {
+            const wrap = document.getElementById("siteShiftsEditorWrap");
+            if (!wrap) return;
+            const isShowing = wrap.style.display === "block";
+            wrap.style.display = isShowing ? "none" : "block";
+            const editBtn = document.getElementById("editSiteShiftsBtn");
+            if (editBtn) {
+                editBtn.innerHTML = isShowing
+                    ? '<span class="material-symbols-rounded align-middle" style="font-size:14px;">tune</span> Edit Time'
+                    : '<span class="material-symbols-rounded align-middle" style="font-size:14px;">close</span> Close Editor';
+            }
+        }
 
-function renderSiteShiftEditorRows(shifts) {
-    const container = document.getElementById("siteShiftEditorRows");
-    if (!container) return;
-    container.innerHTML = shifts.map((s, idx) => `
+        function renderSiteShiftEditorRows(shifts) {
+            const container = document.getElementById("siteShiftEditorRows");
+            if (!container) return;
+            container.innerHTML = shifts.map((s, idx) => `
         <div class="row g-2 align-items-center site-shift-row" data-index="${idx}">
             <div class="col-md-4 col-sm-12">
                 <label class="form-label mb-1" style="font-size:0.72rem;font-weight:700;letter-spacing:0.04em;">SHIFT ${idx + 1} LABEL</label>
@@ -1803,86 +2002,87 @@ function renderSiteShiftEditorRows(shifts) {
             </div>
         </div>
     `).join('');
-}
-
-function onShiftRowTimeInput(input) {
-    const badge = input.nextElementSibling;
-    if (badge) badge.textContent = formatTime12Hour(input.value);
-    updateShiftModelHelp();
-}
-
-function getSiteShiftRowsData() {
-    const model = getActiveShiftModel();
-    const rows = document.querySelectorAll(".site-shift-row");
-    const data = [];
-    rows.forEach(r => {
-        const label = r.querySelector(".site-shift-label")?.value.trim() || "";
-        const start_time = r.querySelector(".site-shift-start")?.value || "";
-        const end_time = r.querySelector(".site-shift-end")?.value || "";
-        data.push({ start_time, end_time, label });
-    });
-    const expectedCount = model === "1_shift_8h" ? 1 : (model === "3_shifts_8h" ? 3 : 2);
-    if (!data.length) {
-        const defaults = SHIFT_MODEL_DEFAULTS[model] || SHIFT_MODEL_DEFAULTS['2_shifts_12h'];
-        return defaults.slice(0, expectedCount);
-    }
-    return data.slice(0, expectedCount);
-}
-
-function resetCurrentShiftModelDefault() {
-    const model = getActiveShiftModel();
-    const defaults = SHIFT_MODEL_DEFAULTS[model] || SHIFT_MODEL_DEFAULTS['2_shifts_12h'];
-    renderSiteShiftEditorRows(defaults);
-    updateShiftModelHelp();
-}
-
-function updateShiftModelHelp() {
-    const helpEl = document.getElementById("siteShiftModelHelp");
-    if (!helpEl) return;
-    const model = getActiveShiftModel();
-    const shifts = getSiteShiftRowsData();
-    if (!shifts.length) {
-        helpEl.textContent = "Auto-loads roster shifts when scheduling";
-        return;
-    }
-    const ranges = shifts.map(s => `${formatTime12Hour(s.start_time)}–${formatTime12Hour(s.end_time)}`).join(' / ');
-    if (model === "1_shift_8h") {
-        helpEl.textContent = `Auto-loads 1 Day Shift (${ranges})`;
-    } else if (model === "2_shifts_12h") {
-        helpEl.textContent = `Auto-loads 2 Shifts: ${ranges}`;
-    } else if (model === "3_shifts_8h") {
-        helpEl.textContent = `Auto-loads 3 Shifts: ${ranges}`;
-    }
-}
-
-function getShiftModelBadge(d) {
-    let model = d.shiftModel || d.shift_model || '2_shifts_12h';
-    if (model === '2_shifts_12h_07') model = '2_shifts_12h';
-    const customHours = d.customShiftHours || d.custom_shift_hours;
-    if (model === '1_shift_8h') {
-        let timeRange = '8:00 AM–5:00 PM';
-        if (Array.isArray(customHours) && customHours.length && customHours[0].start_time && customHours[0].end_time) {
-            timeRange = formatTime12Hour(customHours[0].start_time) + '–' + formatTime12Hour(customHours[0].end_time);
         }
-        return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 1 Day Shift (' + timeRange + ')</span>';
-    }
-    if (model === '2_shifts_12h') {
-        let timeRange = '6:00 AM–6:00 PM';
-        if (Array.isArray(customHours) && customHours.length && customHours[0].start_time && customHours[0].end_time) {
-            timeRange = formatTime12Hour(customHours[0].start_time) + '–' + formatTime12Hour(customHours[0].end_time);
-        }
-        return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: ' + timeRange + ')</span>';
-    }
-    if (model === '3_shifts_8h') {
-        let timeRange = '6:00 AM / 2:00 PM / 10:00 PM';
-        if (Array.isArray(customHours) && customHours.length >= 3 && customHours.every(c => c.start_time)) {
-            timeRange = customHours.map(c => formatTime12Hour(c.start_time)).join(' / ');
-        }
-        return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 3 Shifts (8h: ' + timeRange + ')</span>';
-    }
-    return '<span class="badge-shift-contract"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h)</span>';
-}
 
-</script>
+        function onShiftRowTimeInput(input) {
+            const badge = input.nextElementSibling;
+            if (badge) badge.textContent = formatTime12Hour(input.value);
+            updateShiftModelHelp();
+        }
+
+        function getSiteShiftRowsData() {
+            const model = getActiveShiftModel();
+            const rows = document.querySelectorAll(".site-shift-row");
+            const data = [];
+            rows.forEach(r => {
+                const label = r.querySelector(".site-shift-label")?.value.trim() || "";
+                const start_time = r.querySelector(".site-shift-start")?.value || "";
+                const end_time = r.querySelector(".site-shift-end")?.value || "";
+                data.push({ start_time, end_time, label });
+            });
+            const expectedCount = model === "1_shift_8h" ? 1 : (model === "3_shifts_8h" ? 3 : 2);
+            if (!data.length) {
+                const defaults = SHIFT_MODEL_DEFAULTS[model] || SHIFT_MODEL_DEFAULTS['2_shifts_12h'];
+                return defaults.slice(0, expectedCount);
+            }
+            return data.slice(0, expectedCount);
+        }
+
+        function resetCurrentShiftModelDefault() {
+            const model = getActiveShiftModel();
+            const defaults = SHIFT_MODEL_DEFAULTS[model] || SHIFT_MODEL_DEFAULTS['2_shifts_12h'];
+            renderSiteShiftEditorRows(defaults);
+            updateShiftModelHelp();
+        }
+
+        function updateShiftModelHelp() {
+            const helpEl = document.getElementById("siteShiftModelHelp");
+            if (!helpEl) return;
+            const model = getActiveShiftModel();
+            const shifts = getSiteShiftRowsData();
+            if (!shifts.length) {
+                helpEl.textContent = "Auto-loads roster shifts when scheduling";
+                return;
+            }
+            const ranges = shifts.map(s => `${formatTime12Hour(s.start_time)}–${formatTime12Hour(s.end_time)}`).join(' / ');
+            if (model === "1_shift_8h") {
+                helpEl.textContent = `Auto-loads 1 Day Shift (${ranges})`;
+            } else if (model === "2_shifts_12h") {
+                helpEl.textContent = `Auto-loads 2 Shifts: ${ranges}`;
+            } else if (model === "3_shifts_8h") {
+                helpEl.textContent = `Auto-loads 3 Shifts: ${ranges}`;
+            }
+        }
+
+        function getShiftModelBadge(d) {
+            let model = d.shiftModel || d.shift_model || '2_shifts_12h';
+            if (model === '2_shifts_12h_07') model = '2_shifts_12h';
+            const customHours = d.customShiftHours || d.custom_shift_hours;
+            if (model === '1_shift_8h') {
+                let timeRange = '8:00 AM–5:00 PM';
+                if (Array.isArray(customHours) && customHours.length && customHours[0].start_time && customHours[0].end_time) {
+                    timeRange = formatTime12Hour(customHours[0].start_time) + '–' + formatTime12Hour(customHours[0].end_time);
+                }
+                return '<span class="badge-shift-contract" data-bs-toggle="tooltip" data-bs-placement="top" title="Contracted Shift Schedule: 1 Day Shift (' + timeRange + ') — Single daytime operational shift"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 1 Day Shift (' + timeRange + ')</span>';
+            }
+            if (model === '2_shifts_12h') {
+                let timeRange = '6:00 AM–6:00 PM';
+                if (Array.isArray(customHours) && customHours.length && customHours[0].start_time && customHours[0].end_time) {
+                    timeRange = formatTime12Hour(customHours[0].start_time) + '–' + formatTime12Hour(customHours[0].end_time);
+                }
+                return '<span class="badge-shift-contract" data-bs-toggle="tooltip" data-bs-placement="top" title="Contracted Shift Schedule: 2 Shifts (12h coverage: ' + timeRange + ' &amp; opposite night shift) — 24-hour dual coverage"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h: ' + timeRange + ')</span>';
+            }
+            if (model === '3_shifts_8h') {
+                let timeRange = '6:00 AM / 2:00 PM / 10:00 PM';
+                if (Array.isArray(customHours) && customHours.length >= 3 && customHours.every(c => c.start_time)) {
+                    timeRange = customHours.map(c => formatTime12Hour(c.start_time)).join(' / ');
+                }
+                return '<span class="badge-shift-contract" data-bs-toggle="tooltip" data-bs-placement="top" title="Contracted Shift Schedule: 3 Shifts (8h coverage: ' + timeRange + ') — 24-hour continuous 3-shift rotation"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 3 Shifts (8h: ' + timeRange + ')</span>';
+            }
+            return '<span class="badge-shift-contract" data-bs-toggle="tooltip" data-bs-placement="top" title="Contracted Shift Schedule: 2 Shifts (12h each) — 24-hour dual rotation"><span class="material-symbols-rounded" style="font-size:12px;" aria-hidden="true">calendar_month</span> 2 Shifts (12h)</span>';
+        }
+
+    </script>
 </body>
+
 </html>

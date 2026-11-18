@@ -2,7 +2,7 @@
 @import url('../../css/brand.css');
 @import url('../../css/app-experience.css');
 @import url('../../css/theme-preference.css');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
     --ax-sidebar: #6b1515;
@@ -200,7 +200,7 @@ body[data-it-page="users"] .ax-nav a[href="users.html"],
     box-sizing: border-box;
 }
 
-.ax-section-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ax-muted); margin-bottom: 12px; }
+.ax-section-label { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sl-accent); margin-bottom: 12px; }
 .ax-panel { background: var(--ax-surface); border: 1px solid var(--ax-border); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 2px rgba(28,25,23,0.04); }
 .ax-table { width: 100%; border-collapse: collapse; }
 .ax-table thead tr { background: var(--sl-red-soft); border-bottom: 1px solid var(--ax-border); }
@@ -744,7 +744,7 @@ body[data-it-page="users"] .ax-nav a[href="users.html"],
 
 /* Legacy page helpers — map old admin accents to brand */
 .glass-card, .action-card { background: var(--ax-surface); border: 1px solid var(--ax-border); border-radius: 14px; }
-.section-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sl-accent); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.section-title { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sl-accent); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
 .section-title::after { content: ''; flex: 1; height: 1px; background: var(--ax-border); }
 
 /* Light workspace forms + tables (schedule, locations, incidents) */
@@ -791,9 +791,9 @@ body[data-it-page="users"] .ax-nav a[href="users.html"],
 .loc-table tbody td, .schedule-table tbody td, .data-table tbody td {
     padding: 14px 18px; font-size: 0.875rem; color: var(--ax-text); vertical-align: middle;
 }
-.loc-name, .loc-cell-name { font-weight: 600; color: var(--ax-text); }
-.loc-address, .loc-cell-address, .loc-coords-fallback { font-size: 0.78rem; color: var(--ax-muted); margin-top: 2px; }
-.loc-coords-fallback { font-family: ui-monospace, monospace; }
+.loc-name, .loc-cell-name { font-weight: 600; font-size: 0.875rem; color: var(--ax-text); display: flex; align-items: center; flex-wrap: wrap; gap: 6px; line-height: 1.35; }
+.loc-address, .loc-cell-address { font-size: 0.8125rem; color: var(--ax-muted); line-height: 1.45; margin-top: 2px; }
+.loc-coords-fallback { font-family: 'Inter', system-ui, -apple-system, sans-serif; font-size: 0.75rem; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ax-muted); margin-top: 3px; opacity: 0.88; }
 
 .badge-time {
     font-size: 0.72rem; padding: 4px 10px; border-radius: 20px; font-weight: 600;
@@ -805,7 +805,7 @@ body[data-it-page="users"] .ax-nav a[href="users.html"],
 }
 .schedule-time-range { font-size: 0.82rem; color: var(--ax-text); line-height: 1.45; }
 .schedule-time-sub, .form-hint, .radius-note, .map-hint { font-size: 0.75rem; color: var(--ax-muted); margin-top: 4px; }
-.row-num { font-family: ui-monospace, monospace; font-size: 0.8rem; color: var(--ax-muted); }
+.row-num { font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-size: 0.8rem; font-weight: 600; color: var(--ax-muted); }
 
 .action-btn {
     border-radius: 8px; padding: 6px 12px; font-size: 0.78rem; font-weight: 600;

@@ -1559,7 +1559,20 @@
 - **Pending / Next Steps**:
   - Awaiting user review and confirmation before committing/pushing.
 
-### [2026-11-08 01:47] - Streamline Inspector Dashboard (Remove Redundant Shift Roster & Quick Access)
+### [2026-11-18 06:20] - Guard Tracker: Daily Attendance History Grouping by Date
+
+- **Scope & Objective**: Fix Guard Tracker location history so that attendance checkpoints (Time In & Time Out) are cleanly grouped and displayed per date instead of pairing mismatched dates across time (e.g. Nov 8 In with Nov 9 Out).
+- **Files Modified**:
+  - [`web/js/live-tracking.js`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/js/live-tracking.js): Upgraded `openGuardLocationHistory` to fetch up to 100 attendance punches, group records strictly by duty date, calculate shift duration, assign shift status badges (Completed, Active, Missing Out), render daily shift cards, provide per-date map fitting ("Show Day on Map"), and individual "Pin on Map" buttons. Added filter pills (All Dates, Last 7 Days, Last 30 Days).
+  - [`web/css/live-tracking.css`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/css/live-tracking.css): Added modern responsive styles for `.tracking-history-date-card`, `.tracking-history-filter-pill`, `.tracking-history-badge`, `.tracking-history-time-badge`, `.tracking-history-geo-tag`, and full dark mode support.
+  - [`web/admin/live-tracking.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/live-tracking.html) & [`web/inspector/live-tracking.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/inspector/live-tracking.html): Bumped cache-busting query strings (`live-tracking.css?v=1.0.34`, `live-tracking.js?v=1.0.37`).
+- **Key Implementation Details**:
+  - Separates punches by `punch_date` (or formatted timestamp date), preventing punches from different dates from being merged together.
+  - Supports multiple shifts on the same day (e.g. AM In/Out and PM In/Out).
+  - Interactive map markers on `historyLayer` with color-coded circles (Green for Time In, Red for Time Out) and detailed popups.
+- **Verification & Testing**:
+  - Syntax check `node -c web/js/live-tracking.js` passed with code 0.
+
 
 - **Scope & Objective**: Clean up and streamline the Inspector Dashboard (`web/inspector/dashboard.html`) by removing redundant "Quick Access" links (already accessible on sidebar) and "Today's Guard Shift Roster" (already accessible on Guard Tracker), focusing the inspector overview on high-priority KPIs and Active Field Investigations.
 - **Files Modified**:

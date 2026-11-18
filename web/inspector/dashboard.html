@@ -13,7 +13,7 @@
 <body class="admin-body inspector-body" data-ix-page="dashboard">
 
 <div id="loadingScreen">
-    <div class="spinner-border text-success"></div>
+    <div class="spinner-border text-danger"></div>
     <p>Loading overview…</p>
 </div>
 
@@ -152,16 +152,16 @@ function renderIncidentQueue(items) {
     }
 
     container.innerHTML = `
-        <div class="ax-table-wrapper" style="overflow-x:auto;">
-            <table class="ax-table" style="width:100%; margin:0;">
+        <div class="sl-table-frame">
+            <table class="ax-table">
                 <thead>
-                    <tr style="border-bottom: 2px solid var(--ax-border);">
-                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">When</th>
-                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Guard &amp; Post</th>
-                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Category</th>
-                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Status</th>
-                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted);">Evidence</th>
-                        <th style="padding:10px 14px; font-size:0.75rem; text-transform:uppercase; color:var(--ax-muted); text-align:right;">Action</th>
+                    <tr>
+                        <th>When</th>
+                        <th>Guard &amp; Post</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Evidence</th>
+                        <th style="text-align:right;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -169,16 +169,16 @@ function renderIncidentQueue(items) {
                         const cat = CATEGORY_LABELS[inc.category] || inc.category || 'Incident';
                         const evidence = inc.videoPath ? (String(inc.videoDurationSeconds || 15) + 's video' + (inc.photoData || inc.photoUrl ? ' + photo' : '')) : (inc.photoData || inc.photoUrl ? 'Photo' : 'Text report');
                         return `<tr>
-                            <td style="white-space:nowrap; font-size:0.82rem; color:var(--ax-muted);">${escapeHtml(formatWhen(inc.capturedAt || inc.createdAt))}</td>
+                            <td class="col-nowrap" style="color:var(--ax-muted);">${escapeHtml(formatWhen(inc.capturedAt || inc.createdAt))}</td>
                             <td>
-                                <strong>${escapeHtml(inc.guardName || 'Assigned Guard')}</strong>
-                                <div style="font-size:0.78rem; color:var(--ax-muted);">${escapeHtml(inc.locationLabel || 'Assigned site')}</div>
+                                <div class="ax-cell-primary">${escapeHtml(inc.guardName || 'Assigned Guard')}</div>
+                                <div class="ax-cell-secondary">${escapeHtml(inc.locationLabel || 'Assigned site')}</div>
                             </td>
-                            <td><span class="badge-cat">${escapeHtml(cat)}</span></td>
-                            <td>${statusBadge(inc.status)}</td>
-                            <td style="font-size:0.8rem; color:var(--ax-muted);">${escapeHtml(evidence)}</td>
-                            <td style="text-align:right;">
-                                <a href="incidents.html" class="ax-btn" style="padding:5px 12px; font-size:0.78rem; text-decoration:none;">Review</a>
+                            <td class="col-nowrap"><span class="badge-cat">${escapeHtml(cat)}</span></td>
+                            <td class="col-nowrap">${statusBadge(inc.status)}</td>
+                            <td style="color:var(--ax-muted);">${escapeHtml(evidence)}</td>
+                            <td class="col-nowrap" style="text-align:right;">
+                                <a href="incidents.html" class="ax-btn" style="padding:6px 12px; font-size:0.78rem; text-decoration:none;">Review</a>
                             </td>
                         </tr>`;
                     }).join('')}

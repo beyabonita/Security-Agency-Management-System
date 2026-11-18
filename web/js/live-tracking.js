@@ -215,7 +215,22 @@
       mapWrap.appendChild(histPanel);
     }
     histPanel.hidden = false;
-    histPanel.innerHTML = '<div class="tracking-location-panel-head"><div><h3 class="tracking-location-panel-title">Loading Location History…</h3></div></div>';
+    histPanel.innerHTML = `
+      <div class="tracking-location-panel-head">
+        <div>
+          <h3 class="tracking-location-panel-title">Loading Guard History Location…</h3>
+          <p class="tracking-location-panel-sub">Retrieving daily time in / time out records...</p>
+        </div>
+        <button type="button" class="tracking-location-panel-close" id="closeHistLoadingBtn">Close History</button>
+      </div>`;
+    const closeLoadingBtn = document.getElementById('closeHistLoadingBtn');
+    if (closeLoadingBtn) {
+      closeLoadingBtn.onclick = () => {
+        activeHistoryGuardId = null;
+        histPanel.hidden = true;
+        if (historyLayer && typeof historyLayer.clearLayers === 'function') historyLayer.clearLayers();
+      };
+    }
 
     let dbPoints = [];
     if (client && typeof client.rpc === 'function' && /^[0-9a-f-]{32,36}$/i.test(uid)) {
@@ -232,10 +247,13 @@
           .select('*')
           .eq('user_id', uid)
           .order('punched_at', { ascending: false })
-          .limit(10);
+          .limit(100);
         if (Array.isArray(data) && data.length) punchRows = data;
       } catch (_) {}
     }
+
+    // Guard changed or panel closed while waiting for network
+    if (activeHistoryGuardId !== uid) return;
 
     const localPoints = guardHistoryMap.get(uid) || [];
     const mergedMap = new Map();
@@ -255,111 +273,256 @@
     });
     const points = [...mergedMap.values()].sort((a, b) => Date.parse(b.captured_at) - Date.parse(a.captured_at));
 
-    // Derive ONLY 2 Key Checkpoints: Clock-In and Clock-Out (or Current Active)
-    let clockInEvent = null;
-    let clockOutEvent = null;
+    // Group punches or points strictly by Date (YYYY-MM-DD)
+    const todayDateStr = new Date().toLocaleDateString('en-CA');
+    const dateGroupsMap = new Map();
 
-    const inPunch = punchRows.find(p => p.punch_type && /in/i.test(p.punch_type) && Number.isFinite(Number(p.latitude)));
-    if (inPunch) {
-      clockInEvent = {
-        type: 'clock_in',
-        label: 'Clock-In Checkpoint',
-        time: inPunch.punched_at,
-        latitude: Number(inPunch.latitude),
-        longitude: Number(inPunch.longitude),
-        accuracy_meters: 15,
-        location_label: inPunch.location_label || fallbackGuard?.location_label || 'Assigned Post',
-        within_geofence: inPunch.within_geofence,
-        color: '#16a34a'
-      };
-    } else if (points.length) {
-      const initPt = points[points.length - 1];
-      clockInEvent = {
-        type: 'clock_in',
-        label: 'Clock-In / Duty Start',
-        time: initPt.captured_at,
-        latitude: initPt.latitude,
-        longitude: initPt.longitude,
-        accuracy_meters: initPt.accuracy_meters || 15,
-        location_label: initPt.location_label || fallbackGuard?.location_label || 'Assigned Post',
-        within_geofence: true,
-        color: '#16a34a'
-      };
+    function getGroup(dateKey) {
+      if (!dateGroupsMap.has(dateKey)) {
+        dateGroupsMap.set(dateKey, { dateKey, punches: [], points: [] });
+      }
+      return dateGroupsMap.get(dateKey);
     }
 
-    const outPunch = punchRows.find(p => p.punch_type && /out/i.test(p.punch_type) && Number.isFinite(Number(p.latitude)));
-    if (outPunch) {
-      clockOutEvent = {
-        type: 'clock_out',
-        label: 'Clock-Out Checkpoint',
-        time: outPunch.punched_at,
-        latitude: Number(outPunch.latitude),
-        longitude: Number(outPunch.longitude),
-        accuracy_meters: 15,
-        location_label: outPunch.location_label || fallbackGuard?.location_label || 'Assigned Post',
-        within_geofence: outPunch.within_geofence,
-        color: '#dc2626'
-      };
-    } else if (points.length > 1) {
-      const latestPt = points[0];
-      clockOutEvent = {
-        type: 'clock_out',
-        label: 'Clock-Out Checkpoint',
-        time: latestPt.captured_at,
-        latitude: latestPt.latitude,
-        longitude: latestPt.longitude,
-        accuracy_meters: latestPt.accuracy_meters || 15,
-        location_label: latestPt.location_label || fallbackGuard?.location_label || 'Assigned Post',
-        within_geofence: true,
-        color: '#dc2626'
-      };
+    if (punchRows.length > 0) {
+      punchRows.forEach(p => {
+        let dateKey = p.punch_date;
+        if (!dateKey && p.punched_at) {
+          const d = new Date(p.punched_at);
+          if (!Number.isNaN(d.getTime())) {
+            dateKey = d.toLocaleDateString('en-CA');
+          }
+        }
+        if (!dateKey) dateKey = 'Unknown Date';
+        getGroup(dateKey).punches.push(p);
+      });
+    } else if (points.length > 0) {
+      points.forEach(pt => {
+        const d = new Date(pt.captured_at);
+        const dateKey = !Number.isNaN(d.getTime()) ? d.toLocaleDateString('en-CA') : 'Unknown Date';
+        getGroup(dateKey).points.push(pt);
+      });
     }
 
-    const checkpointEvents = [clockInEvent, clockOutEvent].filter(Boolean);
+    // Sort dates descending (latest date first)
+    const sortedDateKeys = [...dateGroupsMap.keys()].sort((a, b) => {
+      if (a === 'Unknown Date') return 1;
+      if (b === 'Unknown Date') return -1;
+      return b.localeCompare(a);
+    });
 
-    let activePinMarker = null;
+    const dailyCards = [];
     const markerMap = new Map();
+    let markerIdCounter = 0;
+
     if (map && window.L) {
       if (!historyLayer && typeof L.layerGroup === 'function') historyLayer = L.layerGroup().addTo(map);
       if (historyLayer && typeof historyLayer.clearLayers === 'function') historyLayer.clearLayers();
+    }
 
-      checkpointEvents.forEach((evt, idx) => {
-        const timeStr = new Date(evt.time).toLocaleTimeString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-        const iconSymbol = evt.type === 'clock_in' ? '🟢' : '🔴';
-        const marker = L.circleMarker([evt.latitude, evt.longitude], {
-          radius: evt.type === 'clock_in' ? 9 : 8,
-          fillColor: '#dc2626',
-          color: '#ffffff',
-          weight: 2.5,
-          fillOpacity: 0.95
+    sortedDateKeys.forEach(dateKey => {
+      const grp = dateGroupsMap.get(dateKey);
+      const isToday = dateKey === todayDateStr;
+      const sessions = [];
+
+      if (grp.punches.length > 0) {
+        const dayPunches = [...grp.punches].sort((a, b) => Date.parse(a.punched_at) - Date.parse(b.punched_at));
+        const inPunches = dayPunches.filter(p => /in/i.test(p.punch_type || ''));
+        const outPunches = dayPunches.filter(p => /out/i.test(p.punch_type || ''));
+        const sessionCount = Math.max(inPunches.length, outPunches.length, 1);
+
+        for (let i = 0; i < sessionCount; i++) {
+          const inP = inPunches[i] || null;
+          const outP = outPunches[i] || null;
+          if (!inP && !outP) continue;
+
+          let durationLabel = '';
+          if (inP?.punched_at && outP?.punched_at) {
+            const tIn = Date.parse(inP.punched_at);
+            const tOut = Date.parse(outP.punched_at);
+            if (!Number.isNaN(tIn) && !Number.isNaN(tOut) && tOut >= tIn) {
+              const diffMin = Math.round((tOut - tIn) / (1000 * 60));
+              const hrs = Math.floor(diffMin / 60);
+              const mins = diffMin % 60;
+              durationLabel = `${hrs}h ${mins}m`;
+            }
+          }
+
+          let status = 'completed';
+          let statusLabel = 'Completed Shift';
+          if (inP && !outP) {
+            if (isToday) {
+              status = 'active';
+              statusLabel = 'Active Shift (On Duty)';
+            } else {
+              status = 'missing';
+              statusLabel = 'No Clock-Out Recorded';
+            }
+          } else if (!inP && outP) {
+            status = 'missing';
+            statusLabel = 'No Clock-In Recorded';
+          }
+
+          sessions.push({
+            inPunch: inP,
+            outPunch: outP,
+            durationLabel,
+            status,
+            statusLabel
+          });
+        }
+      } else if (grp.points.length > 0) {
+        const dayPoints = [...grp.points].sort((a, b) => Date.parse(a.captured_at) - Date.parse(b.captured_at));
+        const startPt = dayPoints[0];
+        const endPt = dayPoints.length > 1 ? dayPoints[dayPoints.length - 1] : null;
+
+        let durationLabel = '';
+        if (startPt && endPt) {
+          const diffMin = Math.round((Date.parse(endPt.captured_at) - Date.parse(startPt.captured_at)) / (1000 * 60));
+          if (diffMin > 0) {
+            const hrs = Math.floor(diffMin / 60);
+            const mins = diffMin % 60;
+            durationLabel = `${hrs}h ${mins}m`;
+          }
+        }
+
+        sessions.push({
+          inPunch: {
+            punched_at: startPt.captured_at,
+            punch_type: 'Clock-In / Duty Start',
+            latitude: startPt.latitude,
+            longitude: startPt.longitude,
+            location_label: startPt.location_label,
+            within_geofence: true
+          },
+          outPunch: endPt ? {
+            punched_at: endPt.captured_at,
+            punch_type: 'Clock-Out Checkpoint',
+            latitude: endPt.latitude,
+            longitude: endPt.longitude,
+            location_label: endPt.location_label,
+            within_geofence: true
+          } : null,
+          durationLabel,
+          status: endPt ? 'completed' : (isToday ? 'active' : 'missing'),
+          statusLabel: endPt ? 'Completed Shift' : (isToday ? 'Active Shift (On Duty)' : 'Duty Started')
         });
-        marker.setStyle({ fillColor: evt.color });
-        marker.bindPopup(`<strong>${iconSymbol} ${evt.label}</strong><br>Time: ${timeStr}<br>Location: ${evt.location_label}<br>Status: ${evt.within_geofence !== false ? 'Verified Geofence' : 'Outside Geofence'}`);
-        marker.addTo(historyLayer);
-        markerMap.set(idx, marker);
+      }
+
+      if (sessions.length > 0) {
+        dailyCards.push({
+          dateKey,
+          isToday,
+          sessions
+        });
+      }
+    });
+
+    function formatDateTitle(dateStr) {
+      if (!dateStr || dateStr === 'Unknown Date') return 'Unspecified Date';
+      const parts = dateStr.split('-').map(Number);
+      if (parts.length === 3 && parts.every(n => !Number.isNaN(n))) {
+        const d = new Date(parts[0], parts[1] - 1, parts[2]);
+        const weekday = d.toLocaleDateString('en-PH', { weekday: 'short' });
+        const monthDay = d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+        const isToday = dateStr === todayDateStr;
+        return isToday ? `Today · ${weekday}, ${monthDay}` : `${weekday}, ${monthDay}`;
+      }
+      return dateStr;
+    }
+
+    function formatTime(isoStr) {
+      if (!isoStr) return '--:--';
+      const d = new Date(isoStr);
+      if (Number.isNaN(d.getTime())) return String(isoStr);
+      return d.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+    }
+
+    // Register Map Markers for all valid punches
+    const allValidCoords = [];
+    dailyCards.forEach(day => {
+      const dateTitle = formatDateTitle(day.dateKey);
+      day.sessions.forEach(sess => {
+        if (sess.inPunch && Number.isFinite(Number(sess.inPunch.latitude)) && Number.isFinite(Number(sess.inPunch.longitude))) {
+          const lat = Number(sess.inPunch.latitude);
+          const lng = Number(sess.inPunch.longitude);
+          const id = ++markerIdCounter;
+          sess.inPunch._markerId = id;
+          allValidCoords.push([lat, lng]);
+
+          if (map && window.L && historyLayer) {
+            const timeStr = formatTime(sess.inPunch.punched_at);
+            const locName = sess.inPunch.location_label || fallbackGuard?.location_label || 'Assigned Post';
+            const geofenceTxt = sess.inPunch.within_geofence !== false ? 'Verified Geofence' : 'Outside Geofence';
+            const marker = L.circleMarker([lat, lng], {
+              radius: 9,
+              fillColor: '#16a34a',
+              color: '#ffffff',
+              weight: 2.5,
+              fillOpacity: 0.95
+            });
+            marker.bindPopup(`<strong>🟢 Time In · ${sess.inPunch.punch_type || 'Clock-In'}</strong><br><strong>Date:</strong> ${dateTitle}<br><strong>Time:</strong> ${timeStr}<br><strong>Location:</strong> ${locName}<br><strong>Status:</strong> ${geofenceTxt}`);
+            marker.addTo(historyLayer);
+            markerMap.set(id, marker);
+          }
+        }
+
+        if (sess.outPunch && Number.isFinite(Number(sess.outPunch.latitude)) && Number.isFinite(Number(sess.outPunch.longitude))) {
+          const lat = Number(sess.outPunch.latitude);
+          const lng = Number(sess.outPunch.longitude);
+          const id = ++markerIdCounter;
+          sess.outPunch._markerId = id;
+          allValidCoords.push([lat, lng]);
+
+          if (map && window.L && historyLayer) {
+            const timeStr = formatTime(sess.outPunch.punched_at);
+            const locName = sess.outPunch.location_label || fallbackGuard?.location_label || 'Assigned Post';
+            const geofenceTxt = sess.outPunch.within_geofence !== false ? 'Verified Geofence' : 'Outside Geofence';
+            const marker = L.circleMarker([lat, lng], {
+              radius: 9,
+              fillColor: '#dc2626',
+              color: '#ffffff',
+              weight: 2.5,
+              fillOpacity: 0.95
+            });
+            marker.bindPopup(`<strong>🔴 Time Out · ${sess.outPunch.punch_type || 'Clock-Out'}</strong><br><strong>Date:</strong> ${dateTitle}<br><strong>Time:</strong> ${timeStr}<br><strong>Location:</strong> ${locName}<br><strong>Status:</strong> ${geofenceTxt}`);
+            marker.addTo(historyLayer);
+            markerMap.set(id, marker);
+          }
+        }
+      });
+    });
+
+    // Fit map bounds to the most recent day's coordinates if available
+    if (map && window.L && dailyCards.length > 0) {
+      const latestDayCoords = [];
+      dailyCards[0].sessions.forEach(sess => {
+        if (sess.inPunch?.latitude && sess.inPunch?.longitude) latestDayCoords.push([Number(sess.inPunch.latitude), Number(sess.inPunch.longitude)]);
+        if (sess.outPunch?.latitude && sess.outPunch?.longitude) latestDayCoords.push([Number(sess.outPunch.latitude), Number(sess.outPunch.longitude)]);
       });
 
-      if (checkpointEvents.length >= 2 && typeof L.latLngBounds === 'function' && typeof map.fitBounds === 'function') {
-        const bounds = L.latLngBounds(checkpointEvents.map(e => [e.latitude, e.longitude]));
-        map.fitBounds(bounds, { maxZoom: 18, padding: [50, 50] });
-      } else if (checkpointEvents.length === 1 && typeof map.setView === 'function') {
-        map.setView([checkpointEvents[0].latitude, checkpointEvents[0].longitude], 18);
+      if (latestDayCoords.length >= 2 && typeof L.latLngBounds === 'function' && typeof map.fitBounds === 'function') {
+        map.fitBounds(L.latLngBounds(latestDayCoords), { maxZoom: 18, padding: [50, 50] });
+      } else if (latestDayCoords.length === 1 && typeof map.setView === 'function') {
+        map.setView(latestDayCoords[0], 18);
       }
     }
 
     const guardName = fallbackGuard?.guard_name || entries.get(uid)?.row?.guard_name || 'Guard';
     histPanel.replaceChildren();
+
+    // Panel Header
     const head = document.createElement('div');
     head.className = 'tracking-location-panel-head';
     const titleWrap = document.createElement('div');
     const title = document.createElement('h3');
     title.className = 'tracking-location-panel-title';
-    title.textContent = `${guardName} — Attendance Checkpoints`;
+    title.textContent = `${guardName} — Guard History Location`;
     const sub = document.createElement('p');
     sub.className = 'tracking-location-panel-sub';
-    sub.textContent = checkpointEvents.length >= 2
-      ? 'Shift Verification: Clock-In & Clock-Out Checkpoints'
-      : (checkpointEvents.length === 1 ? 'Shift Verification: Clock-In recorded' : 'No recorded attendance checkpoints yet');
+    sub.textContent = dailyCards.length
+      ? `Shift Verification: Daily Time In & Time Out Checkpoints (${dailyCards.length} ${dailyCards.length === 1 ? 'day' : 'days'} recorded)`
+      : 'No recorded attendance checkpoints for this guard yet';
     titleWrap.append(title, sub);
 
     const closeBtn = document.createElement('button');
@@ -374,7 +537,7 @@
     head.append(titleWrap, closeBtn);
     histPanel.appendChild(head);
 
-    if (!checkpointEvents.length) {
+    if (!dailyCards.length) {
       const emptyEl = document.createElement('p');
       emptyEl.className = 'tracking-location-empty';
       emptyEl.textContent = 'No attendance clock-in or clock-out locations recorded for this guard yet.';
@@ -382,38 +545,239 @@
       return;
     }
 
+    // Filter Bar: All Dates, Last 7 Days, Last 30 Days
+    const filterBar = document.createElement('div');
+    filterBar.className = 'tracking-history-filter-bar';
+    filterBar.innerHTML = `
+      <span style="font-size:12px; font-weight:700; color:var(--ax-muted, #64748b); margin-right:4px;">Filter:</span>
+      <button type="button" class="tracking-history-filter-pill is-active" data-filter="all">All Dates (${dailyCards.length})</button>
+      <button type="button" class="tracking-history-filter-pill" data-filter="7">Last 7 Days</button>
+      <button type="button" class="tracking-history-filter-pill" data-filter="30">Last 30 Days</button>
+    `;
+    histPanel.appendChild(filterBar);
+
     const listWrap = document.createElement('div');
     listWrap.className = 'tracking-history-list';
-    checkpointEvents.forEach((evt, idx) => {
-      const item = document.createElement('div');
-      item.className = 'tracking-history-item';
-      const ts = new Date(evt.time);
-      const timeLabel = Number.isNaN(ts.getTime()) ? String(evt.time) : ts.toLocaleString('en-PH', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit' });
-      const info = document.createElement('div');
-      const strong = document.createElement('strong');
-      const iconSymbol = evt.type === 'clock_in' ? '🟢' : '🔴';
-      strong.textContent = `${iconSymbol} ${evt.label} · ${timeLabel}`;
-      const meta = document.createElement('div');
-      meta.className = 'tracking-history-meta';
-      meta.textContent = `${evt.location_label} (${evt.latitude.toFixed(5)}, ${evt.longitude.toFixed(5)}) · ${evt.within_geofence !== false ? 'Verified Geofence' : 'Outside Geofence'}`;
-      info.append(strong, meta);
 
-      const jumpBtn = document.createElement('button');
-      jumpBtn.type = 'button';
-      jumpBtn.className = 'tracking-focus-guard-btn';
-      jumpBtn.style.marginTop = '0';
-      jumpBtn.textContent = 'Pin on Map';
-      jumpBtn.onclick = () => {
-        if (map && window.L) {
-          map.setView([evt.latitude, evt.longitude], 18);
-          const marker = markerMap.get(idx);
-          if (marker) marker.openPopup();
+    // Render Daily Cards
+    dailyCards.forEach(day => {
+      const dateTitle = formatDateTitle(day.dateKey);
+      const dayCard = document.createElement('div');
+      dayCard.className = 'tracking-history-date-card';
+      dayCard.setAttribute('data-date', day.dateKey);
+
+      // Collect coordinates for this day
+      const dayCoords = [];
+      day.sessions.forEach(s => {
+        if (s.inPunch?.latitude && s.inPunch?.longitude) dayCoords.push([Number(s.inPunch.latitude), Number(s.inPunch.longitude)]);
+        if (s.outPunch?.latitude && s.outPunch?.longitude) dayCoords.push([Number(s.outPunch.latitude), Number(s.outPunch.longitude)]);
+      });
+
+      // Daily Card Header
+      const primarySession = day.sessions[0];
+      const dateHead = document.createElement('div');
+      dateHead.className = 'tracking-history-date-head';
+
+      const leftWrap = document.createElement('div');
+      leftWrap.className = 'tracking-history-date-left';
+
+      const dateLabelEl = document.createElement('span');
+      dateLabelEl.className = 'tracking-history-date-title';
+      dateLabelEl.textContent = `📅 ${dateTitle}`;
+      leftWrap.appendChild(dateLabelEl);
+
+      const statusBadge = document.createElement('span');
+      statusBadge.className = `tracking-history-badge badge-${primarySession.status}`;
+      statusBadge.textContent = primarySession.statusLabel;
+      leftWrap.appendChild(statusBadge);
+
+      if (primarySession.durationLabel) {
+        const durBadge = document.createElement('span');
+        durBadge.className = 'tracking-history-badge badge-duration';
+        durBadge.textContent = `⏱️ ${primarySession.durationLabel}`;
+        leftWrap.appendChild(durBadge);
+      }
+      dateHead.appendChild(leftWrap);
+
+      if (dayCoords.length > 0) {
+        const actionsWrap = document.createElement('div');
+        actionsWrap.className = 'tracking-history-date-actions';
+        const showDayBtn = document.createElement('button');
+        showDayBtn.type = 'button';
+        showDayBtn.className = 'tracking-history-pin-btn';
+        showDayBtn.textContent = '🗺️ Show Day on Map';
+        showDayBtn.onclick = () => {
+          if (map && window.L) {
+            if (dayCoords.length >= 2 && typeof L.latLngBounds === 'function' && typeof map.fitBounds === 'function') {
+              map.fitBounds(L.latLngBounds(dayCoords), { maxZoom: 18, padding: [60, 60] });
+            } else if (dayCoords.length === 1 && typeof map.setView === 'function') {
+              map.setView(dayCoords[0], 18);
+            }
+            if (primarySession.inPunch?._markerId && markerMap.has(primarySession.inPunch._markerId)) {
+              markerMap.get(primarySession.inPunch._markerId).openPopup();
+            } else if (primarySession.outPunch?._markerId && markerMap.has(primarySession.outPunch._markerId)) {
+              markerMap.get(primarySession.outPunch._markerId).openPopup();
+            }
+          }
+        };
+        actionsWrap.appendChild(showDayBtn);
+        dateHead.appendChild(actionsWrap);
+      }
+
+      dayCard.appendChild(dateHead);
+
+      // Sessions & Punches Body
+      const bodyEl = document.createElement('div');
+      bodyEl.className = 'tracking-history-date-body';
+
+      day.sessions.forEach((sess, sIdx) => {
+        // Multi-session indicator if guard worked multiple shifts in one date
+        if (day.sessions.length > 1) {
+          const sessDivider = document.createElement('div');
+          sessDivider.style.fontSize = '11px';
+          sessDivider.style.fontWeight = '700';
+          sessDivider.style.color = 'var(--ax-muted, #64748b)';
+          sessDivider.style.marginTop = sIdx > 0 ? '6px' : '0';
+          sessDivider.textContent = `Shift #${sIdx + 1}${sess.durationLabel ? ` (${sess.durationLabel})` : ''}`;
+          bodyEl.appendChild(sessDivider);
+        }
+
+        // TIME IN ROW
+        const inRow = document.createElement('div');
+        inRow.className = `tracking-history-row ${!sess.inPunch ? 'row-missing' : ''}`;
+        if (sess.inPunch) {
+          const info = document.createElement('div');
+          info.className = 'tracking-history-row-info';
+          const titleDiv = document.createElement('div');
+          titleDiv.className = 'tracking-history-time-title';
+          titleDiv.innerHTML = `<span>🟢</span> <strong>Time In (${sess.inPunch.punch_type || 'Clock-In'})</strong> <span class="tracking-history-time-badge">${formatTime(sess.inPunch.punched_at)}</span>`;
+
+          const metaDiv = document.createElement('div');
+          metaDiv.className = 'tracking-history-meta';
+          const locName = sess.inPunch.location_label || fallbackGuard?.location_label || 'Assigned Post';
+          const isGeofenceValid = sess.inPunch.within_geofence !== false;
+          const coordsTxt = Number.isFinite(Number(sess.inPunch.latitude)) ? `(${Number(sess.inPunch.latitude).toFixed(5)}, ${Number(sess.inPunch.longitude).toFixed(5)})` : '';
+          metaDiv.innerHTML = `<span>📍 ${locName}</span> <span class="tracking-history-geo-tag ${isGeofenceValid ? 'geo-valid' : 'geo-outside'}">${isGeofenceValid ? '✅ Verified Geofence' : '⚠️ Outside Geofence'}</span> ${coordsTxt ? `<span>${coordsTxt}</span>` : ''}`;
+
+          info.append(titleDiv, metaDiv);
+          inRow.appendChild(info);
+
+          if (sess.inPunch._markerId && markerMap.has(sess.inPunch._markerId)) {
+            const pinBtn = document.createElement('button');
+            pinBtn.type = 'button';
+            pinBtn.className = 'tracking-focus-guard-btn';
+            pinBtn.style.marginTop = '0';
+            pinBtn.textContent = 'Pin on Map';
+            pinBtn.onclick = () => {
+              if (map && window.L) {
+                map.setView([Number(sess.inPunch.latitude), Number(sess.inPunch.longitude)], 18);
+                markerMap.get(sess.inPunch._markerId).openPopup();
+              }
+            };
+            inRow.appendChild(pinBtn);
+          }
+        } else {
+          inRow.innerHTML = `
+            <div class="tracking-history-row-info">
+              <div class="tracking-history-time-title" style="color:var(--ax-muted, #94a3b8);">
+                <span>⚪</span> <strong>Time In</strong> <span style="font-size:11.5px; font-weight:600; font-style:italic;">No Clock-In record</span>
+              </div>
+            </div>`;
+        }
+        bodyEl.appendChild(inRow);
+
+        // TIME OUT ROW
+        const outRow = document.createElement('div');
+        outRow.className = `tracking-history-row ${!sess.outPunch ? 'row-missing' : ''}`;
+        if (sess.outPunch) {
+          const info = document.createElement('div');
+          info.className = 'tracking-history-row-info';
+          const titleDiv = document.createElement('div');
+          titleDiv.className = 'tracking-history-time-title';
+          titleDiv.innerHTML = `<span>🔴</span> <strong>Time Out (${sess.outPunch.punch_type || 'Clock-Out'})</strong> <span class="tracking-history-time-badge">${formatTime(sess.outPunch.punched_at)}</span>`;
+
+          const metaDiv = document.createElement('div');
+          metaDiv.className = 'tracking-history-meta';
+          const locName = sess.outPunch.location_label || fallbackGuard?.location_label || 'Assigned Post';
+          const isGeofenceValid = sess.outPunch.within_geofence !== false;
+          const coordsTxt = Number.isFinite(Number(sess.outPunch.latitude)) ? `(${Number(sess.outPunch.latitude).toFixed(5)}, ${Number(sess.outPunch.longitude).toFixed(5)})` : '';
+          metaDiv.innerHTML = `<span>📍 ${locName}</span> <span class="tracking-history-geo-tag ${isGeofenceValid ? 'geo-valid' : 'geo-outside'}">${isGeofenceValid ? '✅ Verified Geofence' : '⚠️ Outside Geofence'}</span> ${coordsTxt ? `<span>${coordsTxt}</span>` : ''}`;
+
+          info.append(titleDiv, metaDiv);
+          outRow.appendChild(info);
+
+          if (sess.outPunch._markerId && markerMap.has(sess.outPunch._markerId)) {
+            const pinBtn = document.createElement('button');
+            pinBtn.type = 'button';
+            pinBtn.className = 'tracking-focus-guard-btn';
+            pinBtn.style.marginTop = '0';
+            pinBtn.textContent = 'Pin on Map';
+            pinBtn.onclick = () => {
+              if (map && window.L) {
+                map.setView([Number(sess.outPunch.latitude), Number(sess.outPunch.longitude)], 18);
+                markerMap.get(sess.outPunch._markerId).openPopup();
+              }
+            };
+            outRow.appendChild(pinBtn);
+          }
+        } else {
+          const isCurrentToday = day.dateKey === todayDateStr;
+          outRow.innerHTML = `
+            <div class="tracking-history-row-info">
+              <div class="tracking-history-time-title" style="color:var(--ax-muted, #94a3b8);">
+                <span>⚪</span> <strong>Time Out</strong> <span style="font-size:11.5px; font-weight:600; font-style:italic;">${isCurrentToday ? 'Shift in progress (On duty)' : 'No Clock-Out recorded'}</span>
+              </div>
+            </div>`;
+        }
+        bodyEl.appendChild(outRow);
+      });
+
+      dayCard.appendChild(bodyEl);
+      listWrap.appendChild(dayCard);
+    });
+
+    histPanel.appendChild(listWrap);
+
+    // Filter pill interactivity
+    const filterPills = filterBar.querySelectorAll('.tracking-history-filter-pill');
+    filterPills.forEach(pill => {
+      pill.onclick = () => {
+        filterPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        const filterVal = pill.getAttribute('data-filter');
+
+        const now = new Date();
+        const cutoffDate = new Date();
+        if (filterVal === '7') cutoffDate.setDate(now.getDate() - 7);
+        else if (filterVal === '30') cutoffDate.setDate(now.getDate() - 30);
+        const cutoffStr = cutoffDate.toLocaleDateString('en-CA');
+
+        const cards = listWrap.querySelectorAll('.tracking-history-date-card');
+        let visibleCount = 0;
+        cards.forEach(card => {
+          const cardDate = card.getAttribute('data-date');
+          if (filterVal === 'all' || (cardDate && cardDate >= cutoffStr)) {
+            card.style.display = '';
+            visibleCount++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        let filterEmptyEl = listWrap.querySelector('.tracking-history-filter-empty');
+        if (visibleCount === 0) {
+          if (!filterEmptyEl) {
+            filterEmptyEl = document.createElement('p');
+            filterEmptyEl.className = 'tracking-history-filter-empty tracking-location-empty';
+            filterEmptyEl.textContent = `No attendance records found for the selected ${filterVal}-day filter.`;
+            listWrap.appendChild(filterEmptyEl);
+          }
+          filterEmptyEl.style.display = '';
+        } else if (filterEmptyEl) {
+          filterEmptyEl.style.display = 'none';
         }
       };
-      item.append(info, jumpBtn);
-      listWrap.appendChild(item);
     });
-    histPanel.appendChild(listWrap);
   }
 
   function fullGuardName(g) {

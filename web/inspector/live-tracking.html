@@ -10,14 +10,14 @@
     <link href="css/inspector-theme.css" rel="stylesheet">
     <link href="../admin/css/admin-theme.css" rel="stylesheet">
     <style>
-        .loc-address { font-size: 0.82rem; color: var(--ix-muted); line-height: 1.45; max-width: 360px; }
-        .loc-coords { font-size: 0.72rem; color: var(--sl-muted); font-family: monospace; margin-top: 4px; }
+        .loc-address { font-size: 0.8125rem; color: var(--ix-muted); line-height: 1.45; max-width: 420px; }
+        .loc-coords { font-size: 0.75rem; font-weight: 500; color: var(--sl-muted); font-family: 'Inter', system-ui, -apple-system, sans-serif; font-variant-numeric: tabular-nums; margin-top: 3px; opacity: 0.88; }
     </style>
-<link href="../css/live-tracking.css?v=1.0.33" rel="stylesheet"><link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"></head>
+<link href="../css/live-tracking.css?v=1.0.34" rel="stylesheet"><link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"></head>
 <body class="admin-body inspector-body" data-ix-page="live-tracking">
 
 <div id="loadingScreen">
-    <div class="spinner-border text-success"></div>
+    <div class="spinner-border text-danger"></div>
     <p>Loading live map…</p>
 </div>
 
@@ -61,6 +61,6 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="../js/live-tracking-model.js"></script>
 <script src="../js/live-marker-motion.js"></script>
-<script src="../js/live-tracking.js?v=1.0.36"></script>
+<script src="../js/live-tracking.js?v=1.0.37"></script>
 <script>if(window.finishPageLoading)finishPageLoading();</script>
 </body></html>

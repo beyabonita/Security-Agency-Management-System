@@ -20,7 +20,7 @@
 <body class="admin-body inspector-body" data-ix-page="incidents">
 
 <div id="loadingScreen">
-    <div class="spinner-border text-success"></div>
+    <div class="spinner-border text-danger"></div>
     <p>Loading alerts…</p>
 </div>
 
@@ -231,12 +231,12 @@ function renderTable() {
     const src = incidentPhotoSrc(inc);
     const thumb = src ? '<img src="' + escapeHtml(src) + '" class="thumb" alt="">' : '—';
     const cat = CATEGORY_LABELS[inc.category] || inc.category;
-    return '<tr onclick="openDetail(\'' + inc.id + '\')">' +
+    return '<tr onclick="openDetail(\'' + escapeHtml(inc.id) + '\')">' +
       '<td>' + thumb + '</td>' +
-      '<td>' + formatWhen(inc.capturedAt || inc.createdAt) + '</td>' +
+      '<td class="col-nowrap">' + formatWhen(inc.capturedAt || inc.createdAt) + '</td>' +
       '<td><strong>' + escapeHtml(inc.guardName) + '</strong></td>' +
-      '<td><span class="badge-cat">' + escapeHtml(cat) + '</span></td>' +
-      '<td>' + statusBadge(inc.status) + '</td>' +
+      '<td class="col-nowrap"><span class="badge-cat">' + escapeHtml(cat) + '</span></td>' +
+      '<td class="col-nowrap">' + statusBadge(inc.status) + '</td>' +
       '<td style="color:var(--ix-muted)">' + (inc.videoPath ? escapeHtml(String(inc.videoDurationSeconds || 15) + ' sec video' + (src ? ' + photo' : '')) : 'Photo alert') + '</td>' +
       '</tr>';
   }).join('');
