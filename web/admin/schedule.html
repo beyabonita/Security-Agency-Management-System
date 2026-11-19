@@ -522,6 +522,9 @@ async function refreshSchedules() {
         schedulesLoadFailed = false;
         renderSchedules();
         window.renderShiftRoster?.();
+        if (typeof currentCalendarSiteId !== 'undefined' && currentCalendarSiteId) {
+            renderClientScheduleCalendar();
+        }
     } catch (error) {
         if (version !== scheduleLoadVersion) return;
         schedulesLoadFailed = true;
@@ -758,6 +761,8 @@ function formatScheduleDisplay(s) {
 let currentCalendarSiteId = null;
 let currentCalendarMonthStart = null;
 let currentCalendarWeekStart = null;
+let currentCalendarViewMode = 'month';
+let currentCalendarSelectedDate = null;
 
 function renderBundledDeployments() {
     const container = document.getElementById('bundledDeploymentsContainer');
@@ -925,6 +930,8 @@ function openClientScheduleCalendar(siteId) {
     const baseDate = rosterDateEl?.value ? parseScheduleDate(rosterDateEl.value) : new Date();
     currentCalendarMonthStart = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
     currentCalendarWeekStart = getWeekMonday(baseDate);
+    currentCalendarSelectedDate = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+    currentCalendarViewMode = 'month';
 
     renderClientScheduleCalendar();
 
@@ -968,7 +975,53 @@ function closeClientScheduleCalendar() {
     document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
 }
 
+function openCalendarDayView(dateStr) {
+    if (!dateStr) return;
+    const picked = parseScheduleDate(dateStr);
+    currentCalendarSelectedDate = new Date(picked.getFullYear(), picked.getMonth(), picked.getDate());
+    currentCalendarMonthStart = new Date(picked.getFullYear(), picked.getMonth(), 1);
+    currentCalendarWeekStart = getWeekMonday(currentCalendarSelectedDate);
+    currentCalendarViewMode = 'day';
+    renderClientScheduleCalendar();
+}
+
+function switchCalendarViewMode(mode) {
+    currentCalendarViewMode = mode === 'day' ? 'day' : 'month';
+    if (currentCalendarViewMode === 'day') {
+        if (!currentCalendarSelectedDate) {
+            const now = new Date();
+            if (currentCalendarMonthStart &&
+                now.getFullYear() === currentCalendarMonthStart.getFullYear() &&
+                now.getMonth() === currentCalendarMonthStart.getMonth()) {
+                currentCalendarSelectedDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            } else if (currentCalendarMonthStart) {
+                currentCalendarSelectedDate = new Date(currentCalendarMonthStart.getFullYear(), currentCalendarMonthStart.getMonth(), 1);
+            } else {
+                currentCalendarSelectedDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            }
+        }
+    } else if (currentCalendarSelectedDate) {
+        currentCalendarMonthStart = new Date(currentCalendarSelectedDate.getFullYear(), currentCalendarSelectedDate.getMonth(), 1);
+    }
+    renderClientScheduleCalendar();
+}
+
 function navigateCalendarMonth(direction) {
+    if (currentCalendarViewMode === 'day') {
+        const base = currentCalendarSelectedDate ? new Date(currentCalendarSelectedDate) : new Date();
+        if (direction === 0) {
+            const now = new Date();
+            currentCalendarSelectedDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        } else {
+            base.setDate(base.getDate() + direction);
+            currentCalendarSelectedDate = new Date(base.getFullYear(), base.getMonth(), base.getDate());
+        }
+        currentCalendarMonthStart = new Date(currentCalendarSelectedDate.getFullYear(), currentCalendarSelectedDate.getMonth(), 1);
+        currentCalendarWeekStart = getWeekMonday(currentCalendarSelectedDate);
+        renderClientScheduleCalendar();
+        return;
+    }
+
     if (!currentCalendarMonthStart) {
         const now = new Date();
         currentCalendarMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -979,12 +1032,284 @@ function navigateCalendarMonth(direction) {
     } else {
         currentCalendarMonthStart.setMonth(currentCalendarMonthStart.getMonth() + direction);
     }
+    currentCalendarSelectedDate = new Date(currentCalendarMonthStart.getFullYear(), currentCalendarMonthStart.getMonth(), 1);
     currentCalendarWeekStart = getWeekMonday(currentCalendarMonthStart);
     renderClientScheduleCalendar();
 }
 
 function navigateCalendarWeek(direction) {
     navigateCalendarMonth(direction);
+}
+
+function getManilaClockParts(d) {
+    if (!d) return { hours: 6, minutes: 0 };
+    if (window.SchedulePeriod?.timeString) {
+        const hhmm = window.SchedulePeriod.timeString(d);
+        if (hhmm && hhmm.includes(':')) {
+            const [h, m] = hhmm.split(':').map(Number);
+            if (!Number.isNaN(h) && !Number.isNaN(m)) {
+                return { hours: h % 24, minutes: m };
+            }
+        }
+    }
+    return { hours: d.getHours(), minutes: d.getMinutes() };
+}
+
+function getCalendarShiftColorClass(startHour) {
+    if (startHour >= 12 && startHour < 18) return 'is-afternoon';
+    if (startHour >= 18 || startHour < 6) return 'is-night';
+    return 'is-morning';
+}
+
+function getLegacyShiftFallbackMinutes(shiftName) {
+    const key = String(shiftName || '').trim().toLowerCase();
+    if (key === 'night' || key === 'third') return { startMin: 18 * 60, endMin: 6 * 60, overnight: true, label: '6:00 PM – 6:00 AM' };
+    if (key === 'afternoon' || key === 'second') return { startMin: 14 * 60, endMin: 22 * 60, overnight: false, label: '2:00 PM – 10:00 PM' };
+    if (key === 'morning' || key === 'first') return { startMin: 6 * 60, endMin: 18 * 60, overnight: false, label: '6:00 AM – 6:00 PM' };
+    return { startMin: 8 * 60, endMin: 17 * 60, overnight: false, label: 'Shift' };
+}
+
+function isCalendarRestEntry(s) {
+    return Boolean(s && (s.is_rest_day === true || s.status === 'rest' || s.shift === 'REST' || s.leave_type === 'REST'));
+}
+
+function layoutDayTimelineBlocks(events) {
+    if (!events.length) return [];
+    const sorted = [...events].sort((a, b) => (a.blockStartMin - b.blockStartMin) || (a.blockEndMin - b.blockEndMin));
+    const clusters = [];
+    let currentCluster = [];
+    let clusterMaxEnd = -1;
+
+    sorted.forEach(ev => {
+        if (!currentCluster.length || ev.blockStartMin < clusterMaxEnd) {
+            currentCluster.push(ev);
+            clusterMaxEnd = Math.max(clusterMaxEnd, ev.blockEndMin);
+        } else {
+            clusters.push(currentCluster);
+            currentCluster = [ev];
+            clusterMaxEnd = ev.blockEndMin;
+        }
+    });
+    if (currentCluster.length) clusters.push(currentCluster);
+
+    clusters.forEach(cluster => {
+        const colEnds = [];
+        cluster.forEach(ev => {
+            let assignedCol = colEnds.findIndex(endMin => endMin <= ev.blockStartMin);
+            if (assignedCol === -1) {
+                assignedCol = colEnds.length;
+                colEnds.push(ev.blockEndMin);
+            } else {
+                colEnds[assignedCol] = ev.blockEndMin;
+            }
+            ev.colIndex = assignedCol;
+        });
+        const totalCols = Math.max(1, colEnds.length);
+        cluster.forEach(ev => { ev.totalCols = totalCols; });
+    });
+
+    return sorted;
+}
+
+function renderClientScheduleDayView(loc, activeUserGuards, stationedGuards) {
+    const weekPillEl = document.getElementById('clientCalendarWeekPill');
+    const dayHeaderEl = document.getElementById('clientCalendarDayHeader');
+    const timeColEl = document.getElementById('clientCalendarDayTimeCol');
+    const trackEl = document.getElementById('clientCalendarDayTrack');
+    const bodyEl = document.getElementById('clientCalendarDayBody');
+
+    if (!currentCalendarSelectedDate) {
+        const now = new Date();
+        currentCalendarSelectedDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
+    const selectedDate = currentCalendarSelectedDate;
+    const dateStr = formatCalendarDateStr(selectedDate);
+    const todayStr = formatCalendarDateStr(new Date());
+    const isToday = dateStr === todayStr;
+
+    const prevDateObj = new Date(selectedDate);
+    prevDateObj.setDate(prevDateObj.getDate() - 1);
+    const prevDateStr = formatCalendarDateStr(prevDateObj);
+
+    if (weekPillEl) {
+        weekPillEl.textContent = selectedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+
+    const daySchedules = (schedules || []).filter(s => {
+        const sLocId = s.locationId || s.location_id;
+        return sLocId === currentCalendarSiteId && s.date === dateStr && s.approval_status !== 'cancelled' && !isCalendarRestEntry(s);
+    });
+
+    const prevDaySchedules = (schedules || []).filter(s => {
+        const sLocId = s.locationId || s.location_id;
+        return sLocId === currentCalendarSiteId && s.date === prevDateStr && s.approval_status !== 'cancelled' && !isCalendarRestEntry(s);
+    });
+
+    const restGuards = [];
+    stationedGuards.forEach(g => {
+        const hasShift = daySchedules.some(s => s.userId === g.id);
+        if (!hasShift) {
+            const isExplicitRest = (schedules || []).some(s =>
+                s.userId === g.id &&
+                s.date === dateStr &&
+                isCalendarRestEntry(s)
+            );
+            if (isExplicitRest || isGuardSpecificRestDay(g, selectedDate)) {
+                restGuards.push(g);
+            }
+        }
+    });
+
+    if (dayHeaderEl) {
+        const dowLabel = selectedDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+        const domNum = selectedDate.getDate();
+        const restChipsHtml = restGuards.length
+            ? `<div class="gcal-dayview-rest-bar">${restGuards.map(g => `<span class="gcal-dayview-rest-chip">REST: ${escapeHtml(g.name)}</span>`).join('')}</div>`
+            : '';
+
+        dayHeaderEl.innerHTML = `
+            <div class="gcal-dayview-tz">GMT+8</div>
+            <div class="gcal-dayview-date-col ${isToday ? 'is-today' : ''}">
+                <div class="gcal-dayview-date-top">
+                    <div class="gcal-dayview-date-badge">
+                        <span class="gcal-dayview-dow">${escapeHtml(dowLabel)}</span>
+                        <span class="gcal-dayview-dom">${domNum}</span>
+                    </div>
+                    ${restChipsHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    if (timeColEl) {
+        let timeColHtml = '';
+        for (let h = 0; h < 24; h++) {
+            let labelHtml = '';
+            if (h < 23) {
+                const nextH = h + 1;
+                const period = nextH >= 12 ? 'PM' : 'AM';
+                const h12 = nextH % 12 || 12;
+                labelHtml = `<span class="gcal-dayview-time-label">${h12} ${period}</span>`;
+            }
+            timeColHtml += `<div class="gcal-dayview-time-slot">${labelHtml}</div>`;
+        }
+        timeColEl.innerHTML = timeColHtml;
+    }
+
+    if (!trackEl) return;
+
+    const timelineEvents = [];
+
+    daySchedules.forEach(s => {
+        const start = toDate(s.startAt);
+        const end = toDate(s.endAt);
+        const gName = s.guard_name || (activeUserGuards.find(g => g.id === s.userId)?.name) || 'Guard';
+
+        if (start && end) {
+            const startParts = getManilaClockParts(start);
+            const endParts = getManilaClockParts(end);
+            const startMin = startParts.hours * 60 + startParts.minutes;
+            const endMin = endParts.hours * 60 + endParts.minutes;
+            const startDateStr = window.SchedulePeriod?.toLocalDateString(start) || formatCalendarDateStr(start);
+            const endDateStr = window.SchedulePeriod?.toLocalDateString(end) || formatCalendarDateStr(end);
+            const crossesMidnight = endDateStr > startDateStr || endMin <= startMin;
+            const blockEndMin = crossesMidnight ? 1440 : endMin;
+            const timeRange = `${formatTime(start)} – ${formatTime(end)}`;
+            timelineEvents.push({
+                gName,
+                timeRange,
+                tooltip: `${gName} (${timeRange})`,
+                colorClass: getCalendarShiftColorClass(startParts.hours),
+                blockStartMin: Math.max(0, Math.min(1410, startMin)),
+                blockEndMin: Math.max(startMin + 30, Math.min(1440, blockEndMin)),
+            });
+        } else {
+            const fallback = getLegacyShiftFallbackMinutes(s.shift);
+            const blockEndMin = fallback.overnight ? 1440 : fallback.endMin;
+            timelineEvents.push({
+                gName,
+                timeRange: fallback.label,
+                tooltip: `${gName} (${fallback.label})`,
+                colorClass: getCalendarShiftColorClass(Math.floor(fallback.startMin / 60)),
+                blockStartMin: fallback.startMin,
+                blockEndMin,
+            });
+        }
+    });
+
+    prevDaySchedules.forEach(s => {
+        const start = toDate(s.startAt);
+        const end = toDate(s.endAt);
+        const gName = s.guard_name || (activeUserGuards.find(g => g.id === s.userId)?.name) || 'Guard';
+
+        if (start && end && end > start) {
+            const startParts = getManilaClockParts(start);
+            const endParts = getManilaClockParts(end);
+            const endMin = endParts.hours * 60 + endParts.minutes;
+            const startDateStr = window.SchedulePeriod?.toLocalDateString(start) || formatCalendarDateStr(start);
+            const endDateStr = window.SchedulePeriod?.toLocalDateString(end) || formatCalendarDateStr(end);
+            if (endDateStr === dateStr && startDateStr === prevDateStr && endMin > 0) {
+                const timeRange = `${formatTime(start)} – ${formatTime(end)}`;
+                timelineEvents.push({
+                    gName,
+                    timeRange,
+                    tooltip: `${gName} (${timeRange} · started previous day)`,
+                    colorClass: getCalendarShiftColorClass(startParts.hours),
+                    blockStartMin: 0,
+                    blockEndMin: Math.max(30, Math.min(1440, endMin)),
+                });
+            }
+        } else if (!start && !end) {
+            const fallback = getLegacyShiftFallbackMinutes(s.shift);
+            if (fallback.overnight && fallback.endMin > 0) {
+                timelineEvents.push({
+                    gName,
+                    timeRange: fallback.label,
+                    tooltip: `${gName} (${fallback.label} · started previous day)`,
+                    colorClass: getCalendarShiftColorClass(Math.floor(fallback.startMin / 60)),
+                    blockStartMin: 0,
+                    blockEndMin: fallback.endMin,
+                });
+            }
+        }
+    });
+
+    const HOUR_HEIGHT = 44;
+    let rowsHtml = '';
+    for (let h = 0; h < 24; h++) {
+        rowsHtml += '<div class="gcal-dayview-hour-row"></div>';
+    }
+
+    const laidOut = layoutDayTimelineBlocks(timelineEvents);
+    const eventsHtml = laidOut.map(ev => {
+        const topPx = Math.round((ev.blockStartMin / 60) * HOUR_HEIGHT);
+        const heightPx = Math.max(26, Math.round(((ev.blockEndMin - ev.blockStartMin) / 60) * HOUR_HEIGHT));
+        const leftPct = (ev.colIndex / ev.totalCols) * 100;
+        const widthPct = 100 / ev.totalCols;
+        return `
+            <div class="gcal-dayview-event ${ev.colorClass}" title="${escapeHtml(ev.tooltip)}" style="top:${topPx}px; height:${heightPx}px; left:calc(${leftPct}% + 4px); width:calc(${widthPct}% - 10px);">
+                <div class="gcal-dayview-event-title">${escapeHtml(ev.gName)}</div>
+                <div class="gcal-dayview-event-time">${escapeHtml(ev.timeRange)}</div>
+            </div>
+        `;
+    }).join('');
+
+    const emptyNoticeHtml = laidOut.length === 0
+        ? `<div class="gcal-dayview-empty">No guard shifts scheduled on this date.</div>`
+        : '';
+
+    trackEl.innerHTML = rowsHtml + eventsHtml + emptyNoticeHtml;
+
+    if (bodyEl) {
+        if (laidOut.length > 0) {
+            const earliestStart = Math.min(...laidOut.map(ev => ev.blockStartMin));
+            const earliestTop = Math.round((earliestStart / 60) * HOUR_HEIGHT);
+            bodyEl.scrollTop = Math.max(0, earliestTop - 24);
+        } else {
+            bodyEl.scrollTop = 6 * HOUR_HEIGHT;
+        }
+    }
 }
 
 function renderClientScheduleCalendar() {
@@ -994,6 +1319,11 @@ function renderClientScheduleCalendar() {
     const siteSubEl = document.getElementById('clientCalendarModalSub');
     const weekPillEl = document.getElementById('clientCalendarWeekPill');
     const gridEl = document.getElementById('clientCalendarMonthGrid');
+    const monthWrapEl = document.getElementById('clientCalendarMonthWrap');
+    const dayWrapEl = document.getElementById('clientCalendarDayWrap');
+    const viewSelectEl = document.getElementById('clientCalendarViewModeSelect');
+    const prevBtnEl = document.getElementById('clientCalendarPrevBtn');
+    const nextBtnEl = document.getElementById('clientCalendarNextBtn');
 
     if (siteTitleEl) siteTitleEl.textContent = `${loc?.label || 'Client'} — Schedule`;
     if (siteSubEl) siteSubEl.textContent = loc?.address || 'Deployment Site Calendar';
@@ -1001,6 +1331,36 @@ function renderClientScheduleCalendar() {
     if (!currentCalendarMonthStart) {
         const now = new Date();
         currentCalendarMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    }
+
+    const isDayMode = currentCalendarViewMode === 'day';
+    if (viewSelectEl) viewSelectEl.value = isDayMode ? 'day' : 'month';
+    if (monthWrapEl) monthWrapEl.hidden = isDayMode;
+    if (dayWrapEl) dayWrapEl.hidden = !isDayMode;
+    if (prevBtnEl) prevBtnEl.title = isDayMode ? 'Previous day' : 'Previous month';
+    if (nextBtnEl) nextBtnEl.title = isDayMode ? 'Next day' : 'Next month';
+
+    const activeUserGuards = (guards || []).filter(g => g.active && g.role === 'user' && !ContractPeriod?.isExpired?.(g));
+    const stationedGuards = activeUserGuards.filter(g => (g.assignedLocationId || g.assigned_location_id) === currentCalendarSiteId);
+
+    const redeployBtnEl = document.getElementById('redeployNextMonthBtn');
+    const redeployTextEl = document.getElementById('redeployNextMonthBtnText');
+    const activeBaseDate = isDayMode && currentCalendarSelectedDate ? currentCalendarSelectedDate : currentCalendarMonthStart;
+    const nextMonthStart = new Date(activeBaseDate.getFullYear(), activeBaseDate.getMonth() + 1, 1);
+    const nextMonthLabel = nextMonthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    const redeployLineup = getMonthEndRedeployLineup(currentCalendarSiteId, activeBaseDate.getFullYear(), activeBaseDate.getMonth());
+    if (redeployTextEl) {
+        redeployTextEl.textContent = `Redeploy for ${nextMonthLabel}`;
+    }
+    if (redeployBtnEl) {
+        redeployBtnEl.title = redeployLineup.length
+            ? `Redeploy ${redeployLineup.map(item => item.guardName).join(' & ')} at ${loc?.label || 'this client'} for ${nextMonthLabel}`
+            : `No assigned guard shifts in ${activeBaseDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} to redeploy`;
+    }
+
+    if (isDayMode) {
+        renderClientScheduleDayView(loc, activeUserGuards, stationedGuards);
+        return;
     }
 
     const year = currentCalendarMonthStart.getFullYear();
@@ -1016,9 +1376,6 @@ function renderClientScheduleCalendar() {
     const firstDayIndex = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const prevMonthDays = new Date(year, month, 0).getDate();
-
-    const activeUserGuards = (guards || []).filter(g => g.active && g.role === 'user' && !ContractPeriod?.isExpired?.(g));
-    const stationedGuards = activeUserGuards.filter(g => (g.assignedLocationId || g.assigned_location_id) === currentCalendarSiteId);
 
     const totalCells = Math.ceil((firstDayIndex + daysInMonth) / 7) * 7;
     const todayStr = formatCalendarDateStr(new Date());
@@ -1049,7 +1406,7 @@ function renderClientScheduleCalendar() {
 
         const daySchedules = (schedules || []).filter(s => {
             const sLocId = s.locationId || s.location_id;
-            return sLocId === currentCalendarSiteId && s.date === dateStr && s.approval_status !== 'cancelled';
+            return sLocId === currentCalendarSiteId && s.date === dateStr && s.approval_status !== 'cancelled' && !isCalendarRestEntry(s);
         });
 
         let eventPillsHtml = '';
@@ -1061,16 +1418,11 @@ function renderClientScheduleCalendar() {
                 const timeRange = start && end ? `${formatTime(start)}–${formatTime(end)}` : 'Shift';
                 const gName = s.guard_name || (activeUserGuards.find(g => g.id === s.userId)?.name) || 'Guard';
 
-                const startH = start ? start.getHours() : 6;
-                let colorClass = 'is-morning';
-                if (startH >= 12 && startH < 18) {
-                    colorClass = 'is-afternoon';
-                } else if (startH >= 18 || startH < 6) {
-                    colorClass = 'is-night';
-                }
+                const startH = start ? getManilaClockParts(start).hours : 6;
+                const colorClass = getCalendarShiftColorClass(startH);
 
                 eventPillsHtml += `
-                    <div class="gcal-event-pill ${colorClass}" title="${escapeHtml(gName)} (${escapeHtml(timeRange)})" onclick="event.stopPropagation();">
+                    <div class="gcal-event-pill ${colorClass}" title="${escapeHtml(gName)} (${escapeHtml(timeRange)})">
                         <span class="text-truncate">● ${escapeHtml(timeRange)}: <strong>${escapeHtml(gName)}</strong></span>
                     </div>
                 `;
@@ -1081,14 +1433,14 @@ function renderClientScheduleCalendar() {
             stationedGuards.forEach(g => {
                 const hasShift = daySchedules.some(s => s.userId === g.id);
                 if (!hasShift) {
-                    const isExplicitRest = (schedules || []).some(s => 
-                        s.userId === g.id && 
-                        s.date === dateStr && 
-                        (s.is_rest_day === true || s.status === 'rest' || s.shift === 'REST' || s.leave_type === 'REST')
+                    const isExplicitRest = (schedules || []).some(s =>
+                        s.userId === g.id &&
+                        s.date === dateStr &&
+                        isCalendarRestEntry(s)
                     );
                     if (isExplicitRest || isGuardSpecificRestDay(g, cellDate)) {
                         eventPillsHtml += `
-                            <div class="gcal-event-pill is-rest" title="Rest day for ${escapeHtml(g.name)}" onclick="event.stopPropagation();">
+                            <div class="gcal-event-pill is-rest" title="Rest day for ${escapeHtml(g.name)}">
                                 <span>REST: ${escapeHtml(g.name)}</span>
                             </div>
                         `;
@@ -1098,7 +1450,7 @@ function renderClientScheduleCalendar() {
         }
 
         cellsHtml += `
-            <div class="gcal-day-cell ${isOutside ? 'is-outside' : ''} ${isToday ? 'is-today' : ''}" data-date="${dateStr}">
+            <div class="gcal-day-cell ${isOutside ? 'is-outside' : ''} ${isToday ? 'is-today' : ''}" data-date="${dateStr}" role="button" tabindex="0" aria-label="View schedule for ${dateStr}" onclick="openCalendarDayView('${dateStr}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openCalendarDayView('${dateStr}');}">
                 <div class="gcal-day-header">
                     <span class="gcal-day-num">${dayNum}</span>
                 </div>
@@ -1121,23 +1473,288 @@ function selectSiteForSchedulingFromModal() {
         siteSelect.dispatchEvent(new Event('change'));
     }
     const dateInput = document.getElementById('rosterDate');
-    if (dateInput && currentCalendarMonthStart) {
+    if (dateInput && (currentCalendarSelectedDate || currentCalendarMonthStart)) {
         const today = new Date();
-        const initialDate = (today.getFullYear() === currentCalendarMonthStart.getFullYear() && today.getMonth() === currentCalendarMonthStart.getMonth())
-            ? today
-            : currentCalendarMonthStart;
+        let initialDate;
+        if (currentCalendarViewMode === 'day' && currentCalendarSelectedDate) {
+            initialDate = currentCalendarSelectedDate;
+        } else {
+            initialDate = (currentCalendarMonthStart &&
+                today.getFullYear() === currentCalendarMonthStart.getFullYear() &&
+                today.getMonth() === currentCalendarMonthStart.getMonth())
+                ? today
+                : (currentCalendarMonthStart || today);
+        }
         dateInput.value = formatCalendarDateStr(initialDate);
         dateInput.dispatchEvent(new Event('change'));
     }
     document.querySelector('.shift-roster-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+let isRedeployingNextMonth = false;
+
+function normalizeGuardRestDayValue(guard, guardId) {
+    let raw = guard ? (guard.weeklyRestDay ?? guard.weekly_rest_day ?? guard.restDay ?? guard.rest_day ?? null) : null;
+    if (raw === null || raw === undefined || raw === '' || raw === -1 || raw === '-1') {
+        try {
+            const stored = JSON.parse(localStorage.getItem('sl_guard_rest_days_v1') || '{}') || {};
+            const key = guardId || guard?.id;
+            if (key && stored[key] !== undefined && stored[key] !== null && stored[key] !== -1 && stored[key] !== '-1') {
+                raw = stored[key];
+            }
+        } catch (_) {}
+    }
+    if (raw === null || raw === undefined || raw === '' || raw === -1 || raw === '-1') return -1;
+    if (typeof raw === 'number' && Number.isInteger(raw) && raw >= 0 && raw <= 6) return raw;
+    const trimmed = String(raw).trim().toLowerCase();
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    const nameIdx = dayNames.indexOf(trimmed);
+    if (nameIdx !== -1) return nameIdx;
+    if (/^[0-6]$/.test(trimmed)) return Number(trimmed);
+    return -1;
+}
+
+function getMonthEndRedeployLineup(siteId, year, month) {
+    if (!siteId) return [];
+    const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+    const monthSchedules = (schedules || []).filter(s => {
+        const sLocId = s.locationId || s.location_id;
+        return sLocId === siteId &&
+            typeof s.date === 'string' &&
+            s.date.startsWith(monthPrefix) &&
+            s.approval_status !== 'cancelled' &&
+            !isCalendarRestEntry(s);
+    });
+    if (!monthSchedules.length) return [];
+
+    let maxDateStr = monthSchedules[0].date;
+    monthSchedules.forEach(s => {
+        if (s.date > maxDateStr) maxDateStr = s.date;
+    });
+
+    const maxDateObj = parseScheduleDate(maxDateStr);
+    const minWindowObj = new Date(maxDateObj.getFullYear(), maxDateObj.getMonth(), maxDateObj.getDate() - 6);
+    const minWindowDateStr = formatCalendarDateStr(minWindowObj);
+
+    const recentSchedules = monthSchedules
+        .filter(s => s.date >= minWindowDateStr)
+        .sort((a, b) => b.date.localeCompare(a.date) || ((toDate(b.startAt)?.getTime() || 0) - (toDate(a.startAt)?.getTime() || 0)));
+
+    const pad2 = n => String(n).padStart(2, '0');
+    const slotMap = new Map();
+
+    recentSchedules.forEach(s => {
+        const start = toDate(s.startAt);
+        const end = toDate(s.endAt);
+        let startTime = '';
+        let endTime = '';
+        if (start && end) {
+            const startParts = getManilaClockParts(start);
+            const endParts = getManilaClockParts(end);
+            startTime = `${pad2(startParts.hours)}:${pad2(startParts.minutes)}`;
+            endTime = `${pad2(endParts.hours)}:${pad2(endParts.minutes)}`;
+        } else {
+            const fallback = getLegacyShiftFallbackMinutes(s.shift);
+            startTime = `${pad2(Math.floor(fallback.startMin / 60))}:${pad2(fallback.startMin % 60)}`;
+            endTime = `${pad2(Math.floor(fallback.endMin / 60))}:${pad2(fallback.endMin % 60)}`;
+        }
+        if (!startTime || !endTime || startTime === endTime) return;
+
+        const slotKey = `${startTime}-${endTime}`;
+        if (!slotMap.has(slotKey)) {
+            slotMap.set(slotKey, { start_time: startTime, end_time: endTime, candidates: [] });
+        }
+        const entry = slotMap.get(slotKey);
+        if (s.userId && !entry.candidates.some(c => c.userId === s.userId)) {
+            entry.candidates.push({
+                userId: s.userId,
+                guardName: s.guard_name || s.guardName || ''
+            });
+        }
+    });
+
+    const orderedSlots = [...slotMap.values()].sort((a, b) => a.start_time.localeCompare(b.start_time));
+    const usedGuardIds = new Set();
+    const lineup = [];
+
+    orderedSlots.forEach(slot => {
+        const chosen = slot.candidates.find(c => {
+            if (usedGuardIds.has(c.userId)) return false;
+            const gObj = (guards || []).find(g => g.id === c.userId);
+            return gObj ? (gObj.active && gObj.role === 'user') : true;
+        });
+        if (!chosen) return;
+        usedGuardIds.add(chosen.userId);
+        const gObj = (guards || []).find(g => g.id === chosen.userId);
+        lineup.push({
+            start_time: slot.start_time,
+            end_time: slot.end_time,
+            timeLabel: `${formatTimeStr12(slot.start_time)} – ${formatTimeStr12(slot.end_time)}`,
+            userId: chosen.userId,
+            guardName: gObj?.name || chosen.guardName || 'Guard',
+            restDay: normalizeGuardRestDayValue(gObj, chosen.userId)
+        });
+    });
+
+    return lineup;
+}
+
+async function redeployClientForNextMonth() {
+    if (!currentCalendarSiteId || isRedeployingNextMonth) return;
+
+    const activeBaseDate = (currentCalendarViewMode === 'day' && currentCalendarSelectedDate)
+        ? currentCalendarSelectedDate
+        : (currentCalendarMonthStart || new Date());
+    const year = activeBaseDate.getFullYear();
+    const month = activeBaseDate.getMonth();
+
+    const nextMonthStart = new Date(year, month + 1, 1);
+    const nextMonthEnd = new Date(year, month + 2, 0);
+    const nextMonthLabel = nextMonthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    const currentMonthLabel = new Date(year, month, 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+    const lineup = getMonthEndRedeployLineup(currentCalendarSiteId, year, month);
+    if (!lineup.length) {
+        appDialog.toast(`No assigned guard shifts found in ${currentMonthLabel} to redeploy for ${nextMonthLabel}.`, { tone: 'warning' });
+        return;
+    }
+
+    const days = [];
+    for (let d = 1; d <= nextMonthEnd.getDate(); d++) {
+        days.push(formatCalendarDateStr(new Date(nextMonthStart.getFullYear(), nextMonthStart.getMonth(), d)));
+    }
+
+    for (const slot of lineup) {
+        const gObj = (guards || []).find(g => g.id === slot.userId);
+        if (gObj && (!gObj.active || ContractPeriod?.isExpired?.(gObj, days[0]))) {
+            appDialog.toast(`${slot.guardName} has an expired contract or inactive account and cannot be redeployed for ${nextMonthLabel}.`, { tone: 'warning' });
+            return;
+        }
+    }
+
+    const loc = (locations || []).find(l => l.id === currentCalendarSiteId);
+    const siteName = loc?.label || 'this client';
+    const restDayNames = { 0: 'Sunday', 1: 'Monday', 2: 'Tuesday', 3: 'Wednesday', 4: 'Thursday', 5: 'Friday', 6: 'Saturday' };
+
+    const lineupSummary = lineup.map(slot => {
+        const restLabel = slot.restDay !== -1 && restDayNames[slot.restDay]
+            ? `Every ${restDayNames[slot.restDay]}`
+            : 'No weekly rest day';
+        return `• ${slot.timeLabel}: ${slot.guardName} (${restLabel})`;
+    }).join('\n');
+
+    const confirmMsg = `Redeploy current guard lineup for ${siteName}?\n\nTarget Next Month: ${formatDate(days[0])} – ${formatDate(days[days.length - 1])} (${days.length} Days)\n${lineupSummary}\n\nThis will deploy these guards for ${nextMonthLabel} with their weekly rest days.`;
+    const confirmed = await appDialog.confirm(confirmMsg, {
+        title: `Redeploy for ${nextMonthLabel}`,
+        confirmText: 'Redeploy Next Month',
+        icon: 'event_repeat'
+    });
+    if (!confirmed) return;
+
+    const btnEl = document.getElementById('redeployNextMonthBtn');
+    const customShiftsPayload = lineup.map(slot => ({ start_time: slot.start_time, end_time: slot.end_time }));
+    isRedeployingNextMonth = true;
+
+    try {
+        await appDialog.runBusy(btnEl, async () => {
+            const todayStr = todayDateString();
+            const now = new Date();
+            let totalAssigned = 0;
+            let daysCompleted = 0;
+            let restDaysSkipped = 0;
+            const skippedDays = [];
+
+            for (const day of days) {
+                if (day < todayStr) {
+                    skippedDays.push(`${formatDate(day)}: Past date skipped`);
+                    continue;
+                }
+
+                const curDayOfWeek = parseScheduleDate(day).getDay();
+                const dayIds = lineup.map(slot => (slot.restDay !== -1 && slot.restDay === curDayOfWeek) ? null : slot.userId);
+                restDaysSkipped += dayIds.filter(id => !id).length;
+
+                if (dayIds.every(id => !id)) {
+                    skippedDays.push(`${formatDate(day)}: Scheduled Rest Day (${restDayNames[curDayOfWeek]}) — REST`);
+                    continue;
+                }
+
+                const dayHasAllGuards = dayIds.every(Boolean);
+                try {
+                    let assignedData = null;
+                    if (dayHasAllGuards) {
+                        try {
+                            const { data, error } = await appSupabase.rpc('assign_custom_shift_roster', {
+                                p_location_id: currentCalendarSiteId,
+                                p_duty_date: day,
+                                p_guard_ids: dayIds,
+                                p_shifts: customShiftsPayload
+                            });
+                            if (!error && Array.isArray(data)) assignedData = data;
+                        } catch (_) {}
+                    }
+
+                    if (!assignedData) {
+                        assignedData = [];
+                        for (let i = 0; i < dayIds.length; i++) {
+                            if (!dayIds[i]) continue;
+                            const shiftCalc = window.SchedulePeriod?.calculate?.(day, lineup[i].start_time, lineup[i].end_time);
+                            if (shiftCalc && shiftCalc.endAt <= now) continue;
+                            const { data: dtrData, error: dtrErr } = await appSupabase.rpc('create_dtr_schedule', {
+                                p_user_id: dayIds[i],
+                                p_location_id: currentCalendarSiteId,
+                                p_duty_date: day,
+                                p_periods: [{ period: 'auto', start_time: lineup[i].start_time, end_time: lineup[i].end_time, next_day: false }]
+                            });
+                            if (dtrErr) throw dtrErr;
+                            if (Array.isArray(dtrData)) assignedData.push(...dtrData);
+                            else if (dtrData) assignedData.push(dtrData);
+                        }
+                    }
+
+                    if (Array.isArray(assignedData) && assignedData.length) {
+                        totalAssigned += assignedData.length;
+                        daysCompleted++;
+                    }
+                } catch (dayErr) {
+                    skippedDays.push(`${formatDate(day)}: ${dayErr.message || 'skipped'}`);
+                }
+            }
+
+            if (daysCompleted > 0 || totalAssigned > 0) {
+                currentCalendarMonthStart = new Date(nextMonthStart.getFullYear(), nextMonthStart.getMonth(), 1);
+                currentCalendarSelectedDate = new Date(nextMonthStart);
+                currentCalendarWeekStart = getWeekMonday(nextMonthStart);
+                currentCalendarViewMode = 'month';
+
+                setScheduleListPeriod(days[0]);
+                await refreshSchedules();
+                renderClientScheduleCalendar();
+
+                const restNote = restDaysSkipped > 0
+                    ? ` (${restDaysSkipped} rest day shift${restDaysSkipped === 1 ? '' : 's'} skipped as REST)`
+                    : '';
+                appDialog.toast(`Redeployed ${siteName} for ${nextMonthLabel}: ${totalAssigned} shifts created across ${daysCompleted} duty days${restNote}.`, { tone: 'success' });
+            } else {
+                throw new Error(skippedDays[0] || `Could not redeploy shifts for ${nextMonthLabel}. Please check for existing schedules.`);
+            }
+        }, { label: 'Redeploying…' });
+        renderClientScheduleCalendar();
+    } catch (err) {
+        appDialog.toast(err.message || `Could not redeploy shifts for ${nextMonthLabel}.`, { tone: 'danger' });
+    } finally {
+        isRedeployingNextMonth = false;
+    }
+}
+
 window.openClientScheduleCalendar = openClientScheduleCalendar;
 window.closeClientScheduleCalendar = closeClientScheduleCalendar;
+window.openCalendarDayView = openCalendarDayView;
+window.switchCalendarViewMode = switchCalendarViewMode;
 window.navigateCalendarMonth = navigateCalendarMonth;
 window.navigateCalendarWeek = navigateCalendarMonth;
 window.selectSiteForSchedulingFromModal = selectSiteForSchedulingFromModal;
-window.selectSiteForSchedulingFromModal = selectSiteForSchedulingFromModal;
+window.redeployClientForNextMonth = redeployClientForNextMonth;
 
 function toggleAllDeploymentBundles() {}
 function quickDeploySiteBundle(siteId) { openClientScheduleCalendar(siteId); }
@@ -1148,7 +1765,7 @@ function _unusedEndHelper() {
 </script>
 
 <!-- Client Monthly Guard Schedule Calendar Modal (Photo 2) -->
-<div class="modal fade guard-calendar-modal" id="clientScheduleCalendarModal" tabindex="-1" aria-labelledby="clientCalendarModalTitle" aria-hidden="true">
+<div class="modal fade guard-calendar-modal" id="clientScheduleCalendarModal" tabindex="-1" data-bs-focus="false" aria-labelledby="clientCalendarModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" style="max-width:96vw;">
         <div class="modal-content glass-card shadow-lg" style="border-radius:16px; overflow:hidden;">
             <div class="modal-header border-bottom py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
@@ -1165,16 +1782,20 @@ function _unusedEndHelper() {
                     <div class="d-flex align-items-center gap-2">
                         <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold px-3 rounded-pill" onclick="navigateCalendarMonth(0)">Today</button>
                         <div class="btn-group btn-group-sm">
-                            <button type="button" class="btn btn-outline-secondary" onclick="navigateCalendarMonth(-1)" title="Previous month"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_back</span></button>
-                            <button type="button" class="btn btn-outline-secondary" onclick="navigateCalendarMonth(1)" title="Next month"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_forward</span></button>
+                            <button type="button" class="btn btn-outline-secondary" id="clientCalendarPrevBtn" onclick="navigateCalendarMonth(-1)" title="Previous month"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_back</span></button>
+                            <button type="button" class="btn btn-outline-secondary" id="clientCalendarNextBtn" onclick="navigateCalendarMonth(1)" title="Next month"><span class="material-symbols-rounded align-middle" style="font-size:16px;">arrow_forward</span></button>
                         </div>
                         <h6 class="mb-0 fw-bold ms-1" id="clientCalendarWeekPill" style="font-size:1rem; min-width:140px;"></h6>
                     </div>
+                    <select id="clientCalendarViewModeSelect" class="form-select form-select-sm rounded-pill fw-semibold px-3" style="width:auto; min-width:96px; cursor:pointer;" onchange="switchCalendarViewMode(this.value)" aria-label="Calendar view mode">
+                        <option value="month">Month</option>
+                        <option value="day">Day</option>
+                    </select>
                     <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close" onclick="closeClientScheduleCalendar()"></button>
                 </div>
             </div>
             <div class="modal-body p-3 p-md-4" style="background:var(--sl-surface-muted, #f8fafc);">
-                <div class="gcal-month-wrap shadow-sm">
+                <div class="gcal-month-wrap shadow-sm" id="clientCalendarMonthWrap">
                     <div class="gcal-weekdays-row" aria-hidden="true">
                         <div class="gcal-weekday-header">SUN</div>
                         <div class="gcal-weekday-header">MON</div>
@@ -1188,6 +1809,13 @@ function _unusedEndHelper() {
                         <!-- Populated dynamically -->
                     </div>
                 </div>
+                <div class="gcal-dayview-wrap shadow-sm" id="clientCalendarDayWrap" hidden>
+                    <div class="gcal-dayview-header" id="clientCalendarDayHeader"></div>
+                    <div class="gcal-dayview-body" id="clientCalendarDayBody">
+                        <div class="gcal-dayview-time-col" id="clientCalendarDayTimeCol"></div>
+                        <div class="gcal-dayview-track" id="clientCalendarDayTrack"></div>
+                    </div>
+                </div>
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3 pt-2">
                     <div class="d-flex align-items-center gap-3 flex-wrap small">
                         <span class="d-flex align-items-center gap-1"><span class="badge shift-color-morning" style="width:12px; height:12px; border-radius:3px; padding:0;"></span> Morning / Day</span>
@@ -1195,8 +1823,12 @@ function _unusedEndHelper() {
                         <span class="d-flex align-items-center gap-1"><span class="badge shift-color-night" style="width:12px; height:12px; border-radius:3px; padding:0;"></span> Night Shift</span>
                         <span class="d-flex align-items-center gap-1 text-muted"><span class="badge shift-color-rest" style="width:12px; height:12px; border-radius:3px; padding:0;"></span> REST</span>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
                         <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal" onclick="closeClientScheduleCalendar()">Close</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger fw-semibold" id="redeployNextMonthBtn" onclick="redeployClientForNextMonth()">
+                            <span class="material-symbols-rounded align-middle" style="font-size:16px;">event_repeat</span>
+                            <span id="redeployNextMonthBtnText">Redeploy for Next Month</span>
+                        </button>
                         <button type="button" class="btn btn-sm btn-danger fw-semibold" onclick="selectSiteForSchedulingFromModal()">
                             <span class="material-symbols-rounded align-middle" style="font-size:16px;">calendar_month</span> Assign Schedule for this Client
                         </button>

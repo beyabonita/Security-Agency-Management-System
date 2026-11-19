@@ -657,7 +657,13 @@
   gap: 3px;
   background: var(--sl-surface, #fff);
   overflow-y: auto;
+  cursor: pointer;
   transition: background 0.15s ease;
+}
+
+.gcal-day-cell:focus-visible {
+  outline: 2px solid var(--ax-accent, #dc2626);
+  outline-offset: -2px;
 }
 
 .gcal-day-cell:nth-child(7n) {
@@ -774,6 +780,241 @@
   background: rgba(255, 255, 255, 0.04);
   color: #64748b;
   border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* =====================================
+   GOOGLE CALENDAR DAY TIMELINE VIEW
+   ===================================== */
+.gcal-dayview-wrap {
+  border: 1px solid var(--ax-border, #e2e8f0);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--sl-surface, #fff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.gcal-dayview-header {
+  display: flex;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--ax-border, #e2e8f0);
+  background: var(--sl-surface, #fff);
+  padding-top: 10px;
+}
+
+.gcal-dayview-tz {
+  width: 68px;
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  color: var(--ax-muted, #64748b);
+  text-align: right;
+  padding: 0 10px 6px 0;
+  border-right: 1px solid var(--ax-border, #e2e8f0);
+}
+
+.gcal-dayview-date-col {
+  flex: 1;
+  padding: 2px 16px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.gcal-dayview-date-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.gcal-dayview-date-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.gcal-dayview-dow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ax-muted, #64748b);
+}
+
+.gcal-dayview-dom {
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--ax-text, #1e293b);
+  line-height: 1.2;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.gcal-dayview-date-col.is-today .gcal-dayview-dow {
+  color: var(--ax-accent, #dc2626);
+}
+
+.gcal-dayview-date-col.is-today .gcal-dayview-dom {
+  background: var(--ax-accent, #dc2626);
+  color: #fff;
+  font-weight: 700;
+}
+
+.gcal-dayview-rest-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.gcal-dayview-rest-chip {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+.gcal-dayview-body {
+  display: flex;
+  max-height: 62vh;
+  overflow-y: auto;
+  position: relative;
+  background: var(--sl-surface, #fff);
+}
+
+.gcal-dayview-time-col {
+  width: 68px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--ax-border, #e2e8f0);
+  position: relative;
+  user-select: none;
+}
+
+.gcal-dayview-time-slot {
+  height: 44px;
+  position: relative;
+}
+
+.gcal-dayview-time-label {
+  position: absolute;
+  bottom: -8px;
+  right: 10px;
+  font-size: 0.7rem;
+  color: var(--ax-muted, #64748b);
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.gcal-dayview-track {
+  flex: 1;
+  position: relative;
+  min-height: calc(24 * 44px);
+}
+
+.gcal-dayview-hour-row {
+  height: 44px;
+  border-bottom: 1px solid var(--ax-border, #e2e8f0);
+  box-sizing: border-box;
+}
+
+.gcal-dayview-hour-row:last-child {
+  border-bottom: none;
+}
+
+.gcal-dayview-event {
+  position: absolute;
+  border-radius: 6px;
+  padding: 6px 12px;
+  color: #fff;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  transition: filter 0.15s ease;
+}
+
+.gcal-dayview-event:hover {
+  filter: brightness(0.97);
+  z-index: 6;
+}
+
+.gcal-dayview-event.is-morning {
+  background: #eab308;
+  color: #fff;
+}
+
+.gcal-dayview-event.is-afternoon {
+  background: #039be5;
+  color: #fff;
+}
+
+.gcal-dayview-event.is-night {
+  background: #039be5;
+  color: #fff;
+}
+
+.gcal-dayview-event-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gcal-dayview-event-time {
+  font-size: 0.74rem;
+  font-weight: 500;
+  opacity: 0.95;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gcal-dayview-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  font-size: 0.85rem;
+  color: var(--ax-muted, #64748b);
+  z-index: 3;
+}
+
+[data-theme="dark"] .gcal-dayview-wrap,
+[data-theme="dark"] .gcal-dayview-header,
+[data-theme="dark"] .gcal-dayview-body {
+  background: var(--sl-surface, #1e293b);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+[data-theme="dark"] .gcal-dayview-tz,
+[data-theme="dark"] .gcal-dayview-time-col,
+[data-theme="dark"] .gcal-dayview-hour-row {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .gcal-dayview-dom {
+  color: #e2e8f0;
+}
+[data-theme="dark"] .gcal-dayview-rest-chip {
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 .shift-color-morning {
   background: #2563eb;
