@@ -1477,12 +1477,6 @@
                 const badge = d.active
                     ? '<span class="badge-active">Active</span>'
                     : '<span class="badge-inactive">Disabled</span>';
-                const formatCoordPair = (lat, lng) => {
-                    const nLat = Number(lat), nLng = Number(lng);
-                    return (Number.isFinite(nLat) && Number.isFinite(nLng))
-                        ? `${nLat.toFixed(6)}, ${nLng.toFixed(6)}`
-                        : `${lat}, ${lng}`;
-                };
                 const addressText = d.address
                     ? escapeHtml(d.address)
                     : (d.latitude != null && d.longitude != null

@@ -163,6 +163,18 @@
 
 ---
 
+### [2026-11-19 14:43] - Fix: Resolve "Cannot access 'formatCoordPair' before initialization" ReferenceError on Operations Head Company Page — [✅ PUSHED: origin/main]
+
+- **Scope & Objective**: Fix runtime ReferenceError exception on the Operations Head Company/Locations console (`web/admin/locations.html`) where the table failed to render deployment sites with "Cannot access 'formatCoordPair' before initialization".
+- **Files Modified / Created**:
+  - [`web/admin/locations.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/locations.html): Removed duplicate block-scoped declaration of `const formatCoordPair` inside the `locationRecords.forEach` loop which shadowed the outer definition and caused a JavaScript Temporal Dead Zone (TDZ) ReferenceError when `coordsStr` attempted to call `formatCoordPair` earlier in the iteration block.
+- **Key Implementation Details**:
+  - `formatCoordPair` is already declared once in `renderLocations()` before the loop, so removing the duplicate inner declaration allows all callers (`coordsStr`, `addressText`, `coordsFallback`) to access the function cleanly without scoping conflicts.
+- **Verification & Testing**:
+  - Verified JavaScript scoping and syntax in `web/admin/locations.html`.
+- **Pending / Next Steps**:
+  - Ready for user review or push.
+
 ### [2026-11-19 14:15] - Feat: Make Entire Personnel Table Rows Clickable in Operations Head Console — [✅ PUSHED: origin/main]
 
 - **Scope & Objective**: Expand clickability on the Personnel management tables (Guards & Field Inspectors) in the Operations Head console so clicking anywhere on a row opens the full personnel profile modal, rather than restricting clicks to only the text of the person's name.
