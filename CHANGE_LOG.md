@@ -163,6 +163,20 @@
 
 ---
 
+### [2026-11-19 14:15] - Feat: Make Entire Personnel Table Rows Clickable in Operations Head Console — [✅ PUSHED: origin/main]
+
+- **Scope & Objective**: Expand clickability on the Personnel management tables (Guards & Field Inspectors) in the Operations Head console so clicking anywhere on a row opens the full personnel profile modal, rather than restricting clicks to only the text of the person's name.
+- **Files Modified / Created**:
+  - [`web/admin/users.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/users.html): Added `.personnel-row` cursor pointer & hover styles, created `handlePersonnelRowClick(event, id)` guarding against accidental text selections and child action triggers (View DTR, Actions dropdown menu, buttons, and links), attached the handler and row metadata to both `renderGuardRow` and `renderInspectorRow`, and added stopPropagation to action button clusters.
+- **Key Implementation Details**:
+  - `handlePersonnelRowClick` checks `window.getSelection()` so highlighting text (e.g. copying email or ID) does not trigger the modal.
+  - Interactive elements inside rows (`button`, `a`, `input`, `.personnel-actions`, `.personnel-action-cluster`, `.dropdown-menu`) are excluded so action buttons (View DTR, Edit, Archive, Assigned Post, etc.) execute independently without opening the profile modal.
+  - Hovering anywhere on a personnel row changes cursor to `pointer` and highlights the personnel name.
+- **Verification & Testing**:
+  - Validated syntax, event delegation, and CSS selectors in `web/admin/users.html`.
+- **Pending / Next Steps**:
+  - Ready for user testing and feedback.
+
 ### [2026-11-17 21:30] - Fix: Suppress Future Date Attendance Badges & Absences in Calendar Display and Records Summary — [✅ PUSHED: origin/main]
 
 - **Scope & Objective**: Fix calendar date display and attendance records so for the current month (November 2026), attendance data is only displayed for dates that have already passed or are the current date (`<= today`). Ensure dates from November 18 to November 30 remain completely empty of attendance badges and avoid counting upcoming schedules as absences.

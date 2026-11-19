@@ -428,6 +428,20 @@ html[data-theme="dark"] .personnel-filter-reset:hover {
 .user-table tbody tr:has(.personnel-actions:focus-within),
 .user-table tbody tr.has-open-personnel-actions { z-index: 40; }
 .user-table tbody tr:hover { background: var(--sl-surface-muted); }
+.user-table tbody tr.personnel-row {
+    cursor: pointer;
+}
+.user-table tbody tr.personnel-row:hover {
+    background: var(--sl-surface-muted);
+}
+.user-table tbody tr.personnel-row:hover .personnel-name-link {
+    color: var(--sl-danger);
+    text-decoration: underline;
+}
+.user-table tbody tr.personnel-row .personnel-action-cluster,
+.user-table tbody tr.personnel-row .personnel-actions {
+    cursor: default;
+}
 .user-table tbody td {
     padding: 10px 10px;
     font-size: 0.84rem;
@@ -2360,10 +2374,22 @@ function renderPersonnelStatus(data) {
         : '<span class="badge-disabled">Disabled</span>';
 }
 
+function handlePersonnelRowClick(event, id) {
+    const selection = window.getSelection();
+    if (selection && selection.toString().trim().length > 0) {
+        return;
+    }
+    if (event.target.closest('button, a, input, select, textarea, .personnel-actions, .personnel-action-cluster, .dropdown-menu')) {
+        return;
+    }
+    openPersonnelProfile(id);
+}
+window.handlePersonnelRowClick = handlePersonnelRowClick;
+
 function renderPersonnelActions(id, actions) {
     const menu = actions.filter(Boolean).join('');
     if (!menu) return '<span style="color:var(--sl-muted)">—</span>';
-    return `<div class="personnel-actions">
+    return `<div class="personnel-actions" onclick="event.stopPropagation()">
         <button type="button" class="personnel-actions-trigger" aria-expanded="false" aria-controls="personnel-actions-${id}" onclick="togglePersonnelActions(event, 'personnel-actions-${id}')">
             Actions <span class="personnel-actions-caret material-symbols-rounded" aria-hidden="true">expand_more</span>
         </button>
@@ -2432,7 +2458,7 @@ function renderGuardRow(id, data, locationsById) {
         `<button type="button" class="action-btn btn-history" onclick="viewAssignmentHistory('${id}')">History</button>`,
         `<button type="button" class="action-btn btn-reports" onclick="viewAccomplishments('${id}')">Reports</button>`,
     ]);
-    return `<tr${isArchived ? ' class="opacity-75"' : ''}>
+    return `<tr class="personnel-row${isArchived ? ' opacity-75' : ''}" data-personnel-id="${id}" onclick="handlePersonnelRowClick(event, '${id}')" title="Click to view full personnel record">
         <td>${renderPersonnelIdentity(id, data)}</td>
         <td>${renderDutyCategoryCell(data)}</td>
         <td>${renderContractStatusCell(data)}</td>
@@ -2441,7 +2467,7 @@ function renderGuardRow(id, data, locationsById) {
         <td>${renderAssignedPostCell(id, data, locationsById)}</td>
         <td><span class="badge bg-light text-dark border px-2 py-1"><span class="material-symbols-rounded align-middle me-1" style="font-size:13px;" aria-hidden="true">groups</span>All Inspectors</span></td>
         <td class="text-end">
-            <div class="personnel-action-cluster">
+            <div class="personnel-action-cluster" onclick="event.stopPropagation()">
                 <button type="button" class="action-btn btn-dtr" onclick="viewDTR('${id}')" title="View DTR">View DTR</button>
                 ${actions}
             </div>
@@ -2456,10 +2482,10 @@ function renderInspectorRow(id, data) {
         toggle,
 
     ]);
-    return `<tr>
+    return `<tr class="personnel-row" data-personnel-id="${id}" onclick="handlePersonnelRowClick(event, '${id}')" title="Click to view full personnel record">
         <td>${renderPersonnelIdentity(id, data)}</td>
         <td>${renderPersonnelStatus(data)}</td>
-        <td>${actions}</td>
+        <td class="text-end" onclick="event.stopPropagation()">${actions}</td>
     </tr>`;
 }
 
