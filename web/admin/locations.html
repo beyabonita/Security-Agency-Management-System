@@ -324,6 +324,18 @@
             box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
             outline: none;
         }
+
+        .btn-map-tool.active {
+            background: var(--sl-danger, #b91c1c) !important;
+            color: #ffffff !important;
+            border-color: var(--sl-danger, #b91c1c) !important;
+        }
+
+        .map-layer-toggle {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -491,6 +503,11 @@
                                     <span>Choose a search result, click the map, or drag the pin to fine-tune.</span>
                                 </div>
                                 <div class="map-toolbar-actions">
+                                    <div class="map-layer-toggle" role="group" aria-label="Map Base Layer">
+                                        <button type="button" class="btn-map-tool active" id="btnLayerHybrid" onclick="setMapBaseLayer('hybrid')" title="Satellite imagery with Philippine establishment names and landmarks">🛰️ Satellite &amp; Places</button>
+                                        <button type="button" class="btn-map-tool" id="btnLayerStreets" onclick="setMapBaseLayer('streets')" title="Google Streets roadmap with commercial establishments">🗺️ Streets</button>
+                                        <button type="button" class="btn-map-tool" id="btnLayerOsm" onclick="setMapBaseLayer('osm')" title="OpenStreetMap default view">OSM</button>
+                                    </div>
                                     <button type="button" class="btn-map-tool" onclick="showNegrosView()">View Negros
                                         Island</button>
                                     <button type="button" class="btn-map-tool" onclick="showPhilippinesView()">View
@@ -691,6 +708,32 @@
                 .replace(/"/g, "&quot;");
         }
 
+        let mapBaseLayers = {};
+        let activeBaseLayerKey = "hybrid";
+
+        function setMapBaseLayer(layerKey) {
+            if (!map || !mapBaseLayers[layerKey]) return;
+            Object.values(mapBaseLayers).forEach(layer => {
+                if (typeof map.removeLayer === 'function' && typeof map.hasLayer === 'function') {
+                    if (map.hasLayer(layer)) map.removeLayer(layer);
+                } else if (typeof layer?.remove === 'function') {
+                    layer.remove();
+                }
+            });
+            if (typeof mapBaseLayers[layerKey]?.addTo === 'function') {
+                mapBaseLayers[layerKey].addTo(map);
+            }
+            activeBaseLayerKey = layerKey;
+            if (radiusCircle && typeof radiusCircle.bringToBack === 'function') {
+                radiusCircle.bringToBack();
+            }
+
+            document.getElementById("btnLayerHybrid")?.classList.toggle("active", layerKey === "hybrid");
+            document.getElementById("btnLayerStreets")?.classList.toggle("active", layerKey === "streets");
+            document.getElementById("btnLayerOsm")?.classList.toggle("active", layerKey === "osm");
+        }
+        window.setMapBaseLayer = setMapBaseLayer;
+
         function initMap() {
             if (map) {
                 setTimeout(() => map.invalidateSize(), 150);
@@ -699,19 +742,74 @@
 
             map = L.map("locationMap", {
                 minZoom: 5,
-                maxZoom: 19,
+                maxZoom: 20,
                 maxBounds: PHILIPPINES_BOUNDS.pad(0.08),
                 maxBoundsViscosity: 0.9,
                 zoomControl: true
             });
-            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+
+            // 1. Google Hybrid: High-resolution satellite imagery + Philippine commercial & public establishment names & landmarks
+            const googleHybrid = L.tileLayer("https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", {
+                minZoom: 5,
+                maxZoom: 20,
+                subdomains: ["mt0", "mt1", "mt2", "mt3"],
+                detectRetina: true,
+                keepBuffer: 4,
+                attribution: "&copy; Google Maps"
+            });
+
+            // 2. Google Streets: Detailed Philippine establishments, malls, schools, roads, and POIs
+            const googleStreets = L.tileLayer("https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}", {
+                minZoom: 5,
+                maxZoom: 20,
+                subdomains: ["mt0", "mt1", "mt2", "mt3"],
+                detectRetina: true,
+                keepBuffer: 4,
+                attribution: "&copy; Google Maps"
+            });
+
+            // 3. OpenStreetMap
+            const osm = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
                 minZoom: 5,
                 maxZoom: 19,
                 detectRetina: true,
                 keepBuffer: 4,
                 attribution: "&copy; OpenStreetMap contributors"
-            }).addTo(map);
-            L.control.scale({ imperial: false, position: "bottomleft" }).addTo(map);
+            });
+
+            mapBaseLayers = {
+                "hybrid": googleHybrid,
+                "streets": googleStreets,
+                "osm": osm
+            };
+
+            // Default to Google Hybrid for establishment and building identification
+            googleHybrid.addTo(map);
+            activeBaseLayerKey = "hybrid";
+
+            if (typeof L.control?.layers === 'function') {
+                L.control.layers({
+                    "🛰️ Satellite & Places": googleHybrid,
+                    "🗺️ Google Streets": googleStreets,
+                    "🗺️ OpenStreetMap": osm
+                }, null, { position: "topright" }).addTo(map);
+            }
+
+            if (typeof map.on === 'function') {
+                map.on('baselayerchange', e => {
+                    let key = 'hybrid';
+                    if (e.layer === mapBaseLayers.streets) key = 'streets';
+                    else if (e.layer === mapBaseLayers.osm) key = 'osm';
+                    activeBaseLayerKey = key;
+                    document.getElementById("btnLayerHybrid")?.classList.toggle("active", key === "hybrid");
+                    document.getElementById("btnLayerStreets")?.classList.toggle("active", key === "streets");
+                    document.getElementById("btnLayerOsm")?.classList.toggle("active", key === "osm");
+                });
+            }
+
+            if (typeof L.control?.scale === 'function') {
+                L.control.scale({ imperial: false, position: "bottomleft" }).addTo(map);
+            }
             showNegrosView(false);
 
             map.on("click", e => {

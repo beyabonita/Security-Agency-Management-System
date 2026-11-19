@@ -163,6 +163,20 @@
 
 ---
 
+### [2026-11-19 14:52] - Feat: Add Google Hybrid & Google Streets Establishment Map Layers to Company Deployment Modal — [✅ PUSHED: origin/main]
+
+- **Scope & Objective**: Enable recognition of Philippine establishments, buildings, gates, and commercial landmarks when creating or editing client company deployment sites in Operations Head console (`web/admin/locations.html`) by integrating Google Hybrid (Satellite + place labels) and Google Streets alongside OpenStreetMap.
+- **Files Modified / Created**:
+  - [`web/admin/locations.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/locations.html): Configured Google Hybrid (`lyrs=y`) as the primary default base layer, added Google Streets (`lyrs=m`), retained OpenStreetMap (`osm`), added a segmented toolbar toggle (`🛰️ Satellite & Places`, `🗺️ Streets`, `OSM`) and Leaflet base layer control, and synchronized active states with `baselayerchange`.
+- **Key Implementation Details**:
+  - Google Hybrid allows administrators to clearly see the physical rooftops, gates, fences, and client company names directly on the map for accurate geofence center placement.
+  - Safe-guarded layer control and map event handling against null references.
+  - Test server started on `http://localhost:4173/admin/locations.html` for live review.
+- **Verification & Testing**:
+  - Ran Playwright location test `geofence_default.spec.js` (passed 1/1).
+- **Pending / Next Steps**:
+  - User testing on localhost.
+
 ### [2026-11-19 14:43] - Fix: Resolve "Cannot access 'formatCoordPair' before initialization" ReferenceError on Operations Head Company Page — [✅ PUSHED: origin/main]
 
 - **Scope & Objective**: Fix runtime ReferenceError exception on the Operations Head Company/Locations console (`web/admin/locations.html`) where the table failed to render deployment sites with "Cannot access 'formatCoordPair' before initialization".
