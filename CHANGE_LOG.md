@@ -163,6 +163,15 @@
 
 ---
 
+### [2026-11-19 21:08] - Fix: Apply Pending Supabase Migrations (`check_expiring_guard_contracts` 404) & Fix `purge_personnel_account` Deletion Order — [✅ PUSHED: `origin/main` + Supabase DB]
+
+- **Scope & Objective**: Resolve `POST .../rest/v1/rpc/check_expiring_guard_contracts 404 (Not Found)` seen in the browser console by deploying the unpushed Supabase migrations to the linked production project (`syyofdcynuzgergqlaqj`), and fix the deletion order inside `public.purge_personnel_account(uuid)` that had blocked `20261112000001_purge_duplicate_trix_accounts.sql`.
+- **Files Modified / Created**:
+  - [`supabase/migrations/20261112000001_purge_duplicate_trix_accounts.sql`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/supabase/migrations/20261112000001_purge_duplicate_trix_accounts.sql): Updated `public.purge_personnel_account(uuid)` prior to the purge block so child records (`shift_swap_requests`, `attendance_timeout_reviews`, `attendance_punches`, `guard_location_history`, `guard_live_locations`, `attendance_sessions`, `accomplishment_reports`) are deleted and schedule completion flags (`marked_done`, `completed_at`, `completed_by`) are cleared before deleting `public.schedules`, avoiding `SCHEDULE_ATTENDANCE_HISTORY` trigger errors.
+- **Verification & Deployment**:
+  - Executed `npx supabase db push --remote --yes` against `syyofdcynuzgergqlaqj`: applied `20261108000001_inspector_agency_wide_guard_oversight.sql`, `20261112000001_purge_duplicate_trix_accounts.sql`, and `20261116000001_contract_expiry_7day_reminder.sql` (`Finished supabase db push.`).
+  - Deployed `public.check_expiring_guard_contracts()` RPC to production so `POST /rest/v1/rpc/check_expiring_guard_contracts` resolves cleanly instead of returning `404 (Not Found)`.
+
 ### [2026-11-19 20:51] - Fix: Whitelist Map Tile Domains in Content-Security-Policy & Add Automatic Fallback — [✅ PUSHED: origin/main]
 
 - **Scope & Objective**: Fix issue where the deployment-site map appeared grey on `tts-agency.site` by updating Vercel Content-Security-Policy (CSP) headers to allow Google and Esri tile endpoints in `img-src` and adding graceful fallback to OpenStreetMap if tile loading errors occur.
