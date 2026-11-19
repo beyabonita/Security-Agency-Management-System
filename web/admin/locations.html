@@ -777,6 +777,27 @@
                 attribution: "&copy; OpenStreetMap contributors"
             });
 
+            let googleTileLoadedCount = 0;
+            let googleTileErrorCount = 0;
+            const handleGoogleTileLoad = () => {
+                googleTileLoadedCount++;
+            };
+            const handleGoogleTileError = () => {
+                googleTileErrorCount++;
+                if (googleTileLoadedCount === 0 && googleTileErrorCount >= 6 && activeBaseLayerKey !== "osm") {
+                    console.warn("Satellite tiles blocked or unavailable. Falling back to OpenStreetMap.");
+                    setMapBaseLayer("osm");
+                }
+            };
+            if (typeof googleHybrid.on === 'function') {
+                googleHybrid.on('tileload', handleGoogleTileLoad);
+                googleHybrid.on('tileerror', handleGoogleTileError);
+            }
+            if (typeof googleStreets.on === 'function') {
+                googleStreets.on('tileload', handleGoogleTileLoad);
+                googleStreets.on('tileerror', handleGoogleTileError);
+            }
+
             mapBaseLayers = {
                 "hybrid": googleHybrid,
                 "streets": googleStreets,

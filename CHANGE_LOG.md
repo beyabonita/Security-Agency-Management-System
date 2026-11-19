@@ -163,6 +163,17 @@
 
 ---
 
+### [2026-11-19 20:51] - Fix: Whitelist Map Tile Domains in Content-Security-Policy & Add Automatic Fallback — [✅ PUSHED: origin/main]
+
+- **Scope & Objective**: Fix issue where the deployment-site map appeared grey on `tts-agency.site` by updating Vercel Content-Security-Policy (CSP) headers to allow Google and Esri tile endpoints in `img-src` and adding graceful fallback to OpenStreetMap if tile loading errors occur.
+- **Files Modified / Created**:
+  - `vercel.json` & `web/vercel.json`: Added `https://mt0.google.com https://mt1.google.com https://mt2.google.com https://mt3.google.com https://server.arcgisonline.com https://services.arcgisonline.com` to `img-src` directive without wildcards to maintain compliance with security headers audit.
+  - [`web/admin/locations.html`](file:///c:/Users/USER/Documents/Security%20Agency%20Management%20System/web/admin/locations.html): Added automatic `tileerror` listener to automatically fall back to OpenStreetMap if satellite tiles are blocked by browser extensions or networks, preventing grey maps.
+- **Verification & Testing**:
+  - Executed `node web/tests/vercel_security_headers_test.js` (passed).
+- **Pending / Next Steps**:
+  - Push to origin/main to deploy new CSP header to Vercel production.
+
 ### [2026-11-19 14:52] - Feat: Add Google Hybrid & Google Streets Establishment Map Layers to Company Deployment Modal — [✅ PUSHED: origin/main]
 
 - **Scope & Objective**: Enable recognition of Philippine establishments, buildings, gates, and commercial landmarks when creating or editing client company deployment sites in Operations Head console (`web/admin/locations.html`) by integrating Google Hybrid (Satellite + place labels) and Google Streets alongside OpenStreetMap.
