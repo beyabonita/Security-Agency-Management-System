@@ -1315,6 +1315,11 @@
         }
 
         /* Dashboard Drill-Down Modal (Item #13) */
+        html.ig-drilldown-open,
+        body.ig-drilldown-open {
+            overflow: hidden !important;
+            overscroll-behavior: none;
+        }
         body[data-ax-page="dashboard"] .ig-drilldown-backdrop {
             position: fixed;
             inset: 0;
@@ -1324,6 +1329,8 @@
             align-items: center;
             justify-content: center;
             padding: 16px;
+            overflow: hidden;
+            overscroll-behavior: contain;
         }
         body[data-ax-page="dashboard"] .ig-drilldown-backdrop[hidden] {
             display: none !important;
@@ -1348,6 +1355,7 @@
             gap: 12px;
             padding: 16px 20px;
             border-bottom: 1px solid var(--ax-border);
+            flex-shrink: 0;
         }
         body[data-ax-page="dashboard"] .ig-drilldown-title {
             margin: 0;
@@ -1357,7 +1365,11 @@
         }
         body[data-ax-page="dashboard"] .ig-drilldown-body {
             padding: 16px 20px;
+            flex: 1 1 auto;
+            min-height: 0;
             overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -1380,6 +1392,7 @@
             gap: 10px;
             padding: 12px 20px;
             border-top: 1px solid var(--ax-border);
+            flex-shrink: 0;
         }
         body[data-ax-page="dashboard"] .ig-drilldown-link {
             display: inline-flex;
@@ -2843,17 +2856,24 @@ function renderCalendarSelectedDay(dateStr, compFilter) {
     listEl.innerHTML = html;
 }
 
+function closeDashboardDrilldown() {
+    const modal = document.getElementById('dashboardDrilldownModal');
+    if (modal) modal.hidden = true;
+    document.documentElement.classList.remove('ig-drilldown-open');
+    document.body.classList.remove('ig-drilldown-open');
+}
+
 function bindDashboardDrilldowns() {
     const modal = document.getElementById('dashboardDrilldownModal');
     const closeBtn = document.getElementById('dashboardDrilldownCloseBtn');
     if (closeBtn && !closeBtn.dataset.bound) {
         closeBtn.dataset.bound = 'true';
-        closeBtn.addEventListener('click', () => { if (modal) modal.hidden = true; });
+        closeBtn.addEventListener('click', closeDashboardDrilldown);
     }
     if (modal && !modal.dataset.bound) {
         modal.dataset.bound = 'true';
-        modal.addEventListener('click', (e) => { if (e.target === modal) modal.hidden = true; });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) modal.hidden = true; });
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeDashboardDrilldown(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeDashboardDrilldown(); });
     }
     if (!document.body.dataset.drilldownBound) {
         document.body.dataset.drilldownBound = 'true';
@@ -2990,10 +3010,13 @@ function openDashboardDrilldown(el) {
 
     titleEl.textContent = title;
     bodyEl.innerHTML = itemsHtml || '<div class="ig-drilldown-row"><span>No matching records found for this selection.</span></div>';
+    bodyEl.scrollTop = 0;
     if (metaEl) metaEl.textContent = 'Click any item or open the full management view for actions.';
     linkEl.href = linkHref;
     linkEl.textContent = linkText;
     modal.hidden = false;
+    document.documentElement.classList.add('ig-drilldown-open');
+    document.body.classList.add('ig-drilldown-open');
 }
 </script>
 </body>

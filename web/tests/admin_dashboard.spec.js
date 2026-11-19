@@ -53,7 +53,8 @@ test('Operations Head dashboard renders infographic KPIs, deployment bars, donut
           eq(field, value) { return { get: async () => snapshot((rows[source] || []).filter(row => row[field] === value)) }; },
           async get() { return snapshot(rows[source] || []); },
           doc(id) { return { get: async () => ({ exists: true, data: () => (rows[source] || []).find(row => row.id === id) || {} }) }; },
-          then(resolve) { return resolve({ data: rows[source] || [], error: null }); }
+          then(resolve, reject) { return Promise.resolve({ data: rows[source] || [], error: null }).then(resolve, reject); },
+          catch(reject) { return Promise.resolve({ data: rows[source] || [], error: null }).catch(reject); }
         };
         return api;
       }
@@ -151,4 +152,55 @@ test('Operations Head dashboard renders infographic KPIs, deployment bars, donut
     expect(metrics.bgLum, selector + ' dark background').toBeLessThan(0.15);
     expect(metrics.contrast, selector + ' dark contrast').toBeGreaterThanOrEqual(4.5);
   }
+
+  // 5. Drill-down modal locks background scroll while keeping modal body scrollable
+  await page.evaluate(() => document.documentElement.removeAttribute('data-theme'));
+  await page.locator('#deploymentInfographicList .ig-deploy-card').scrollIntoViewIfNeeded();
+  const scrolledBeforeClick = await page.evaluate(() => window.scrollY);
+  await page.click('#deploymentInfographicList .ig-deploy-card');
+  const modal = page.locator('#dashboardDrilldownModal');
+  await expect(modal).toBeVisible();
+  const scrollLockState = await page.evaluate(() => ({
+    htmlHasClass: document.documentElement.classList.contains('ig-drilldown-open'),
+    bodyHasClass: document.body.classList.contains('ig-drilldown-open'),
+    htmlOverflow: getComputedStyle(document.documentElement).overflow,
+    bodyOverflow: getComputedStyle(document.body).overflow,
+    bodyScrollOverflowY: getComputedStyle(document.getElementById('dashboardDrilldownBody')).overflowY,
+    scrollYBefore: window.scrollY,
+  }));
+  expect(scrollLockState.scrollYBefore).toBe(scrolledBeforeClick);
+  expect(scrollLockState.htmlHasClass).toBe(true);
+  expect(scrollLockState.bodyHasClass).toBe(true);
+  expect(scrollLockState.htmlOverflow).toBe('hidden');
+  expect(scrollLockState.bodyOverflow).toBe('hidden');
+  expect(scrollLockState.bodyScrollOverflowY).toBe('auto');
+
+  // Verify wheel scrolling on background overlay does not scroll background page
+  await page.mouse.move(40, 40);
+  await page.mouse.wheel(0, 400);
+  await page.mouse.wheel(0, -400);
+  expect(await page.evaluate(() => window.scrollY)).toBe(scrollLockState.scrollYBefore);
+
+  // Verify modal body itself remains scrollable when content overflows
+  const innerScroll = await page.evaluate(() => {
+    const body = document.getElementById('dashboardDrilldownBody');
+    const originalHtml = body.innerHTML;
+    body.innerHTML = Array.from({ length: 24 }, (_, idx) => '<div class="ig-drilldown-row"><strong>Guard ' + (idx + 1) + '</strong><span>Day Shift</span></div>').join('');
+    const canScroll = body.scrollHeight > body.clientHeight;
+    body.scrollTop = 120;
+    const moved = body.scrollTop;
+    body.innerHTML = originalHtml;
+    return { canScroll, moved };
+  });
+  expect(innerScroll.canScroll).toBe(true);
+  expect(innerScroll.moved).toBeGreaterThan(0);
+
+  await page.click('#dashboardDrilldownCloseBtn');
+  await expect(modal).toBeHidden();
+  const unlockedState = await page.evaluate(() => ({
+    htmlHasClass: document.documentElement.classList.contains('ig-drilldown-open'),
+    bodyHasClass: document.body.classList.contains('ig-drilldown-open'),
+  }));
+  expect(unlockedState.htmlHasClass).toBe(false);
+  expect(unlockedState.bodyHasClass).toBe(false);
 });
