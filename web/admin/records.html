@@ -348,8 +348,15 @@
                             </div>
                         </div>
 
-                        <!-- Table -->
-                        <div class="records-table-wrap">
+                        <!-- Table Search & Scrollable Box (10 visible rows) -->
+                        <div class="records-table-toolbar">
+                            <div class="records-search-box">
+                                <span class="material-symbols-rounded records-search-icon" aria-hidden="true">search</span>
+                                <input type="search" id="attSearchPersonnel" class="records-search-input" placeholder="Search guard by name…" autocomplete="off" aria-label="Search guard in Monthly Attendance Summary">
+                            </div>
+                            <span class="records-scroll-hint">Showing 10 guards per view · Scroll inside table to see more</span>
+                        </div>
+                        <div class="records-table-wrap records-table-scroll-10" id="attTableWrap">
                             <table class="records-table" id="attTable">
                                 <thead>
                                     <tr>

@@ -305,6 +305,70 @@
     background: var(--sl-surface, #1e293b);
 }
 
+.records-table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.records-search-box {
+    position: relative;
+    flex: 1 1 280px;
+    max-width: 380px;
+}
+
+.records-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 19px;
+    color: var(--ax-muted, #78716c);
+    pointer-events: none;
+}
+
+.records-search-input {
+    width: 100%;
+    height: 40px;
+    padding: 8px 14px 8px 38px;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid var(--ax-border, #e7d5d5);
+    border-radius: 10px;
+    background: var(--sl-surface, #ffffff);
+    color: var(--ax-text, #1c1917);
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.records-search-input:focus {
+    border-color: var(--ax-accent, #dc2626);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+[data-theme="dark"] .records-search-input {
+    background: var(--sl-surface, #1e293b);
+    border-color: var(--ax-border, #475569);
+    color: var(--ax-text, #f1f5f9);
+}
+
+.records-scroll-hint {
+    font-size: 0.76rem;
+    font-weight: 500;
+    color: var(--ax-muted, #78716c);
+}
+
+/* Show 10 guard rows (10 * 48px = 480px) + sticky header (42px) = 522px, rest scrollable inside box */
+.records-table-wrap.records-table-scroll-10 {
+    max-height: 522px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
 .records-table {
     width: 100%;
     table-layout: fixed;

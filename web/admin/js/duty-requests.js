@@ -61,19 +61,27 @@ function renderDutyRequests() {
     const s = r.exchange_snapshot?.offered || dutySchedules[r.requested_schedule_id] || {};
     const target = r.exchange_snapshot?.requested || dutySchedules[r.target_schedule_id] || {};
     const targetName = r.exchange_snapshot?.target_name || profileName(dutyProfiles[r.target_guard_id]);
+    const swapScope = r.swap_scope || r.exchange_snapshot?.swap_scope || 'day';
+    const isMonthlySwap = swapScope === 'month';
+    const awaitingGuardConfirmation = isExchange(r) && r.status === 'pending_admin' && Boolean(r.admin_decision_at) && r.guard_response === 'pending';
+    const displayStatus = awaitingGuardConfirmation
+      ? 'Approved by Operations Head · Awaiting Guard Confirmation'
+      : (isExchange(r) && r.status === 'approved')
+      ? 'Confirmed & Scheduled'
+      : statusLabel(r.status);
     return `<article class="duty-request-card" data-request-id="${escapeText(r.id)}">
-      <div class="duty-request-heading"><h2>${escapeText(profileName(dutyProfiles[r.requester_id]))}</h2><span class="ax-role-pill">${escapeText(requestKind(r))} · ${escapeText(statusLabel(r.status))}</span></div>
+      <div class="duty-request-heading"><h2>${escapeText(profileName(dutyProfiles[r.requester_id]))}</h2><span class="ax-role-pill">${escapeText(requestKind(r))}${isExchange(r) ? ` · ${isMonthlySwap ? 'Entire Month Swap' : 'Single Day Swap'}` : ''} · ${escapeText(displayStatus)}</span></div>
       <p class="duty-request-reason">${escapeText(cleanReason(r))}</p>
       <dl class="duty-request-meta"><div><dt>Requested duty period</dt><dd>${escapeText(({morning:'Morning',afternoon:'Afternoon',overtime:'Overtime'})[s.dtr_period] || 'Continuous shift')} · ${escapeText(when(s.start_at))} – ${escapeText(when(s.end_at))}<br>${escapeText(s.location_label || 'Duty site')}</dd></div><div><dt>Submitted</dt><dd>${escapeText(when(r.created_at))}</dd></div></dl>
       ${isExchange(r) ? `<section class="duty-exchange-preview" aria-label="Proposed duty exchange">
         <div><strong>${escapeText(profileName(dutyProfiles[r.requester_id]))} will take</strong><p>${escapeText(dutySummary(target))}</p></div>
         <div><strong>${escapeText(targetName)} will take</strong><p>${escapeText(dutySummary(s))}</p></div>
-        <small>Both duty assignments change together on approval. Dates, times, posts and DTR periods stay unchanged.</small>
+        <small>${isMonthlySwap ? 'Entire month swap: applies to all remaining matching duty days in this month once the chosen Guard confirms.' : 'Single day swap: applies automatically once the chosen Guard confirms.'}</small>
       </section>` : r.target_guard_id ? `<p>Replacement: ${escapeText(profileName(dutyProfiles[r.target_guard_id]))}</p>` : ''}
       ${!isExchange(r) && r.request_type !== 'absence' ? '<p class="ax-cell-secondary">The Operations Head selects a replacement for the remaining duty. Existing attendance stays with the original Guard.</p>' : ''}
       ${r.admin_note ? `<p>Operations Head decision: ${escapeText(r.admin_note)}</p>` : ''}
       <div class="duty-request-actions">${r.letter_path ? `<button type="button" class="action-btn" data-action="letter">View letter · ${escapeText(r.letter_name || 'Attachment')}</button>` : '<span class="ax-cell-secondary">Legacy request · no attachment</span>'}
-      ${r.status === 'pending_admin' ? '<button type="button" class="action-btn btn-enable" data-action="approve">Approve</button><button type="button" class="action-btn btn-disable" data-action="reject">Reject</button>' : ''}</div></article>`;
+      ${r.status === 'pending_admin' && !awaitingGuardConfirmation ? '<button type="button" class="action-btn btn-enable" data-action="approve">Approve</button><button type="button" class="action-btn btn-disable" data-action="reject">Reject</button>' : ''}${awaitingGuardConfirmation ? '<button type="button" class="action-btn btn-disable" data-action="reject">Cancel / Reject</button>' : ''}</div></article>`;
   }).join('');
   if (dutyRequests.length === 200) requestList.insertAdjacentHTML('beforeend','<p class="empty-state">Showing the latest 200 requests. Narrow the status filter for older decisions.</p>');
 }
@@ -193,9 +201,13 @@ async function decideRequest(r, approve, button) {
     });
   }
   fields.push({name:'note',label:openAttendance ? 'How was the actual Time Out confirmed?' : approve ? 'Decision note (optional)' : 'Reason for rejection',type:'textarea',required:!approve || !!openAttendance});
+  const targetGuardLabel = r.exchange_snapshot?.target_name || profileName(dutyProfiles[r.target_guard_id]);
+  const swapScopeLabel = (r.swap_scope || r.exchange_snapshot?.swap_scope) === 'month' ? 'entire month ' : '';
   const values = await appDialog.form({title:`${approve ? 'Approve' : 'Reject'} ${requestKind(r).toLowerCase()} request`,
     message:openAttendance ? 'Confirm when the Guard actually stopped working. Recorded work remains on their DTR; only the remaining duty is released. Do not use the approval time unless that is the actual Time Out.' : approve ? r.request_type === 'absence' ? 'Approve absence for the remaining duty period. Any recorded work stays on the Guard’s DTR. Other periods remain scheduled.' : isExchange(r)
-      ? `Exchange the two duties shown for ${profileName(dutyProfiles[r.requester_id])} and ${r.exchange_snapshot?.target_name || profileName(dutyProfiles[r.target_guard_id])}? Both Guards will be notified. Changed, started or conflicting duties cannot be exchanged.`
+      ? (r.guard_response === 'approved'
+        ? `Exchange the two duties shown for ${profileName(dutyProfiles[r.requester_id])} and ${targetGuardLabel}? Both Guards will be notified. Changed, started or conflicting duties cannot be exchanged.`
+        : `Approve this ${swapScopeLabel}shift swap between ${profileName(dutyProfiles[r.requester_id])} and ${targetGuardLabel}? ${targetGuardLabel} will be notified to confirm, and their schedule will update automatically once confirmed.`)
       : 'Create a separate assignment for the replacement from now (or the future shift start) until the original end. Existing attendance stays with the original Guard.' : 'Tell the Guard why this request was rejected.',
     confirmText:approve ? 'Approve request' : 'Reject request',danger:!approve,fields,
     validate:v => {
@@ -211,7 +223,7 @@ async function decideRequest(r, approve, button) {
     if (error) throw error;
     await loadDutyRequests();
   },{label:approve ? 'Approving…' : 'Rejecting…'});
-  appDialog.toast(approve ? isExchange(r) ? 'Duties exchanged. Both Guards have been notified.' : 'Request approved. The Guard has been notified.' : 'Request rejected. The Guard has been notified.',{tone:'success'});
+  appDialog.toast(approve ? isExchange(r) ? (r.guard_response === 'approved' ? 'Duties exchanged. Both Guards have been notified.' : `Swap approved! ${targetGuardLabel} has been notified to confirm.`) : 'Request approved. The Guard has been notified.' : 'Request rejected. The Guard has been notified.',{tone:'success'});
 }
 
 const activeRequests = new Set();

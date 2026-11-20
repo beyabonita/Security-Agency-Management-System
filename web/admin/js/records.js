@@ -127,6 +127,10 @@
         document.querySelectorAll('.records-panel').forEach(panel => {
             panel.classList.toggle('is-active', panel.id === `panel-${tabName}`);
         });
+
+        if (tabName === 'attendance' && typeof window.requestAnimationFrame === 'function') {
+            window.requestAnimationFrame(syncAttendanceTableTenRowHeight);
+        }
     }
 
     // ==========================================
@@ -453,6 +457,31 @@
                 <td style="text-align:center;">${escapeHtml(att.totalOvertimeHours)}</td>
             </tr>`;
         }).join('');
+        syncAttendanceTableTenRowHeight();
+    }
+
+    function syncAttendanceTableTenRowHeight() {
+        const wrap = document.getElementById('attTableWrap');
+        const table = document.getElementById('attTable');
+        const tbody = document.getElementById('attTableBody');
+        if (!wrap || !table || !tbody) return;
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        if (rows.length <= 10) {
+            wrap.style.maxHeight = '522px';
+            return;
+        }
+        const thead = table.querySelector('thead');
+        const headHeight = thead ? thead.getBoundingClientRect().height : 42;
+        const firstRowHeight = rows[0] ? rows[0].getBoundingClientRect().height : 48;
+        if (!headHeight || !firstRowHeight) {
+            wrap.style.maxHeight = '522px';
+            return;
+        }
+        let tenRowsHeight = 0;
+        for (let i = 0; i < 10; i++) {
+            tenRowsHeight += rows[i].getBoundingClientRect().height || firstRowHeight;
+        }
+        wrap.style.maxHeight = Math.ceil(headHeight + tenRowsHeight + 2) + 'px';
     }
 
     function applyAttendanceFilter() {
@@ -461,11 +490,13 @@
         const locationId = document.getElementById('attFilterLocation')?.value || '';
         const personnelId = document.getElementById('attFilterPersonnel')?.value || '';
         const status = document.getElementById('attFilterStatus')?.value || '';
+        const searchQuery = (document.getElementById('attSearchPersonnel')?.value || '').trim().toLowerCase();
 
         const fullMonthlyData = calculateAttendanceSummary(month, year);
 
         const filtered = fullMonthlyData.filter(att => {
             if (personnelId && att.guardId !== personnelId) return false;
+            if (searchQuery && !(att.personnel || '').toLowerCase().includes(searchQuery)) return false;
             if (locationId && att.locationId !== locationId) return false;
             if (status && att.status.toLowerCase() !== status.toLowerCase()) return false;
             return true;
@@ -691,6 +722,8 @@
         document.getElementById('attFilterLocation').value = '';
         document.getElementById('attFilterPersonnel').value = '';
         document.getElementById('attFilterStatus').value = '';
+        const searchEl = document.getElementById('attSearchPersonnel');
+        if (searchEl) searchEl.value = '';
         applyAttendanceFilter();
     }
 
@@ -953,6 +986,7 @@
 
         document.getElementById('attBtnApply')?.addEventListener('click', applyAttendanceFilter);
         document.getElementById('attBtnReset')?.addEventListener('click', resetAttendanceFilter);
+        document.getElementById('attSearchPersonnel')?.addEventListener('input', applyAttendanceFilter);
 
         document.getElementById('archiveIncidentBtn')?.addEventListener('click', async function() {
             if (!selectedId || !client) return;

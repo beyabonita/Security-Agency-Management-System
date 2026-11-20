@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_application_1/attendance.dart';
 import 'package:flutter_application_1/models/app_notification.dart';
+import 'package:flutter_application_1/models/dtr_alignment.dart';
 import 'package:flutter_application_1/notifications.dart';
 import 'package:flutter_application_1/services/attendance_service.dart';
 import 'package:flutter_application_1/services/notification_service.dart';
@@ -815,6 +816,12 @@ class _SchedulesCard extends StatefulWidget {
       _SchedulesCardState._hasLocation(data);
   static String _locationLine(Map<String, dynamic> data) =>
       _SchedulesCardState._locationLine(data);
+  static String _scheduleSortKey(Map<String, dynamic> data) =>
+      _SchedulesCardState._scheduleSortKey(data);
+  static String _formatDate(DateTime dt) =>
+      _SchedulesCardState._formatDate(dt);
+  static DateTime? _parseDateTime(dynamic value) =>
+      _SchedulesCardState._parseDateTime(value);
   static ({String dateLine, String dutyHoursLine}) _formatScheduleLines(
     Map<String, dynamic> data,
   ) => _SchedulesCardState._formatScheduleLines(data);
@@ -944,23 +951,124 @@ class _SchedulesCardState extends State<_SchedulesCard>
             );
           }
 
-          final sorted = schedules.toList()
-            ..sort(
-              (a, b) => _scheduleSortKey(b).compareTo(_scheduleSortKey(a)),
-            );
+          final featured = _pickFeaturedSchedule(schedules);
 
           return Column(
-            children: sorted.map((schedule) {
-              return _ScheduleTile(
-                key: ValueKey(schedule['id']),
-                scheduleId: schedule['id'].toString(),
-                data: schedule,
-              );
-            }).toList(),
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(18, 14, 18, 12),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _featuredLabel(featured),
+                            style: TextStyle(
+                              color: AppColors.of(context).accent,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '${schedules.length} scheduled ${schedules.length == 1 ? 'duty' : 'duties'}',
+                            style: TextStyle(
+                              color: AppColors.of(context).textMuted,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    FilledButton.tonalIcon(
+                      key: const ValueKey('openScheduleCalendarButton'),
+                      onPressed: () => _openCalendarView(schedules),
+                      icon: const Icon(Icons.calendar_month_rounded, size: 18),
+                      label: const Text('Calendar View'),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(height: 1, color: AppColors.of(context).border),
+              _ScheduleTile(
+                key: ValueKey(featured['id']),
+                scheduleId: featured['id'].toString(),
+                data: featured,
+                showBottomBorder: false,
+                onReportSubmitted: _refresh,
+              ),
+            ],
           );
         },
       ),
     );
+  }
+
+  static String _dayKey(DateTime dt) =>
+      '${dt.year.toString().padLeft(4, '0')}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
+
+  Map<String, dynamic> _pickFeaturedSchedule(
+    List<Map<String, dynamic>> schedules,
+  ) {
+    final now = DateTime.now();
+    final todayKey = _dayKey(now);
+    final todayShifts = schedules
+        .where((s) => ScheduleService.scheduleDutyDate(s) == todayKey)
+        .toList();
+    if (todayShifts.isNotEmpty) {
+      final pending = todayShifts
+          .where((s) => !ScheduleService.isMarkedDone(s))
+          .toList();
+      return pending.isNotEmpty ? pending.first : todayShifts.first;
+    }
+
+    final todayStart = DateTime(now.year, now.month, now.day);
+    final upcoming = schedules.where((s) {
+      final start = _SchedulesCard._parseDateTime(s['start_at']);
+      return start != null && !start.isBefore(todayStart);
+    }).toList()
+      ..sort(
+        (a, b) => _SchedulesCard._scheduleSortKey(a).compareTo(
+          _SchedulesCard._scheduleSortKey(b),
+        ),
+      );
+    if (upcoming.isNotEmpty) return upcoming.first;
+
+    final sortedDesc = schedules.toList()
+      ..sort(
+        (a, b) => _SchedulesCard._scheduleSortKey(b).compareTo(
+          _SchedulesCard._scheduleSortKey(a),
+        ),
+      );
+    return sortedDesc.first;
+  }
+
+  String _featuredLabel(Map<String, dynamic> schedule) {
+    final now = DateTime.now();
+    final dutyDate = ScheduleService.scheduleDutyDate(schedule);
+    if (dutyDate == _dayKey(now)) return "TODAY'S DUTY";
+    final start = _SchedulesCard._parseDateTime(schedule['start_at']);
+    final todayStart = DateTime(now.year, now.month, now.day);
+    if (start != null && !start.isBefore(todayStart)) return 'NEXT DUTY';
+    return 'LATEST DUTY';
+  }
+
+  Future<void> _openCalendarView(List<Map<String, dynamic>> schedules) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => GuardScheduleCalendarScreen(
+          userId: widget.userId,
+          initialSchedules: schedules,
+        ),
+      ),
+    );
+    _refresh();
   }
 
   static bool _hasLocation(Map<String, dynamic> data) {
@@ -1052,10 +1160,14 @@ class _ScheduleTile extends StatefulWidget {
     super.key,
     required this.scheduleId,
     required this.data,
+    this.showBottomBorder = true,
+    this.onReportSubmitted,
   });
 
   final String scheduleId;
   final Map<String, dynamic> data;
+  final bool showBottomBorder;
+  final VoidCallback? onReportSubmitted;
 
   @override
   State<_ScheduleTile> createState() => _ScheduleTileState();
@@ -1073,9 +1185,13 @@ class _ScheduleTileState extends State<_ScheduleTile> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: AppColors.of(context).border)),
-      ),
+      decoration: widget.showBottomBorder
+          ? BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: AppColors.of(context).border),
+              ),
+            )
+          : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -1196,20 +1312,871 @@ class _ScheduleTileState extends State<_ScheduleTile> {
           if (ScheduleService.canSubmitAccomplishment(s)) ...[
             const SizedBox(height: 12),
             OutlinedButton.icon(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) =>
-                      AccomplishmentReportScreen(
-                        scheduleId: widget.scheduleId,
-                        scheduleData: s,
-                      ),
-                ),
-              ),
+              onPressed: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => AccomplishmentReportScreen(
+                      scheduleId: widget.scheduleId,
+                      scheduleData: s,
+                    ),
+                  ),
+                );
+                widget.onReportSubmitted?.call();
+              },
               icon: const Icon(Icons.assignment_turned_in_outlined),
               label: const Text('Submit accomplishment report'),
             ),
           ],
         ],
+      ),
+    );
+  }
+}
+
+// ─── Full-screen monthly calendar view for Guard schedules ────────────────────
+class GuardScheduleCalendarScreen extends StatefulWidget {
+  const GuardScheduleCalendarScreen({
+    super.key,
+    required this.userId,
+    required this.initialSchedules,
+    this.loadSchedules,
+    this.subscribeRealtime = true,
+  });
+
+  final String userId;
+  final List<Map<String, dynamic>> initialSchedules;
+  final Future<List<Map<String, dynamic>>> Function()? loadSchedules;
+  final bool subscribeRealtime;
+
+  @override
+  State<GuardScheduleCalendarScreen> createState() =>
+      _GuardScheduleCalendarScreenState();
+}
+
+class _GuardScheduleCalendarScreenState
+    extends State<GuardScheduleCalendarScreen> {
+  static const List<String> _monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  static const List<String> _weekdaysShort = [
+    'Sun',
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+  ];
+
+  static const List<String> _weekdaysFull = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ];
+
+  static const Color _morningColor = Color(0xFFF59E0B);
+  static const Color _afternoonColor = Color(0xFF0284C7);
+  static const Color _nightColor = Color(0xFF1E40AF);
+
+  late List<Map<String, dynamic>> _schedules;
+  late DateTime _focusedMonth;
+  late DateTime _selectedDate;
+  StreamSubscription<List<Map<String, dynamic>>>? _changes;
+  bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _schedules = List<Map<String, dynamic>>.from(widget.initialSchedules);
+    final now = DateTime.now();
+    _selectedDate = DateTime(now.year, now.month, now.day);
+    _focusedMonth = DateTime(now.year, now.month, 1);
+
+    if (widget.subscribeRealtime) {
+      try {
+        _changes = Supabase.instance.client
+            .from('schedules')
+            .stream(primaryKey: ['id'])
+            .eq('user_id', widget.userId)
+            .listen((_) => _reload(), onError: (_) {});
+      } catch (_) {}
+    }
+  }
+
+  @override
+  void dispose() {
+    _changes?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _reload() async {
+    if (_loading) return;
+    setState(() => _loading = true);
+    try {
+      final rows = widget.loadSchedules != null
+          ? await widget.loadSchedules!()
+          : ScheduleService.visibleSchedules(
+              await Supabase.instance.client
+                  .from('schedules')
+                  .select('*,attendance_sessions(status,clock_in_at,clock_out_at)')
+                  .eq('user_id', widget.userId)
+                  .inFilter('approval_status', ['approved', 'changed'])
+                  .order('start_at', ascending: false)
+                  .timeout(const Duration(seconds: 15)),
+              widget.userId,
+            );
+      if (!mounted) return;
+      setState(() => _schedules = rows);
+    } catch (_) {
+      // Keep last known schedule snapshot if refresh fails offline.
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  static String _dateKey(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+
+  static Color _shiftColor(Map<String, dynamic> schedule) {
+    final start = ScheduleService.scheduleStartAt(schedule);
+    if (start == null) return _morningColor;
+    final hour = DtrAlignment.inManila(start).hour;
+    if (hour >= 12 && hour < 18) return _afternoonColor;
+    if (hour >= 18 || hour < 6) return _nightColor;
+    return _morningColor;
+  }
+
+  static String _shiftCategoryLabel(Map<String, dynamic> schedule) {
+    final start = ScheduleService.scheduleStartAt(schedule);
+    if (start == null) return 'Scheduled Shift';
+    final hour = DtrAlignment.inManila(start).hour;
+    if (hour >= 12 && hour < 18) return 'Afternoon / Evening';
+    if (hour >= 18 || hour < 6) return 'Night Shift';
+    return 'Morning / Day';
+  }
+
+  static String _compactTime(DateTime dt) {
+    final pht = DtrAlignment.inManila(dt);
+    final h = pht.hour;
+    final m = pht.minute;
+    final suffix = h >= 12 ? 'P' : 'A';
+    final h12 = h % 12 == 0 ? 12 : h % 12;
+    return m == 0 ? '$h12$suffix' : '$h12:${m.toString().padLeft(2, '0')}$suffix';
+  }
+
+  static String _compactPillLabel(Map<String, dynamic> schedule) {
+    final start = ScheduleService.scheduleStartAt(schedule);
+    final end = ScheduleService.scheduleEndAt(schedule);
+    if (start != null && end != null) {
+      return '${_compactTime(start)}–${_compactTime(end)}';
+    }
+    return 'Duty';
+  }
+
+  void _stepMonth(int delta) {
+    setState(() {
+      _focusedMonth = DateTime(
+        _focusedMonth.year,
+        _focusedMonth.month + delta,
+        1,
+      );
+    });
+  }
+
+  void _jumpToToday() {
+    final now = DateTime.now();
+    setState(() {
+      _selectedDate = DateTime(now.year, now.month, now.day);
+      _focusedMonth = DateTime(now.year, now.month, 1);
+    });
+  }
+
+  Map<String, List<Map<String, dynamic>>> _groupByDay() {
+    final map = <String, List<Map<String, dynamic>>>{};
+    for (final s in _schedules) {
+      final key = ScheduleService.scheduleDutyDate(s);
+      if (key == null || key.isEmpty) continue;
+      map.putIfAbsent(key, () => <Map<String, dynamic>>[]).add(s);
+    }
+    for (final entries in map.values) {
+      entries.sort(
+        (a, b) => _SchedulesCard._scheduleSortKey(a).compareTo(
+          _SchedulesCard._scheduleSortKey(b),
+        ),
+      );
+    }
+    return map;
+  }
+
+  Future<void> _openDaySheet(
+    DateTime cellDate,
+    List<Map<String, dynamic>> daySchedules,
+  ) async {
+    setState(() {
+      _selectedDate = cellDate;
+      if (cellDate.year != _focusedMonth.year ||
+          cellDate.month != _focusedMonth.month) {
+        _focusedMonth = DateTime(cellDate.year, cellDate.month, 1);
+      }
+    });
+
+    final palette = AppColors.of(context);
+    final weekdayName = _weekdaysFull[cellDate.weekday % 7];
+    final dateTitle = '$weekdayName, ${_SchedulesCard._formatDate(cellDate)}';
+    final rootNavigator = Navigator.of(context);
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: palette.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(sheetContext).size.height * 0.72,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 38,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: palette.border,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              dateTitle,
+                              style: TextStyle(
+                                color: palette.text,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              daySchedules.isEmpty
+                                  ? 'No duty scheduled'
+                                  : '${daySchedules.length} scheduled ${daySchedules.length == 1 ? 'shift' : 'shifts'}',
+                              style: TextStyle(
+                                color: palette.textMuted,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () => Navigator.of(sheetContext).pop(),
+                        icon: const Icon(Icons.close_rounded),
+                        tooltip: 'Close',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  if (daySchedules.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 28,
+                        horizontal: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: palette.surfaceMuted,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: palette.border),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.event_available_rounded,
+                            color: palette.textHint,
+                            size: 36,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'No duty scheduled on this date.',
+                            style: TextStyle(
+                              color: palette.textMuted,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    Flexible(
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        itemCount: daySchedules.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (_, index) {
+                          final s = daySchedules[index];
+                          final shiftColor = _shiftColor(s);
+                          final category = _shiftCategoryLabel(s);
+                          final lines = _SchedulesCard._formatScheduleLines(s);
+                          final dtrMapping = ScheduleService.dtrMappingLabel(s);
+                          final dtrCutoff = ScheduleService.dtrCutoffLabel(s);
+                          final markedDone = ScheduleService.isMarkedDone(s);
+                          final canSubmit =
+                              ScheduleService.canSubmitAccomplishment(s);
+
+                          return Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: palette.surfaceElevated,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: palette.border),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: shiftColor,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Text(
+                                        category,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    if (markedDone)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: palette.success.withValues(
+                                            alpha: 0.12,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                          border: Border.all(
+                                            color: palette.success.withValues(
+                                              alpha: 0.35,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Done',
+                                          style: TextStyle(
+                                            color: palette.success,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  lines.dutyHoursLine,
+                                  style: TextStyle(
+                                    color: palette.text,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                if (dtrMapping != null &&
+                                    dtrCutoff != null) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'DTR: $dtrMapping · $dtrCutoff',
+                                    style: TextStyle(
+                                      color: palette.accent,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                                const SizedBox(height: 6),
+                                Text(
+                                  _SchedulesCard._locationLine(s),
+                                  style: TextStyle(
+                                    color: _SchedulesCard._hasLocation(s)
+                                        ? palette.textMuted
+                                        : palette.warning,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                if (canSubmit) ...[
+                                  const SizedBox(height: 12),
+                                  FilledButton.icon(
+                                    key: ValueKey(
+                                      'submitAccomplishmentButton_${s['id']}',
+                                    ),
+                                    onPressed: () async {
+                                      Navigator.of(sheetContext).pop();
+                                      await rootNavigator.push(
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              AccomplishmentReportScreen(
+                                                scheduleId: s['id'].toString(),
+                                                scheduleData: s,
+                                              ),
+                                        ),
+                                      );
+                                      if (mounted) _reload();
+                                    },
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: palette.accent,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 12,
+                                        horizontal: 14,
+                                      ),
+                                    ),
+                                    icon: const Icon(
+                                      Icons.assignment_turned_in_rounded,
+                                      size: 18,
+                                    ),
+                                    label: const Text(
+                                      'Submit Accomplishment Report',
+                                    ),
+                                  ),
+                                ] else if (!markedDone) ...[
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    ScheduleService.isScheduleEnded(s)
+                                        ? 'Schedule ended. Check Duty time records for attendance.'
+                                        : 'Clock in via Attendance to submit an accomplishment report.',
+                                    style: TextStyle(
+                                      color: palette.textMuted,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDayCell({
+    required BuildContext context,
+    required AppPalette palette,
+    required DateTime cellDate,
+    required List<Map<String, dynamic>> daySchedules,
+    required String todayKey,
+  }) {
+    final dateKey = _dateKey(cellDate);
+    final isOutside =
+        cellDate.month != _focusedMonth.month ||
+        cellDate.year != _focusedMonth.year;
+    final isToday = dateKey == todayKey;
+    final isSelected = dateKey == _dateKey(_selectedDate);
+    final visibleShifts = daySchedules.take(3).toList();
+    final extraCount = daySchedules.length - visibleShifts.length;
+
+    return Expanded(
+      child: Material(
+        color: isOutside
+            ? palette.surfaceMuted.withValues(alpha: 0.45)
+            : palette.surface,
+        child: InkWell(
+          key: ValueKey('calendarDayCell_$dateKey'),
+          onTap: () => _openDaySheet(cellDate, daySchedules),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(2, 4, 2, 3),
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: palette.border.withValues(alpha: 0.55),
+                width: 0.5,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    constraints: const BoxConstraints(
+                      minWidth: 24,
+                      minHeight: 22,
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 5,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isToday
+                          ? palette.accent
+                          : isSelected
+                          ? palette.accent.withValues(alpha: 0.14)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${cellDate.day}',
+                      style: TextStyle(
+                        color: isToday
+                            ? Colors.white
+                            : isOutside
+                            ? palette.textHint
+                            : isSelected
+                            ? palette.accent
+                            : palette.text,
+                        fontSize: 12,
+                        fontWeight: isToday || isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                for (final s in visibleShifts)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _shiftColor(s),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _compactPillLabel(s),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w700,
+                              height: 1.15,
+                            ),
+                          ),
+                        ),
+                        if (ScheduleService.isMarkedDone(s))
+                          const Icon(
+                            Icons.check_circle,
+                            color: Colors.white,
+                            size: 9,
+                          )
+                        else if (ScheduleService.canSubmitAccomplishment(s))
+                          const Icon(
+                            Icons.assignment_turned_in,
+                            color: Colors.white,
+                            size: 9,
+                          ),
+                      ],
+                    ),
+                  ),
+                if (extraCount > 0)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 2),
+                    child: Text(
+                      '+$extraCount more',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: palette.textMuted,
+                        fontSize: 8.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(AppPalette palette, Color color, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: TextStyle(
+            color: palette.textMuted,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = AppColors.of(context);
+    final now = DateTime.now();
+    final todayKey = _dateKey(now);
+    final monthTitle =
+        '${_monthNames[_focusedMonth.month - 1]} ${_focusedMonth.year}';
+    final grouped = _groupByDay();
+
+    final firstOfMonth = DateTime(_focusedMonth.year, _focusedMonth.month, 1);
+    final firstDayOffset = firstOfMonth.weekday % 7;
+    final daysInMonth = DateTime(
+      _focusedMonth.year,
+      _focusedMonth.month + 1,
+      0,
+    ).day;
+    final totalCells = ((firstDayOffset + daysInMonth + 6) ~/ 7) * 7;
+    final rowCount = totalCells ~/ 7;
+
+    return Scaffold(
+      backgroundColor: palette.surface,
+      appBar: AppBar(
+        backgroundColor: palette.surface,
+        foregroundColor: palette.text,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
+          onPressed: () => Navigator.of(context).pop(),
+          tooltip: 'Back',
+        ),
+        titleSpacing: 0,
+        title: Text(
+          monthTitle,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: palette.text,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        actions: [
+          if (_loading)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: palette.accent,
+                ),
+              ),
+            ),
+          Tooltip(
+            message: 'Jump to Today',
+            child: InkWell(
+              key: const ValueKey('calendarTodayButton'),
+              borderRadius: BorderRadius.circular(8),
+              onTap: _jumpToToday,
+              child: Container(
+                width: 28,
+                height: 28,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(7),
+                  border: Border.all(color: palette.text, width: 1.6),
+                ),
+                child: Text(
+                  '${now.day}',
+                  style: TextStyle(
+                    color: palette.text,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    height: 1,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            key: const ValueKey('calendarPrevMonthButton'),
+            onPressed: () => _stepMonth(-1),
+            icon: const Icon(Icons.chevron_left_rounded),
+            tooltip: 'Previous month',
+          ),
+          IconButton(
+            key: const ValueKey('calendarNextMonthButton'),
+            onPressed: () => _stepMonth(1),
+            icon: const Icon(Icons.chevron_right_rounded),
+            tooltip: 'Next month',
+          ),
+        ],
+      ),
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: palette.surface,
+                border: Border(
+                  top: BorderSide(color: palette.border.withValues(alpha: 0.6)),
+                  bottom: BorderSide(
+                    color: palette.border.withValues(alpha: 0.6),
+                  ),
+                ),
+              ),
+              child: Row(
+                children: _weekdaysShort
+                    .map(
+                      (day) => Expanded(
+                        child: Center(
+                          child: Text(
+                            day,
+                            style: TextStyle(
+                              color: palette.textMuted,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  const minRowHeight = 76.0;
+                  final fitsScreen =
+                      constraints.maxHeight >= rowCount * minRowHeight;
+                  final weekRows = List.generate(rowCount, (weekIdx) {
+                    final cells = List.generate(7, (colIdx) {
+                      final cellIndex = weekIdx * 7 + colIdx;
+                      final cellDate = DateTime(
+                        _focusedMonth.year,
+                        _focusedMonth.month,
+                        1 - firstDayOffset + cellIndex,
+                      );
+                      final key = _dateKey(cellDate);
+                      return _buildDayCell(
+                        context: context,
+                        palette: palette,
+                        cellDate: cellDate,
+                        daySchedules: grouped[key] ?? const [],
+                        todayKey: todayKey,
+                      );
+                    });
+                    if (fitsScreen) {
+                      return Expanded(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: cells,
+                        ),
+                      );
+                    }
+                    return SizedBox(
+                      height: minRowHeight,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: cells,
+                      ),
+                    );
+                  });
+
+                  if (fitsScreen) {
+                    return Column(children: weekRows);
+                  }
+                  return SingleChildScrollView(
+                    child: Column(children: weekRows),
+                  );
+                },
+              ),
+            ),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+              decoration: BoxDecoration(
+                color: palette.surfaceMuted,
+                border: Border(top: BorderSide(color: palette.border)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: 14,
+                    runSpacing: 6,
+                    children: [
+                      _buildLegendItem(palette, _morningColor, 'Morning / Day'),
+                      _buildLegendItem(palette, _afternoonColor, 'Afternoon'),
+                      _buildLegendItem(palette, _nightColor, 'Night Shift'),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Tap a scheduled date to view duty details & submit an accomplishment report.',
+                    style: TextStyle(color: palette.textMuted, fontSize: 11),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

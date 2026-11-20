@@ -24,7 +24,11 @@ class FakeGateway implements DutyRequestGateway {
           (r) => {
             ...r,
             'guard_response': approve ? 'approved' : 'declined',
-            'status': approve ? 'pending_admin' : 'rejected',
+            'status': !approve
+                ? 'rejected'
+                : r['admin_decision_at'] != null
+                ? 'approved'
+                : 'pending_admin',
           },
         )
         .toList();
@@ -42,7 +46,7 @@ class FakeGateway implements DutyRequestGateway {
       ...duty,
       'id': 'schedule-2',
       'guard_name': 'Other Guard',
-      'location_label': 'Other post',
+      'location_label': 'Agency branch',
     },
   ];
   @override
@@ -64,6 +68,7 @@ class FakeGateway implements DutyRequestGateway {
     required String requestType,
     required RequestLetter letter,
     String? targetScheduleId,
+    String swapScope = 'day',
   }) async {
     submissions.add({
       'schedule': scheduleId,
@@ -71,15 +76,19 @@ class FakeGateway implements DutyRequestGateway {
       'type': requestType,
       'letter': letter,
       'target': targetScheduleId,
+      'swapScope': swapScope,
     });
     if (submitError != null) throw submitError!;
     requests = [
       {
         'requested_schedule_id': scheduleId,
+        'target_schedule_id': targetScheduleId,
         'request_type': requestType,
+        'swap_scope': swapScope,
         'reason': reason,
         'letter_name': letter.name,
         'status': 'pending_admin',
+        if (targetScheduleId != null) 'guard_response': 'pending',
       },
     ];
   }
@@ -134,7 +143,7 @@ Future<void> chooseDuty(WidgetTester tester) async {
 void main() {
   for (final approve in [true, false]) {
     testWidgets(
-      'Incoming swap can be ${approve ? 'approved' : 'declined'} by the selected Guard',
+      'Incoming swap can be ${approve ? 'confirmed' : 'declined'} by the selected Guard after Operations Head approval',
       (tester) async {
         final gateway = FakeGateway()
           ..schedules = []
@@ -143,8 +152,11 @@ void main() {
               'id': 'invitation',
               'is_incoming': true,
               'request_type': 'swap',
+              'target_schedule_id': 'schedule-2',
+              'swap_scope': 'day',
               'status': 'pending_admin',
               'guard_response': 'pending',
+              'admin_decision_at': '2026-09-05T10:00:00Z',
               'reason': 'Exchange duties',
               'exchange_snapshot': {
                 'requester_name': 'Juan',
@@ -155,16 +167,14 @@ void main() {
             },
           ];
         await render(tester, gateway);
-        await tapText(tester, approve ? 'Approve swap' : 'Decline swap');
-        await tapText(tester, approve ? 'Accept swap' : 'Decline swap');
+        await tapText(tester, approve ? 'Confirm & Agree' : 'Decline swap');
+        await tapText(tester, approve ? 'Confirm swap' : 'Decline swap');
         expect(gateway.responses, [
           {'id': 'invitation', 'approve': approve},
         ]);
         expect(
           find.textContaining(
-            approve
-                ? 'Awaiting Operational Head approval'
-                : 'Declined by Guard',
+            approve ? 'Confirmed & scheduled' : 'Declined by Guard',
           ),
           findsOneWidget,
         );
@@ -264,18 +274,80 @@ void main() {
       'Please arrange another guard to cover this period.',
     );
     await tapText(tester, 'Attach request letter');
+    expect(find.text('Or choose Guard from list'), findsNothing);
     await tester.ensureVisible(
-      find.byType(DropdownButtonFormField<String>).last,
+      find.byKey(const ValueKey('swapGuardCard_schedule-2')),
     );
-    await tester.tap(find.byType(DropdownButtonFormField<String>).last);
+    await tester.tap(find.byKey(const ValueKey('swapGuardCard_schedule-2')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Other Guard').last);
-    await tester.pumpAndSettle();
-    await tapText(tester, 'Send to selected Guard');
+    await tapText(tester, 'Send to Operations Head');
     expect(gateway.submissions.single['type'], 'swap');
     expect(gateway.submissions.single['target'], 'schedule-2');
+    expect(gateway.submissions.single['swapScope'], 'day');
     expect(gateway.submissions.single['letter'], isA<RequestLetter>());
   });
+  testWidgets(
+    'Calendar date tap, guard card selection, and Entire Month scope submit to Operations Head',
+    (tester) async {
+      final gateway = FakeGateway();
+      await render(tester, gateway);
+      await tapText(tester, 'Shift Swap Request');
+      await tester.tap(find.byKey(const ValueKey('swapCalendarDay_2026-09-06')));
+      await tester.pumpAndSettle();
+      await tapText(tester, 'Entire Month');
+      await tester.ensureVisible(
+        find.byKey(const ValueKey('swapGuardCard_schedule-2')),
+      );
+      await tester.tap(find.byKey(const ValueKey('swapGuardCard_schedule-2')));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byType(TextField),
+        'Monthly exchange request with co-guard.',
+      );
+      await tapText(tester, 'Attach request letter');
+      await tapText(tester, 'Send to Operations Head');
+      expect(gateway.submissions.single['type'], 'swap');
+      expect(gateway.submissions.single['schedule'], 'schedule-1');
+      expect(gateway.submissions.single['target'], 'schedule-2');
+      expect(gateway.submissions.single['swapScope'], 'month');
+      expect(find.text('Entire Month Swap'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'Guards from a different client are excluded from swap options',
+    (tester) async {
+      final gateway = FakeGateway()
+        ..options = [
+          {
+            ...duty,
+            'id': 'schedule-diff',
+            'guard_name': 'Cross-Client Guard',
+            'location_label': 'Different Client',
+          },
+          {
+            ...duty,
+            'id': 'schedule-2',
+            'guard_name': 'Same-Client Guard',
+            'location_label': 'Agency branch',
+          },
+        ];
+      await render(tester, gateway);
+      await tapText(tester, 'Shift Swap Request');
+      await chooseDuty(tester);
+      expect(
+        find.byKey(const ValueKey('swapGuardCard_schedule-2')),
+        findsOneWidget,
+      );
+      expect(find.text('Same-Client Guard'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey('swapGuardCard_schedule-diff')),
+        findsNothing,
+      );
+      expect(find.text('Cross-Client Guard'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
   testWidgets(
     'Timed-in Guard can request replacement without an exchange target',
     (tester) async {
@@ -334,7 +406,10 @@ void main() {
       gateway.swapError = null;
       await tapText(tester, 'Retry swap options');
       expect(find.text('absence.pdf'), findsOneWidget);
-      expect(find.byType(DropdownButtonFormField<String>), findsNWidgets(2));
+      expect(
+        find.byKey(const ValueKey('swapGuardCard_schedule-2')),
+        findsOneWidget,
+      );
       await tapText(tester, 'Absence Request');
       await tester.enterText(find.byType(TextField), 'Family appointment.');
       await tapText(tester, 'Send to Operations Head');

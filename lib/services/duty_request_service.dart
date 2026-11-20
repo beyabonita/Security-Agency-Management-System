@@ -18,6 +18,7 @@ abstract interface class DutyRequestGateway {
     required String requestType,
     required RequestLetter letter,
     String? targetScheduleId,
+    String swapScope = 'day',
   });
   Future<void> discard(RequestLetter letter);
   Future<void> respondToSwap(String requestId, bool approve);
@@ -63,12 +64,14 @@ class SupabaseDutyRequestGateway implements DutyRequestGateway {
     required String requestType,
     required RequestLetter letter,
     String? targetScheduleId,
+    String swapScope = 'day',
   }) => DutyRequestService.requestShiftChange(
     scheduleId: scheduleId,
     reason: reason,
     requestType: requestType,
     letter: letter,
     targetScheduleId: targetScheduleId,
+    swapScope: swapScope,
   );
 
   @override
@@ -171,6 +174,7 @@ class DutyRequestService {
     required String requestType,
     required RequestLetter letter,
     String? targetScheduleId,
+    String swapScope = 'day',
   }) async {
     final user = _client.auth.currentUser;
     if (user == null) throw StateError('Your session expired. Sign in again.');
@@ -224,8 +228,10 @@ class DutyRequestService {
             params: {
               'p_schedule_id': scheduleId,
               'p_reason': formattedReason,
-              if (requestType == 'swap' && targetScheduleId != null)
+              if (requestType == 'swap' && targetScheduleId != null) ...{
                 'p_target_schedule_id': targetScheduleId,
+                'p_swap_scope': swapScope,
+              },
               if (requestType != 'swap' || targetScheduleId == null)
                 'p_request_type': dbRequestType,
               'p_letter_path': letter.uploadedPath,

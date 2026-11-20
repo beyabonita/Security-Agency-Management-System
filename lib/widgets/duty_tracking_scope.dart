@@ -153,14 +153,18 @@ class DutyTrackingScopeState extends State<DutyTrackingScope>
     _attendance ??= AttendanceService.recordedEvents.listen((session) {
       if (_user != null) unawaited(_onAttendance(session));
     });
-    _locationServices = Geolocator.getServiceStatusStream().listen(
-      (status) {
-        if (status == ServiceStatus.enabled) unawaited(syncDuty());
-      },
-      onError: (_) {
-        /* Native provider recovery remains active. */
-      },
-    );
+    try {
+      _locationServices = Geolocator.getServiceStatusStream().listen(
+        (status) {
+          if (status == ServiceStatus.enabled) unawaited(syncDuty());
+        },
+        onError: (_) {
+          /* Native provider recovery remains active. */
+        },
+      );
+    } on UnsupportedError {
+      /* Web platform does not support getServiceStatusStream. */
+    }
     unawaited(syncDuty());
   }
 

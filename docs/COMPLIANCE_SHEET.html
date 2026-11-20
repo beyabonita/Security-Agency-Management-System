@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Compliance Sheet</title>
+<style>
+  @page { size: A4; margin: 18mm 15mm; }
+  body { font-family: Arial, Helvetica, sans-serif; color: #111; font-size: 11pt; max-width: 800px; margin: 24px auto; }
+  h1, h2 { text-align: center; margin: 4px 0; }
+  h1 { font-size: 15pt; } h2 { font-size: 14pt; }
+  .defense { display: flex; justify-content: center; gap: 48px; margin: 18px 0; font-size: 11pt; }
+  .box { display: inline-block; width: 13px; height: 13px; border: 1px solid #111; margin-right: 6px; vertical-align: -2px; }
+  .box.on { background: #444; }
+  .title { margin: 10px 0; font-size: 12pt; }
+  .title u { text-decoration: underline; }
+  .note { font-size: 10pt; margin: 8px 0 14px; }
+  .note ul { margin: 4px 0; padding-left: 24px; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+  th, td { border: 1px solid #111; padding: 5px 7px; vertical-align: top; font-size: 10.5pt; }
+  .section { text-align: center; font-weight: bold; }
+  thead th { text-align: center; }
+  td.status { text-align: center; font-weight: bold; }
+  col.c1 { width: 25%; } col.c2 { width: 40%; } col.c3 { width: 23%; } col.c4 { width: 12%; }
+  tr { page-break-inside: avoid; }
+  .toolbar { position: sticky; top: 0; background: #fff; padding: 10px 0; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #ddd; margin-bottom: 12px; }
+  .toolbar button { background: #b91c1c; color: #fff; border: 0; border-radius: 6px; padding: 9px 18px; font-size: 11pt; font-weight: bold; cursor: pointer; }
+  .toolbar button:hover { background: #991b1b; }
+  #copyMsg { font-size: 10pt; color: #166534; }
+  @media print { .toolbar { display: none; } }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <button type="button" id="copyBtn">Copy Compliance Sheet</button>
+  <span id="copyMsg" role="status"></span>
+</div>
+<div id="sheet">
+<h1>BSIS CAPSTONE PROJECT</h1>
+<h2>COMPLIANCE SHEET</h2>
+<div class="defense">
+  <span><span class="box"></span>TITLE DEFENSE</span>
+  <span><span class="box"></span>PRE-ORAL DEFENSE</span>
+  <span><span class="box on"></span>FINAL DEFENSE</span>
+</div>
+<p class="title">Capstone Project Title: <u>WEB-BASED SECURITY AGENCY MANAGEMENT SYSTEM WITH MOBILE APPLICATION FOR REAL-TIME MONITORING</u></p>
+<p class="title">Proponents: <u>Angel Ann Samanion, Bea Nicor</u></p>
+<div class="note">Note: Please indicate the appropriate responses to the following:
+  <ul>
+    <li>For <b><u>Status</u></b>: the response can be noted as <b>Complied</b> or <b>Not Complied.</b> Kindly indicate page number(s) in the documents.</li>
+    <li>During defense, you should give this document to the panelists so they can review the compliance. Additionally, include it in your slide presentation.</li>
+    <li>For the <i>final manuscript</i> to obtain approval and proceed with bookbinding, it should be presented to the panel members for their review. Please place this document on the top of the printed materials.</li>
+  </ul>
+</div>
+
+<table>
+<colgroup><col class="c1"><col class="c2"><col class="c3"><col class="c4"></colgroup>
+<thead>
+<tr><th colspan="4" class="section">SOFTWARE/SYSTEM/APP</th></tr>
+<tr><th>Recommendations</th><th>Actions Taken</th><th>Page/Interface</th><th>Status</th></tr>
+</thead>
+<tbody>
+<tr><td>Add a search box to the Personnel interface under the Operations Head's account.</td>
+<td>Added a live search box to the Personnel page so the Operations Head can find a guard by name, and a guard search bar in the Monthly Attendance Summary (shows 10 guards at a time; the rest scroll inside the table).</td>
+<td>Personnel Page (/admin/users.html) &amp; Records Page (/admin/records.html)</td><td class="status">Complied</td></tr>
+
+<tr><td>The system should not allow duplicate registration of an already registered number to prevent discrepancies in the records.</td>
+<td>Added validation on personnel registration/editing that rejects a mobile number that is already registered to another personnel record and shows a clear error message.</td>
+<td>Personnel Page (/admin/users.html) – Add/Edit Personnel form</td><td class="status">Complied</td></tr>
+
+<tr><td>Add an indicator to show which fields are required to be filled out.</td>
+<td>Marked mandatory fields in the personnel forms with required-field indicators and blocked saving until they are completed.</td>
+<td>Personnel Page (/admin/users.html) – Add/Edit Personnel form</td><td class="status">Complied</td></tr>
+
+<tr><td>If two data points are captured (kung may seminar or attendan), the system should consider the proximity or distance between their locations.</td>
+<td>Attendance sessions now store the distance of the time-in from the assigned post and the distance between the time-in and time-out points (dual-point proximity), displayed in the Force Attendance, Proximity &amp; Verification Log.</td>
+<td>Records Page (/admin/records.html) – Monthly Attendance Summary / Verification Log</td><td class="status">Complied</td></tr>
+
+<tr><td>Allow personnel to time in outside the designated location, subject to approval by the Operations Head as a force attendance record.</td>
+<td>Implemented Force Attendance: a guard may time in outside the post with a reason; the record is flagged <i>pending</i> and the Operations Head can Approve or Reject it with a note.</td>
+<td>Guard App – Attendance &amp; Records Page (/admin/records.html) – Force Attendance Queue</td><td class="status">Complied</td></tr>
+
+<tr><td>Add a live face capture feature to the mobile app. The system should also capture and verify the device's cellular ID to confirm that the user is using their registered personal phone.</td>
+<td>Added live face capture on time-in/time-out and device binding: the guard's registered phone ID is saved and compared on every punch, with a Reset Device option for the Operations Head.</td>
+<td>Guard App – Attendance &amp; Records Page (/admin/records.html) – Device Verification / Face Photo</td><td class="status">Complied</td></tr>
+
+<tr><td>Integrate a feature into the app that can capture or verify the user's device information.</td>
+<td>The app records the device ID and device information per attendance session and in the personnel profile (bound device), viewable by the Operations Head.</td>
+<td>Guard App &amp; Personnel Masterlist (/admin/records.html)</td><td class="status">Complied</td></tr>
+
+<tr><td>Add geotagging to verify the guard's location as evidence that the guard reported to the designated location.</td>
+<td>Every time-in/time-out stores GPS coordinates and a geotagged face photo, which the Operations Head can open as evidence and view on the map.</td>
+<td>Guard App – Attendance, Guard Tracker (/admin/live-tracking.html) &amp; Records Page</td><td class="status">Complied</td></tr>
+
+<tr><td>Even within the same shift category, the system should allow different time schedules. The schedule should follow the client's business hours and operational requirements.</td>
+<td>Schedules now support custom shift hours per client (1, 2 or 3 shifts, custom start/end times) and a 24-hour day view per date so each client's own business hours are followed.</td>
+<td>Schedule Page (/admin/schedule.html) – Client Schedule calendar</td><td class="status">Complied</td></tr>
+
+<tr><td>Enhance the feature in automated personnel deployment.</td>
+<td>Added automatic weekly/monthly roster assignment, guard rest-day handling, and a one-click "Redeploy for next month" that carries over the lineup, shift hours and rest days.</td>
+<td>Schedule Page (/admin/schedule.html) – Assign Schedule / Redeploy</td><td class="status">Complied</td></tr>
+
+<tr><td>Rename "Duty Request" to clearly specify the type of request, such as "Absence Request," "Shift Swap Request," and "Overtime Request."</td>
+<td>Renamed the request module to specific types: Absence Request and Shift Swap Request (with calendar picker, same-client guard list, Operations Head approval then guard confirmation), and Overtime Request labels in the Operations Head request list.</td>
+<td>Guard App – Absence &amp; Shift Swap; Requests Page (/admin/swaps.html)</td><td class="status">Complied</td></tr>
+
+<tr><td>Add a calendar view in the dashboard that displays attendance status, including the number of personnel who are present, absent, or on a shift change. The calendar should also show who is assigned to each company or location, allowing the Operations Head to monitor duty assignments and view any incidents that occurred.</td>
+<td>Added the Attendance &amp; Duty Operations Calendar with daily Present / Absent / Shift Change / Incident counts, a company/location filter, and a selected-date panel listing assigned guards and incidents.</td>
+<td>Dashboard (/admin/dashboard.html) – Operations Calendar</td><td class="status">Complied</td></tr>
+
+<tr><td>Make the dashboard interactive and clickable, allowing users to access detailed information by clicking the dashboard elements.</td>
+<td>All dashboard KPI cards, deployment site cards, and charts are clickable and open a detail drill-down with a link to the full page.</td>
+<td>Dashboard (/admin/dashboard.html) – Drill-down modal</td><td class="status">Complied</td></tr>
+
+<tr><td>When a location marker is clicked, the map should zoom in and display the guard's profile. For example, clicking the CHMSU location should show the profiles of the guards assigned to that location.</td>
+<td>Clicking a marker zooms the map to the location and shows the profiles of the guards assigned there.</td>
+<td>Guard Tracker (/admin/live-tracking.html)</td><td class="status">Complied</td></tr>
+
+<tr><td>Maka store sang location history ni guard.</td>
+<td>The system stores each guard's location history (secure RPC <i>get_guard_location_history</i>) and plots the day's route on the map.</td>
+<td>Guard Tracker (/admin/live-tracking.html)</td><td class="status">Complied</td></tr>
+
+<tr><td>Change the term Live Guard Map.</td>
+<td>Renamed "Live Guard Map" to <b>Guard Tracker</b> in the page title, heading, and navigation.</td>
+<td>Guard Tracker (/admin/live-tracking.html) &amp; sidebar navigation</td><td class="status">Complied</td></tr>
+
+<tr><td>Mag end ang shift nila dapat automatically madula ang ila name sa live map.</td>
+<td>Guards whose shift has ended are automatically removed from the live map; only guards on active duty are shown.</td>
+<td>Guard Tracker (/admin/live-tracking.html)</td><td class="status">Complied</td></tr>
+
+<tr><td>Islan ang deployment side, nakabundle indi naka static page.</td>
+<td>Replaced the static deployment page with bundled, dynamic client cards (Company / Client) where each client opens its own monthly schedule calendar; the dashboard Deployment section is also generated from live data.</td>
+<td>Schedule Page (/admin/schedule.html) &amp; Dashboard Deployment section</td><td class="status">Complied</td></tr>
+
+<tr><td>Make the dashboard infographics.</td>
+<td>Redesigned the dashboard with infographics: KPI cards, contract status and attendance donut charts, deployment coverage bars, and shift-model summaries.</td>
+<td>Dashboard (/admin/dashboard.html)</td><td class="status">Complied</td></tr>
+
+<tr><td>Ang security sa mobile app i work on nyo, ang sa automated dapat fully functional.</td>
+<td>Secured the mobile app with role-gated sign-in, registered-device binding, row-level security on the database, and fully automated schedule, swap and attendance processing.</td>
+<td>Guard Mobile App &amp; Supabase backend</td><td class="status">Complied</td></tr>
+</tbody>
+</table>
+</div>
+<script>
+(function () {
+  var sheet = document.getElementById('sheet');
+  var btn = document.getElementById('copyBtn');
+  var msg = document.getElementById('copyMsg');
+
+  // Build an HTML copy with inline styles so formatting survives pasting into Word / Google Docs.
+  function styledHtml() {
+    var clone = sheet.cloneNode(true);
+    var src = sheet.querySelectorAll('*');
+    var dst = clone.querySelectorAll('*');
+    var props = ['font-family','font-size','font-weight','text-align','text-decoration','border','padding','width','vertical-align','border-collapse','margin','color','background-color'];
+    for (var i = 0; i < src.length; i++) {
+      var cs = getComputedStyle(src[i]);
+      var s = '';
+      props.forEach(function (p) { s += p + ':' + cs.getPropertyValue(p) + ';'; });
+      dst[i].setAttribute('style', s);
+    }
+    return '<div>' + clone.innerHTML + '</div>';
+  }
+
+  var pending = null;
+  document.addEventListener('copy', function (e) {
+    if (!pending || !e.clipboardData) return;
+    e.clipboardData.setData('text/html', pending.html);
+    e.clipboardData.setData('text/plain', pending.text);
+    e.preventDefault();
+  });
+
+  function show(text, good) {
+    msg.style.color = good ? '#166534' : '#b91c1c';
+    msg.textContent = text;
+    setTimeout(function () { msg.textContent = ''; }, 5000);
+  }
+
+  btn.addEventListener('click', function () {
+    var ok = false;
+    pending = { html: styledHtml(), text: sheet.innerText };
+    try {
+      var range = document.createRange();
+      range.selectNodeContents(sheet);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      ok = document.execCommand('copy');
+      sel.removeAllRanges();
+    } catch (err) { ok = false; }
+    pending = ok ? null : pending;
+    if (ok) { show('Copied! Now paste (Ctrl+V) into Word or Google Docs.', true); return; }
+    if (navigator.clipboard && window.ClipboardItem) {
+      navigator.clipboard.write([new ClipboardItem({
+        'text/html': new Blob([pending.html], { type: 'text/html' }),
+        'text/plain': new Blob([pending.text], { type: 'text/plain' })
+      })]).then(function () { show('Copied! Now paste (Ctrl+V) into Word or Google Docs.', true); pending = null; })
+        .catch(function () { show('Copy blocked. Open this file in Chrome, or press Ctrl+A then Ctrl+C.', false); });
+    } else {
+      show('Copy blocked. Open this file in Chrome, or press Ctrl+A then Ctrl+C.', false);
+    }
+  });
+})();
+</script>
+</body>
+</html>
